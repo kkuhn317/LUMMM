@@ -1,0 +1,97 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &9061572643013096335
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 3831828834729616148, guid: acda372c906e1f74488e946f30d986c1, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: 179ab36ff3ba2194989b2fd2f324e417, type: 2}
+    - target: {fileID: 4967126123623042482, guid: acda372c906e1f74488e946f30d986c1, type: 3}
+      propertyPath: powerupState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4967126123623042482, guid: acda372c906e1f74488e946f30d986c1, type: 3}
+      propertyPath: powerDownMario
+      value: 
+      objectReference: {fileID: 4967126123623042494, guid: acda372c906e1f74488e946f30d986c1, type: 3}
+    - target: {fileID: 4967126123623042483, guid: acda372c906e1f74488e946f30d986c1, type: 3}
+      propertyPath: m_RootOrder
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4967126123623042483, guid: acda372c906e1f74488e946f30d986c1, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -11.894417
+      objectReference: {fileID: 0}
+    - target: {fileID: 4967126123623042483, guid: acda372c906e1f74488e946f30d986c1, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -2.201414
+      objectReference: {fileID: 0}
+    - target: {fileID: 4967126123623042483, guid: acda372c906e1f74488e946f30d986c1, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -0.040486585
+      objectReference: {fileID: 0}
+    - target: {fileID: 4967126123623042483, guid: acda372c906e1f74488e946f30d986c1, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4967126123623042483, guid: acda372c906e1f74488e946f30d986c1, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4967126123623042483, guid: acda372c906e1f74488e946f30d986c1, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4967126123623042483, guid: acda372c906e1f74488e946f30d986c1, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4967126123623042483, guid: acda372c906e1f74488e946f30d986c1, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4967126123623042483, guid: acda372c906e1f74488e946f30d986c1, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4967126123623042483, guid: acda372c906e1f74488e946f30d986c1, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4967126123623042494, guid: acda372c906e1f74488e946f30d986c1, type: 3}
+      propertyPath: m_Name
+      value: Fire Mario
+      objectReference: {fileID: 0}
+    - target: {fileID: 7387184379256576654, guid: acda372c906e1f74488e946f30d986c1, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: -911441787, guid: 450050db8ca65e74c9b66d15b83fa38d, type: 3}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: acda372c906e1f74488e946f30d986c1, type: 3}
+--- !u!1 &4120770202150125105 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4967126123623042494, guid: acda372c906e1f74488e946f30d986c1, type: 3}
+  m_PrefabInstance: {fileID: 9061572643013096335}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &3788122608968302167
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4120770202150125105}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 21b93e1c8585f914aaf4d4638cdd59d7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  fireballObj: {fileID: 3612128474176218761, guid: 7d737caecd732824290d18604c515ab5, type: 3}
+  fireballs: 0
+  fireballsMax: 2
+  shootOffset: {x: 0.5, y: 0}
+  shootSound: {fileID: 8300000, guid: b02ae8ffa6814474c85ec3dc5ab9ead4, type: 3}
