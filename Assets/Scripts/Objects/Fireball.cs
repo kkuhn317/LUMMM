@@ -7,6 +7,7 @@ public class Fireball : ObjectPhysics
 
     public firePower firePowerScript;
     public AudioClip hitWallSound;
+    public GameObject wallHitPrefab; // Prefab to instantiate when the fireball hits a wall
 
     bool hitEnemy = false;
 
@@ -37,6 +38,7 @@ public class Fireball : ObjectPhysics
     public void hitWall()
     {
         GetComponent<AudioSource>().PlayOneShot(hitWallSound);
+        Instantiate(wallHitPrefab, transform.position, Quaternion.identity); // Instantiate the prefab at the fireball's position
         deleteFireball();
     }
 

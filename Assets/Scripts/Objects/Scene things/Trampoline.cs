@@ -11,8 +11,13 @@ public class Trampoline : MonoBehaviour
 
     public void Bounce () {
 
-        GetComponent<Animator>().SetTrigger("Bounce");
-        GetComponent<AudioSource>().Play();
+        Animator animator = GetComponent<Animator>();
+        if (animator != null) // If there's an animation
+            animator.SetTrigger("Bounce");
+
+        AudioSource audioSource = GetComponent<AudioSource>();
+        if (audioSource != null) // If it contains an audio
+            audioSource.Play();
 
     }
 

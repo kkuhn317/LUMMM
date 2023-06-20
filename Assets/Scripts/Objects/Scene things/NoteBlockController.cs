@@ -5,7 +5,6 @@ using UnityEngine.InputSystem;
 
 public class NoteBlockController : MonoBehaviour
 {
-    public float jumpForce = 10f;
     public float animationDuration = 0.2f;
     public AudioClip[] noteSounds; //Allows you to add a sound clips in an array
     public float[] noteSoundProbabilities; //Allows you to add percentage occurrence for each note sound
