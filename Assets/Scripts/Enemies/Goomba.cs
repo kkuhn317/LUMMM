@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class Goomba : EnemyAI
 {
-
     public enum EnemyState {
         walking,
         crushed
@@ -28,6 +27,7 @@ public class Goomba : EnemyAI
         MarioMovement playerscript = player.GetComponent<MarioMovement>();
         playerscript.Jump();
         Crush();
+        GameManager.Instance.AddScorePoints(100); // Gives a hundred points to the player
     }
 
     public void Crush () {

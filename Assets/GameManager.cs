@@ -90,7 +90,7 @@ public class GameManager : MonoBehaviour
             {
                 currentTime = 0;
                 isTimeUp = true;
-                Debug.Log("The time has run out!");
+                // Debug.Log("The time has run out!");
                 DecrementLives();
             }
         }
@@ -102,10 +102,10 @@ public class GameManager : MonoBehaviour
         currentLives++;
         UpdateLivesUI();
 
-        //Start the color change coroutine
+        // Start the color change coroutine
         StartCoroutine(AnimateTextColor(livesText, Color.green, 0.5f));
 
-        //Save the current number of lives to PlayerPrefs
+        // Save the current number of lives to PlayerPrefs
         PlayerPrefs.SetInt("CurrentLives", currentLives);
     }
 
@@ -159,21 +159,21 @@ public class GameManager : MonoBehaviour
 
     private void UpdateLivesUI()
     {
-        livesText.text = currentLives.ToString("D2");
+        livesText.text = currentLives.ToString("D2"); // 00
     }
 
     private void UpdateCoinsUI()
     {
-        coinText.text = coinCount.ToString("D2");
+        coinText.text = coinCount.ToString("D2"); // 00
     }
     private void UpdateTimerUI()
     {
-        timerText.text = ((int)currentTime).ToString("D3");
+        timerText.text = ((int)currentTime).ToString("D3"); // 000
     }
 
     private void UpdateScoreUI()
     {
-        scoreText.text = scoreCount.ToString("D9");
+        scoreText.text = scoreCount.ToString("D9"); // 000000000
     }
 
     public void AddCoin(int coinValue)

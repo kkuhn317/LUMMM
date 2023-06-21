@@ -5,7 +5,6 @@ using UnityEngine.SceneManagement;
 
 public class BombOmb : EnemyAI
 {
-
     public enum EnemyState {
         walking,
         primed
@@ -89,6 +88,7 @@ public class BombOmb : EnemyAI
         switch (state) {
             case EnemyState.walking:
                 playerScript.Jump();
+                GameManager.Instance.AddScorePoints(100); // Gives a hundred points to the player
                 audioSource.Play();
                 ToPrimed();
                 break;

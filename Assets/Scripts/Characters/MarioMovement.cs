@@ -202,7 +202,6 @@ public class MarioMovement : MonoBehaviour
             if (hitRay.transform.gameObject.tag == "Damaging") {
                 damageMario();
             }
-
         }
 
         // Ceiling detection
@@ -464,6 +463,11 @@ public class MarioMovement : MonoBehaviour
         if (other.gameObject.tag == "Damaging")
         {
             damageMario();
+        }
+        // Lava
+        if (other.gameObject.CompareTag("Deadly"))
+        {
+            toDead();
         }
     }
 

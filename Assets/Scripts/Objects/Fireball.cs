@@ -18,6 +18,7 @@ public class Fireball : ObjectPhysics
         {
             if (other.gameObject.GetComponent<EnemyAI>().canBeFireballed) {
                 hitEnemy = true;
+                GameManager.Instance.AddScorePoints(100); // Gives a hundred points to the player
                 other.gameObject.GetComponent<EnemyAI>().KnockAway(movingLeft);
                 deleteFireball();
             } else {
