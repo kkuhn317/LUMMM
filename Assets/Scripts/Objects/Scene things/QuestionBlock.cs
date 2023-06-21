@@ -137,7 +137,8 @@ public class QuestionBlock : MonoBehaviour
 
             spinningCoin.transform.localPosition = new Vector2 (originalPosition.x, originalPosition.y + 1);
 
-            StartCoroutine (MoveCoin (spinningCoin));
+            StartCoroutine (MoveCoin (spinningCoin)); 
+            GameManager.Instance.AddScorePoints(100); // The points are given after the coroutine
         }
     }
 
