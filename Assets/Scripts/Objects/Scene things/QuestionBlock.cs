@@ -13,7 +13,6 @@ public class QuestionBlock : MonoBehaviour
 
     public GameObject spawnItem;
 
-
     public float coinMoveSpeed = 8f;
     public float coinMoveHeight = 3f;
     public float coinFallDistance = 2f;
@@ -89,12 +88,6 @@ public class QuestionBlock : MonoBehaviour
             GetComponent<BreakableBlocks>().Break();
         }
 
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 
     void ChangeSprite () {
