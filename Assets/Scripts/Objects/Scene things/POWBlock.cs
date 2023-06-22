@@ -42,16 +42,28 @@ public class POWBlock : MonoBehaviour
 
     private void ActivatePOWBlock()
     {
+        List<EnemyAI> enemiesToKnockAway = new List<EnemyAI>();
+
         // Check if the option to change visible enemies to Knocked Away is enabled
         if (changeVisibleEnemiesToKnockedAway)
         {
-            ChangeVisibleEnemiesToKnockedAway();
+            enemiesToKnockAway.AddRange(GetVisibleEnemies());
         }
 
         // Check if the option to change all enemies to Knocked Away is enabled
         if (changeAllEnemiesToKnockedAway)
         {
-            ChangeAllEnemiesToKnockedAway();
+            enemiesToKnockAway.AddRange(GetAllEnemies());
+        }
+
+        // Knock away all enemies
+        foreach (EnemyAI enemy in enemiesToKnockAway)
+        {
+            // Generate a random direction between 1 and -1
+            float knockDirection = Random.Range(-1f, 1f); // -1 is false, 1 is true on boolean
+
+            // Change enemy's state to Knocked Away with the random direction
+            enemy.KnockAway(knockDirection > 0); // Pass true for right direction, false for left direction
         }
 
         // Play POW Block effect 
@@ -61,8 +73,10 @@ public class POWBlock : MonoBehaviour
         Destroy(gameObject);
     }
 
-    private void ChangeVisibleEnemiesToKnockedAway()
+    private List<EnemyAI> GetVisibleEnemies()
     {
+        List<EnemyAI> visibleEnemies = new List<EnemyAI>();
+
         // Find all visible enemies in the camera's view
         Collider2D[] colliders = Physics2D.OverlapAreaAll(Camera.main.ViewportToWorldPoint(Vector3.zero), Camera.main.ViewportToWorldPoint(Vector3.one), LayerMask.GetMask("Enemy"));
 
@@ -71,24 +85,21 @@ public class POWBlock : MonoBehaviour
             EnemyAI enemy = collider.GetComponent<EnemyAI>();
             if (enemy != null)
             {
-                // Change enemy's state to Knocked Away
-                enemy.KnockAway(false);
+                visibleEnemies.Add(enemy);
             }
         }
+
+        return visibleEnemies;
     }
 
-    private void ChangeAllEnemiesToKnockedAway()
+    private List<EnemyAI> GetAllEnemies()
     {
+        List<EnemyAI> allEnemies = new List<EnemyAI>();
+
         // Find all enemies in the scene
-        EnemyAI[] allEnemies = FindObjectsOfType<EnemyAI>();
+        EnemyAI[] enemies = FindObjectsOfType<EnemyAI>();
+        allEnemies.AddRange(enemies);
 
-        foreach (EnemyAI enemy in allEnemies)
-        {
-            //Generate a random direction between 1 and -1
-            float knockDirection = Random.Range(-1f, 1f); // -1 is false, 1 is true on boolean
-
-            // Change enemy's state to Knocked Away with the random direction
-            enemy.KnockAway(knockDirection > 0); // Pass true for right direction, false for left direction
-        }
+        return allEnemies;
     }
 }
