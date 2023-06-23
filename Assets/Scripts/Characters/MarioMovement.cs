@@ -49,7 +49,7 @@ public class MarioMovement : MonoBehaviour
     public float damageinvinctime = 3f;
     public float invincetimeremain = 0f;
 
-    
+
 
     public Vector2 groundPos;
     public enum PowerupState {
@@ -71,7 +71,7 @@ public class MarioMovement : MonoBehaviour
 
     [HideInInspector]
     public bool starPower = false;
-    private Color[] StarColors = {Color.green, Color.yellow, Color.blue, Color.red};
+    private Color[] StarColors = { Color.green, Color.yellow, Color.blue, Color.red };
     private int selectedStarColor = 0;
 
     [Header("Death")]
@@ -119,7 +119,7 @@ public class MarioMovement : MonoBehaviour
             Vector2 impulse = Vector2.zero;
 
             int contactCount = other.contactCount;
-            for(int i = 0; i < contactCount; i++) {
+            for (int i = 0; i < contactCount; i++) {
                 var contact = other.GetContact(i);
                 impulse += contact.normal * contact.normalImpulse;
                 impulse.x += contact.tangentImpulse * contact.normal.y;
@@ -158,10 +158,10 @@ public class MarioMovement : MonoBehaviour
     }
 
     private void FixedUpdate() {
-        
+
         // Movement
         moveCharacter(direction.x);
-        if(jumpTimer > Time.time && onGround){
+        if (jumpTimer > Time.time && onGround) {
             audioSource.Play();
             Jump();
         }
@@ -174,9 +174,9 @@ public class MarioMovement : MonoBehaviour
         RaycastHit2D groundHit2 = Physics2D.Raycast(transform.position - colliderOffset, Vector2.down, groundLength, groundLayer);
 
         onGround = groundHit1 || groundHit2;
-        
+
         if (onGround) {
-            
+
             RaycastHit2D hitRay = groundHit1;
 
             if (groundHit1) {
@@ -205,9 +205,9 @@ public class MarioMovement : MonoBehaviour
         }
 
         // Ceiling detection
-        RaycastHit2D ceilLeft = Physics2D.Raycast (transform.position - colliderOffset, Vector2.up, ceilingLength , groundLayer);
-        RaycastHit2D ceilMid = Physics2D.Raycast (transform.position, Vector2.up, ceilingLength , groundLayer);
-        RaycastHit2D ceilRight = Physics2D.Raycast (transform.position + colliderOffset, Vector2.up, ceilingLength , groundLayer);
+        RaycastHit2D ceilLeft = Physics2D.Raycast(transform.position - colliderOffset, Vector2.up, ceilingLength, groundLayer);
+        RaycastHit2D ceilMid = Physics2D.Raycast(transform.position, Vector2.up, ceilingLength, groundLayer);
+        RaycastHit2D ceilRight = Physics2D.Raycast(transform.position + colliderOffset, Vector2.up, ceilingLength, groundLayer);
 
         if (ceilLeft.collider != null || ceilMid.collider != null || ceilRight.collider != null) {
 
@@ -237,9 +237,9 @@ public class MarioMovement : MonoBehaviour
         // Physics
         modifyPhysics();
 
-        
+
     }
-    void moveCharacter(float horizontal){
+    void moveCharacter(float horizontal) {
         bool crouch = (direction.y < -0.5);
 
         // Crouching
@@ -264,7 +264,7 @@ public class MarioMovement : MonoBehaviour
             }
 
         }
-        
+
         // Running or Walking
         if (!inCrouchState || !onGround) {
             if (Input.GetButton("Fire3")) {
@@ -289,7 +289,7 @@ public class MarioMovement : MonoBehaviour
                 }
             }
         }
-        
+
         if (Input.GetButton("Fire3")) {
             if (Mathf.Abs(rb.velocity.x) > maxRunSpeed) {
                 rb.velocity = new Vector2(Mathf.Sign(rb.velocity.x) * maxRunSpeed, rb.velocity.y);
@@ -298,8 +298,8 @@ public class MarioMovement : MonoBehaviour
           //  if (Mathf.Abs(rb.velocity.x) > maxSpeed) {
           //      rb.velocity = new Vector2(Mathf.Sign(rb.velocity.x) * maxSpeed, rb.velocity.y);
           //  }
-        //}
-        if(-rb.velocity.y > terminalvelocity) {
+          //}
+        if (-rb.velocity.y > terminalvelocity) {
             rb.velocity = new Vector2(rb.velocity.x, -terminalvelocity);
         }
         animator.SetFloat("Horizontal", Mathf.Abs(rb.velocity.x) / 8);
@@ -319,7 +319,7 @@ public class MarioMovement : MonoBehaviour
             animator.SetBool("onGround", false);
         }
 
-        
+
 
     }
 
@@ -330,24 +330,24 @@ public class MarioMovement : MonoBehaviour
         jumpTimer = 0;
         airtimer = Time.time + airtime;
     }
-    
-    void modifyPhysics(){
+
+    void modifyPhysics() {
         changingDirections = (direction.x > 0 && rb.velocity.x < 0) || (direction.x < 0 && rb.velocity.x > 0);
 
-        if(onGround) {
+        if (onGround) {
             // no crazy crouch sliding
             if (inCrouchState)
                 direction = new Vector2(0, direction.y);
 
 
             // if not holding left or right all the way or changing directions
-            if(Mathf.Abs(direction.x) < 0.4f || changingDirections){
+            if (Mathf.Abs(direction.x) < 0.4f || changingDirections) {
 
                 // if running and holding left or right
                 if ((Input.GetButton("Fire3")) && (direction.x != 0)) {
                     rb.drag = runlinearDrag;
 
-                // if not holding left or right
+                    // if not holding left or right
                 } else if (direction.x == 0) {
 
                     //if ((facingRight && rb.velocity.x < 0) || (!facingRight && rb.velocity.x > 0)) {
@@ -357,8 +357,8 @@ public class MarioMovement : MonoBehaviour
                         rb.drag = 3 * runlinearDrag;
                     }
                     //rb.drag = 3 * runlinearDrag;
-                
-                // if walking left or right (not all the way or changing directions)
+
+                    // if walking left or right (not all the way or changing directions)
                 } else {
                     //if ((facingRight && rb.velocity.x < 0) || (!facingRight && rb.velocity.x > 0)) {
                     //    rb.drag = linearDrag * 2;
@@ -367,7 +367,7 @@ public class MarioMovement : MonoBehaviour
                     //}
                 }
 
-            // if holding left or right all the way and not changing directions
+                // if holding left or right all the way and not changing directions
             } else {
                 rb.drag = 0;
             }
@@ -384,25 +384,25 @@ public class MarioMovement : MonoBehaviour
             transform.position = new Vector3(transform.position.x, groundPos.y + groundLength - 0.01f, transform.position.z);
 
 
-        }else{
+        } else {
             // in the air
             rb.gravityScale = gravity;
             rb.drag = linearDrag * 0.15f;
             //if(rb.velocity.y < startfallingspeed){
-            
+
             // Rising
-            if(airtimer < Time.time || rb.velocity.y < startfallingspeed) {
+            if (airtimer < Time.time || rb.velocity.y < startfallingspeed) {
                 rb.gravityScale = fallgravity;
 
-            // Falling
-            }else if(rb.velocity.y > 0 && !jumpPressed){
+                // Falling
+            } else if (rb.velocity.y > 0 && !jumpPressed) {
                 rb.gravityScale = fallgravity;
                 airtimer = Time.time - 1f;
                 //rb.gravityScale = gravity * fallMultiplier;
             }
         }
     }
-    void Flip(){
+    void Flip() {
         facingRight = !facingRight;
         //transform.rotation = Quaternion.Euler(0, facingRight ? 0 : 180, 0);
         GetComponent<SpriteRenderer>().flipX = !facingRight;
@@ -455,8 +455,6 @@ public class MarioMovement : MonoBehaviour
         }
     }
 
-
-
     void OnTriggerStay2D(Collider2D other)
     {
         // firebar, flame, etc
@@ -469,8 +467,20 @@ public class MarioMovement : MonoBehaviour
         {
             toDead();
         }
+        // Animation
+        if (other.gameObject.tag == "AnimationWorried")
+        {
+            GetComponent<Animator>().SetBool("isWorried", true);
+        }
     }
 
+    void OnTriggerExit2D(Collider2D other)
+    {
+        if (other.gameObject.tag == "AnimationWorried")
+        {
+            GetComponent<Animator>().SetBool("isWorried", false);
+        }
+    }
 
     void OnCollisionStay2D(Collision2D collision)
     {
