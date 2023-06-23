@@ -4,44 +4,35 @@ using UnityEngine;
 
 public class Burner : MonoBehaviour
 {
-    public Animator animator;
-    public GameObject flame;
 
-    public float burnTime = 10f;
-    private float burnTimer = 0f;
+    public float offtime = 0.5f;
+    public float ontime = 0.5f;
 
-    private bool isBurning = false;
+    public Animator anim;
 
-    private void Update()
+
+    // Start is called before the first frame update
+    void Start()
     {
-        if (isBurning)
-        {
-            burnTimer += Time.deltaTime;
-            if (burnTimer >= burnTime)
-            {
-                StopBurn();
-            }
-        }
+        Invoke("TurnOn", offtime);
     }
 
-    public void StartBurn()
+    // Update is called once per frame
+    void Update()
     {
-        if (!isBurning)
-        {
-            isBurning = true;
-            burnTimer = 0f;
-            animator.SetFloat("duration", burnTimer);
-            flame.SetActive(true);
-        }
+        
     }
 
-    public void StopBurn()
+    void TurnOn()
     {
-        if (isBurning)
-        {
-            isBurning = false;
-            animator.SetFloat("duration", burnTimer);
-            flame.SetActive(false);
-        }
+        anim.SetTrigger("On");
+        GetComponent<AudioSource>().Play();
+        Invoke("TurnOff", ontime);
+    }
+
+    void TurnOff()
+    {
+        anim.SetTrigger("Off");
+        Invoke("TurnOn", offtime);
     }
 }
