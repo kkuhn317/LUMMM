@@ -64,5 +64,4 @@ public class EnemyAI : ObjectPhysics
     protected virtual void touchNonPlayer(GameObject other) {
         // override this for whatever needed
     }
-
 }
