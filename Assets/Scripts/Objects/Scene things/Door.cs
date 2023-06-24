@@ -88,7 +88,7 @@ public class Door : MonoBehaviour
         player.GetComponent<Rigidbody2D>().simulated = false;
         player.GetComponent<Rigidbody2D>().velocity = Vector2.zero;
         Animator playerAnimator = player.GetComponent<Animator>();
-        playerAnimator.SetBool("isJumping", false);
+        // playerAnimator.SetBool("isJumping", false);
         playerAnimator.SetBool("isRunning", false);
         playerAnimator.SetBool("isSkidding", false);
 
