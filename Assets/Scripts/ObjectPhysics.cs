@@ -41,9 +41,9 @@ public class ObjectPhysics : MonoBehaviour
     //private bool firstframe = true;
 
     public enum ObjectState {
-        falling,
-        walking,
-        knockedAway
+        falling,    // in the air
+        grounded,   // on ground
+        knockedAway // upside down and falling off the screen
     }
 
     public AudioClip knockAwaySound;
@@ -51,19 +51,18 @@ public class ObjectPhysics : MonoBehaviour
     public enum ObjectMovement {
         still,      // not moving at all
         sliding,    // falling and sliding
-        bouncing    // falling and bouncing (never in walking objectState)
+        bouncing    // falling and bouncing
 
     }
 
     public ObjectState objectState = ObjectState.falling;
     public ObjectMovement movement = ObjectMovement.sliding;
 
-    // THIS IS FOR BOUNCE BEHAVIOR
-    public bool enableBouncing = true;
-    public int maxBounces = 1;
+    public bool stopAfterLand = false;  // do we set the horizontal velocity to 0 after landing?
 
+    [Header("Bouncing")]
+    public int maxBounces = 1; // -1 for infinite
     private int bounceCount = 0;
-    private bool isBouncing = false;
     public float bounceHeight;
 
     protected virtual void Start()
@@ -74,6 +73,8 @@ public class ObjectPhysics : MonoBehaviour
 
     protected virtual void Update()
     {
+        // old code when the physics used Update instead of FixedUpdate
+
         // adjDeltaTime = Time.deltaTime;
 
         // if (adjDeltaTime > 0.1f) {
@@ -105,6 +106,7 @@ public class ObjectPhysics : MonoBehaviour
             }
         }
 
+        // vertical movement
         if (objectState == ObjectState.falling || objectState == ObjectState.knockedAway) {
             
             pos.y += velocity.y * adjDeltaTime;
@@ -112,6 +114,7 @@ public class ObjectPhysics : MonoBehaviour
             velocity.y -= gravity * adjDeltaTime;
         }
 
+        // horizontal movement
         if (movingLeft) {
 
             pos.x -= velocity.x * adjDeltaTime;
@@ -127,43 +130,10 @@ public class ObjectPhysics : MonoBehaviour
                 scale.x = -normalScale.x;
         }
 
-        // check bounce
-        if (objectState == ObjectState.falling || objectState == ObjectState.knockedAway)
-        {
-            pos.y += velocity.y * adjDeltaTime;
-
-            if (enableBouncing && velocity.y <= 0 && objectState != ObjectState.knockedAway)
-            {
-                if (isBouncing)
-                {
-                    // Apply bounce when falling and velocity.y is zero or negative
-                    pos.y = Bounce(pos.y);
-                }
-                else if (bounceCount < maxBounces)
-                {
-                    // Start a new bounce
-                    isBouncing = true;
-                    bounceCount++;
-                    velocity.y = CalculateBounceVelocity();
-                    pos.y = Bounce(pos.y);
-                }
-                else
-                {
-                    // Bouncing finished, reset variables
-                    isBouncing = false;
-                    bounceCount = 0;
-                }
-            }
-            else
-            {
-                // Apply gravity
-                velocity.y -= gravity * adjDeltaTime;
-            }
-        }
 
         // fix bug where object has y velocity but walking
         // making it walk in the air
-        if (objectState == ObjectState.walking) {
+        if (objectState == ObjectState.grounded) {
             velocity.y = 0;
         }
 
@@ -174,7 +144,7 @@ public class ObjectPhysics : MonoBehaviour
             }
 
 
-            if (DontFallOffLedges && objectState == ObjectState.walking) {
+            if (DontFallOffLedges && objectState == ObjectState.grounded) {
                 CheckLedges(pos);
             }
         }
@@ -182,20 +152,6 @@ public class ObjectPhysics : MonoBehaviour
         transform.position = pos;
         transform.localScale = scale;
     }
-
-    private float Bounce(float currentY)
-    {
-        float newY = currentY + bounceHeight;
-        return newY;
-    }
-
-    private float CalculateBounceVelocity()
-    {
-        // Calculate the velocity needed to achieve the desired bounce height
-        float velocity = Mathf.Sqrt(2f * gravity * bounceHeight);
-        return velocity;
-    }
-
 
     Vector3 CheckGround (Vector3 pos) {
 
@@ -237,21 +193,36 @@ public class ObjectPhysics : MonoBehaviour
         }
 
         if (shortestRay) {
+            // We hit the ground
 
             pos.y = shortestRay.point.y + halfHeight;
             velocity.y = 0;
 
             if (movement == ObjectMovement.sliding) {
-                objectState = ObjectState.walking;
+                Land();
             } else if (movement == ObjectMovement.bouncing) {
+                if (maxBounces == -1) {
+                    // infinite bounces
+                    bounceCount = -5;   // just needs to be less than maxBounces
+                }
+                if (bounceCount < maxBounces) {
+                    bounceCount++;
+                    velocity.y = bounceHeight;
+                } else {
+                    // we're done bouncing
+                    Land();
+                }
                 velocity.y = bounceHeight;
             }
 
         } else {
+            // We didn't hit the ground
 
             if (objectState != ObjectState.falling) {
+                // We were grounded, but now we're not
 
                 Fall ();
+
             }
         }
         return pos;
@@ -365,6 +336,15 @@ public class ObjectPhysics : MonoBehaviour
 
         objectState = ObjectState.falling;
 
+        bounceCount = 0; // reset bounce count
+
+    }
+
+    void Land () {
+        objectState = ObjectState.grounded;
+        if (stopAfterLand) {
+            velocity.x = 0;
+        }
     }
 
     public void KnockAway(bool direction) {

@@ -5,6 +5,7 @@ using UnityEngine.SceneManagement;
 
 public class EnemyAI : ObjectPhysics
 {
+    [Header("Enemy AI")]
     public bool canBeFireballed = true;
 
     public float stompHeight = 0.2f;
