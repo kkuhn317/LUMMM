@@ -22,6 +22,7 @@ public class BombOmb : EnemyAI
 
     public float explodeRadius = 3f;
     public GameObject explosionObject;
+    public bool isGrabbing { get; private set; } = false;
 
     void Awake()
     {

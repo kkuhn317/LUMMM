@@ -3,7 +3,6 @@ using UnityEngine.InputSystem;
 
 public class MarioMovement : MonoBehaviour
 {
-
     [Header("Horizontal Movement")]
     public float moveSpeed = 10f;
     public float runSpeed = 20f;

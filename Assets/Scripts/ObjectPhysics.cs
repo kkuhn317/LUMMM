@@ -23,7 +23,6 @@ public class ObjectPhysics : MonoBehaviour
     public LayerMask floorMask;
     public LayerMask wallMask;
 
-
     // should mostly be true, except for things like moving koopa shells
     public bool checkObjectCollision = true;
 
@@ -59,6 +58,12 @@ public class ObjectPhysics : MonoBehaviour
     public ObjectState objectState = ObjectState.falling;
     public ObjectMovement movement = ObjectMovement.sliding;
 
+    // THIS IS FOR BOUNCE BEHAVIOR
+    public bool enableBouncing = true;
+    public int maxBounces = 1;
+
+    private int bounceCount = 0;
+    private bool isBouncing = false;
     public float bounceHeight;
 
     protected virtual void Start()
@@ -122,6 +127,40 @@ public class ObjectPhysics : MonoBehaviour
                 scale.x = -normalScale.x;
         }
 
+        // check bounce
+        if (objectState == ObjectState.falling || objectState == ObjectState.knockedAway)
+        {
+            pos.y += velocity.y * adjDeltaTime;
+
+            if (enableBouncing && velocity.y <= 0 && objectState != ObjectState.knockedAway)
+            {
+                if (isBouncing)
+                {
+                    // Apply bounce when falling and velocity.y is zero or negative
+                    pos.y = Bounce(pos.y);
+                }
+                else if (bounceCount < maxBounces)
+                {
+                    // Start a new bounce
+                    isBouncing = true;
+                    bounceCount++;
+                    velocity.y = CalculateBounceVelocity();
+                    pos.y = Bounce(pos.y);
+                }
+                else
+                {
+                    // Bouncing finished, reset variables
+                    isBouncing = false;
+                    bounceCount = 0;
+                }
+            }
+            else
+            {
+                // Apply gravity
+                velocity.y -= gravity * adjDeltaTime;
+            }
+        }
+
         // fix bug where object has y velocity but walking
         // making it walk in the air
         if (objectState == ObjectState.walking) {
@@ -143,6 +182,20 @@ public class ObjectPhysics : MonoBehaviour
         transform.position = pos;
         transform.localScale = scale;
     }
+
+    private float Bounce(float currentY)
+    {
+        float newY = currentY + bounceHeight;
+        return newY;
+    }
+
+    private float CalculateBounceVelocity()
+    {
+        // Calculate the velocity needed to achieve the desired bounce height
+        float velocity = Mathf.Sqrt(2f * gravity * bounceHeight);
+        return velocity;
+    }
+
 
     Vector3 CheckGround (Vector3 pos) {
 
