@@ -20,13 +20,11 @@ public class GameManager : MonoBehaviour
 
     [Header("Lives")]
     private int maxLives = 99;
-    public int currentLives { get; private set; }
     [SerializeField] TMP_Text livesText;
 
     [Header("Coin System")]
     public AudioClip coin;
     public AudioClip bigCoin;
-    public int coinCount { get; private set; }
     [SerializeField] TMP_Text coinText;
 
     [Header("Score System")]
@@ -56,13 +54,13 @@ public class GameManager : MonoBehaviour
             Destroy(gameObject);
         }
         audioSource = GetComponent<AudioSource>();
-        DontDestroyOnLoad(this.gameObject);
     }
 
     // Start is called before the first frame update
     void Start()
     {
         currentTime = startingTime;
+        GlobalVariables.levelscene = SceneManager.GetActiveScene().buildIndex;
         UpdateLivesUI();
     }
 
@@ -75,9 +73,9 @@ public class GameManager : MonoBehaviour
             currentTime -= 1 * Time.deltaTime;
             UpdateTimerUI();
 
-            if (currentLives == maxLives)
+            if (GlobalVariables.lives == maxLives)
             {
-                currentLives = 99;
+                GlobalVariables.lives = 99;
             }
 
             if (currentTime <= 100 && timesRunning)
@@ -99,14 +97,14 @@ public class GameManager : MonoBehaviour
     {
         audioSource.clip = extraLife;
         audioSource.PlayOneShot(extraLife);
-        currentLives++;
+        GlobalVariables.lives++;
         UpdateLivesUI();
 
         // Start the color change coroutine
         StartCoroutine(AnimateTextColor(livesText, Color.green, 0.5f));
 
         // Save the current number of lives to PlayerPrefs
-        PlayerPrefs.SetInt("CurrentLives", currentLives);
+        PlayerPrefs.SetInt("GlobalVariables.lives", GlobalVariables.lives);
     }
 
     IEnumerator AnimateTextColor(TMP_Text text, Color targetColor, float duration)
@@ -140,31 +138,29 @@ public class GameManager : MonoBehaviour
 
     public void DecrementLives()
     {
-        currentLives--;
-        if (currentLives < 0)
+        GlobalVariables.lives--;
+        if (GlobalVariables.lives <= 0)
         {
             // Load the Game Over scene
             SceneManager.LoadScene(gameOverSceneName);
-            currentLives = 3;
+            GlobalVariables.lives = 3;
         }
         else
         {
             // Load the LoseLife scene and restart the current level
-            PlayerPrefs.SetInt("CurrentLives", currentLives);
+            PlayerPrefs.SetInt("GlobalVariables.lives", GlobalVariables.lives);
             SceneManager.LoadScene(loseLifeSceneName);
-            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
-            currentTime += startingTime;
         }
     }
 
     private void UpdateLivesUI()
     {
-        livesText.text = currentLives.ToString("D2"); // 00
+        livesText.text = GlobalVariables.lives.ToString("D2"); // 00
     }
 
     private void UpdateCoinsUI()
     {
-        coinText.text = coinCount.ToString("D2"); // 00
+        coinText.text = GlobalVariables.coinCount.ToString("D2"); // 00
     }
     private void UpdateTimerUI()
     {
@@ -200,12 +196,12 @@ public class GameManager : MonoBehaviour
 
         audioSource.clip = coinSound;
         audioSource.PlayOneShot(coinSound);
-        coinCount += coinValue;
+        GlobalVariables.coinCount += coinValue;
         scoreCount += coinValue * 100;
 
-        if (coinCount > 99)
+        if (GlobalVariables.coinCount > 99)
         {
-            coinCount -= 100;
+            GlobalVariables.coinCount -= 100;
             AddLives();
         }
 
