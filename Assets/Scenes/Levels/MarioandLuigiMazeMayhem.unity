@@ -190,7 +190,7 @@ GameObject:
   m_Component:
   - component: {fileID: 71402561}
   - component: {fileID: 71402560}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Grid
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -235,6 +235,7 @@ GameObject:
   m_Component:
   - component: {fileID: 76245736}
   - component: {fileID: 76245735}
+  - component: {fileID: 76245737}
   m_Layer: 0
   m_Name: KeySMB2
   m_TagString: Untagged
@@ -309,6 +310,32 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 50
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: -90}
+--- !u!61 &76245737
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 76245734}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0.093498915, y: 0.0029218793}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 0.875, y: 1}
+    newSize: {x: 0.875, y: 1}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  serializedVersion: 2
+  m_Size: {x: 0.67631614, y: 0.87728345}
+  m_EdgeRadius: 0
 --- !u!1001 &86328825
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -323,6 +350,14 @@ PrefabInstance:
     - target: {fileID: 7384276377935262440, guid: 58c115d689575404f8428b6c77cd4621, type: 3}
       propertyPath: m_Name
       value: Goomba (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 7384276377935262444, guid: 58c115d689575404f8428b6c77cd4621, type: 3}
+      propertyPath: m_SortingLayer
+      value: -1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7384276377935262444, guid: 58c115d689575404f8428b6c77cd4621, type: 3}
+      propertyPath: m_SortingLayerID
+      value: 1497974571
       objectReference: {fileID: 0}
     - target: {fileID: 7384276377935262447, guid: 58c115d689575404f8428b6c77cd4621, type: 3}
       propertyPath: m_RootOrder
@@ -381,7 +416,8 @@ GameObject:
   - component: {fileID: 98814847}
   - component: {fileID: 98814849}
   - component: {fileID: 98814848}
-  m_Layer: 0
+  - component: {fileID: 98814850}
+  m_Layer: 3
   m_Name: MazeLevel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3334,6 +3370,22 @@ Tilemap:
     e31: 0
     e32: 0
     e33: 1
+--- !u!19719996 &98814850
+TilemapCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 98814846}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0}
+  m_MaximumTileChangeCount: 1000
+  m_ExtrusionFactor: 0.00001
 --- !u!1001 &105932381
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3452,6 +3504,37 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a286635ae5bff1c4ca47a020ca4722f3, type: 3}
+--- !u!1 &172999593 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1120761970764061849, guid: a286635ae5bff1c4ca47a020ca4722f3, type: 3}
+  m_PrefabInstance: {fileID: 861785736}
+  m_PrefabAsset: {fileID: 0}
+--- !u!61 &172999596
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 172999593}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0.008369446, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 2, y: 1}
+    newSize: {x: 2, y: 1}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 2
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  serializedVersion: 2
+  m_Size: {x: 1.8326149, y: 1}
+  m_EdgeRadius: 0
 --- !u!1001 &187255928
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3459,6 +3542,14 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 4237661865432310201, guid: 9ae7a087c9ad6e94e83a643486781921, type: 3}
+      propertyPath: m_SortingLayer
+      value: -1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4237661865432310201, guid: 9ae7a087c9ad6e94e83a643486781921, type: 3}
+      propertyPath: m_SortingLayerID
+      value: 1497974571
+      objectReference: {fileID: 0}
     - target: {fileID: 6283142151493128363, guid: 9ae7a087c9ad6e94e83a643486781921, type: 3}
       propertyPath: m_Name
       value: Bob-omb
@@ -4761,6 +4852,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: Goomba (3)
       objectReference: {fileID: 0}
+    - target: {fileID: 7384276377935262444, guid: 58c115d689575404f8428b6c77cd4621, type: 3}
+      propertyPath: m_SortingLayer
+      value: -1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7384276377935262444, guid: 58c115d689575404f8428b6c77cd4621, type: 3}
+      propertyPath: m_SortingLayerID
+      value: 1497974571
+      objectReference: {fileID: 0}
     - target: {fileID: 7384276377935262447, guid: 58c115d689575404f8428b6c77cd4621, type: 3}
       propertyPath: m_RootOrder
       value: 34
@@ -4965,8 +5064,8 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 1497974571
+  m_SortingLayer: -1
   m_SortingOrder: 0
   m_Sprite: {fileID: 833250332, guid: c969912de6832e14baf152772b3b1ea0, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -5149,6 +5248,7 @@ GameObject:
   m_Component:
   - component: {fileID: 830456534}
   - component: {fileID: 830456533}
+  - component: {fileID: 830456535}
   m_Layer: 0
   m_Name: customovingplatform (2)
   m_TagString: Untagged
@@ -5223,6 +5323,32 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 47
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 90}
+--- !u!61 &830456535
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 830456532}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 1, y: 0.5}
+    newSize: {x: 2, y: 0.5}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 2
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  serializedVersion: 2
+  m_Size: {x: 2, y: 0.5}
+  m_EdgeRadius: 0
 --- !u!1 &846678195
 GameObject:
   m_ObjectHideFlags: 0
@@ -5589,6 +5715,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: Goomba (4)
       objectReference: {fileID: 0}
+    - target: {fileID: 7384276377935262444, guid: 58c115d689575404f8428b6c77cd4621, type: 3}
+      propertyPath: m_SortingLayer
+      value: -1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7384276377935262444, guid: 58c115d689575404f8428b6c77cd4621, type: 3}
+      propertyPath: m_SortingLayerID
+      value: 1497974571
+      objectReference: {fileID: 0}
     - target: {fileID: 7384276377935262447, guid: 58c115d689575404f8428b6c77cd4621, type: 3}
       propertyPath: m_RootOrder
       value: 35
@@ -5654,6 +5788,14 @@ PrefabInstance:
     - target: {fileID: 7384276377935262440, guid: 58c115d689575404f8428b6c77cd4621, type: 3}
       propertyPath: m_Name
       value: Goomba (2)
+      objectReference: {fileID: 0}
+    - target: {fileID: 7384276377935262444, guid: 58c115d689575404f8428b6c77cd4621, type: 3}
+      propertyPath: m_SortingLayer
+      value: -1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7384276377935262444, guid: 58c115d689575404f8428b6c77cd4621, type: 3}
+      propertyPath: m_SortingLayerID
+      value: 1497974571
       objectReference: {fileID: 0}
     - target: {fileID: 7384276377935262447, guid: 58c115d689575404f8428b6c77cd4621, type: 3}
       propertyPath: m_RootOrder
@@ -5822,6 +5964,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1117091413}
   - component: {fileID: 1117091412}
+  - component: {fileID: 1117091414}
   m_Layer: 0
   m_Name: customovingplatform (1)
   m_TagString: Untagged
@@ -5896,6 +6039,32 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 46
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 90}
+--- !u!61 &1117091414
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1117091411}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 1, y: 0.5}
+    newSize: {x: 2, y: 0.5}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 2
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  serializedVersion: 2
+  m_Size: {x: 2, y: 0.5}
+  m_EdgeRadius: 0
 --- !u!1001 &1132396029
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -6246,6 +6415,37 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: db77097db8a20244cb3003fb5c8193c7, type: 3}
+--- !u!1 &1283609290 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7489521023118196261, guid: 82d5354cc37aec248baf10086a6031cf, type: 3}
+  m_PrefabInstance: {fileID: 597549938}
+  m_PrefabAsset: {fileID: 0}
+--- !u!61 &1283609293
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1283609290}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 1, y: 1}
+    newSize: {x: 1, y: 1}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  serializedVersion: 2
+  m_Size: {x: 1, y: 1}
+  m_EdgeRadius: 0
 --- !u!1001 &1372126123
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -6428,6 +6628,14 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 4237661865432310201, guid: 9ae7a087c9ad6e94e83a643486781921, type: 3}
+      propertyPath: m_SortingLayer
+      value: -1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4237661865432310201, guid: 9ae7a087c9ad6e94e83a643486781921, type: 3}
+      propertyPath: m_SortingLayerID
+      value: 1497974571
+      objectReference: {fileID: 0}
     - target: {fileID: 6283142151493128363, guid: 9ae7a087c9ad6e94e83a643486781921, type: 3}
       propertyPath: m_Name
       value: Bob-omb (1)
@@ -6603,8 +6811,9 @@ GameObject:
   m_Component:
   - component: {fileID: 1571394226}
   - component: {fileID: 1571394225}
-  m_Layer: 0
-  m_Name: banzaibillcannon_0
+  - component: {fileID: 1571394227}
+  m_Layer: 3
+  m_Name: banzaibillcannon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6677,6 +6886,32 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 59
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 90}
+--- !u!61 &1571394227
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1571394224}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 1, y: 1}
+    newSize: {x: 1, y: 1}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  serializedVersion: 2
+  m_Size: {x: 1, y: 1}
+  m_EdgeRadius: 0
 --- !u!1 &1643538441
 GameObject:
   m_ObjectHideFlags: 0
@@ -6687,6 +6922,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1643538443}
   - component: {fileID: 1643538442}
+  - component: {fileID: 1643538444}
   m_Layer: 0
   m_Name: customovingplatform
   m_TagString: Untagged
@@ -6761,6 +6997,32 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 45
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!61 &1643538444
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1643538441}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 1, y: 0.5}
+    newSize: {x: 2, y: 0.5}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 2
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  serializedVersion: 2
+  m_Size: {x: 2, y: 0.5}
+  m_EdgeRadius: 0
 --- !u!1 &1680889849
 GameObject:
   m_ObjectHideFlags: 0
@@ -6916,8 +7178,9 @@ GameObject:
   m_Component:
   - component: {fileID: 1812003978}
   - component: {fileID: 1812003977}
+  - component: {fileID: 1812003979}
   m_Layer: 7
-  m_Name: fish
+  m_Name: CheepChomp
   m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6990,6 +7253,26 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 36
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!95 &1812003979
+Animator:
+  serializedVersion: 4
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1812003976}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 764367fa851a306499fb5fd8ce8744d5, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorControllerStateOnDisable: 0
 --- !u!1001 &1917575785
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -7004,6 +7287,14 @@ PrefabInstance:
     - target: {fileID: 7384276377935262440, guid: 58c115d689575404f8428b6c77cd4621, type: 3}
       propertyPath: m_Name
       value: Goomba
+      objectReference: {fileID: 0}
+    - target: {fileID: 7384276377935262444, guid: 58c115d689575404f8428b6c77cd4621, type: 3}
+      propertyPath: m_SortingLayer
+      value: -1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7384276377935262444, guid: 58c115d689575404f8428b6c77cd4621, type: 3}
+      propertyPath: m_SortingLayerID
+      value: 1497974571
       objectReference: {fileID: 0}
     - target: {fileID: 7384276377935262447, guid: 58c115d689575404f8428b6c77cd4621, type: 3}
       propertyPath: m_RootOrder
