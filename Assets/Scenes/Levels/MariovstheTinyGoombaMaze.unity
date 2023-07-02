@@ -722,7 +722,7 @@ GameObject:
   - component: {fileID: 189364895}
   - component: {fileID: 189364894}
   - component: {fileID: 189364896}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: LevelInteriorGoomba
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -9008,7 +9008,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1619228230}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.49, y: -25, z: 0}
+  m_LocalPosition: {x: -0.5, y: -25, z: 0}
   m_LocalScale: {x: 20, y: 20, z: 20}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -10837,8 +10837,24 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1793027683220898541, guid: 74c546d79a8d89f4f998e71b97161414, type: 3}
+      propertyPath: width
+      value: 0.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 1793027683220898541, guid: 74c546d79a8d89f4f998e71b97161414, type: 3}
+      propertyPath: height
+      value: 0.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 1793027683220898541, guid: 74c546d79a8d89f4f998e71b97161414, type: 3}
       propertyPath: velocity.x
       value: -0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1793027683220898541, guid: 74c546d79a8d89f4f998e71b97161414, type: 3}
+      propertyPath: wallRaycastSpacing
+      value: 0.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1793027683220898541, guid: 74c546d79a8d89f4f998e71b97161414, type: 3}
+      propertyPath: floorRaycastSpacing
+      value: 0.2
       objectReference: {fileID: 0}
     - target: {fileID: 1793027683220898543, guid: 74c546d79a8d89f4f998e71b97161414, type: 3}
       propertyPath: m_Name
@@ -11607,11 +11623,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1793027683220898518, guid: 74c546d79a8d89f4f998e71b97161414, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -3.326
+      value: -2.565
       objectReference: {fileID: 0}
     - target: {fileID: 1793027683220898518, guid: 74c546d79a8d89f4f998e71b97161414, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -3.857
+      value: -3.094
       objectReference: {fileID: 0}
     - target: {fileID: 1793027683220898518, guid: 74c546d79a8d89f4f998e71b97161414, type: 3}
       propertyPath: m_LocalPosition.z
@@ -11644,6 +11660,22 @@ PrefabInstance:
     - target: {fileID: 1793027683220898518, guid: 74c546d79a8d89f4f998e71b97161414, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1793027683220898541, guid: 74c546d79a8d89f4f998e71b97161414, type: 3}
+      propertyPath: width
+      value: 0.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 1793027683220898541, guid: 74c546d79a8d89f4f998e71b97161414, type: 3}
+      propertyPath: height
+      value: 0.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 1793027683220898541, guid: 74c546d79a8d89f4f998e71b97161414, type: 3}
+      propertyPath: wallRaycastSpacing
+      value: 0.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1793027683220898541, guid: 74c546d79a8d89f4f998e71b97161414, type: 3}
+      propertyPath: floorRaycastSpacing
+      value: 0.2
       objectReference: {fileID: 0}
     - target: {fileID: 1793027683220898543, guid: 74c546d79a8d89f4f998e71b97161414, type: 3}
       propertyPath: m_Name

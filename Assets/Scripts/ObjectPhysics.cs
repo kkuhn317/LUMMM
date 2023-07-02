@@ -35,10 +35,10 @@ public class ObjectPhysics : MonoBehaviour
 
     public bool flipObject = true;
     private Vector2 normalScale;
-
     private float adjDeltaTime;
 
-    //private bool firstframe = true;
+    public bool FrequentMovement = false; // if true, will update position every frame instead of every physics update
+    private bool firstframe = true;
 
     public enum ObjectState {
         falling,    // in the air
@@ -73,25 +73,28 @@ public class ObjectPhysics : MonoBehaviour
 
     protected virtual void Update()
     {
-        // old code when the physics used Update instead of FixedUpdate
 
-        // adjDeltaTime = Time.deltaTime;
+        if (FrequentMovement) {
+            adjDeltaTime = Time.deltaTime;
 
-        // if (adjDeltaTime > 0.1f) {
-        //     adjDeltaTime = 0f;  // lag spike fix
-        //     //print("lagging!");
-        // }
+            if (adjDeltaTime > 0.1f) {
+                adjDeltaTime = 0f;  // lag spike fix
+                //print("lagging!");
+            }
 
-        // if ((!(movement == ObjectMovement.still) || objectState == ObjectState.knockedAway) && !firstframe)
-        //     UpdatePosition ();
-        // firstframe = false;
+            if ((!(movement == ObjectMovement.still) || objectState == ObjectState.knockedAway) && !firstframe)
+                UpdatePosition ();
+        }
+        firstframe = false;
 
     }
 
     protected virtual void FixedUpdate()
     {
-        if (!(movement == ObjectMovement.still) || objectState == ObjectState.knockedAway)
-             UpdatePosition ();
+        if (!FrequentMovement) {
+            if (!(movement == ObjectMovement.still) || objectState == ObjectState.knockedAway)
+                UpdatePosition ();
+        }
     }
 
     public void UpdatePosition () {
@@ -371,6 +374,12 @@ public class ObjectPhysics : MonoBehaviour
     }
 
     private void OnDrawGizmos() {
+
+        if (movement == ObjectMovement.still) {
+            return;
+        }
+
+        // Floor Raycasts
         Vector2 pos = transform.position;
         float halfHeight = height / 2;
         float halfWidth = width / 2;
@@ -386,6 +395,19 @@ public class ObjectPhysics : MonoBehaviour
         Gizmos.DrawLine(originLeft, originLeft + new Vector2(0,-distance));
         Gizmos.DrawLine(originMiddle, originMiddle + new Vector2(0,-distance));
         Gizmos.DrawLine(originRight, originRight + new Vector2(0,-distance));
+
+        // Wall Raycasts
+        float direction = movingLeft ? -1 : 1;
+
+        Vector2 originTop = new Vector2 (pos.x + direction * halfWidth, pos.y + halfHeight - wallRaycastSpacing);
+        Vector2 originMiddleSide = new Vector2 (pos.x + direction * halfWidth, pos.y);
+        Vector2 originBottom = new Vector2 (pos.x + direction * halfWidth, pos.y - halfHeight + wallRaycastSpacing);
+
+        distance = Application.isPlaying ? velocity.x * adjDeltaTime : velocity.x * 0.02f;
+
+        Gizmos.DrawLine(originTop, originTop + new Vector2 (distance * direction, 0));
+        Gizmos.DrawLine(originMiddleSide, originMiddleSide + new Vector2 (distance * direction, 0));
+        Gizmos.DrawLine(originBottom, originBottom + new Vector2 (distance * direction, 0));
 
     }
 }
