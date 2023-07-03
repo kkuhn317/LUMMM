@@ -13,6 +13,11 @@ public class QuestionBlock : MonoBehaviour
 
     public GameObject spawnItem;
 
+    public GameObject objectToMove; // Object to move (must be present in the scene)
+    public bool moveObjectOnHit = false; // Variable to control whether the object should be moved or not
+    public Vector3 targetPosition; // Target position of the object to move
+    public float moveSpeed; // Speed of movement for the object
+
     public float coinMoveSpeed = 8f;
     public float coinMoveHeight = 3f;
     public float coinFallDistance = 2f;
@@ -66,10 +71,15 @@ public class QuestionBlock : MonoBehaviour
                     BrickBlockBreak();
                 }
             }
+
+            if (!moveObjectOnHit)
+            {
+               // Debug.Log();
+            }
         }
     }
 
-    public void QuestionBlockBounce () {
+    public void QuestionBlockBounce() {
 
         if (canBounce) {
 
@@ -131,7 +141,7 @@ public class QuestionBlock : MonoBehaviour
             spinningCoin.transform.localPosition = new Vector2 (originalPosition.x, originalPosition.y + 1);
 
             StartCoroutine (MoveCoin (spinningCoin)); 
-            GameManager.Instance.AddScorePoints(100); // The points are given after the coroutine
+            GameManager.Instance.AddCoin(1); // The coin counter iterates after the coroutine
         }
     }
 
@@ -218,9 +228,6 @@ public class QuestionBlock : MonoBehaviour
                 item.GetComponent<SpriteRenderer>().sortingOrder = 0;
                 break;
             }
-
-            
-
             yield return null;
         }
     }

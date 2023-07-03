@@ -5,7 +5,6 @@ using UnityEngine.SceneManagement;
 
 public class KoopaController : EnemyAI
 {
-
     public enum EnemyState {
         walking,
         inShell,
@@ -56,6 +55,8 @@ public class KoopaController : EnemyAI
         state = EnemyState.inShell;
         animator.SetBool("inShell", true);
         velocity = new Vector2(0, velocity.y);
+        wallRaycastSpacing = 0.65f;
+        floorRaycastSpacing = 0.5f;
         checkObjectCollision = true;
     }
 
@@ -64,6 +65,8 @@ public class KoopaController : EnemyAI
         movingLeft = direction;
         animator.SetBool("inShell", true);
         velocity = new Vector2(movingShellSpeed, velocity.y);
+        wallRaycastSpacing = 0.65f;
+        floorRaycastSpacing = 0.5f;
         checkObjectCollision = false;
     }
 
@@ -100,7 +103,25 @@ public class KoopaController : EnemyAI
                 break;
             case EnemyState.movingShell:
                 playerScript.damageMario();
+                QuestionBlock questionBlock = player.GetComponent<QuestionBlock>();
+                if (questionBlock != null)
+                {
+                    questionBlock.QuestionBlockBounce();
+                }
                 break;
+        }  
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (state == EnemyState.movingShell)
+        {
+            if (collision.gameObject.CompareTag("Enemy"))
+            {
+                EnemyAI enemy = collision.gameObject.GetComponent<EnemyAI>();
+                enemy.KnockAway(movingLeft);
+                audioSource.PlayOneShot(knockAwaySound);
+            }
         }
     }
 }
