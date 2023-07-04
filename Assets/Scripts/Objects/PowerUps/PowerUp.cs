@@ -37,8 +37,7 @@ public class PowerUp : ObjectPhysics
             if (starTime > 0) {
                 other.GetComponent<MarioMovement>().startStarPower(starTime);
                 GameObject starSong = Instantiate(starMusicOverride);
-                // add back when music override added
-                //starSong.GetComponent<musicOverride>().stopPlayingAfterTime(starTime);
+                starSong.GetComponent<MusicOverride>().stopPlayingAfterTime(starTime);
             }
             if (newMarioState) {
                 MarioMovement player = other.GetComponent<MarioMovement>();

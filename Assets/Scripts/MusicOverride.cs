@@ -4,13 +4,13 @@ using UnityEngine;
 
 public class MusicOverride : MonoBehaviour
 {
+
+    public float timeToStopPlaying = 1;
+
     // Start is called before the first frame update
     void Start()
     {
-        GameObject[] musics = GameObject.FindGameObjectsWithTag("Music");
-        foreach(GameObject music in musics) {
-            music.GetComponent<AudioSource>().mute = true;
-        }
+        GameManager.Instance.OverrideMusic(this.gameObject);
     }
 
     public void stopPlayingAfterTime(float time) {
@@ -18,10 +18,7 @@ public class MusicOverride : MonoBehaviour
     }
 
     public void stopPlaying() {
-        GameObject[] musics = GameObject.FindGameObjectsWithTag("Music");
-        foreach(GameObject music in musics) {
-            music.GetComponent<AudioSource>().mute = false;
-        }
+        GameManager.Instance.ResumeMusic(this.gameObject);
         Destroy(gameObject);
     }
 

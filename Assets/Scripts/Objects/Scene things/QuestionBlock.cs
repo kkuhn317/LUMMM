@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Playables;
 
 public class QuestionBlock : MonoBehaviour
 {
@@ -79,12 +80,28 @@ public class QuestionBlock : MonoBehaviour
         }
     }
 
+    // this is called when a koopa shell hits the block for example
+    public void Activate() {
+        if (canBounce) {
+            if (brickBlock) {
+                BrickBlockBreak();
+            } else {
+                QuestionBlockBounce();
+            }
+        }
+    }
+
     public void QuestionBlockBounce() {
 
         if (canBounce) {
 
             if (spawnItem || !brickBlock) {
                 canBounce = false;
+            }
+
+            // do whatever timeline stuff here
+            if (GetComponent<PlayableDirector>() != null) {
+                GetComponent<PlayableDirector>().Play();
             }
 
             StartCoroutine(Bounce());

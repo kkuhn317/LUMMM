@@ -308,10 +308,18 @@ public class ObjectPhysics : MonoBehaviour
             // TODO: Implement proper object collision
         }
 
-        // hit something, so bounce off
+        // hit something
+        onTouchWall(hitRay.collider.gameObject);
+        // flip direction
         movingLeft = !movingLeft;
         return true;
 
+    }
+
+    
+    protected virtual void onTouchWall (GameObject other) {
+        //print("touching wall");
+        // override me for custom behavior
     }
 
     void CheckLedges(Vector3 pos) {
@@ -371,6 +379,14 @@ public class ObjectPhysics : MonoBehaviour
         if (objectState == ObjectState.knockedAway) {
             Destroy(gameObject);
         }
+    }
+
+    // for use with signals
+    public void SetXVelocity(float x) {
+        velocity.x = x;
+    }
+    public void SetYVelocity(float y) {
+        velocity.y = y;
     }
 
     private void OnDrawGizmos() {

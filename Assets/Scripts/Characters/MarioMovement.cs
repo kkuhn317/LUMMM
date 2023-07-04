@@ -142,15 +142,20 @@ public class MarioMovement : MonoBehaviour
 
 
     public void startStarPower(float time) {
-        InvokeRepeating("changeRainbowColor", 0, 0.1f);
+        // stop any current star power
+        CancelInvoke(nameof(stopStarPower));
+        CancelInvoke(nameof(changeRainbowColor));
+
+        // start new star power
+        InvokeRepeating(nameof(changeRainbowColor), 0, 0.1f);
         starPower = true;
         if (time != -1) {
-            Invoke("stopStarPower", time);
+            Invoke(nameof(stopStarPower), time);
         }
     }
 
     public void stopStarPower() {
-        CancelInvoke("changeRainbowColor");
+        CancelInvoke(nameof(changeRainbowColor));
         starPower = false;
         SpriteRenderer sprite = GetComponent<SpriteRenderer>();
         sprite.color = new Color(1, 1, 1, sprite.color.a);

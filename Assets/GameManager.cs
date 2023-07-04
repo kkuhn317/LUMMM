@@ -32,6 +32,11 @@ public class GameManager : MonoBehaviour
     public AudioClip extraLife;
     [SerializeField] TMP_Text scoreText;
 
+    [Header("Music")]
+    public GameObject music;
+    private List<GameObject> musicOverrides = new List<GameObject>(); // add to this list when music override added, remove when music override removed
+    private GameObject currentlyPlayingMusic;
+
     [Header("Game Over & Lose Life")]
     // Name of the Game Over scene
     public string gameOverSceneName;
@@ -59,6 +64,8 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        if (music)
+            currentlyPlayingMusic = music;
         currentTime = startingTime;
         GlobalVariables.levelscene = SceneManager.GetActiveScene().buildIndex;
         UpdateLivesUI();
@@ -213,6 +220,46 @@ public class GameManager : MonoBehaviour
     {
         scoreCount += pointsToAdd;
         UpdateScoreUI();
+    }
+
+    public void OverrideMusic(GameObject musicOverride)
+    {
+        // turn off music
+        if (currentlyPlayingMusic != null)
+            currentlyPlayingMusic.GetComponent<AudioSource>().mute = true;
+
+        // add to list
+        musicOverrides.Add(musicOverride);
+        // set as current music
+        currentlyPlayingMusic = musicOverride;
+    }
+
+    public void ResumeMusic(GameObject musicOverride)
+    {
+        // remove from list
+        musicOverrides.Remove(musicOverride);
+
+        // are we the current music?
+        if (currentlyPlayingMusic == musicOverride)
+        {
+            // are there any other overrides?
+            if (musicOverrides.Count > 0)
+            {
+                // play the last override
+                currentlyPlayingMusic = musicOverrides[musicOverrides.Count - 1];
+                currentlyPlayingMusic.GetComponent<AudioSource>().mute = false;
+            }
+            else
+            {
+                // play the original music
+                if (music) {
+                    currentlyPlayingMusic = music;
+                    currentlyPlayingMusic.GetComponent<AudioSource>().mute = false;
+                } else {
+                    currentlyPlayingMusic = null;
+                }
+            }
+        }
     }
 
     public void PauseGame()
