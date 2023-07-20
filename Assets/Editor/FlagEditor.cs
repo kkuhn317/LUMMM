@@ -1,16 +1,17 @@
 using UnityEngine;
 using UnityEditor;
+using UnityEditor.SceneManagement;
 
-
-[CustomEditor(typeof(ConveyorBelt))]
+[CustomEditor(typeof(Flag))]
 [CanEditMultipleObjects]
-public class ConveyorBeltEditor : Editor
+public class FlagEditor : Editor
 {
-    SerializedProperty length;
+
+    SerializedProperty height;
 
     void OnEnable()
     {
-        length = serializedObject.FindProperty(nameof(ConveyorBelt.length));
+        height = serializedObject.FindProperty("height");
     }
 
     public override void OnInspectorGUI()
@@ -19,20 +20,23 @@ public class ConveyorBeltEditor : Editor
         {
             return;
         }
-        
-        ConveyorBelt myScript = (ConveyorBelt)target;
 
         serializedObject.Update();
 
         DrawDefaultInspector();
 
-        length.intValue = EditorGUILayout.IntField("Length", length.intValue);
+        Flag myScript = (Flag)target;
+
+        EditorGUI.BeginChangeCheck();
+
+        height.floatValue = EditorGUILayout.FloatField("Height", height.floatValue);
 
         if (EditorGUI.EndChangeCheck())
         {
-            myScript.ChangeLength(length.intValue);
+            myScript.ChangeHeight(height.floatValue);
         }
-        
+
         serializedObject.ApplyModifiedProperties();
+
     }
 }

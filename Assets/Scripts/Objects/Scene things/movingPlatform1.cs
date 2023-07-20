@@ -167,6 +167,7 @@ public class movingPlatform1 : MonoBehaviour
             collision.transform.SetParent(null);
         }
     }
+#if UNITY_EDITOR
     private void OnDrawGizmos()
     {
         //Draw a line between the platform and the first point
@@ -222,4 +223,5 @@ public class movingPlatform1 : MonoBehaviour
             Handles.Label(new Vector3(guiPosition.x, Screen.height - guiPosition.y, 0), i.ToString(), style);
         }
     }
+#endif
 }

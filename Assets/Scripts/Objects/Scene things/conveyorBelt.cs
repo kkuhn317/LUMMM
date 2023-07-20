@@ -8,7 +8,7 @@ public enum ConveyorDirection
     Right
 }
 
-public class conveyorBelt : MonoBehaviour
+public class ConveyorBelt : MonoBehaviour
 {
     public GameObject left;
     public GameObject middle;
@@ -67,6 +67,7 @@ public class conveyorBelt : MonoBehaviour
 
     public void ChangeLength(int length)
     {
+        this.length = length;
         left.transform.localPosition = new Vector3(-(((float)length - 1) / 2), 0, 0);
         middle.GetComponent<SpriteRenderer>().size = new Vector2(length - 2, 1);
         right.transform.localPosition = new Vector3((((float)length - 1) / 2), 0, 0);
