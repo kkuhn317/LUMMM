@@ -236,6 +236,12 @@ public class GameManager : MonoBehaviour
 
     public void ResumeMusic(GameObject musicOverride)
     {
+        // are we in the list? if not then do nothing
+        if (!musicOverrides.Contains(musicOverride))
+        {
+            return;
+        }
+
         // remove from list
         musicOverrides.Remove(musicOverride);
 
@@ -259,6 +265,22 @@ public class GameManager : MonoBehaviour
                     currentlyPlayingMusic = null;
                 }
             }
+        }
+    }
+
+    public void stopAllMusic()
+    {
+        // turn off currentlyPlayingMusic (everything else should be muted)
+        if (currentlyPlayingMusic != null)
+            currentlyPlayingMusic.GetComponent<AudioSource>().mute = true;
+
+        // clear list of overrides
+        musicOverrides.Clear();
+
+        if (music) {
+            currentlyPlayingMusic = music;
+        } else {
+            currentlyPlayingMusic = null;
         }
     }
 
