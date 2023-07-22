@@ -40,7 +40,7 @@ public class POWBlock : MonoBehaviour
         }
     }
 
-    private void ActivatePOWBlock()
+    public void ActivatePOWBlock()
     {
         List<EnemyAI> enemiesToKnockAway = new List<EnemyAI>();
 
@@ -67,7 +67,8 @@ public class POWBlock : MonoBehaviour
         }
 
         // Play POW Block effect 
-        audioSource.PlayOneShot(powblockSound, 0.5f);
+        //audioSource.PlayOneShot(powblockSound, 0.5f);
+        AudioSource.PlayClipAtPoint(powblockSound, Camera.main.transform.position, 1f);
 
         // Destroy POW Block
         Destroy(gameObject);

@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Playables;
 
 public class Flag : MonoBehaviour
 {
@@ -84,6 +85,9 @@ public class Flag : MonoBehaviour
     void toCutsceneState()
     {
         state = FlagState.Cutscene;
+
+        // play the cutscene
+        GetComponent<PlayableDirector>().Play();
     }
 
     // used in the editor to change the height of the entire flagpole easily
