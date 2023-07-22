@@ -7,8 +7,12 @@ using System.Collections;
     
         void Start(){
             music = GameObject.FindGameObjectsWithTag (this.tag);
-            if (music.Length > 1)
+            if (music.Length > 1) {
                 Destroy (music[1]);
+                // set me as new music
+                GameManager.Instance.music = music[0];
+            }
+            
         }
         
         // Update is called once per frame
