@@ -358,7 +358,7 @@ public class ObjectPhysics : MonoBehaviour
         }
     }
 
-    public void KnockAway(bool direction) {
+    public virtual void KnockAway(bool direction) {
         if (objectState != ObjectState.knockedAway) {
             GetComponent<SpriteRenderer>().flipY = true;
             objectState = ObjectState.knockedAway;

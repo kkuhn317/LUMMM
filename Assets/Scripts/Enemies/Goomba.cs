@@ -47,6 +47,8 @@ public class Goomba : EnemyAI
 
         shouldDie = true;
 
+        releaseItem();
+
     }
 
     void CheckCrushed () {
