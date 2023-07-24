@@ -11,6 +11,7 @@ public class EnemyAI : ObjectPhysics
     public float stompHeight = 0.2f;
 
     public GameObject heldItem;
+    public Vector3 itemSpawnOffset = new Vector3(0, 0, 0);
 
     protected override void Start() {
         base.Start();
@@ -77,8 +78,16 @@ public class EnemyAI : ObjectPhysics
     public void releaseItem() {
         if (heldItem != null) {
             // instantiate the item
-            GameObject item = Instantiate(heldItem, transform.position, Quaternion.identity);
+            GameObject item = Instantiate(heldItem, transform.position + itemSpawnOffset, Quaternion.identity);
             heldItem = null;
+        }
+    }
+
+    private void OnDrawGizmos() {
+        if (heldItem != null) {
+            Gizmos.color = Color.red;
+            // spawn position
+            Gizmos.DrawSphere(transform.position + itemSpawnOffset, 0.1f);
         }
     }
 }

@@ -8,10 +8,6 @@ public class ObjectPhysics : MonoBehaviour
 
     [Header("Object Physics")]
 
-    public GameObject spawnPrefab; // The prefab to spawn when the enemy is killed
-    public bool spawnAtCustomPosition = false; // Set this to true if you want to use the custom spawn position
-    public Vector3 customSpawnPosition; // The custom spawn position you can set in the Inspector
-
     public bool movingLeft = true;
     public Vector2 velocity = new Vector2(2, 0);
 
@@ -185,28 +181,6 @@ public class ObjectPhysics : MonoBehaviour
 
         transform.position = pos;
         transform.localScale = scale;
-    }
-
-    private void OnDestroy()
-    {
-        // Spawn the object when the enemy is destroyed and in the ObjectState.knockedAway or ObjectState.onLava state
-        if (spawnPrefab != null && (objectState == ObjectState.knockedAway || objectState == ObjectState.onLava))
-        {
-            Vector3 spawnPosition;
-
-            // If using customSpawnPosition, spawn the object at the custom position
-            if (spawnAtCustomPosition)
-            {
-                spawnPosition = customSpawnPosition;
-            }
-            else
-            {
-                // Otherwise, spawn it at the enemy's position
-                spawnPosition = transform.position;
-            }
-
-            Instantiate(spawnPrefab, spawnPosition, Quaternion.identity);
-        }
     }
 
     Vector3 CheckGround(Vector3 pos)
@@ -530,8 +504,7 @@ public class ObjectPhysics : MonoBehaviour
         Gizmos.DrawLine(originMiddle, originMiddle + new Vector2(0, -distance));
         Gizmos.DrawLine(originRight, originRight + new Vector2(0, -distance));
 
-        // spawn position
-        Gizmos.DrawSphere(transform.position, 0.1f);
+
 
         // Wall Raycasts
         float direction = movingLeft ? -1 : 1;
