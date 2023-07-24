@@ -7,13 +7,38 @@ public class Key : MonoBehaviour
 
     public GameObject particle;
 
-    private GameObject player;
+
+    private GameObject _player; // don't use this directly, use the player property instead
+    private GameObject player {
+        get {
+            if (_player == null) {
+                _player = GameObject.FindGameObjectWithTag("Player");
+                }
+            return _player;
+        }
+        set { _player = value; }
+    }
+        
+
+    private bool collectable = false;
     private bool collected = false;
 
+    private Vector3 acutalposition;
+
+    [Header("Collected from Enemy")]
+
+    // if true, then the key will immediately rise up and go towards the player
+    public bool fromEnemy = false;
+
+    public AnimationCurve riseCurve = AnimationCurve.EaseInOut(0, 0, 1, 1); // this is changed in inspector
+    public AnimationCurve updownCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
+    public AudioClip keyRiseSound;
+    public AudioClip keyToPlayerSound;
+
+    [Header("Bounce")]
     private Vector3 actualposition;
 
     public float bounceheight = 0.5f;
-
     public float bounceSpeed = 0.5f;
     private float bounceOffset = 0;
 
@@ -23,6 +48,12 @@ public class Key : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        acutalposition = transform.position;
+        if (fromEnemy) {
+            StartCoroutine(goToMario());
+        } else {
+            collectable = true;
+        }
         actualposition = transform.position;
     }
 
@@ -35,10 +66,11 @@ public class Key : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.gameObject.tag == "Player" && player == null)
+        if (other.gameObject.tag == "Player" && !collected && collectable)
         {
             player = other.gameObject;
             collected = true;
+            acutalposition = transform.position;
             GameManager.Instance.keys.Add(gameObject);
             GetComponent<AudioSource>().Play();
             spawnParticles();
@@ -77,22 +109,15 @@ public class Key : MonoBehaviour
 
     }
 
-    void findPlayer() {
-        player = GameObject.FindGameObjectWithTag("Player");
-    }
-
+    // follow the player when they have collected the key
     void followPlayer()
     {
         //transform.position = player.transform.position;
         // slowly move towards the player
         // faster if farther away
-        if (player == null)
-        {
-            findPlayer();
-            if (player == null)
-            {
-                return;
-            }
+
+        if (player == null) {
+            return;
         }
 
         // go behind the player
@@ -131,4 +156,80 @@ public class Key : MonoBehaviour
         transform.position = actualposition + new Vector3(0, Mathf.Sin(bounceOffset * Mathf.PI) * bounceheight, 0);
 
     }
+
+    IEnumerator goToMario()
+    {
+        // play sound
+        GetComponent<AudioSource>().PlayOneShot(keyRiseSound);
+
+        float t = 0;
+        float duration = 0.5f;
+
+        // rise up 2, then go down 0.5, then go up 0.5, then go to mario
+        float startHeight = transform.position.y;
+        AnimationCurve[] curves = { riseCurve, updownCurve, updownCurve };
+        float[] heights = {startHeight + 2, startHeight + 1.5f, startHeight + 2};
+        Vector3 fromPosition = transform.position;
+        int i = 0;
+
+        while (true)
+        {
+            // use the curve
+            t += Time.deltaTime;
+            float s = t / duration;
+            transform.position = Vector3.Lerp(fromPosition, new Vector3(transform.position.x, heights[i], transform.position.z), curves[i].Evaluate(s));
+
+            if (s >= 1)
+            {
+                t = 0;
+                i++;
+                fromPosition = transform.position;
+                if (i >= heights.Length)
+                {
+                    break;
+                }
+            }
+
+            yield return null;
+        }
+
+        collectable = true;
+
+
+        GetComponent<AudioSource>().PlayOneShot(keyToPlayerSound);
+
+        float velocity = 0;
+        float maxVelocity = 20f;
+        float acceleration = 7f;
+
+        // now go to mario speeding up over time
+        while (collected == false)
+        {
+            Vector3 playerPos = player.transform.position;
+            float distance = Vector2.Distance(transform.position, playerPos);
+
+            if (velocity < maxVelocity) {
+                velocity += Time.deltaTime * acceleration;
+            } else {
+                velocity = maxVelocity;
+            }
+
+            if (distance < velocity * Time.deltaTime)
+            {
+                transform.position = playerPos;
+            } else {
+                // increase velocity
+                velocity += Time.deltaTime * acceleration;
+                transform.localPosition = Vector3.MoveTowards(transform.position, playerPos, velocity * Time.deltaTime);
+            }
+            
+
+            yield return null;
+        }
+
+    }
+
+    
+
+
 }

@@ -10,6 +10,8 @@ public class EnemyAI : ObjectPhysics
 
     public float stompHeight = 0.2f;
 
+    public GameObject heldItem;
+
     protected override void Start() {
         base.Start();
         enabled = false;
@@ -64,5 +66,19 @@ public class EnemyAI : ObjectPhysics
 
     protected virtual void touchNonPlayer(GameObject other) {
         // override this for whatever needed
+    }
+
+    public override void KnockAway(bool direction)
+    {
+        base.KnockAway(direction);
+        releaseItem();
+    }
+
+    public void releaseItem() {
+        if (heldItem != null) {
+            // instantiate the item
+            GameObject item = Instantiate(heldItem, transform.position, Quaternion.identity);
+            heldItem = null;
+        }
     }
 }
