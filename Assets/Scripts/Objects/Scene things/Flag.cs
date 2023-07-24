@@ -58,6 +58,8 @@ public class Flag : MonoBehaviour
     {
         if (other.gameObject.tag == "Player" && state == FlagState.Idle)
         {
+            GameManager.Instance.StopTimer();
+
             cutsceneMario.SetActive(true);
             cutsceneMario.transform.position = new Vector2(transform.position.x - 0.4f, other.transform.position.y);
 

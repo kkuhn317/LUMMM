@@ -15,6 +15,7 @@ public class GameManager : MonoBehaviour
     private bool timesRunning = true;
     private bool isPaused = false;
     private bool isTimeUp = false;
+    private bool stopTimer = false;
     public AudioClip timeWarning;
     [SerializeField] TMP_Text timerText;
 
@@ -48,6 +49,11 @@ public class GameManager : MonoBehaviour
 
     private AudioSource audioSource;
 
+
+    // List to keep track of all PauseableMovement scripts.
+    private List<PauseableMovement> pauseableObjects = new List<PauseableMovement>();
+    private bool isGamePaused = false;
+
     void Awake()
     {
         if (Instance == null)
@@ -74,7 +80,7 @@ public class GameManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (!isPaused)
+        if (!isPaused && !stopTimer)
         {
             // Timer 
             currentTime -= 1 * Time.deltaTime;
@@ -283,6 +289,65 @@ public class GameManager : MonoBehaviour
             currentlyPlayingMusic = null;
         }
     }
+    public void StopTimer()
+    {
+        stopTimer = true;
+    }
+
+    // Function to toggle the game between paused and resumed states.
+    public void TogglePauseGame()
+    {
+        isGamePaused = !isGamePaused;
+
+        if (isGamePaused)
+        {
+            PauseGame();
+        }
+        else
+        {
+            ResumeGame();
+        }
+    }
+
+    // Function to add objects with PauseableMovement scripts to the list.
+    public void RegisterPauseableObject(PauseableMovement pauseableObject)
+    {
+        pauseableObjects.Add(pauseableObject);
+        Debug.Log("Registered " + pauseableObject.gameObject.name + " to Pauseable Objects list.");
+    }
+
+    // Function to remove objects from the list.
+    public void UnregisterPauseableObject(PauseableMovement pauseableObject)
+    {
+        pauseableObjects.Remove(pauseableObject);
+        Debug.Log(pauseableObject.gameObject.name + " removed on Pauseable Objects list.");
+    }
+
+    // Function to pause all pauseable objects.
+    public void PausePauseableObjects()
+    {
+        // Pause all pauseable objects if the list is not null.
+        if (pauseableObjects != null)
+        {
+            foreach (PauseableMovement obj in pauseableObjects)
+            {
+                obj.Pause();
+            }
+        }
+    }
+
+    // Function to resume all pauseable objects.
+    public void ResumePauseableObjects()
+    {
+        // Resume all pauseable objects if the list is not null.
+        if (pauseableObjects != null)
+        {
+            foreach (PauseableMovement obj in pauseableObjects)
+            {
+                obj.Resume();
+            }
+        }
+    }
 
     public void PauseGame()
     {
@@ -294,5 +359,15 @@ public class GameManager : MonoBehaviour
     {
         isPaused = false;
         Time.timeScale = 1f;
+    }
+
+    // Function to display the list of registered PauseableMovement objects in the debug log.
+    public void DebugRegisteredPauseableObjects()
+    {
+        Debug.Log("Registered PauseableMovement objects:");
+        foreach (PauseableMovement obj in pauseableObjects)
+        {
+            Debug.Log(obj.gameObject.name);
+        }
     }
 }

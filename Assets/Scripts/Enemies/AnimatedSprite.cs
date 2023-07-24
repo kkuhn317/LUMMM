@@ -5,12 +5,12 @@ using UnityEngine;
 [RequireComponent(typeof(SpriteRenderer))]
 public class AnimatedSprite : MonoBehaviour
 {
-    // Start is called before the first frame update
     public Sprite[] sprites;
     public float framerate = 1f / 6f;
 
     private SpriteRenderer spriteRenderer;
     private int frame;
+    private bool isAnimating = true;
 
     private void Awake()
     {
@@ -19,6 +19,8 @@ public class AnimatedSprite : MonoBehaviour
 
     private void OnEnable()
     {
+        frame = 0;
+        isAnimating = true;
         InvokeRepeating(nameof(Animate), framerate, framerate);
     }
 
@@ -29,6 +31,9 @@ public class AnimatedSprite : MonoBehaviour
 
     private void Animate()
     {
+        if (!isAnimating)
+            return;
+
         frame++;
 
         if (frame >= sprites.Length)
@@ -42,4 +47,9 @@ public class AnimatedSprite : MonoBehaviour
         }
     }
 
+    public void StopAnimation()
+    {
+        isAnimating = false;
+        spriteRenderer.sprite = sprites[0]; // Set the sprite to the first frame
+    }
 }

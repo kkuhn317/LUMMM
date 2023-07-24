@@ -10,7 +10,7 @@ public class Key : MonoBehaviour
     private GameObject player;
     private bool collected = false;
 
-    private Vector3 acutalposition;
+    private Vector3 actualposition;
 
     public float bounceheight = 0.5f;
 
@@ -23,7 +23,7 @@ public class Key : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        acutalposition = transform.position;
+        actualposition = transform.position;
     }
 
     void Update()
@@ -108,12 +108,12 @@ public class Key : MonoBehaviour
 
         Vector3 finalLocation = player.transform.position + offset;
 
-        float distance = Vector2.Distance(acutalposition, finalLocation);
+        float distance = Vector2.Distance(actualposition, finalLocation);
         //print("dist: " + distance);
         float speed = Mathf.Pow(distance, 2) * 2f;
 
         //print("speed: " + speed);
-        acutalposition = Vector2.MoveTowards(acutalposition, finalLocation, speed * Time.deltaTime);
+        actualposition = Vector2.MoveTowards(actualposition, finalLocation, speed * Time.deltaTime);
 
         
         // bounce up and down
@@ -127,10 +127,8 @@ public class Key : MonoBehaviour
         {
             bounceOffset = 0;
         }
-        //acutalposition.y += Mathf.Sin(bounceOffset * Mathf.PI) * bounceheight;
-        transform.position = acutalposition + new Vector3(0, Mathf.Sin(bounceOffset * Mathf.PI) * bounceheight, 0);
+        //actualposition.y += Mathf.Sin(bounceOffset * Mathf.PI) * bounceheight;
+        transform.position = actualposition + new Vector3(0, Mathf.Sin(bounceOffset * Mathf.PI) * bounceheight, 0);
 
     }
-
-
 }
