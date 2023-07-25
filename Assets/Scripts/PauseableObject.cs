@@ -4,17 +4,38 @@ using UnityEngine;
 
 public class PauseableObject : MonoBehaviour
 {
-    private PauseableMovement pauseableMovement;
 
-    private IEnumerator Start()
+    private ObjectPhysics.ObjectMovement oldMovement;
+    private ObjectPhysics objectPhysics;
+
+    private void Start()
     {
-        yield return new WaitForEndOfFrame(); // Wait for one frame to let other components initialize.
-        pauseableMovement = GetComponent<PauseableMovement>();
-        GameManager.Instance.RegisterPauseableObject(pauseableMovement);
+        GameManager.Instance.RegisterPauseableObject(this);
+        objectPhysics = GetComponent<ObjectPhysics>();
     }
 
     private void OnDestroy()
     {
-        GameManager.Instance.UnregisterPauseableObject(pauseableMovement);
+        GameManager.Instance.UnregisterPauseableObject(this);
+    }
+
+    public void Pause()
+    {
+        oldMovement = objectPhysics.movement;
+        objectPhysics.movement = ObjectPhysics.ObjectMovement.still;
+    }
+
+    public void Resume()
+    {
+        objectPhysics.movement = oldMovement;
+    }
+
+    public void FallStraightDown()
+    {
+        objectPhysics.velocity = new Vector2(0, 0);
+        
+        objectPhysics.floorMask = 0;
+        objectPhysics.wallMask = 0;
+        objectPhysics.movement = ObjectPhysics.ObjectMovement.sliding;
     }
 }

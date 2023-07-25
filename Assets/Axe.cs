@@ -23,26 +23,22 @@ public class Axe : MonoBehaviour
 
     [Header("Bridge")]
     public GameObject bridge;
-    public float bridgeDestroyDelay = 1.0f; // Adjust this value to set the delay in seconds before destroying the bridge when the axe rotation is done.
     public List<GameObject> bridgeTiles; // Assign the bridge tiles to this list in the Inspector.
     public bool timerStop;
 
     [Header("Bridge Destruction")]
     public bool startFromLastTile = true; // Set this to true if you want to start destruction from the last tile.
     public int tilesPerStep = 1; // Number of tiles to destroy at once.
-    public BoxCollider2D playerCantPass;
-
-    [Header("Instant Bridge Destroy Option")]
-    public float tilesDestroyDelay = 0.1f;
 
     [Header("Fall And Destroy Bridge Options")]
     public float fallDistance = 2.0f; // Adjust this value to determine how far the tiles should fall.
-    public float fallDuration = 0.1f;
-    public float tileFallDestroyDelay = 0.2f; // delay between tiles falling and destroying.
+    public float tileFallDestroyDelay = 0.2f; // delay between tiles falling/destroying.
     
     [Header("Audio Clips")]
-    public AudioClip bigAxeGrab;
-    public AudioClip smallAxeDestroy;
+    public AudioClip grabSound;
+    public AudioClip hitGroundSound;
+    public AudioClip bridgeBreakSound;
+    public AudioClip enemyFallSound;
 
     [Header("Camera Shake")]
     public CameraFollow cameraFollow;
@@ -60,16 +56,26 @@ public class Axe : MonoBehaviour
     private Quaternion targetRotation;
 
     [Header("Stop Object Animation")]
-    public AnimatedSprite animatedSprite;
+    private AnimatedSprite animatedSprite;
+
+    private GameObject player;
+
+    [Header("Timing")]
+
+    // these are timed from the time the axe hits the ground or disappears
+
+    public float bridgeDestroyDelay = 1.0f; // Adjust this value to set the delay in seconds before destroying the bridge when the axe rotation is done.
+    public float enemyFallDelay = 3.0f; // how long until the enemies fall
+    public float playerResumeDelay = 4.0f; // how long until the player can move again
 
     private void Start()
     {
         // Get the AudioSource component attached to the same GameObject or add one if missing.
         audioSource = GetComponent<AudioSource>();
-        if (audioSource == null)
-            audioSource = gameObject.AddComponent<AudioSource>();
 
         axeCollider = GetComponent<BoxCollider2D>();
+
+        animatedSprite = GetComponent<AnimatedSprite>();
     }
 
     private void Update()
@@ -94,9 +100,9 @@ public class Axe : MonoBehaviour
                 isRotating = false;
 
                 // Play the audio clip after the rotation is complete.
-                if (Size == AxeSize.Big && bigAxeGrab != null)
+                if (Size == AxeSize.Big && hitGroundSound != null)
                 {
-                    audioSource.PlayOneShot(bigAxeGrab);
+                    audioSource.PlayOneShot(hitGroundSound);
                 }
 
                 // Camera Shake
@@ -115,6 +121,14 @@ public class Axe : MonoBehaviour
             // Pause the pauseable objects when starting the bridge destruction.
             GameManager.Instance.PausePauseableObjects();
 
+            // freeze player
+            player = collision.gameObject;
+            player.GetComponent<MarioMovement>().Freeze();
+
+            // play sound
+            if (grabSound != null)
+                audioSource.PlayOneShot(grabSound);
+
             // Handle behavior based on the axe size.
             if (Size == AxeSize.Big)
             {
@@ -129,16 +143,12 @@ public class Axe : MonoBehaviour
             }
             else // Axe is small
             {
-                // Play the smallAxeDestroy sound.
-                if (smallAxeDestroy != null)
-                {
-                    audioSource.PlayOneShot(smallAxeDestroy);
-                }
-
                 Destroy(this.gameObject);
+
                 // Handle shared behavior for both axes (destroying the bridge and stopping the timer).
                 HandleSharedBehavior();
             }
+            
         }
     }
 
@@ -150,97 +160,36 @@ public class Axe : MonoBehaviour
             GameManager.Instance.StopTimer();
         }
 
-        // Destroy the bridge based on the selected destruction type.
-        switch (destructionType)
-        {
-            // Destroy the bridge tiles one by one.
-            case BridgeDestructionType.Instant:
-                if (bridgeTiles.Count > 0)
-                {
-                    Debug.Log("Starting Instant Bridge Destruction...");
-                    StartBridgeDestruction();
-                }
-                break;
-            // Bridge tiles fall one by one and destroy.
-            case BridgeDestructionType.FallAndDestroy:
-                StartCoroutine(DestroyBridgeTilesFallAndDestroy(startFromLastTile));
-                break;
-        }
+        Invoke(nameof(DestroyBridge), bridgeDestroyDelay);
+        Invoke(nameof(makeObjectsFall), enemyFallDelay);
+        Invoke(nameof(resumePlayer), playerResumeDelay);
     }
 
-    // Instant
-
-    private void StartBridgeDestruction()
+    private IEnumerator FallTile(GameObject tile)
     {
-        int startTileIndex = startFromLastTile ? bridgeTiles.Count - 1 : 0;
-        StartCoroutine(DestroyBridgeTiles(startTileIndex));
-    }
-
-    private IEnumerator DestroyBridgeTiles(int startTileIndex)
-    {
-        int tileCount = bridgeTiles.Count;
-        // Make sure startTileIndex is within the valid range.
-        startTileIndex = Mathf.Clamp(startTileIndex, 0, tileCount - 1);
-
-        if (tileCount > 0)
-        {
-            // Determine the direction of destruction based on startTileIndex and endTileIndex.
-            int step = startFromLastTile ? -1 : 1;
-            int endTileIndex = startFromLastTile ? -1 : tileCount;
-
-            for (int i = startTileIndex; i != endTileIndex; i += step)
-            {
-                GameObject tile = bridgeTiles[i];
-
-                // Play a destruction animation or sound if desired.
-                // For example, you can use "tile.GetComponent<AnimatedSprite>()?.PlayDestructionAnimation();"
-
-                // Destroy the current tile instantly.
-                Destroy(tile);
-
-                // Wait for a short time before destroying the next tile.
-                yield return new WaitForSeconds(tilesDestroyDelay); // Adjust the time delay as needed.
-            }
-        }
-
-        // Set playerCantPass to non-trigger after the bridge destruction is complete.
-        playerCantPass.isTrigger = false;
-
-        // Resume the pauseable objects after the bridge destruction is complete.
-        GameManager.Instance.ResumePauseableObjects();
-    }
-
-
-    //  FallAndDestroy
-
-    private IEnumerator DestroyTileWithDelay(GameObject tile)
-    {
-        yield return new WaitForSeconds(tileFallDestroyDelay);
-        Destroy(tile);
-    }
-
-    private IEnumerator FallTile(Rigidbody2D tileRigidbody, float fallStep)
-    {
-        float currentFallDistance = 0f;
-        Collider2D tileCollider = tileRigidbody.GetComponent<Collider2D>();
+        float startHeight = tile.transform.position.y;
 
         // Disable the collider to prevent interactions while the tile is falling.
-        tileCollider.enabled = false;
-        while (currentFallDistance < fallDistance)
+        while (tile.transform.position.y > startHeight - fallDistance)
         {
-            // Move the tile downward.
-            float deltaY = -fallStep * Time.deltaTime;
-            tileRigidbody.MovePosition(tileRigidbody.position + new Vector2(0f, deltaY));
-
-            currentFallDistance += Mathf.Abs(deltaY);
             yield return null;
         }
 
-        // Once the tile has fallen, destroy it with a delay.
-        StartCoroutine(DestroyTileWithDelay(tileRigidbody.gameObject));
+        // Once the tile has fallen, destroy it
+        Destroy(tile);
     }
 
-    private IEnumerator DestroyBridgeTilesFallAndDestroy(bool startFromLastTile)
+    private void DestroyBridge()
+    {
+        // play sound
+        if (bridgeBreakSound != null)
+            audioSource.PlayOneShot(bridgeBreakSound);
+
+        // Destroy the bridge.
+        StartCoroutine(DestroyBridgeTiles(startFromLastTile));
+    }
+
+    private IEnumerator DestroyBridgeTiles(bool startFromLastTile)
     {
         int tileCount = bridgeTiles.Count;
 
@@ -255,28 +204,45 @@ public class Axe : MonoBehaviour
             // Determine the direction of destruction based on startTileIndex and endTileIndex.
             int step = startFromLastTile ? -1 : 1;
 
-            // Calculate the fall distance for each tile.
-            float fallStep = fallDistance / (fallDuration / tilesDestroyDelay);
-
             for (int i = startTileIndex; i != endTileIndex; i += step)
             {
                 GameObject tile = bridgeTiles[i];
                 Rigidbody2D tileRigidbody = tile.GetComponent<Rigidbody2D>();
 
-                // Enable the tile's rigidbody to make it fall.
-                tileRigidbody.bodyType = RigidbodyType2D.Dynamic;
-                tileRigidbody.gravityScale = 0; // We'll control the fall speed manually.
-                tileRigidbody.interpolation = RigidbodyInterpolation2D.Interpolate;
+                switch (destructionType)
+                {
+                    case BridgeDestructionType.Instant:
+                        // Destroy the tile instantly.
+                        Destroy(tile);
+                        break;
+                    case BridgeDestructionType.FallAndDestroy:
+                        // Enable the tile's rigidbody to make it fall.
+                        tileRigidbody.bodyType = RigidbodyType2D.Dynamic;
+                        //tileRigidbody.gravityScale = 0; // We'll control the fall speed manually.
+                        tileRigidbody.interpolation = RigidbodyInterpolation2D.Interpolate;
+                        tile.GetComponent<Collider2D>().isTrigger = true; // disable collisions while falling.
 
-                StartCoroutine(FallTile(tileRigidbody, fallStep));
+                        StartCoroutine(FallTile(tile));
+                        break;
+                }
 
                 // Wait for a short time before starting to destroy the next tile.
                 yield return new WaitForSeconds(tileFallDestroyDelay);
             }
         }
+    }
 
-        playerCantPass.isTrigger = false;
-        // Resume the pauseable objects after the bridge destruction is complete.
+    private void makeObjectsFall() {
+        // play sound
+        if (enemyFallSound != null)
+            audioSource.PlayOneShot(enemyFallSound);
+
+        // Resume the pauseable objects
         GameManager.Instance.ResumePauseableObjects();
+    }
+
+    private void resumePlayer() {
+        // resume player
+        player.GetComponent<MarioMovement>().Unfreeze();
     }
 }

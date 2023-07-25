@@ -50,8 +50,8 @@ public class GameManager : MonoBehaviour
     private AudioSource audioSource;
 
 
-    // List to keep track of all PauseableMovement scripts.
-    private List<PauseableMovement> pauseableObjects = new List<PauseableMovement>();
+    // List to keep track of all PauseableObject scripts.
+    private List<PauseableObject> pauseableObjects = new List<PauseableObject>();
     private bool isGamePaused = false;
 
     void Awake()
@@ -310,17 +310,17 @@ public class GameManager : MonoBehaviour
     }
 
     // Function to add objects with PauseableMovement scripts to the list.
-    public void RegisterPauseableObject(PauseableMovement pauseableObject)
+    public void RegisterPauseableObject(PauseableObject pauseableObject)
     {
         pauseableObjects.Add(pauseableObject);
-        Debug.Log("Registered " + pauseableObject.gameObject.name + " to Pauseable Objects list.");
+        //Debug.Log("Registered " + pauseableObject.gameObject.name + " to Pauseable Objects list.");
     }
 
     // Function to remove objects from the list.
-    public void UnregisterPauseableObject(PauseableMovement pauseableObject)
+    public void UnregisterPauseableObject(PauseableObject pauseableObject)
     {
         pauseableObjects.Remove(pauseableObject);
-        Debug.Log(pauseableObject.gameObject.name + " removed on Pauseable Objects list.");
+        //Debug.Log(pauseableObject.gameObject.name + " removed on Pauseable Objects list.");
     }
 
     // Function to pause all pauseable objects.
@@ -329,7 +329,7 @@ public class GameManager : MonoBehaviour
         // Pause all pauseable objects if the list is not null.
         if (pauseableObjects != null)
         {
-            foreach (PauseableMovement obj in pauseableObjects)
+            foreach (PauseableObject obj in pauseableObjects)
             {
                 obj.Pause();
             }
@@ -342,9 +342,22 @@ public class GameManager : MonoBehaviour
         // Resume all pauseable objects if the list is not null.
         if (pauseableObjects != null)
         {
-            foreach (PauseableMovement obj in pauseableObjects)
+            foreach (PauseableObject obj in pauseableObjects)
             {
                 obj.Resume();
+            }
+        }
+    }
+
+    // for making objects fall straight down after the player touches the axe
+    public void FallPauseableObjects()
+    {
+        // Fall all pauseable objects if the list is not null.
+        if (pauseableObjects != null)
+        {
+            foreach (PauseableObject obj in pauseableObjects)
+            {
+                obj.FallStraightDown();
             }
         }
     }
@@ -365,7 +378,7 @@ public class GameManager : MonoBehaviour
     public void DebugRegisteredPauseableObjects()
     {
         Debug.Log("Registered PauseableMovement objects:");
-        foreach (PauseableMovement obj in pauseableObjects)
+        foreach (PauseableObject obj in pauseableObjects)
         {
             Debug.Log(obj.gameObject.name);
         }

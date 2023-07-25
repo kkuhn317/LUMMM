@@ -40,8 +40,9 @@ public class ObjectPhysics : MonoBehaviour
     public bool FrequentMovement = false; // if true, will update position every frame instead of every physics update
     private bool firstframe = true;
     public bool lavaKill = true;
-
+    public float sinkSpeed = 20f;
     public LayerMask lavaMask;
+    private GameObject touchedLava;
 
 
     public enum ObjectState
@@ -124,12 +125,19 @@ public class ObjectPhysics : MonoBehaviour
         }
 
         // vertical movement
-        if (objectState == ObjectState.falling || objectState == ObjectState.knockedAway)
+        if (objectState == ObjectState.falling || objectState == ObjectState.knockedAway || objectState == ObjectState.onLava)
         {
 
             pos.y += velocity.y * adjDeltaTime;
 
-            velocity.y -= gravity * adjDeltaTime;
+            
+            if (objectState == ObjectState.onLava) {
+                // sinking in lava
+                velocity.y = -sinkSpeed * adjDeltaTime;
+            } else {
+                // regular falling
+                velocity.y -= gravity * adjDeltaTime;
+            }
         }
 
         // horizontal movement
@@ -159,7 +167,7 @@ public class ObjectPhysics : MonoBehaviour
             velocity.y = 0;
         }
 
-        if (objectState != ObjectState.knockedAway)
+        if (objectState != ObjectState.knockedAway && objectState != ObjectState.onLava)
         {
 
             if (velocity.y <= 0)
@@ -168,7 +176,7 @@ public class ObjectPhysics : MonoBehaviour
             }
 
             // Check for lava collision
-            if (lavaKill && objectState != ObjectState.onLava)
+            if (lavaKill)
             {
                 CheckLava(pos);
             }
@@ -181,6 +189,13 @@ public class ObjectPhysics : MonoBehaviour
 
         transform.position = pos;
         transform.localScale = scale;
+
+        // are we deep enough in lava to die?
+        if (objectState == ObjectState.onLava) {
+            if (touchedLava.transform.position.y > transform.position.y + (height / 2)) {
+                Destroy(gameObject);
+            }
+        }
     }
 
     Vector3 CheckGround(Vector3 pos)
@@ -352,13 +367,8 @@ public class ObjectPhysics : MonoBehaviour
         {
             // We hit the "Lava" layer
             objectState = ObjectState.onLava;
-            // Implement any specific behavior for the object on lava (e.g., burn or take damage)
-            Destroy(gameObject);
-        }
-        else
-        {
-            // We are not on the lava layer, reset the objectState to falling
-            objectState = ObjectState.falling;
+            touchedLava = lavaHits[0].collider.gameObject;
+            GetComponent<SpriteRenderer>().maskInteraction = SpriteMaskInteraction.VisibleOutsideMask;
         }
     }
 

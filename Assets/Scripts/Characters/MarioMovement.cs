@@ -48,8 +48,6 @@ public class MarioMovement : MonoBehaviour
     public float damageinvinctime = 3f;
     public float invincetimeremain = 0f;
 
-
-
     public Vector2 groundPos;
     public enum PowerupState {
 
@@ -85,6 +83,8 @@ public class MarioMovement : MonoBehaviour
     public AudioClip bonkSound;
 
     private AudioSource audioSource;
+
+    private bool frozen = false;
 
     // Start is called before the first frame update
     void Start()
@@ -162,6 +162,10 @@ public class MarioMovement : MonoBehaviour
     }
 
     private void FixedUpdate() {
+
+        if (frozen) {
+            return;
+        }
 
         // Movement
         moveCharacter(direction.x);
@@ -557,6 +561,24 @@ public class MarioMovement : MonoBehaviour
     public void Shoot(InputAction.CallbackContext context)
     {
 
+    }
+
+    public void Freeze() {
+        // pause animations
+        animator.enabled = false;
+        // pause physics
+        rb.simulated = false;
+
+        frozen = true;
+    }
+
+    public void Unfreeze() {
+        // unpause animations
+        animator.enabled = true;
+        // unpause physics
+        rb.simulated = true;
+
+        frozen = false;
     }
 
 }

@@ -24,7 +24,12 @@ public class EnemyAI : ObjectPhysics
     }
 
     private void OnTriggerEnter2D(Collider2D other) {
-        if (other.gameObject.tag == "Player" && objectState != ObjectState.knockedAway) {
+        // don't do anything if we're already dead
+        if (objectState == ObjectState.knockedAway || objectState == ObjectState.onLava) {
+            return;
+        }
+
+        if (other.gameObject.tag == "Player") {
             hitByPlayer(other.gameObject);
         } else {
             touchNonPlayer(other.gameObject);
@@ -88,6 +93,12 @@ public class EnemyAI : ObjectPhysics
             Gizmos.color = Color.red;
             // spawn position
             Gizmos.DrawSphere(transform.position + itemSpawnOffset, 0.1f);
+        }
+    }
+
+    void OnDestroy() {
+        if (heldItem != null) {
+            releaseItem();
         }
     }
 }
