@@ -4,10 +4,10 @@ using UnityEngine;
 
 public class Axe : MonoBehaviour
 {
-    public enum AxeSize { Big, Small }
+    public enum AxeSize { Small, Big }
     public AxeSize Size;
 
-    public enum AxeRotation { Right, Left }
+    public enum AxeRotation { Left, Right }
     public AxeRotation Rotation;
 
     public enum BridgeDestructionType

@@ -4,9 +4,7 @@ using UnityEngine;
 
 public class Key : MonoBehaviour
 {
-
     public GameObject particle;
-
 
     private GameObject _player; // don't use this directly, use the player property instead
     private GameObject player {
@@ -17,8 +15,7 @@ public class Key : MonoBehaviour
             return _player;
         }
         set { _player = value; }
-    }
-        
+    } 
 
     private bool collectable = false;
     private bool collected = false;
@@ -40,10 +37,7 @@ public class Key : MonoBehaviour
 
     public float bounceheight = 0.5f;
     public float bounceSpeed = 0.5f;
-    private float bounceOffset = 0;
-
-    
-    
+    private float bounceOffset = 0;    
 
     // Start is called before the first frame update
     void Start()
@@ -105,8 +99,6 @@ public class Key : MonoBehaviour
                 newParticle.GetComponent<StarMoveOutward>().speed = 2f;
             }
         }
-
-
     }
 
     // follow the player when they have collected the key
@@ -195,7 +187,6 @@ public class Key : MonoBehaviour
 
         collectable = true;
 
-
         GetComponent<AudioSource>().PlayOneShot(keyToPlayerSound);
 
         float velocity = 0;
@@ -222,14 +213,7 @@ public class Key : MonoBehaviour
                 velocity += Time.deltaTime * acceleration;
                 transform.localPosition = Vector3.MoveTowards(transform.position, playerPos, velocity * Time.deltaTime);
             }
-            
-
             yield return null;
         }
-
     }
-
-    
-
-
 }
