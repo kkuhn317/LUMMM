@@ -5,6 +5,11 @@ using UnityEngine.Playables;
 
 public class QuestionBlock : MonoBehaviour
 {
+    public bool isInvisible = false; // determine if it starts invisible
+    public float raycastDistance = 1f; // You can adjust the raycast distance as needed
+    private bool isRevealed = false;
+    private bool detectFromBelow = false;
+
     public float bounceHeight = 0.5f;
     public float bounceSpeed = 4f;
 
@@ -41,10 +46,38 @@ public class QuestionBlock : MonoBehaviour
     {
         audioSource = GetComponent<AudioSource>();
         originalPosition = transform.localPosition;
+
+        // If the block starts as invisible, disable the sprite renderer and collider
+        if (isInvisible)
+        {
+            GetComponent<SpriteRenderer>().enabled = false;
+            GetComponent<Collider2D>().enabled = false;
+            detectFromBelow = true; // Set to true to enable raycast detection
+        }
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        // If detectFromBelow is true, cast a raycast downwards from the block
+        if (detectFromBelow)
+        {
+            Vector2 raycastDirection = Vector2.down;       
+            RaycastHit2D hit = Physics2D.Raycast(transform.position, raycastDirection, raycastDistance);
+
+            // Visualize the raycast in the scene view
+            Debug.DrawRay(transform.position, raycastDirection * raycastDistance, Color.blue);
+
+            // If the raycast hits the player, and the player is below the block, reveal the block
+            if (hit.collider != null && hit.collider.CompareTag("Player") && hit.collider.transform.position.y < transform.position.y)
+            {
+                RevealBlock();
+            }
+        }
     }
 
     private void OnCollisionEnter2D(Collision2D other) {
-        if (other.gameObject.tag == "Player") {
+        if (!isRevealed && other.gameObject.tag == "Player") {
             Vector2 impulse = Vector2.zero;
 
             int contactCount = other.contactCount;
@@ -77,7 +110,30 @@ public class QuestionBlock : MonoBehaviour
             {
                // Debug.Log();
             }
+
+            // Now we reveal the block when hit from below
+            RevealBlock();
         }
+    }
+
+    void RevealBlock()
+    {
+        isRevealed = true;
+        GetComponent<SpriteRenderer>().enabled = true;
+        GetComponent<Collider2D>().enabled = true;
+        GetComponent<SpriteRenderer>().sprite = emptyBlockSprite;
+
+        if (!brickBlock)
+        {
+            PresentCoin();
+        }
+        else
+        {
+            BrickBlockBreak();
+        }
+
+        // If you want the block to bounce after revealing, uncomment the line below:
+        StartCoroutine(Bounce());
     }
 
     // this is called when a koopa shell hits the block for example
@@ -232,7 +288,9 @@ public class QuestionBlock : MonoBehaviour
         while (true) {
 
             //item.GetComponent<Rigidbody2D>().velocity = Vector3.zero;
-            
+            if (item == null)
+                yield break;
+
             item.transform.localPosition = new Vector3 (item.transform.localPosition.x, item.transform.localPosition.y + itemMoveSpeed * Time.deltaTime, 0);
             //print(item.transform.localPosition.y + "vs" + originalPosition.y);
             if (item.transform.localPosition.y >= originalPosition.y + itemMoveHeight) {
