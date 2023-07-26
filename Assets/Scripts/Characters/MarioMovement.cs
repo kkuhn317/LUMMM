@@ -38,6 +38,7 @@ public class MarioMovement : MonoBehaviour
     [Header("Collision")]
     public bool onGround = false;
     public float groundLength = 0.6f;
+    public bool onMovingPlatform = false;
     public float ceilingLength = 0.5f;
 
     float colliderY;
@@ -175,7 +176,7 @@ public class MarioMovement : MonoBehaviour
         }
 
         // Floor detection
-        bool onMovingPlatform = false;
+        onMovingPlatform = false;
         transform.parent = null;
 
         RaycastHit2D groundHit1 = Physics2D.Raycast(transform.position + colliderOffset, Vector2.down, groundLength, groundLayer);
@@ -186,6 +187,9 @@ public class MarioMovement : MonoBehaviour
         if (onGround) {
 
             RaycastHit2D hitRay = groundHit1;
+
+            // print("ground1: " + groundHit1.transform.gameObject.tag);
+            // print("ground2: " + groundHit2.transform.gameObject.tag);
 
             if (groundHit1) {
                 hitRay = groundHit1;
@@ -389,7 +393,9 @@ public class MarioMovement : MonoBehaviour
             }
 
             // Stick to ground
-            transform.position = new Vector3(transform.position.x, groundPos.y + groundLength - 0.01f, transform.position.z);
+            if (!onMovingPlatform) {
+                transform.position = new Vector3(transform.position.x, groundPos.y + groundLength - 0.01f, transform.position.z);
+            }
 
 
         } else {

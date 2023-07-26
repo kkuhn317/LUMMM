@@ -81,6 +81,11 @@ public class EnemyAI : ObjectPhysics
     }
 
     public void releaseItem() {
+        // if the scene is closing, don't do anything
+        if (gameObject.scene.isLoaded == false) {
+            return;
+        }
+
         if (heldItem != null) {
             // instantiate the item
             GameObject item = Instantiate(heldItem, transform.position + itemSpawnOffset, Quaternion.identity);
