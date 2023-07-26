@@ -143,7 +143,10 @@ public class Axe : MonoBehaviour
             }
             else // Axe is small
             {
-                Destroy(this.gameObject);
+                // disable renderer
+                GetComponent<SpriteRenderer>().enabled = false;
+                // disable collider
+                GetComponent<BoxCollider2D>().enabled = false;
 
                 // Handle shared behavior for both axes (destroying the bridge and stopping the timer).
                 HandleSharedBehavior();
