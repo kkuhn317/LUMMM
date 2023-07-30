@@ -116,10 +116,6 @@ public class Axe : MonoBehaviour
             player = collision.gameObject;
             player.GetComponent<MarioMovement>().Freeze();
 
-            // play sound
-            if (grabSound != null)
-                audioSource.PlayOneShot(grabSound);
-
             // Handle behavior based on the axe size.
             if (Size == AxeSize.Big)
             {
@@ -134,6 +130,9 @@ public class Axe : MonoBehaviour
             }
             else // Axe is small
             {
+                // play sound
+                if (grabSound != null)
+                    audioSource.PlayOneShot(grabSound);
                 // disable renderer
                 GetComponent<SpriteRenderer>().enabled = false;
                 // disable collider

@@ -11,11 +11,11 @@ public class Key : MonoBehaviour
         get {
             if (_player == null) {
                 _player = GameObject.FindGameObjectWithTag("Player");
-                }
+            }
             return _player;
         }
         set { _player = value; }
-    } 
+    }
 
     private bool collectable = false;
     private bool collected = false;
@@ -32,11 +32,21 @@ public class Key : MonoBehaviour
     public AudioClip keyRiseSound;
     public AudioClip keyToPlayerSound;
 
+    /*[Header("When collected key")]
+    private bool isMoving = false;
+    public bool shouldPlayAnimationAndAudio = true;
+    public bool playerMoved = false; // New flag to track if the player moved after the timer started
+    private float notMovingTime = 0f;
+    public float timeThreshold = 5f; // Adjust this to set the time threshold for triggering the audio and animation
+    private GameObject playerwithKey; // Reference to the player object that grabs the key
+    public string animationParameterTrigger;
+    public AudioClip playerAudioClip; // Audio clip from the player object*/
+
     [Header("Bounce")]
 
     public float bounceheight = 0.5f;
     public float bounceSpeed = 0.5f;
-    private float bounceOffset = 0;    
+    private float bounceOffset = 0;
 
     // Start is called before the first frame update
     void Start()
@@ -51,10 +61,77 @@ public class Key : MonoBehaviour
 
     void Update()
     {
-        if (collected) {
+        /*if (collected) {
             followPlayer();
+        }*/
+
+        if (collected)
+        {
+            followPlayer();
+
+            /*if (isMoving)
+            {
+                notMovingTime = 0f;
+                playerMoved = true; // Set the flag to true when the player moves
+            }
+            else
+            {
+                notMovingTime += Time.deltaTime;
+                if (notMovingTime >= timeThreshold && !playerMoved && shouldPlayAnimationAndAudio) // Check if the player has not moved before triggering audio and animation
+                {
+                    PlayAudioAndAnimation();
+                }
+            }*/
         }
     }
+
+    // Additional function to handle playing audio and animation when the key goes to Mario after not moving for a certain time.
+    /*void PlayAudioAndAnimation()
+    {
+        if (playerwithKey != null)
+        {
+            // Play the animation on the player GameObject
+            Animator playerAnimator = playerwithKey.GetComponent<Animator>();
+            if (playerAnimator != null)
+            {
+                playerAnimator.SetTrigger(animationParameterTrigger);
+            }
+            else
+            {
+                Debug.LogError("Player Animator component not found.");
+            }
+
+            // Play audio on the player GameObject
+            AudioSource playerAudioSource = playerwithKey.GetComponent<AudioSource>();
+            if (playerAudioSource != null && playerAudioClip != null)
+            {
+                playerAudioSource.PlayOneShot(playerAudioClip);
+            }
+            else
+            {
+                Debug.LogError("Player AudioSource component or audio clip not found.");
+            }
+        }
+        else
+        {
+            Debug.LogError("Player with Key GameObject not found.");
+        }
+    }
+
+    // Function to be called when the key is collected by a player
+    public void OnCollected(GameObject player, AudioClip audioClip, bool playAnimationAndAudio)
+    {
+        playerwithKey = player; // Set the reference to the player that collected the key
+        playerAudioClip = audioClip; // Set the audio clip from the player
+        shouldPlayAnimationAndAudio = playAnimationAndAudio; // Set the flag to determine if animation and audio should be played
+
+        if (!shouldPlayAnimationAndAudio)
+        {
+            // If the flag is set to false, reset the notMovingTime and playerMoved flags
+            notMovingTime = 0f;
+            playerMoved = false;
+        }
+    }*/
 
     void OnTriggerEnter2D(Collider2D other)
     {
