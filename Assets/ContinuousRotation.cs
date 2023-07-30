@@ -15,7 +15,7 @@ public class ContinuousRotation : MonoBehaviour
     void FixedUpdate()
     {
         float direction = anticlockwise ? 1f : -1f;
-        float rotationAmount = rotationSpeed * direction * Time.fixedDeltaTime;
+        float rotationAmount = rotationSpeed * direction * Time.unscaledDeltaTime;
 
         if (rotateOnX)
         {

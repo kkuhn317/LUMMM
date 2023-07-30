@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 using UnityEngine.InputSystem;
 
 public class MarioMovement : MonoBehaviour
@@ -57,6 +58,10 @@ public class MarioMovement : MonoBehaviour
         power
     }
 
+    [Header("Animation Events")]
+    private bool isYeahAnimationPlaying = false;
+    private bool hasEnteredAnimationYeahTrigger = false;
+
     [Header("Powerups")]
 
     public PowerupState powerupState = PowerupState.small;
@@ -82,6 +87,8 @@ public class MarioMovement : MonoBehaviour
 
     public AudioClip damageSound;
     public AudioClip bonkSound;
+    public AudioClip yeahAudioClip;
+    public AudioClip MaaaamaMiaAudioClip;
 
     private AudioSource audioSource;
 
@@ -318,9 +325,6 @@ public class MarioMovement : MonoBehaviour
             animator.SetBool("isSkidding", false);
             animator.SetBool("onGround", false);
         }
-
-
-
     }
 
     // for jumping and also stomping enemies
@@ -467,6 +471,33 @@ public class MarioMovement : MonoBehaviour
         }
     }
 
+    public void PlayYeahAnimation()
+    {
+        if (!isYeahAnimationPlaying && !hasEnteredAnimationYeahTrigger)
+        {
+            StartCoroutine(PlayYeahAnimationWithAudio());
+        }
+    }
+
+    private IEnumerator PlayYeahAnimationWithAudio()
+    {
+        isYeahAnimationPlaying = true;
+        hasEnteredAnimationYeahTrigger = true;
+
+        // Start playing the "yeah" animation
+        animator.SetBool("yeah", true);
+
+        // Play the audio clip
+        audioSource.PlayOneShot(yeahAudioClip);
+
+        // Wait for the audio clip to finish playing
+        yield return new WaitForSeconds(yeahAudioClip.length + 0.2f);
+
+        // Stop the "yeah" animation and set the parameter to false
+        animator.SetBool("yeah", false);
+        isYeahAnimationPlaying = false;
+    }
+
     void OnTriggerStay2D(Collider2D other)
     {
         // firebar, flame, etc
@@ -479,10 +510,13 @@ public class MarioMovement : MonoBehaviour
         {
             toDead();
         }
-        // Animation
-        if (other.gameObject.tag == "AnimationWorried")
+    }
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        // Check if the trigger collider is the one you want to trigger the "yeah" animation
+        if (other.gameObject.CompareTag("AnimationYeah"))
         {
-            GetComponent<Animator>().SetBool("isWorried", true);
+            PlayYeahAnimation();
         }
     }
 
@@ -490,7 +524,7 @@ public class MarioMovement : MonoBehaviour
     {
         if (other.gameObject.tag == "AnimationWorried")
         {
-            GetComponent<Animator>().SetBool("isWorried", false);
+            animator.SetBool("isWorried", false);
         }
     }
 

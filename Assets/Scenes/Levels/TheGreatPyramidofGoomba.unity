@@ -12171,6 +12171,7 @@ Transform:
   - {fileID: 1413190314}
   - {fileID: 1596328257}
   - {fileID: 372498620}
+  - {fileID: 535050796}
   - {fileID: 1513916271}
   - {fileID: 1973338331}
   - {fileID: 609676849}
@@ -12226,7 +12227,6 @@ Transform:
   - {fileID: 49750319}
   - {fileID: 1280549883}
   - {fileID: 1336956326}
-  - {fileID: 535050796}
   - {fileID: 35989959}
   - {fileID: 1915193776}
   - {fileID: 1780301735}
@@ -17868,7 +17868,11 @@ PrefabInstance:
     - target: {fileID: 6969007471449977868, guid: abaa141d0948d9c4d9626f843f325199, type: 3}
       propertyPath: m_Sprite
       value: 
-      objectReference: {fileID: 1229591626, guid: b8e2dfbbc4e900d4c9d70e40e206dde7, type: 3}
+      objectReference: {fileID: 2117126664, guid: fa6be71cce928004e90e55a9a72d15f0, type: 3}
+    - target: {fileID: 6969007471449977868, guid: abaa141d0948d9c4d9626f843f325199, type: 3}
+      propertyPath: m_WasSpriteAssigned
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 6969007471449977869, guid: abaa141d0948d9c4d9626f843f325199, type: 3}
       propertyPath: m_Name
       value: questionblock (2)
@@ -18290,7 +18294,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 519420028}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -8.050001, y: 0.069999695, z: -10}
+  m_LocalPosition: {x: 27.5, y: 13.9, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -18573,7 +18577,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 140972653}
-  m_RootOrder: 181
+  m_RootOrder: 126
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!61 &535050797
 BoxCollider2D:
@@ -19623,7 +19627,6 @@ GameObject:
   - component: {fileID: 591501860}
   - component: {fileID: 591501859}
   - component: {fileID: 591501861}
-  - component: {fileID: 591501862}
   m_Layer: 5
   m_Name: GreenCoin1
   m_TagString: Untagged
@@ -19709,20 +19712,6 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
---- !u!114 &591501862
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 591501857}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a4258e8980839454e94aca367d8db1d6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  specialCoinSprite: {fileID: 21300000, guid: 91ad0d3cef6fca64889e812b23f2de82, type: 3}
-  spriteRenderer: {fileID: 0}
 --- !u!1001 &596067955
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -20088,9 +20077,13 @@ PrefabInstance:
     - target: {fileID: 6969007471449977868, guid: abaa141d0948d9c4d9626f843f325199, type: 3}
       propertyPath: m_Sprite
       value: 
-      objectReference: {fileID: 1229591626, guid: b8e2dfbbc4e900d4c9d70e40e206dde7, type: 3}
+      objectReference: {fileID: 2117126664, guid: fa6be71cce928004e90e55a9a72d15f0, type: 3}
     - target: {fileID: 6969007471449977868, guid: abaa141d0948d9c4d9626f843f325199, type: 3}
       propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6969007471449977868, guid: abaa141d0948d9c4d9626f843f325199, type: 3}
+      propertyPath: m_WasSpriteAssigned
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6969007471449977869, guid: abaa141d0948d9c4d9626f843f325199, type: 3}
@@ -23527,17 +23520,21 @@ PrefabInstance:
       propertyPath: powerupState
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1771483343543010228, guid: 0ed8634130540ee49afd6a10ccb53bf6, type: 3}
+      propertyPath: yeahAudioClip
+      value: 
+      objectReference: {fileID: 8300000, guid: b4a5b5a191256034ca457e70e758ea5b, type: 3}
     - target: {fileID: 1771483343543010229, guid: 0ed8634130540ee49afd6a10ccb53bf6, type: 3}
       propertyPath: m_RootOrder
       value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 1771483343543010229, guid: 0ed8634130540ee49afd6a10ccb53bf6, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -10.61
+      value: 33.5
       objectReference: {fileID: 0}
     - target: {fileID: 1771483343543010229, guid: 0ed8634130540ee49afd6a10ccb53bf6, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -3.5
+      value: 14.5
       objectReference: {fileID: 0}
     - target: {fileID: 1771483343543010229, guid: 0ed8634130540ee49afd6a10ccb53bf6, type: 3}
       propertyPath: m_LocalPosition.z
@@ -25005,6 +25002,90 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 7384276377935262447, guid: 58c115d689575404f8428b6c77cd4621, type: 3}
   m_PrefabInstance: {fileID: 860181363}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &861526119
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 861526121}
+  - component: {fileID: 861526120}
+  m_Layer: 0
+  m_Name: BookKevinnRoombie
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!212 &861526120
+SpriteRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 861526119}
+  m_Enabled: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 0
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_Sprite: {fileID: 21300000, guid: 786a1b62fbb5f3244a542381e0c1151a, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_FlipX: 0
+  m_FlipY: 0
+  m_DrawMode: 0
+  m_Size: {x: 0.8125, y: 0.5625}
+  m_AdaptiveModeThreshold: 0.5
+  m_SpriteTileMode: 0
+  m_WasSpriteAssigned: 1
+  m_MaskInteraction: 0
+  m_SpriteSortPoint: 0
+--- !u!4 &861526121
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 861526119}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 24.5, y: 28.281, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 49
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &862166130
 GameObject:
   m_ObjectHideFlags: 0
@@ -26465,7 +26546,11 @@ PrefabInstance:
     - target: {fileID: 6969007471449977868, guid: abaa141d0948d9c4d9626f843f325199, type: 3}
       propertyPath: m_Sprite
       value: 
-      objectReference: {fileID: 1229591626, guid: b8e2dfbbc4e900d4c9d70e40e206dde7, type: 3}
+      objectReference: {fileID: 2117126664, guid: fa6be71cce928004e90e55a9a72d15f0, type: 3}
+    - target: {fileID: 6969007471449977868, guid: abaa141d0948d9c4d9626f843f325199, type: 3}
+      propertyPath: m_WasSpriteAssigned
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 6969007471449977869, guid: abaa141d0948d9c4d9626f843f325199, type: 3}
       propertyPath: m_Name
       value: questionblock (1)
@@ -26913,7 +26998,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 7668448856661109272, guid: 5dd8e8f2d13025140b61dafd1742d9ca, type: 3}
       propertyPath: m_SortingOrder
-      value: -1
+      value: -2
       objectReference: {fileID: 0}
     - target: {fileID: 7687236340210922787, guid: 5dd8e8f2d13025140b61dafd1742d9ca, type: 3}
       propertyPath: m_Name
@@ -29594,7 +29679,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 6.9, y: 2}
+  m_Size: {x: 5.5, y: 2}
   m_EdgeRadius: 0
 --- !u!4 &1108557383
 Transform:
@@ -29604,7 +29689,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1108557381}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 28.5, y: 15, z: 0}
+  m_LocalPosition: {x: 28.74, y: 15, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -32457,7 +32542,7 @@ Tilemap:
       m_AnimatedSprites:
       - {fileID: 455067675, guid: 9cedcc06b2259a04c9dc16f2cec7812c, type: 3}
       - {fileID: -1000863836, guid: 9cedcc06b2259a04c9dc16f2cec7812c, type: 3}
-      m_AnimationSpeed: 5
+      m_AnimationSpeed: 5.0000005
       m_AnimationTimeOffset: 0
       m_IsLooping: 1
   - first: {x: 28, y: -8, z: 0}
@@ -32841,7 +32926,7 @@ Tilemap:
       m_AnimatedSprites:
       - {fileID: 455067675, guid: 9cedcc06b2259a04c9dc16f2cec7812c, type: 3}
       - {fileID: -1000863836, guid: 9cedcc06b2259a04c9dc16f2cec7812c, type: 3}
-      m_AnimationSpeed: 5
+      m_AnimationSpeed: 5.0000005
       m_AnimationTimeOffset: 0
       m_IsLooping: 1
   - first: {x: 31, y: -7, z: 0}
@@ -32953,7 +33038,7 @@ Tilemap:
       m_AnimatedSprites:
       - {fileID: 455067675, guid: 9cedcc06b2259a04c9dc16f2cec7812c, type: 3}
       - {fileID: -1000863836, guid: 9cedcc06b2259a04c9dc16f2cec7812c, type: 3}
-      m_AnimationSpeed: 5
+      m_AnimationSpeed: 5.0000005
       m_AnimationTimeOffset: 0
       m_IsLooping: 1
   - first: {x: 0, y: -6, z: 0}
@@ -36527,7 +36612,6 @@ GameObject:
   - component: {fileID: 1287026497}
   - component: {fileID: 1287026496}
   - component: {fileID: 1287026498}
-  - component: {fileID: 1287026499}
   m_Layer: 5
   m_Name: GreenCoin2
   m_TagString: Untagged
@@ -36613,20 +36697,6 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
---- !u!114 &1287026499
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1287026494}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a4258e8980839454e94aca367d8db1d6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  specialCoinSprite: {fileID: 21300000, guid: 91ad0d3cef6fca64889e812b23f2de82, type: 3}
-  spriteRenderer: {fileID: 0}
 --- !u!1001 &1287894401
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -83225,7 +83295,6 @@ GameObject:
   - component: {fileID: 2144328932}
   - component: {fileID: 2144328931}
   - component: {fileID: 2144328933}
-  - component: {fileID: 2144328934}
   m_Layer: 5
   m_Name: GreenCoin3
   m_TagString: Untagged
@@ -83311,20 +83380,6 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
---- !u!114 &2144328934
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2144328929}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a4258e8980839454e94aca367d8db1d6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  specialCoinSprite: {fileID: 21300000, guid: 91ad0d3cef6fca64889e812b23f2de82, type: 3}
-  spriteRenderer: {fileID: 0}
 --- !u!1001 &2144585630
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -84639,7 +84694,11 @@ PrefabInstance:
     - target: {fileID: 6969007471449977868, guid: abaa141d0948d9c4d9626f843f325199, type: 3}
       propertyPath: m_Sprite
       value: 
-      objectReference: {fileID: 1229591626, guid: b8e2dfbbc4e900d4c9d70e40e206dde7, type: 3}
+      objectReference: {fileID: 2117126664, guid: fa6be71cce928004e90e55a9a72d15f0, type: 3}
+    - target: {fileID: 6969007471449977868, guid: abaa141d0948d9c4d9626f843f325199, type: 3}
+      propertyPath: m_WasSpriteAssigned
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 6969007471449977869, guid: abaa141d0948d9c4d9626f843f325199, type: 3}
       propertyPath: m_Name
       value: questionblock
