@@ -20,7 +20,7 @@ public class Key : MonoBehaviour
     private bool collectable = false;
     private bool collected = false;
 
-    private Vector3 acutalposition;
+    private Vector3 actualposition;
 
     [Header("Collected from Enemy")]
 
@@ -33,7 +33,6 @@ public class Key : MonoBehaviour
     public AudioClip keyToPlayerSound;
 
     [Header("Bounce")]
-    private Vector3 actualposition;
 
     public float bounceheight = 0.5f;
     public float bounceSpeed = 0.5f;
@@ -42,13 +41,12 @@ public class Key : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        acutalposition = transform.position;
+        actualposition = transform.position;
         if (fromEnemy) {
             StartCoroutine(goToMario());
         } else {
             collectable = true;
         }
-        actualposition = transform.position;
     }
 
     void Update()
@@ -62,9 +60,9 @@ public class Key : MonoBehaviour
     {
         if (other.gameObject.tag == "Player" && !collected && collectable)
         {
+            actualposition = transform.position;
             player = other.gameObject;
             collected = true;
-            acutalposition = transform.position;
             GameManager.Instance.keys.Add(gameObject);
             GetComponent<AudioSource>().Play();
             spawnParticles();

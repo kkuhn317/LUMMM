@@ -35,7 +35,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 1771483345064444799}
+  - {fileID: 4130259139167701840}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -61,10 +61,10 @@ MonoBehaviour:
   terminalvelocity: 12.5
   startfallingspeed: 1
   rb: {fileID: 1771483343543010230}
-  animator: {fileID: 7590307370426838290}
   groundLayer:
     serializedVersion: 2
     m_Bits: 8
+  heldObjectPosition: {fileID: 4241799718361322995}
   maxSpeed: 5
   maxRunSpeed: 10
   linearDrag: 10
@@ -74,6 +74,7 @@ MonoBehaviour:
   airtime: 0.4
   onGround: 0
   groundLength: 0.53
+  onMovingPlatform: 0
   ceilingLength: 0.53
   colliderOffset: {x: 0.35, y: 0, z: 0}
   damageinvinctime: 3
@@ -85,6 +86,13 @@ MonoBehaviour:
   deadMario: {fileID: 2690894693950398662, guid: ff75489bc4690ac44b21755151c91047, type: 3}
   damageSound: {fileID: 8300000, guid: 938d4a3d1a37b284c81c8c25379c86b4, type: 3}
   bonkSound: {fileID: 8300000, guid: 6db2c81fb3c026d40a90d8d52dc8384b, type: 3}
+  carrying: 0
+  pressRunToGrab: 0
+  crouchToGrab: 0
+  carryMethod: 1
+  pickupSound: {fileID: 8300000, guid: 22ebcc2300d5fe9439867fabd6330357, type: 3}
+  dropSound: {fileID: 8300000, guid: 22ebcc2300d5fe9439867fabd6330357, type: 3}
+  throwSound: {fileID: 8300000, guid: 62467461e51dddb40931164fd2db1170, type: 3}
 --- !u!50 &1771483343543010230
 Rigidbody2D:
   serializedVersion: 4
@@ -458,7 +466,7 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
---- !u!1 &1771483345064444798
+--- !u!1 &4241799718361322995
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -466,48 +474,58 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 1771483345064444799}
-  - component: {fileID: 1771483345064444792}
+  - component: {fileID: 187560863979875086}
   m_Layer: 9
-  m_Name: KeyPlace
-  m_TagString: Back
+  m_Name: CarryPlace
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &1771483345064444799
+--- !u!4 &187560863979875086
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1771483345064444798}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.3, y: -0.7, z: 0}
+  m_GameObject: {fileID: 4241799718361322995}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0.3064003, y: -0.20700002, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1771483343543010229}
+  m_Father: {fileID: 4130259139167701840}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!50 &1771483345064444792
-Rigidbody2D:
-  serializedVersion: 4
+--- !u!1 &5421975347213982424
+GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1771483345064444798}
-  m_BodyType: 1
-  m_Simulated: 1
-  m_UseFullKinematicContacts: 0
-  m_UseAutoMass: 0
-  m_Mass: 1
-  m_LinearDrag: 0
-  m_AngularDrag: 0.05
-  m_GravityScale: 1
-  m_Material: {fileID: 0}
-  m_Interpolate: 0
-  m_SleepingMode: 1
-  m_CollisionDetection: 0
-  m_Constraints: 0
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4130259139167701840}
+  m_Layer: 9
+  m_Name: Rel Locs
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4130259139167701840
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5421975347213982424}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 187560863979875086}
+  m_Father: {fileID: 1771483343543010229}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

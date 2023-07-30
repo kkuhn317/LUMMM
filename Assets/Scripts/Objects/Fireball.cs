@@ -5,7 +5,7 @@ using UnityEngine;
 public class Fireball : ObjectPhysics
 {
 
-    public firePower firePowerScript;
+    public FirePower firePowerScript;
     public AudioClip hitWallSound;
     public GameObject wallHitPrefab; // Prefab to instantiate when the fireball hits a wall
 

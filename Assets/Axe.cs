@@ -241,7 +241,7 @@ public class Axe : MonoBehaviour
             audioSource.PlayOneShot(enemyFallSound);
 
         // Resume the pauseable objects
-        GameManager.Instance.ResumePauseableObjects();
+        GameManager.Instance.FallPauseableObjects();
     }
 
     private void resumePlayer() {

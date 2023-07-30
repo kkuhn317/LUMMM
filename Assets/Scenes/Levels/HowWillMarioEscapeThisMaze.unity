@@ -730,6 +730,11 @@ MonoBehaviour:
   DontFallOffLedges: 0
   flipObject: 1
   FrequentMovement: 0
+  lavaKill: 1
+  sinkSpeed: 20
+  lavaMask:
+    serializedVersion: 2
+    m_Bits: 0
   knockAwaySound: {fileID: 8300000, guid: 62467461e51dddb40931164fd2db1170, type: 3}
   objectState: 0
   movement: 0
@@ -738,6 +743,8 @@ MonoBehaviour:
   bounceHeight: 0
   canBeFireballed: 1
   stompHeight: 0.2
+  heldItem: {fileID: 0}
+  itemSpawnOffset: {x: 0, y: 0, z: 0}
 --- !u!1001 &380284647
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3928,8 +3935,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1595839732}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1.5, y: 4.5, z: -10}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: 2.119, y: 4.5, z: 1}
+  m_LocalScale: {x: 2.5, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}

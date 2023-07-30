@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Events;
 
 public class MarioMovement : MonoBehaviour
 {
@@ -21,8 +22,13 @@ public class MarioMovement : MonoBehaviour
 
     [Header("Components")]
     public Rigidbody2D rb;
-    public Animator animator;
+    private Animator animator;
     public LayerMask groundLayer;
+    private MarioAbility marioAbility;
+
+    [Header("Child Objects")]
+    public GameObject heldObjectPosition;
+    private GameObject relPosObj;
 
     [Header("Physics")]
     public float maxSpeed = 7f;
@@ -87,12 +93,32 @@ public class MarioMovement : MonoBehaviour
 
     private bool frozen = false;
 
+    [Header("Carrying")]
+
+    public bool carrying = false;
+    public bool pressRunToGrab = false;
+    public bool crouchToGrab = false;
+    public enum CarryMethod {
+        inFront,
+        onHand
+    }
+    public CarryMethod carryMethod = CarryMethod.onHand;
+    public AudioClip pickupSound;
+    public AudioClip dropSound;
+    public AudioClip throwSound;
+
     // Start is called before the first frame update
     void Start()
     {
         audioSource = GetComponent<AudioSource>();
         colliderY = GetComponent<BoxCollider2D>().size.y;
         collideroffsetY = GetComponent<BoxCollider2D>().offset.y;
+        relPosObj = transform.GetChild(0).gameObject;
+        animator = GetComponent<Animator>();
+        animator.SetInteger("grabMethod", (int)carryMethod);
+        if (powerupState == PowerupState.power) {
+            marioAbility = GetComponent<MarioAbility>();
+        }
     }
 
     // Update is called once per frame
@@ -111,6 +137,27 @@ public class MarioMovement : MonoBehaviour
             invincetimeremain = 0f;
         }
 
+        bool crouch = (direction.y < -0.5);
+
+        // Picking up item
+        if (((pressRunToGrab && Input.GetButtonDown("Fire3")) || (!pressRunToGrab && Input.GetButton("Fire3"))) && (!crouchToGrab || crouch) && !carrying) {
+            checkForCarry();
+        }
+
+        // shoot fireball, etc
+        if (!carrying && Input.GetButtonDown("Fire3") && powerupState == PowerupState.power) {
+            print("shoot!");
+            marioAbility.shootProjectile();
+        }
+
+        // Throwing item
+        if (carrying && !Input.GetButton("Fire3")) {
+            if (crouch) {
+                dropCarry();
+            } else {
+                throwCarry();
+            }
+        }
 
     }
 
@@ -255,19 +302,19 @@ public class MarioMovement : MonoBehaviour
         bool crouch = (direction.y < -0.5);
 
         // Crouching
-        if (crouch && powerupState != PowerupState.small && onGround) {
+        if (crouch && powerupState != PowerupState.small && onGround && !carrying) {
 
             // Start Crouch
-            GetComponent<Animator>().SetBool("isCrouching", true);
+            animator.SetBool("isCrouching", true);
             inCrouchState = true;
             GetComponent<BoxCollider2D>().size = new Vector2(GetComponent<BoxCollider2D>().size.x, 1.0f);
             GetComponent<BoxCollider2D>().offset = new Vector2(GetComponent<BoxCollider2D>().offset.x, -0.5f);
             ceilingLength = 0.1f;
 
-        } else if ((!crouch && onGround) || (powerupState == PowerupState.small)) {
+        } else if ((!crouch && onGround) || (powerupState == PowerupState.small) || carrying) {
 
             // Stop Crouch
-            GetComponent<Animator>().SetBool("isCrouching", false);
+            animator.SetBool("isCrouching", false);
             inCrouchState = false;
             if (powerupState != PowerupState.small) {
                 GetComponent<BoxCollider2D>().size = new Vector2(GetComponent<BoxCollider2D>().size.x, colliderY);
@@ -330,8 +377,6 @@ public class MarioMovement : MonoBehaviour
             animator.SetBool("isSkidding", false);
             animator.SetBool("onGround", false);
         }
-
-
 
     }
 
@@ -420,6 +465,14 @@ public class MarioMovement : MonoBehaviour
         facingRight = !facingRight;
         //transform.rotation = Quaternion.Euler(0, facingRight ? 0 : 180, 0);
         GetComponent<SpriteRenderer>().flipX = !facingRight;
+        float relScaleX = facingRight ? 1 : -1;
+
+        // flip might be called before start, this fixes that
+        if (relPosObj == null) {
+            relPosObj = transform.GetChild(0).gameObject;
+        }
+
+        relPosObj.transform.localScale = new Vector3(relScaleX, 1, 1);
     }
 
     public void damageMario() {
@@ -450,8 +503,18 @@ public class MarioMovement : MonoBehaviour
             newMario = Instantiate(powerDownMario, new Vector3(transform.position.x, transform.position.y, transform.position.z), transform.rotation);
         }
         newMario.GetComponent<Rigidbody2D>().velocity = gameObject.GetComponent<Rigidbody2D>().velocity;
-        newMario.GetComponent<MarioMovement>().invincetimeremain = damageinvinctime;
-        newMario.GetComponent<MarioMovement>().playDamageSound();
+        var newMarioMovement = newMario.GetComponent<MarioMovement>();
+        newMarioMovement.invincetimeremain = damageinvinctime;
+        
+        if (carrying) {
+            // move carried object to new mario
+            GameObject carriedObject = heldObjectPosition.transform.GetChild(0).gameObject;
+            carriedObject.transform.parent = newMarioMovement.heldObjectPosition.transform;
+            carriedObject.transform.localPosition = Vector3.zero;
+            newMarioMovement.carrying = true;
+        }
+
+        newMarioMovement.playDamageSound();
         Destroy(gameObject);
     }
 
@@ -484,7 +547,7 @@ public class MarioMovement : MonoBehaviour
         // Animation
         if (other.gameObject.tag == "AnimationWorried")
         {
-            GetComponent<Animator>().SetBool("isWorried", true);
+            animator.SetBool("isWorried", true);
         }
     }
 
@@ -492,7 +555,7 @@ public class MarioMovement : MonoBehaviour
     {
         if (other.gameObject.tag == "AnimationWorried")
         {
-            GetComponent<Animator>().SetBool("isWorried", false);
+            animator.SetBool("isWorried", false);
         }
     }
 
@@ -521,13 +584,22 @@ public class MarioMovement : MonoBehaviour
     }
 
     private void OnDrawGizmos() {
+        // Ground
         Gizmos.color = Color.red;
         Gizmos.DrawLine(transform.position + colliderOffset, transform.position + colliderOffset + Vector3.down * groundLength);
         Gizmos.DrawLine(transform.position - colliderOffset, transform.position - colliderOffset + Vector3.down * groundLength);
 
+        // Ceiling
         Gizmos.DrawLine(transform.position, transform.position + Vector3.up * ceilingLength);
         Gizmos.DrawLine(transform.position + colliderOffset, transform.position + colliderOffset + Vector3.up * ceilingLength);
         Gizmos.DrawLine(transform.position - colliderOffset, transform.position - colliderOffset + Vector3.up * ceilingLength);
+
+        // Carry Raycast
+        Gizmos.color = Color.blue;
+        float raycastHeight = powerupState == PowerupState.small ? -0.4f : -0.9f;
+        Vector3 start = transform.position + new Vector3(0, raycastHeight, 0);
+        Gizmos.DrawLine(start, start + (facingRight ? Vector3.right : Vector3.left) * 0.6f);
+
     }
 
     public void Move(InputAction.CallbackContext context)
@@ -585,6 +657,79 @@ public class MarioMovement : MonoBehaviour
         rb.simulated = true;
 
         frozen = false;
+    }
+
+    void checkForCarry() {
+        print("Check carry");
+        float raycastHeight = powerupState == PowerupState.small ? -0.4f : -0.9f;
+        // raycast in front of feet of mario
+        RaycastHit2D[] hit = Physics2D.RaycastAll(transform.position + new Vector3(0, raycastHeight, 0), facingRight ? Vector2.right : Vector2.left, 0.6f);
+
+
+        foreach(RaycastHit2D h in hit) {
+            // if object has objectphysics script
+            if (h.collider.gameObject.GetComponent<ObjectPhysics>() != null) {
+                ObjectPhysics obj = h.collider.gameObject.GetComponent<ObjectPhysics>();
+                // not carried and carryable
+                if (!obj.carried && obj.carryable) {
+                    carry(obj);
+                    return;
+                }
+            }
+        }
+    }
+
+    void carry(ObjectPhysics obj) {
+        print("carry!");
+        carrying = true;
+
+        animator.SetTrigger("grab");
+        
+        // set object to be child of mario's object holder
+        obj.transform.parent = heldObjectPosition.transform;
+
+        // sound
+        if (pickupSound != null)
+            audioSource.PlayOneShot(pickupSound);
+
+        obj.getCarried();
+    }
+
+    public void dropCarry() {
+        print("drop!");
+        carrying = false;
+
+        animator.SetTrigger("grab");
+        
+        // get object from mario's object holder
+        ObjectPhysics obj = heldObjectPosition.transform.GetChild(0).gameObject.GetComponent<ObjectPhysics>();
+        obj.transform.parent = null;
+        obj.transform.position = new Vector3(transform.position.x + (facingRight ? 1 : -1), transform.position.y + (powerupState == PowerupState.small ? 0f : -.5f), transform.position.z);
+        
+        // sound
+        if (dropSound != null)
+            audioSource.PlayOneShot(dropSound);
+
+        obj.getDropped(facingRight);
+    }
+
+    void throwCarry() {
+        print("throw!");
+
+        carrying = false;
+
+        // todo: throw animation
+
+        // get object from mario's object holder
+        ObjectPhysics obj = heldObjectPosition.transform.GetChild(0).gameObject.GetComponent<ObjectPhysics>();
+        obj.transform.parent = null;
+        obj.transform.position = new Vector3(transform.position.x + (facingRight ? 1 : -1), transform.position.y + (powerupState == PowerupState.small ? 0.1f : -.1f), transform.position.z);
+        
+        // sound
+        if (throwSound != null)
+            audioSource.PlayOneShot(throwSound);
+
+        obj.getThrown(facingRight);
     }
 
 }

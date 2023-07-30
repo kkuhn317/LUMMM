@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class firePower : MonoBehaviour
+public class FirePower : MarioAbility
 {
 
     public GameObject fireballObj;
@@ -20,13 +20,8 @@ public class firePower : MonoBehaviour
         
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        // if run key is pressed, shoot fireball
-        if (Input.GetButtonDown("Fire3"))
-        {
-            if (fireballs < fireballsMax)
+    public override void shootProjectile() {
+        if (fireballs < fireballsMax)
             {
                 bool facingRight = GetComponent<MarioMovement>().facingRight;
                 int directionint = facingRight ? 1 : -1;
@@ -47,7 +42,6 @@ public class firePower : MonoBehaviour
                 // play fireball sound
                 GetComponent<AudioSource>().PlayOneShot(shootSound);
             }
-        }
     }
 
     public void onFireballDestroyed()

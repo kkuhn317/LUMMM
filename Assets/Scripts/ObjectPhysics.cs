@@ -25,7 +25,6 @@ public class ObjectPhysics : MonoBehaviour
 
     // should mostly be true, except for things like moving koopa shells
     public bool checkObjectCollision = true;
-
     public bool DontFallOffLedges = false;
 
 
@@ -44,6 +43,12 @@ public class ObjectPhysics : MonoBehaviour
     public LayerMask lavaMask;
     private GameObject touchedLava;
 
+    [Header("Carrying")]
+
+    public bool carryable = false;
+    public bool carried = false;
+    private int oldOrderInLayer;
+    public Vector2 throwVelocity = new Vector2(12, 10);
 
     public enum ObjectState
     {
@@ -69,20 +74,24 @@ public class ObjectPhysics : MonoBehaviour
     public bool stopAfterLand = false;  // do we set the horizontal velocity to 0 after landing?
 
     [Header("Bouncing")]
-    public int maxBounces = 1; // -1 for infinite
-    private int bounceCount = 0;
+
     public float bounceHeight;
+    public float minHeightToBounce = 1f;
+
+    private float peakHeight;
 
     protected virtual void Start()
     {
         normalScale = transform.localScale;
         adjDeltaTime = Time.fixedDeltaTime;
         lavaMask = LayerMask.GetMask("Lava");
+        peakHeight = transform.position.y;
+        oldOrderInLayer = GetComponent<SpriteRenderer>().sortingOrder;
     }
 
     protected virtual void Update()
     {
-
+        
         if (FrequentMovement)
         {
             adjDeltaTime = Time.deltaTime;
@@ -111,6 +120,11 @@ public class ObjectPhysics : MonoBehaviour
 
     public void UpdatePosition()
     {
+        // don't move if carried
+        if (carried)
+        {
+            return;
+        }
 
         Vector3 pos = transform.position;
         Vector3 scale = transform.localScale;
@@ -130,6 +144,10 @@ public class ObjectPhysics : MonoBehaviour
 
             pos.y += velocity.y * adjDeltaTime;
 
+            if (pos.y > peakHeight)
+            {
+                peakHeight = pos.y;
+            }
             
             if (objectState == ObjectState.onLava) {
                 // sinking in lava
@@ -257,14 +275,9 @@ public class ObjectPhysics : MonoBehaviour
             }
             else if (movement == ObjectMovement.bouncing)
             {
-                if (maxBounces == -1)
+                if (peakHeight - pos.y >= minHeightToBounce)
                 {
-                    // infinite bounces
-                    bounceCount = -5;   // just needs to be less than maxBounces
-                }
-                if (bounceCount < maxBounces)
-                {
-                    bounceCount++;
+                    // bounce
                     velocity.y = bounceHeight;
                 }
                 else
@@ -272,8 +285,9 @@ public class ObjectPhysics : MonoBehaviour
                     // we're done bouncing
                     Land();
                 }
-                velocity.y = bounceHeight;
             }
+
+            peakHeight = pos.y;
 
         }
         else
@@ -440,8 +454,6 @@ public class ObjectPhysics : MonoBehaviour
 
         objectState = ObjectState.falling;
 
-        bounceCount = 0; // reset bounce count
-
     }
 
     void Land()
@@ -530,5 +542,49 @@ public class ObjectPhysics : MonoBehaviour
         Gizmos.DrawLine(originBottom, originBottom + new Vector2(distance * direction, 0));
 
     }
+
+    // call this after mario picks up the object
+    public virtual void getCarried()
+    {
+        carried = true;
+        transform.localPosition = new Vector3(0, 0, 0);
+        GetComponent<Collider2D>().enabled = false;
+        GetComponent<SpriteRenderer>().sortingOrder = 100;
+    }
+
+    public virtual void getDropped(bool direction)
+    {
+        carried = false;
+
+        velocity = new Vector2(0, 0);
+        movingLeft = direction;
+        GetComponent<Collider2D>().enabled = true;
+        GetComponent<SpriteRenderer>().sortingOrder = oldOrderInLayer;
+        objectState = ObjectState.falling;
+    }
+
+    public virtual void getThrown(bool direction)
+    {
+        carried = false;
+
+        velocity = throwVelocity;
+        movingLeft = !direction;
+        GetComponent<Collider2D>().enabled = true;
+        GetComponent<SpriteRenderer>().sortingOrder = oldOrderInLayer;
+        objectState = ObjectState.falling;
+    }
+
+    public virtual void escapeMario()
+    {
+        // find mario's script (mario is 2 levels up hopefully lol)
+        MarioMovement marioScript = transform.parent.parent.gameObject.GetComponent<MarioMovement>();
+        if (marioScript != null)
+        {
+            marioScript.dropCarry();
+        }
+        
+    }
+
+
 }
 
