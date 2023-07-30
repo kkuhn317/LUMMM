@@ -6,10 +6,8 @@ public class Axe : MonoBehaviour
 {
     public enum AxeSize { Small, Big }
     public AxeSize Size;
-
     public enum AxeRotation { Left, Right }
     public AxeRotation Rotation;
-
     public enum BridgeDestructionType
     {
         Instant,    // Tiles are destroyed instantly tile per tile.
@@ -18,11 +16,10 @@ public class Axe : MonoBehaviour
     public BridgeDestructionType destructionType;
 
     [Header("Big Axe")]
-    public float rotationSpeed = 90f; // The rotation speed in degrees per second.
+    public float rotationSpeed = 120f; // The rotation speed in degrees per second.
     private bool isRotating;
 
     [Header("Bridge")]
-    public GameObject bridge;
     public List<GameObject> bridgeTiles; // Assign the bridge tiles to this list in the Inspector.
     public bool timerStop;
 
@@ -42,12 +39,12 @@ public class Axe : MonoBehaviour
 
     [Header("Camera Shake")]
     public CameraFollow cameraFollow;
-    public int numberOfShakes = 5; // Number of times the camera will shake up and down
-    public float delayBetweenShakes = 0.5f; // Time delay between each shake
+    public int numberOfShakes = 3; // Number of times the camera will shake up and down
+    public float delayBetweenShakes = 0.1f; // Time delay between each shake
 
-    public float duration = 0.7f;
-    public float intensity = 0.3f;
-    public float decreaseFactor = 1.2f;
+    public float duration = 0.1f;
+    public float intensity = 2.0f;
+    public float decreaseFactor = 1.0f;
     public Vector3 axisUp = new Vector3(0f, 1f, 0f); // Y-axis
 
     [Header("Components")]
@@ -57,17 +54,13 @@ public class Axe : MonoBehaviour
 
     [Header("Stop Object Animation")]
     private AnimatedSprite animatedSprite;
-
     private GameObject player;
 
     [Header("Timing")]
-
     // these are timed from the time the axe hits the ground or disappears
-
-    public float bridgeDestroyDelay = 1.0f; // Adjust this value to set the delay in seconds before destroying the bridge when the axe rotation is done.
-    public float enemyFallDelay = 3.0f; // how long until the enemies fall
-    public float playerResumeDelay = 4.0f; // how long until the player can move again
-
+    public float bridgeDestroyDelay = 0.5f; // Adjust this value to set the delay in seconds before destroying the bridge when the axe rotation is done.
+    public float enemyFallDelay = 2.0f; // how long until the enemies fall
+    public float playerResumeDelay = 3.0f; // how long until the player can move again
     private void Start()
     {
         // Get the AudioSource component attached to the same GameObject or add one if missing.
@@ -77,7 +70,6 @@ public class Axe : MonoBehaviour
 
         animatedSprite = GetComponent<AnimatedSprite>();
     }
-
     private void Update()
     {
         if (isRotating)
@@ -113,7 +105,6 @@ public class Axe : MonoBehaviour
             }
         }
     }
-
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.gameObject.CompareTag("Player") && !isRotating)
@@ -154,7 +145,6 @@ public class Axe : MonoBehaviour
             
         }
     }
-
     private void HandleSharedBehavior()
     {
         // Check if timer should be stopped (shared behavior for both axes).

@@ -23,7 +23,7 @@ public class Scroller : MonoBehaviour
     void Update()
     {
         //Update the UV rect
-        _img.uvRect = new Rect(_img.uvRect.position + new Vector2(_x, _y) * Time.deltaTime, _img.uvRect.size);
+        _img.uvRect = new Rect(_img.uvRect.position + new Vector2(_x, _y) * Time.unscaledDeltaTime, _img.uvRect.size);
 
         //Update the color
         if (_colors.Count > 1) // Check that there are at least 2 colors available

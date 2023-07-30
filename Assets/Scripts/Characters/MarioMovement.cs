@@ -337,6 +337,18 @@ public class MarioMovement : MonoBehaviour
             }
         }
 
+        // Crouching
+        if (onGround && Input.GetAxisRaw("Vertical") < 0)
+        {
+            inCrouchState = true;
+            
+        }
+        else
+        {
+            inCrouchState = false;
+            
+        }
+
         // Changing Direction
         if (onGround) {
             if ((horizontal > 0 && !facingRight) || (horizontal < 0 && facingRight)) {
@@ -394,8 +406,14 @@ public class MarioMovement : MonoBehaviour
         if (onGround) {
             // no crazy crouch sliding
             if (inCrouchState)
+            {
                 direction = new Vector2(0, direction.y);
-
+                animator.SetBool("isCrouching", true);
+            }
+            else
+            {
+                animator.SetBool("isCrouching", false);
+            }             
 
             // if not holding left or right all the way or changing directions
             if (Mathf.Abs(direction.x) < 0.4f || changingDirections) {
@@ -461,6 +479,7 @@ public class MarioMovement : MonoBehaviour
             }
         }
     }
+    
     void Flip() {
         facingRight = !facingRight;
         //transform.rotation = Quaternion.Euler(0, facingRight ? 0 : 180, 0);
@@ -473,6 +492,12 @@ public class MarioMovement : MonoBehaviour
         }
 
         relPosObj.transform.localScale = new Vector3(relScaleX, 1, 1);
+    }
+
+    public bool IsBelowBlock(float blockYPosition)
+    {
+        // Check if Mario's height is below a certain point relative to the block
+        return transform.position.y < blockYPosition - 0.5f; // You can adjust the value (0.5f) as needed
     }
 
     public void damageMario() {

@@ -10,13 +10,25 @@ public class PauseableObject : MonoBehaviour
 
     private void Start()
     {
-        GameManager.Instance.RegisterPauseableObject(this);
-        objectPhysics = GetComponent<ObjectPhysics>();
+        // Ensure GameManager.Instance is not null before registering the PauseableObject
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.RegisterPauseableObject(this);
+            objectPhysics = GetComponent<ObjectPhysics>();
+        }
+        else
+        {
+            Debug.LogError("GameManager.Instance is null!");
+        }
     }
 
     private void OnDestroy()
     {
-        GameManager.Instance.UnregisterPauseableObject(this);
+        // Ensure GameManager.Instance is not null before unregistering the PauseableObject
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.UnregisterPauseableObject(this);
+        }
     }
 
     public void Pause()
