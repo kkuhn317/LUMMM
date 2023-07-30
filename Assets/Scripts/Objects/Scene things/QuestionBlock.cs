@@ -5,11 +5,11 @@ using UnityEngine.Playables;
 
 public class QuestionBlock : MonoBehaviour
 {
-    public bool isInvisible = false; // determine if it starts invisible
-    public float raycastDistance = 1f; // You can adjust the raycast distance as needed
-    private bool isRevealed = false;
-    private bool detectFromBelow = false;
+    [Header("Invisible Block Behavior")]
+    public bool isInvisible;
+    public float blockYposition = 1.1f; // apply for both small nd big Mario
 
+    [Header("Block Behavior")]
     public float bounceHeight = 0.5f;
     public float bounceSpeed = 4f;
 
@@ -18,11 +18,6 @@ public class QuestionBlock : MonoBehaviour
     public bool noCoinIfNoItem = false;
 
     public GameObject spawnItem;
-
-    public GameObject objectToMove; // Object to move (must be present in the scene)
-    public bool moveObjectOnHit = false; // Variable to control whether the object should be moved or not
-    public Vector3 targetPosition; // Target position of the object to move
-    public float moveSpeed; // Speed of movement for the object
 
     public float coinMoveSpeed = 8f;
     public float coinMoveHeight = 3f;
@@ -41,47 +36,70 @@ public class QuestionBlock : MonoBehaviour
 
     private AudioSource audioSource;
 
+    private int originalLayer = 3; // Layer 3 = ground layer
+
     // Start is called before the first frame update
     void Start()
     {
         audioSource = GetComponent<AudioSource>();
         originalPosition = transform.localPosition;
-
-        // If the block starts as invisible, disable the sprite renderer and collider
+    }
+    void Update()
+    {
         if (isInvisible)
         {
             GetComponent<SpriteRenderer>().enabled = false;
-            GetComponent<Collider2D>().enabled = false;
-            detectFromBelow = true; // Set to true to enable raycast detection
-        }
-    }
 
-    // Update is called once per frame
-    void Update()
-    {
-        // If detectFromBelow is true, cast a raycast downwards from the block
-        if (detectFromBelow)
-        {
-            Vector2 raycastDirection = Vector2.down;       
-            RaycastHit2D hit = Physics2D.Raycast(transform.position, raycastDirection, raycastDistance);
+            GameObject player = GameObject.FindGameObjectWithTag("Player");
 
-            // Visualize the raycast in the scene view
-            Debug.DrawRay(transform.position, raycastDirection * raycastDistance, Color.blue);
-
-            // If the raycast hits the player, and the player is below the block, reveal the block
-            if (hit.collider != null && hit.collider.CompareTag("Player") && hit.collider.transform.position.y < transform.position.y)
+            if (player != null)
             {
-                RevealBlock();
+                // Check if the player object has a Collider2D component before accessing its bounds
+                if (player.TryGetComponent<Collider2D>(out Collider2D playerCollider))
+                {
+                    Rigidbody2D playerRigidbody = player.GetComponent<Rigidbody2D>();
+                    float playerY = player.transform.position.y;
+                    float playerHeight = playerCollider.bounds.size.y;
+                    float blockY = transform.position.y - blockYposition;
+
+                    // If the player's y position is higher than the adjusted block's y position and moving upward, disable the collider
+                    // Or if the player is falling and directly above the block, disable the collider
+                    if ((playerY + playerHeight / 2f > blockY && playerRigidbody.velocity.y > 0) ||
+                        (playerY + playerHeight / 2f > blockY && playerRigidbody.velocity.y < 0 && playerY > blockY))
+                    {
+                        GetComponent<Collider2D>().enabled = false; // The collider disables
+                    }
+                    else
+                    {
+                        GetComponent<Collider2D>().enabled = true; // The collider enables
+                    }
+                }
+                else
+                {
+                    // The player doesn't have a Collider2D, so we disable the block's collider to be safe.
+                    GetComponent<Collider2D>().enabled = false;
+                }
             }
         }
+        else
+        {
+            GetComponent<SpriteRenderer>().enabled = true;
+            GetComponent<Collider2D>().enabled = true;
+
+            // Change the layer back to the ground layer to enable player interaction
+            gameObject.layer = originalLayer;
+        }
     }
 
-    private void OnCollisionEnter2D(Collision2D other) {
-        if (!isRevealed && other.gameObject.tag == "Player") {
+    private void OnCollisionEnter2D(Collision2D other)
+    {
+        if (other.gameObject.tag == "Player")
+        {
             Vector2 impulse = Vector2.zero;
 
             int contactCount = other.contactCount;
-            for(int i = 0; i < contactCount; i++) {
+            for (int i = 0; i < contactCount; i++)
+            {
                 var contact = other.GetContact(i);
                 impulse += contact.normal * contact.normalImpulse;
                 impulse.x += contact.tangentImpulse * contact.normal.y;
@@ -91,72 +109,71 @@ public class QuestionBlock : MonoBehaviour
             //print(impulse);
 
             // position comparison is to stop a weird bug where the player can hit the top corner of the block and activate it
-            if (impulse.y <= 0 || other.transform.position.y > transform.position.y) {
+            if (impulse.y <= 0 || other.transform.position.y > transform.position.y)
+            {
                 return;
             }
 
-            if (!brickBlock) {
+            if (gameObject == null)
+            {
+                // The object has been destroyed
+                return;
+            }
+
+            // Brick Block and Question Block
+            if (!brickBlock)
+            {
                 QuestionBlockBounce();
-            } else {
+            }
+            else
+            {
                 MarioMovement playerScript = other.gameObject.GetComponent<MarioMovement>();
-                if (playerScript.powerupState == MarioMovement.PowerupState.small) {
+                if (playerScript.powerupState == MarioMovement.PowerupState.small)
+                {
                     QuestionBlockBounce();
-                } else {
+                }
+                else
+                {
                     BrickBlockBreak();
                 }
             }
-
-            if (!moveObjectOnHit)
-            {
-               // Debug.Log();
-            }
-
-            // Now we reveal the block when hit from below
-            RevealBlock();
         }
-    }
-
-    void RevealBlock()
-    {
-        isRevealed = true;
-        GetComponent<SpriteRenderer>().enabled = true;
-        GetComponent<Collider2D>().enabled = true;
-        GetComponent<SpriteRenderer>().sprite = emptyBlockSprite;
-
-        if (!brickBlock)
-        {
-            PresentCoin();
-        }
-        else
-        {
-            BrickBlockBreak();
-        }
-
-        // If you want the block to bounce after revealing, uncomment the line below:
-        StartCoroutine(Bounce());
     }
 
     // this is called when a koopa shell hits the block for example
-    public void Activate() {
-        if (canBounce) {
-            if (brickBlock) {
+    public void Activate()
+    {
+        if (canBounce)
+        {
+            // Change the layer back to the ground layer to enable player interaction
+            gameObject.layer = originalLayer;
+
+            if (brickBlock)
+            {
                 BrickBlockBreak();
-            } else {
+            }
+            else
+            {
                 QuestionBlockBounce();
             }
         }
     }
 
-    public void QuestionBlockBounce() {
+    public void QuestionBlockBounce()
+    {
 
-        if (canBounce) {
+        if (canBounce)
+        {
+            isInvisible = false;
 
-            if (spawnItem || !brickBlock) {
+            if (spawnItem || !brickBlock)
+            {
                 canBounce = false;
             }
 
             // do whatever timeline stuff here
-            if (GetComponent<PlayableDirector>() != null) {
+            if (GetComponent<PlayableDirector>() != null)
+            {
                 GetComponent<PlayableDirector>().Play();
             }
 
@@ -164,34 +181,43 @@ public class QuestionBlock : MonoBehaviour
         }
     }
 
-    public void BrickBlockBreak () {
-        if (spawnItem) {
+    public void BrickBlockBreak()
+    {
+        if (spawnItem)
+        {
+            isInvisible = false;
+
             QuestionBlockBounce();
-        } else {
+        }
+        else
+        {
             GetComponent<BreakableBlocks>().Break();
         }
 
     }
 
-    void ChangeSprite () {
+    void ChangeSprite()
+    {
 
         if (!brickBlock)
             GetComponent<Animator>().enabled = false;
 
-        GetComponent<SpriteRenderer> ().sprite = emptyBlockSprite;
+        GetComponent<SpriteRenderer>().sprite = emptyBlockSprite;
 
     }
 
-    void PresentCoin () {
+    void PresentCoin()
+    {
 
         activated = true;
 
-        if (spawnItem) {
+        if (spawnItem)
+        {
             //print("custom item");
             audioSource.PlayOneShot(itemRiseSound);
             GameObject spawnedItem = (GameObject)Instantiate(spawnItem) as GameObject;
             MonoBehaviour[] scripts = spawnedItem.GetComponents<MonoBehaviour>();
-            foreach(MonoBehaviour script in scripts)
+            foreach (MonoBehaviour script in scripts)
             {
                 script.enabled = false;
             }
@@ -199,43 +225,49 @@ public class QuestionBlock : MonoBehaviour
             string ogTag = spawnedItem.tag;
             int ogLayer = spawnedItem.GetComponent<SpriteRenderer>().sortingLayerID;
             spawnedItem.tag = "RisingItem";
-            spawnedItem.transform.SetParent (this.transform.parent);
+            spawnedItem.transform.SetParent(this.transform.parent);
             spawnedItem.GetComponent<SpriteRenderer>().sortingLayerID = 0;
             spawnedItem.GetComponent<SpriteRenderer>().sortingOrder = -1;
-            spawnedItem.transform.localPosition = new Vector3 (originalPosition.x, originalPosition.y, 0);
-            StartCoroutine (RiseUp (spawnedItem, ogTag, ogLayer, scripts));
+            spawnedItem.transform.localPosition = new Vector3(originalPosition.x, originalPosition.y, 0);
+            StartCoroutine(RiseUp(spawnedItem, ogTag, ogLayer, scripts));
 
-        } else if (!noCoinIfNoItem){
+        }
+        else if (!noCoinIfNoItem)
+        {
             audioSource.Play();
-            GameObject spinningCoin = (GameObject)Instantiate (Resources.Load("Prefabs/Spinning_Coin", typeof(GameObject)));
+            GameObject spinningCoin = (GameObject)Instantiate(Resources.Load("Prefabs/Spinning_Coin", typeof(GameObject)));
 
-            spinningCoin.transform.SetParent (this.transform.parent);
+            spinningCoin.transform.SetParent(this.transform.parent);
 
-            spinningCoin.transform.localPosition = new Vector2 (originalPosition.x, originalPosition.y + 1);
+            spinningCoin.transform.localPosition = new Vector2(originalPosition.x, originalPosition.y + 1);
 
-            StartCoroutine (MoveCoin (spinningCoin)); 
+            StartCoroutine(MoveCoin(spinningCoin));
             GameManager.Instance.AddCoin(1); // The coin counter iterates after the coroutine
         }
     }
 
-    IEnumerator Bounce () {
-
+    IEnumerator Bounce()
+    {
         //print(spawnItem != null);
 
-        if (spawnItem || !brickBlock) {
-            ChangeSprite ();
+        if (spawnItem || !brickBlock)
+        {
+            ChangeSprite();
         }
-        
-        if (!spawnItem && !brickBlock) {
+
+        if (!spawnItem && !brickBlock)
+        {
             PresentCoin();
         }
-        else if (spawnItem) {
+        else if (spawnItem)
+        {
             Invoke("PresentCoin", 0.25f);
         }
 
-        while (true) {
+        while (true)
+        {
 
-            transform.localPosition = new Vector2 (transform.localPosition.x, transform.localPosition.y + bounceSpeed * Time.deltaTime);
+            transform.localPosition = new Vector2(transform.localPosition.x, transform.localPosition.y + bounceSpeed * Time.deltaTime);
 
             if (transform.localPosition.y >= originalPosition.y + bounceHeight)
                 break;
@@ -243,11 +275,13 @@ public class QuestionBlock : MonoBehaviour
             yield return null;
         }
 
-        while (true) {
+        while (true)
+        {
 
-            transform.localPosition = new Vector2 (transform.localPosition.x, transform.localPosition.y - bounceSpeed * Time.deltaTime);
+            transform.localPosition = new Vector2(transform.localPosition.x, transform.localPosition.y - bounceSpeed * Time.deltaTime);
 
-            if (transform.localPosition.y <= originalPosition.y) {
+            if (transform.localPosition.y <= originalPosition.y)
+            {
 
                 transform.localPosition = originalPosition;
                 break;
@@ -257,23 +291,27 @@ public class QuestionBlock : MonoBehaviour
         }
     }
 
-    IEnumerator MoveCoin (GameObject coin) {
+    IEnumerator MoveCoin(GameObject coin)
+    {
 
-        while (true) {
+        while (true)
+        {
 
-            coin.transform.localPosition = new Vector2 (coin.transform.localPosition.x, coin.transform.localPosition.y + coinMoveSpeed * Time.deltaTime);
+            coin.transform.localPosition = new Vector2(coin.transform.localPosition.x, coin.transform.localPosition.y + coinMoveSpeed * Time.deltaTime);
 
             if (coin.transform.localPosition.y >= originalPosition.y + coinMoveHeight + 1)
                 break;
-            
+
             yield return null;
         }
 
-        while (true) {
+        while (true)
+        {
 
-            coin.transform.localPosition = new Vector2 (coin.transform.localPosition.x, coin.transform.localPosition.y - coinMoveSpeed * Time.deltaTime);
+            coin.transform.localPosition = new Vector2(coin.transform.localPosition.x, coin.transform.localPosition.y - coinMoveSpeed * Time.deltaTime);
 
-            if (coin.transform.localPosition.y <= originalPosition.y + coinFallDistance + 1) {
+            if (coin.transform.localPosition.y <= originalPosition.y + coinFallDistance + 1)
+            {
 
                 Destroy(coin.gameObject);
                 break;
@@ -283,18 +321,19 @@ public class QuestionBlock : MonoBehaviour
         }
     }
 
-    IEnumerator RiseUp(GameObject item, string ogTag, int ogLayer, MonoBehaviour[] scripts) {
-
-        while (true) {
+    IEnumerator RiseUp(GameObject item, string ogTag, int ogLayer, MonoBehaviour[] scripts)
+    {
+        while (true)
+        {
+            
 
             //item.GetComponent<Rigidbody2D>().velocity = Vector3.zero;
-            if (item == null)
-                yield break;
 
-            item.transform.localPosition = new Vector3 (item.transform.localPosition.x, item.transform.localPosition.y + itemMoveSpeed * Time.deltaTime, 0);
+            item.transform.localPosition = new Vector3(item.transform.localPosition.x, item.transform.localPosition.y + itemMoveSpeed * Time.deltaTime, 0);
             //print(item.transform.localPosition.y + "vs" + originalPosition.y);
-            if (item.transform.localPosition.y >= originalPosition.y + itemMoveHeight) {
-                foreach(MonoBehaviour script in scripts)
+            if (item.transform.localPosition.y >= originalPosition.y + itemMoveHeight)
+            {
+                foreach (MonoBehaviour script in scripts)
                 {
                     script.enabled = true;
                 }
@@ -304,6 +343,42 @@ public class QuestionBlock : MonoBehaviour
                 break;
             }
             yield return null;
+        }
+    }
+
+    void OnDrawGizmos()
+    {
+        // Only execute the Gizmos drawing when the game is running (not in edit mode)
+        if (Application.isPlaying)
+        {
+            // Draw a red sphere at the block's position
+            Gizmos.color = Color.red;
+            Gizmos.DrawSphere(transform.position, 0.1f);
+
+            GameObject player = GameObject.FindGameObjectWithTag("Player");
+
+            if (player != null)
+            {
+                // Check if the player object has a Collider2D component before accessing its bounds
+                if (player.TryGetComponent<Collider2D>(out Collider2D playerCollider))
+                {
+                    // Draw a green sphere at the player's position
+                    Gizmos.color = Color.green;
+                    Gizmos.DrawSphere(player.transform.position, 0.1f);
+
+                    float playerY = player.transform.position.y;
+                    float playerHeight = playerCollider.bounds.size.y;
+                    float blockY = transform.position.y - blockYposition; // Adjust the block's Y position
+
+                    // Draw a blue sphere at the adjusted block's position
+                    Gizmos.color = Color.blue;
+                    Gizmos.DrawSphere(new Vector3(transform.position.x, blockY, transform.position.z), 0.1f);
+                }
+                else
+                {
+                    // The player doesn't have a Collider2D, so we don't need to draw the Gizmos for this case.
+                }
+            }
         }
     }
 }

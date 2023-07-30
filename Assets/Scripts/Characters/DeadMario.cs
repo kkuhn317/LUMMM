@@ -21,7 +21,15 @@ public class DeadMario : MonoBehaviour
 
     void loseLife()
     {
-        GameManager.Instance.DecrementLives();
+        // Ensure GameManager.Instance is not null before calling DecrementLives()
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.DecrementLives();
+        }
+        else
+        {
+            Debug.LogError("GameManager.Instance is null!");
+        }
     }
 
 

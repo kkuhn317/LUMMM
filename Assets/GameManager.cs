@@ -38,6 +38,9 @@ public class GameManager : MonoBehaviour
     private List<GameObject> musicOverrides = new List<GameObject>(); // add to this list when music override added, remove when music override removed
     private GameObject currentlyPlayingMusic;
 
+    [Header("Pause Menu")]
+    public GameObject pausemenu;
+
     [Header("Game Over & Lose Life")]
     // Name of the Game Over scene
     public string gameOverSceneName;
@@ -52,7 +55,6 @@ public class GameManager : MonoBehaviour
 
     // List to keep track of all PauseableObject scripts.
     private List<PauseableObject> pauseableObjects = new List<PauseableObject>();
-    private bool isGamePaused = false;
 
     void Awake()
     {
@@ -80,32 +82,45 @@ public class GameManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (!isPaused && !stopTimer)
+        // Check for pause input only if the game is not over
+        if (!isTimeUp)
         {
-            // Timer 
-            currentTime -= 1 * Time.deltaTime;
-            UpdateTimerUI();
-
-            if (GlobalVariables.lives == maxLives)
+            // Toggle pause when the Esc key is pressed
+            if (Input.GetKeyDown(KeyCode.Escape))
             {
-                GlobalVariables.lives = 99;
+                TogglePauseGame();
             }
 
-            if (currentTime <= 100 && timesRunning)
+            if (!isPaused && !stopTimer)
             {
-                audioSource.clip = timeWarning;
-                audioSource.PlayOneShot(timeWarning);
-                timesRunning = false;
-            }
-            if (currentTime <= 0 && !isTimeUp)
-            {
-                currentTime = 0;
-                isTimeUp = true;
-                // Debug.Log("The time has run out!");
-                DecrementLives();
+                // Timer 
+                currentTime -= 1 * Time.deltaTime;
+                UpdateTimerUI();
+
+                if (GlobalVariables.lives == maxLives)
+                {
+                    GlobalVariables.lives = 99;
+                }
+
+                if (currentTime <= 100 && timesRunning)
+                {
+                    audioSource.clip = timeWarning;
+                    audioSource.PlayOneShot(timeWarning);
+                    timesRunning = false;
+                }
+                if (currentTime <= 0 && !isTimeUp)
+                {
+                    currentTime = 0;
+                    isTimeUp = true;
+                    // Debug.Log("Stop music!");
+                    stopAllMusic();
+                    // Debug.Log("The time has run out!");
+                    DecrementLives();
+                }
             }
         }
     }
+
     public void AddLives()
     {
         audioSource.clip = extraLife;
@@ -297,9 +312,9 @@ public class GameManager : MonoBehaviour
     // Function to toggle the game between paused and resumed states.
     public void TogglePauseGame()
     {
-        isGamePaused = !isGamePaused;
+        isPaused = !isPaused;
 
-        if (isGamePaused)
+        if (isPaused)
         {
             PauseGame();
         }
@@ -366,21 +381,20 @@ public class GameManager : MonoBehaviour
     {
         isPaused = true;
         Time.timeScale = 0f;
+
+        // Activate the pause menu
+        if (pausemenu != null)
+            pausemenu.SetActive(true);
     }
 
     public void ResumeGame()
     {
         isPaused = false;
         Time.timeScale = 1f;
+
+        // Deactivate the pause menu
+        if (pausemenu != null)
+            pausemenu.SetActive(false);
     }
 
-    // Function to display the list of registered PauseableMovement objects in the debug log.
-    public void DebugRegisteredPauseableObjects()
-    {
-        Debug.Log("Registered PauseableMovement objects:");
-        foreach (PauseableObject obj in pauseableObjects)
-        {
-            Debug.Log(obj.gameObject.name);
-        }
-    }
 }

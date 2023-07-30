@@ -252,30 +252,6 @@ public class MarioMovement : MonoBehaviour
 
     }
     void moveCharacter(float horizontal) {
-        bool crouch = (direction.y < -0.5);
-
-        // Crouching
-        if (crouch && powerupState != PowerupState.small && onGround) {
-
-            // Start Crouch
-            GetComponent<Animator>().SetBool("isCrouching", true);
-            inCrouchState = true;
-            GetComponent<BoxCollider2D>().size = new Vector2(GetComponent<BoxCollider2D>().size.x, 1.0f);
-            GetComponent<BoxCollider2D>().offset = new Vector2(GetComponent<BoxCollider2D>().offset.x, -0.5f);
-            ceilingLength = 0.1f;
-
-        } else if ((!crouch && onGround) || (powerupState == PowerupState.small)) {
-
-            // Stop Crouch
-            GetComponent<Animator>().SetBool("isCrouching", false);
-            inCrouchState = false;
-            if (powerupState != PowerupState.small) {
-                GetComponent<BoxCollider2D>().size = new Vector2(GetComponent<BoxCollider2D>().size.x, colliderY);
-                GetComponent<BoxCollider2D>().offset = new Vector2(GetComponent<BoxCollider2D>().offset.x, collideroffsetY);
-                ceilingLength = 1.03f; // NOTE: THIS IS BAD PROGRAMMING BUT WHATEVER
-            }
-
-        }
 
         // Running or Walking
         if (!inCrouchState || !onGround) {
@@ -288,6 +264,18 @@ public class MarioMovement : MonoBehaviour
                     rb.AddForce(Vector2.left * slowDownForce * Mathf.Sign(rb.velocity.x));
                 }
             }
+        }
+
+        // Crouching
+        if (onGround && Input.GetAxisRaw("Vertical") < 0)
+        {
+            inCrouchState = true;
+            
+        }
+        else
+        {
+            inCrouchState = false;
+            
         }
 
         // Changing Direction
@@ -349,8 +337,14 @@ public class MarioMovement : MonoBehaviour
         if (onGround) {
             // no crazy crouch sliding
             if (inCrouchState)
+            {
                 direction = new Vector2(0, direction.y);
-
+                animator.SetBool("isCrouching", true);
+            }
+            else
+            {
+                animator.SetBool("isCrouching", false);
+            }             
 
             // if not holding left or right all the way or changing directions
             if (Mathf.Abs(direction.x) < 0.4f || changingDirections) {
@@ -421,7 +415,11 @@ public class MarioMovement : MonoBehaviour
         //transform.rotation = Quaternion.Euler(0, facingRight ? 0 : 180, 0);
         GetComponent<SpriteRenderer>().flipX = !facingRight;
     }
-
+    public bool IsBelowBlock(float blockYPosition)
+    {
+        // Check if Mario's height is below a certain point relative to the block
+        return transform.position.y < blockYPosition - 0.5f; // You can adjust the value (0.5f) as needed
+    }
     public void damageMario() {
         if (invincetimeremain == 0f) {
             if (damaged) {
