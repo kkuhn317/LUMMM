@@ -5,7 +5,6 @@ using UnityEngine.Playables;
 
 public class Flag : MonoBehaviour
 {
-
     [HideInInspector]
     public float height;
     public GameObject flag;

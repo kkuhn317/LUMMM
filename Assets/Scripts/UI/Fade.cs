@@ -9,6 +9,7 @@ public class Fade : MonoBehaviour
     private bool isFadedOut = true; //It's true, so the game starts with the FadeIn effect
     private Tilemap tilemap;
     public string playerTag = "Player";
+    public bool stayRevealed = false;
 
     private void Start()
     {
@@ -61,7 +62,7 @@ public class Fade : MonoBehaviour
     {
         if (collision.CompareTag(playerTag))
         {
-            if (isFadedOut)
+            if (isFadedOut && !stayRevealed)
             {
                 isFadedOut = false;
                 FadeIn();

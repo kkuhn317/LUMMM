@@ -95,6 +95,7 @@ public class MarioMovement : MonoBehaviour
     public AudioClip bonkSound;
     public AudioClip yeahAudioClip;
     public AudioClip MaaaamaMiaAudioClip;
+    private bool mamaMiaAudioPlayed = false;
     private AudioSource audioSource;
 
     private bool frozen = false;
@@ -636,6 +637,18 @@ public class MarioMovement : MonoBehaviour
     }
     private void OnTriggerEnter2D(Collider2D other)
     {
+        if (other.gameObject.tag == "AnimationWorried")
+        {
+            animator.SetBool("isWorried", true);
+
+            // Play MaaaamaMiaAudioClip only if it has not been played before
+            if (!mamaMiaAudioPlayed)
+            {
+                mamaMiaAudioPlayed = true;
+                audioSource.PlayOneShot(MaaaamaMiaAudioClip);
+            }
+        }
+
         // Check if the trigger collider is the one you want to trigger the "yeah" animation
         if (other.gameObject.CompareTag("AnimationYeah"))
         {

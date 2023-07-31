@@ -1656,7 +1656,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 223ca91bb79e8474fa67f08de7e4b770, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  activationProbability: 0.7
+  activationProbability: 0.5
 --- !u!1001 &95050480
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -13416,6 +13416,7 @@ GameObject:
   m_Component:
   - component: {fileID: 194065998}
   - component: {fileID: 194065999}
+  - component: {fileID: 194066000}
   m_Layer: 7
   m_Name: GoldenGoombaPortrait
   m_TagString: Untagged
@@ -13490,6 +13491,19 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &194066000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 194065997}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 223ca91bb79e8474fa67f08de7e4b770, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  activationProbability: 0.3
 --- !u!4 &200559926 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8877211513691618311, guid: 2472ea83523fe9d48b9f36aad66ad978, type: 3}
@@ -18295,7 +18309,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 519420028}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 27.5, y: -0.50000954, z: -10}
+  m_LocalPosition: {x: 27.5, y: 13.45, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -23557,17 +23571,21 @@ PrefabInstance:
       propertyPath: pressRunToGrab
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1771483343543010228, guid: 0ed8634130540ee49afd6a10ccb53bf6, type: 3}
+      propertyPath: MaaaamaMiaAudioClip
+      value: 
+      objectReference: {fileID: 8300000, guid: 197f0095a155945449a5a1a2cd3c9530, type: 3}
     - target: {fileID: 1771483343543010229, guid: 0ed8634130540ee49afd6a10ccb53bf6, type: 3}
       propertyPath: m_RootOrder
       value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 1771483343543010229, guid: 0ed8634130540ee49afd6a10ccb53bf6, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 38.50077
+      value: -12.5
       objectReference: {fileID: 0}
     - target: {fileID: 1771483343543010229, guid: 0ed8634130540ee49afd6a10ccb53bf6, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -3.50007
+      value: -3.5
       objectReference: {fileID: 0}
     - target: {fileID: 1771483343543010229, guid: 0ed8634130540ee49afd6a10ccb53bf6, type: 3}
       propertyPath: m_LocalPosition.z
@@ -25046,7 +25064,7 @@ GameObject:
   - component: {fileID: 861526121}
   - component: {fileID: 861526120}
   m_Layer: 0
-  m_Name: BookKevinnRoombie
+  m_Name: DevPlushies
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -27595,6 +27613,54 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 7384276377935262447, guid: 58c115d689575404f8428b6c77cd4621, type: 3}
   m_PrefabInstance: {fileID: 972511447}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &975298402 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 572095785153829303, guid: d30af585c704a3f41b23ce9cdef44d12, type: 3}
+  m_PrefabInstance: {fileID: 2068317076}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &975298408
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 975298402}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5e8931df7dee4174a9adff541f544856, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  movingLeft: 1
+  velocity: {x: 0, y: 0}
+  gravity: 60
+  width: 1
+  height: 1
+  floorRaycastSpacing: 0.2
+  wallRaycastSpacing: 0.2
+  floorMask:
+    serializedVersion: 2
+    m_Bits: 8
+  wallMask:
+    serializedVersion: 2
+    m_Bits: 264
+  checkObjectCollision: 0
+  DontFallOffLedges: 0
+  flipObject: 0
+  FrequentMovement: 0
+  lavaKill: 1
+  sinkSpeed: -20
+  lavaMask:
+    serializedVersion: 2
+    m_Bits: 0
+  carryable: 1
+  carried: 0
+  throwVelocity: {x: 12, y: 10}
+  knockAwaySound: {fileID: 0}
+  objectState: 0
+  movement: 2
+  stopAfterLand: 1
+  bounceHeight: 3
+  minHeightToBounce: 1
 --- !u!1001 &980948418
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -29159,6 +29225,54 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 1, y: 2}
   m_EdgeRadius: 0
+--- !u!1 &1084737676 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 572095785153829303, guid: d30af585c704a3f41b23ce9cdef44d12, type: 3}
+  m_PrefabInstance: {fileID: 662050076}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1084737682
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1084737676}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5e8931df7dee4174a9adff541f544856, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  movingLeft: 1
+  velocity: {x: 0, y: 0}
+  gravity: 60
+  width: 1
+  height: 1
+  floorRaycastSpacing: 0.2
+  wallRaycastSpacing: 0.2
+  floorMask:
+    serializedVersion: 2
+    m_Bits: 8
+  wallMask:
+    serializedVersion: 2
+    m_Bits: 264
+  checkObjectCollision: 0
+  DontFallOffLedges: 0
+  flipObject: 0
+  FrequentMovement: 0
+  lavaKill: 1
+  sinkSpeed: -20
+  lavaMask:
+    serializedVersion: 2
+    m_Bits: 0
+  carryable: 1
+  carried: 0
+  throwVelocity: {x: 12, y: 10}
+  knockAwaySound: {fileID: 0}
+  objectState: 0
+  movement: 2
+  stopAfterLand: 1
+  bounceHeight: 3
+  minHeightToBounce: 1
 --- !u!1001 &1084886572
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -32403,7 +32517,7 @@ Tilemap:
       m_AnimatedSprites:
       - {fileID: 455067675, guid: 9cedcc06b2259a04c9dc16f2cec7812c, type: 3}
       - {fileID: -1000863836, guid: 9cedcc06b2259a04c9dc16f2cec7812c, type: 3}
-      m_AnimationSpeed: 5.0000005
+      m_AnimationSpeed: 5
       m_AnimationTimeOffset: 0
       m_IsLooping: 1
   - first: {x: 6, y: -8, z: 0}
@@ -33131,7 +33245,7 @@ Tilemap:
       m_AnimatedSprites:
       - {fileID: 455067675, guid: 9cedcc06b2259a04c9dc16f2cec7812c, type: 3}
       - {fileID: -1000863836, guid: 9cedcc06b2259a04c9dc16f2cec7812c, type: 3}
-      m_AnimationSpeed: 5
+      m_AnimationSpeed: 5.0000005
       m_AnimationTimeOffset: 0
       m_IsLooping: 1
   - first: {x: 7, y: -6, z: 0}
@@ -33323,7 +33437,7 @@ Tilemap:
       m_AnimatedSprites:
       - {fileID: 455067675, guid: 9cedcc06b2259a04c9dc16f2cec7812c, type: 3}
       - {fileID: -1000863836, guid: 9cedcc06b2259a04c9dc16f2cec7812c, type: 3}
-      m_AnimationSpeed: 5.0000005
+      m_AnimationSpeed: 5
       m_AnimationTimeOffset: 0
       m_IsLooping: 1
   - first: {x: 31, y: -6, z: 0}
@@ -33379,7 +33493,7 @@ Tilemap:
       m_AnimatedSprites:
       - {fileID: 455067675, guid: 9cedcc06b2259a04c9dc16f2cec7812c, type: 3}
       - {fileID: -1000863836, guid: 9cedcc06b2259a04c9dc16f2cec7812c, type: 3}
-      m_AnimationSpeed: 5.0000005
+      m_AnimationSpeed: 5
       m_AnimationTimeOffset: 0
       m_IsLooping: 1
   - first: {x: 38, y: -6, z: 0}
@@ -53200,6 +53314,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   fadeDuration: 0.5
   playerTag: Player
+  stayRevealed: 0
 --- !u!60 &1579775711
 PolygonCollider2D:
   m_ObjectHideFlags: 0
@@ -82968,6 +83083,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   fadeDuration: 0.5
   playerTag: Player
+  stayRevealed: 1
 --- !u!60 &2113272949
 PolygonCollider2D:
   m_ObjectHideFlags: 0
