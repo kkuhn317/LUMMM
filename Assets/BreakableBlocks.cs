@@ -6,8 +6,10 @@ public class BreakableBlocks : MonoBehaviour
 {
 
     public GameObject BlockPiece;
-
     public AudioClip breakSound;
+
+    [HideInInspector]
+    public bool broken = false;
 
     // Start is called before the first frame update
     void Start()
@@ -17,6 +19,8 @@ public class BreakableBlocks : MonoBehaviour
 
     public void Break()
     {
+        if (broken) return;
+        broken = true;
         Vector2 blockPos = transform.position;
         GetComponent<AudioSource>().PlayOneShot(breakSound);
         GameObject BlockPiece1 = (GameObject)Instantiate(BlockPiece) as GameObject;

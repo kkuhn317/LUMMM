@@ -95,7 +95,6 @@ public class MarioMovement : MonoBehaviour
     public AudioClip bonkSound;
     public AudioClip yeahAudioClip;
     public AudioClip MaaaamaMiaAudioClip;
-
     private AudioSource audioSource;
 
     private bool frozen = false;
@@ -113,6 +112,8 @@ public class MarioMovement : MonoBehaviour
     public AudioClip pickupSound;
     public AudioClip dropSound;
     public AudioClip throwSound;
+
+    private float grabRaycastHeight => powerupState == PowerupState.small ? -0.1f : -0.4f;
 
     // Start is called before the first frame update
     void Start()
@@ -153,7 +154,7 @@ public class MarioMovement : MonoBehaviour
 
         // shoot fireball, etc
         if (!carrying && Input.GetButtonDown("Fire3") && powerupState == PowerupState.power) {
-            print("shoot!");
+            //print("shoot!");
             marioAbility.shootProjectile();
         }
 
@@ -533,9 +534,40 @@ public class MarioMovement : MonoBehaviour
             // go down to Big Mario
             newMario = Instantiate(powerDownMario, new Vector3(transform.position.x, transform.position.y, transform.position.z), transform.rotation);
         }
+        
+        var newMarioMovement = transferProperties(newMario);
+
+        newMarioMovement.invincetimeremain = damageinvinctime;
+        newMarioMovement.playDamageSound();
+
+        Destroy(gameObject);
+    }
+
+    public void ChangePowerup(GameObject newMarioObject) {
+        GameObject newMario;
+        if (powerupState == PowerupState.small) {
+            // place big mario higher up than small mario
+            newMario = Instantiate(newMarioObject, new Vector3(transform.position.x, transform.position.y + 0.5f, transform.position.z), Quaternion.identity);
+        } else {
+            // no need to change position
+            newMario = Instantiate(newMarioObject, new Vector3(transform.position.x, transform.position.y, transform.position.z), Quaternion.identity);
+        }
+        
+        transferProperties(newMario);
+
+        Destroy(gameObject);
+    }
+
+    MarioMovement transferProperties(GameObject newMario) {
         newMario.GetComponent<Rigidbody2D>().velocity = gameObject.GetComponent<Rigidbody2D>().velocity;
         var newMarioMovement = newMario.GetComponent<MarioMovement>();
-        newMarioMovement.invincetimeremain = damageinvinctime;
+
+        if (!facingRight)
+            newMarioMovement.Flip();
+
+        newMarioMovement.pressRunToGrab = pressRunToGrab;
+        newMarioMovement.crouchToGrab = crouchToGrab;
+        newMarioMovement.carryMethod = carryMethod;
         
         if (carrying) {
             // move carried object to new mario
@@ -545,8 +577,7 @@ public class MarioMovement : MonoBehaviour
             newMarioMovement.carrying = true;
         }
 
-        newMarioMovement.playDamageSound();
-        Destroy(gameObject);
+        return newMarioMovement;
     }
 
     public void playDamageSound() {
@@ -629,21 +660,6 @@ public class MarioMovement : MonoBehaviour
         }
     }
 
-    public void ChangePowerup(GameObject newMarioObject) {
-        GameObject newMario;
-        if (powerupState == PowerupState.small) {
-            // place big mario higher up than small mario
-            newMario = Instantiate(newMarioObject, new Vector3(transform.position.x, transform.position.y + 0.5f, transform.position.z), Quaternion.identity);
-        } else {
-            // no need to change position
-            newMario = Instantiate(newMarioObject, new Vector3(transform.position.x, transform.position.y, transform.position.z), Quaternion.identity);
-        }
-        newMario.GetComponent<Rigidbody2D>().velocity = gameObject.GetComponent<Rigidbody2D>().velocity;
-        if (!facingRight)
-            newMario.GetComponent<MarioMovement>().Flip();
-        Destroy(gameObject);
-    }
-
     private void OnDrawGizmos() {
         // Ground
         Gizmos.color = Color.red;
@@ -657,8 +673,8 @@ public class MarioMovement : MonoBehaviour
 
         // Carry Raycast
         Gizmos.color = Color.blue;
-        float raycastHeight = powerupState == PowerupState.small ? -0.4f : -0.9f;
-        Vector3 start = transform.position + new Vector3(0, raycastHeight, 0);
+        
+        Vector3 start = transform.position + new Vector3(0, grabRaycastHeight, 0);
         Gizmos.DrawLine(start, start + (facingRight ? Vector3.right : Vector3.left) * 0.6f);
 
     }
@@ -721,10 +737,10 @@ public class MarioMovement : MonoBehaviour
     }
 
     void checkForCarry() {
-        print("Check carry");
-        float raycastHeight = powerupState == PowerupState.small ? -0.4f : -0.9f;
+        //print("Check carry");
+
         // raycast in front of feet of mario
-        RaycastHit2D[] hit = Physics2D.RaycastAll(transform.position + new Vector3(0, raycastHeight, 0), facingRight ? Vector2.right : Vector2.left, 0.6f);
+        RaycastHit2D[] hit = Physics2D.RaycastAll(transform.position + new Vector3(0, grabRaycastHeight, 0), facingRight ? Vector2.right : Vector2.left, 0.6f);
 
 
         foreach(RaycastHit2D h in hit) {
@@ -741,7 +757,7 @@ public class MarioMovement : MonoBehaviour
     }
 
     void carry(ObjectPhysics obj) {
-        print("carry!");
+        //print("carry!");
         carrying = true;
 
         animator.SetTrigger("grab");
@@ -757,7 +773,7 @@ public class MarioMovement : MonoBehaviour
     }
 
     public void dropCarry() {
-        print("drop!");
+        //print("drop!");
         carrying = false;
 
         animator.SetTrigger("grab");
@@ -775,9 +791,14 @@ public class MarioMovement : MonoBehaviour
     }
 
     void throwCarry() {
-        print("throw!");
+        //print("throw!");
 
         carrying = false;
+
+        // check if heldObjectPosition has an object
+        if (heldObjectPosition.transform.childCount == 0) {
+            return;
+        }
 
         // todo: throw animation
 

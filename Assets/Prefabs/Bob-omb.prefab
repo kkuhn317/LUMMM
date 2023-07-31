@@ -154,18 +154,30 @@ MonoBehaviour:
   checkObjectCollision: 1
   DontFallOffLedges: 0
   flipObject: 1
+  FrequentMovement: 0
+  lavaKill: 1
+  sinkSpeed: 20
+  lavaMask:
+    serializedVersion: 2
+    m_Bits: 0
+  carryable: 0
+  carried: 0
+  throwVelocity: {x: 12, y: 10}
   knockAwaySound: {fileID: 8300000, guid: 62467461e51dddb40931164fd2db1170, type: 3}
   objectState: 0
   movement: 1
-  bounceHeight: 0
+  stopAfterLand: 0
+  bounceHeight: 0.2
+  minHeightToBounce: 1
   canBeFireballed: 0
   stompHeight: 0.2
+  heldItem: {fileID: 0}
+  itemSpawnOffset: {x: 0, y: 0, z: 0}
   state: 0
   kickForce: {x: 5, y: 10}
   explodeTime: 4
   explodeRadius: 3
   explosionObject: {fileID: 1420006679389223119, guid: ddb2465bfe76ed0468928812d657ab93, type: 3}
-  canBeGrabbed: 0
 --- !u!82 &5145359519538992380
 AudioSource:
   m_ObjectHideFlags: 0
