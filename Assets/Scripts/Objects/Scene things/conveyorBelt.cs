@@ -30,7 +30,7 @@ public class ConveyorBelt : MonoBehaviour
 
     private void Update()
     {
-        animator.SetFloat("Speed", speed);
+        animator.SetBool("direction", direction == ConveyorDirection.Right);
         GameObject player = GameObject.FindGameObjectWithTag("Player");
         if (!player) return;
         if (player.transform.parent == transform)
@@ -46,7 +46,7 @@ public class ConveyorBelt : MonoBehaviour
 
     private int GetDirectionMultiplier()
     {
-        return direction == ConveyorDirection.Right ? -1 : 1;
+        return direction == ConveyorDirection.Right ? 1 : -1;
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
