@@ -39,17 +39,17 @@ public class BombOmb : EnemyAI
         }
     }
 
-    protected override void Update()
-    {
-        base.Update();
-        if (state == EnemyState.primed) {
-            // if y velocity is 0, then we are on the ground
-            // so stop x velocity
-            if (velocity.y == 0) {
-                velocity.x = 0;
-            }
-        }
-    }
+    // protected override void Update()
+    // {
+    //     base.Update();
+    //     if (state == EnemyState.primed) {
+    //         // if y velocity is 0, then we are on the ground
+    //         // so stop x velocity
+    //         if (velocity.y == 0) {
+    //             velocity.x = 0;
+    //         }
+    //     }
+    // }
 
     protected override void touchNonPlayer(GameObject other)
     {
@@ -77,6 +77,8 @@ public class BombOmb : EnemyAI
         if (state != EnemyState.primed) {
             state = EnemyState.primed;
             animator.SetTrigger("prime");
+            carryable = true;
+            stopAfterLand = true;
             Invoke("explode", explodeTime);
         }
         
@@ -119,6 +121,11 @@ public class BombOmb : EnemyAI
     }
 
     private void explode() {
+
+        if (carried) {
+            escapeMario();
+        }
+
         Collider2D[] hitColliders = Physics2D.OverlapCircleAll(transform.position, explodeRadius);
         foreach (var hitCollider in hitColliders)
         {

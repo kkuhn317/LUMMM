@@ -83,6 +83,11 @@ public class QuestionBlock : MonoBehaviour
         }
         else
         {
+            if (GetComponent<BreakableBlocks>()?.broken == true)
+            {
+                return;
+            }
+            
             GetComponent<SpriteRenderer>().enabled = true;
             GetComponent<Collider2D>().enabled = true;
 
