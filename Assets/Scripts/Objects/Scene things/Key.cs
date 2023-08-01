@@ -62,17 +62,21 @@ public class Key : MonoBehaviour
         {
             followPlayer();
 
-            if (player.GetComponent<MarioMovement>().isMoving)
+            // Check if the player object is null before accessing its components.
+            if (player != null && player.GetComponent<MarioMovement>() != null)
             {
-                notMovingTime = 0f;
-            }
-            else
-            {
-                notMovingTime += Time.deltaTime;
-                if (notMovingTime >= timeThreshold && shouldPlayAnimationAndAudio) // Check if the player has not moved before triggering audio and animation
+                if (player.GetComponent<MarioMovement>().isMoving)
                 {
-                    PlayAudioAndAnimation();
-                    shouldPlayAnimationAndAudio = false; // Set the flag to false so that the audio and animation are not triggered again
+                    notMovingTime = 0f;
+                }
+                else
+                {
+                    notMovingTime += Time.deltaTime;
+                    if (notMovingTime >= timeThreshold && shouldPlayAnimationAndAudio) // Check if the player has not moved before triggering audio and animation
+                    {
+                        PlayAudioAndAnimation();
+                        shouldPlayAnimationAndAudio = false; // Set the flag to false so that the audio and animation are not triggered again
+                    }
                 }
             }
         }

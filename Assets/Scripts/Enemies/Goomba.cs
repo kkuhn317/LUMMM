@@ -6,7 +6,8 @@ public class Goomba : EnemyAI
 {
     public enum EnemyState {
         walking,
-        crushed
+        crushed,
+        ambush
     }
 
     public EnemyState state = EnemyState.walking;
