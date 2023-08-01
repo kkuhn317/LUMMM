@@ -46,10 +46,19 @@ public class AnimatedSprite : MonoBehaviour
             spriteRenderer.sprite = sprites[frame];
         }
     }
-
     public void StopAnimation()
     {
         isAnimating = false;
         spriteRenderer.sprite = sprites[0]; // Set the sprite to the first frame
+    }
+
+    public void PauseAnimation()
+    {
+        isAnimating = false;
+    }
+
+    public void ResumeAnimation()
+    {
+        isAnimating = true;
     }
 }

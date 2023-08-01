@@ -26,6 +26,7 @@ public class Axe : MonoBehaviour
     [Header("Bridge Destruction")]
     public bool startFromLastTile = true; // Set this to true if you want to start destruction from the last tile.
     public int tilesPerStep = 1; // Number of tiles to destroy at once.
+    public bool bridgeDestroyed = false;
 
     [Header("Fall And Destroy Bridge Options")]
     public float fallDistance = 2.0f; // Adjust this value to determine how far the tiles should fall.
@@ -155,6 +156,9 @@ public class Axe : MonoBehaviour
         Invoke(nameof(DestroyBridge), bridgeDestroyDelay);
         Invoke(nameof(makeObjectsFall), enemyFallDelay);
         Invoke(nameof(resumePlayer), playerResumeDelay);
+
+        // Set bridgeDestroyed to true after the bridge is destroyed.
+        bridgeDestroyed = true;
     }
 
     private IEnumerator FallTile(GameObject tile)
