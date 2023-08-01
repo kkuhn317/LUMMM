@@ -116,6 +116,13 @@ public class MarioMovement : MonoBehaviour
 
     private float grabRaycastHeight => powerupState == PowerupState.small ? -0.1f : -0.4f;
 
+    // use this in other scripts to check if mario is moving (walking or jumping)
+    public bool isMoving {
+        get {
+            return rb.velocity.x > 0.01 || !onGround;
+        }
+    }
+
     // Start is called before the first frame update
     void Start()
     {
