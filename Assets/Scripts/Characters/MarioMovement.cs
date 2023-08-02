@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections;
 using UnityEngine.InputSystem;
 using UnityEngine.Events;
+using UnityEngine.U2D.Animation;
 
 public class MarioMovement : MonoBehaviour
 {
@@ -68,6 +69,8 @@ public class MarioMovement : MonoBehaviour
     private bool isYeahAnimationPlaying = false;
     private bool hasEnteredAnimationYeahTrigger = false;
 
+    private SpriteLibraryAsset normalSpriteLibrary;
+
     [Header("Powerups")]
 
     public PowerupState powerupState = PowerupState.small;
@@ -94,10 +97,7 @@ public class MarioMovement : MonoBehaviour
     public AudioClip damageSound;
     public AudioClip bonkSound;
     public AudioClip yeahAudioClip;
-    public AudioClip MaaaamaMiaAudioClip;
-    private bool mamaMiaAudioPlayed = false;
     private AudioSource audioSource;
-
     private bool frozen = false;
 
     [Header("Carrying")]
@@ -135,6 +135,7 @@ public class MarioMovement : MonoBehaviour
         if (powerupState == PowerupState.power) {
             marioAbility = GetComponent<MarioAbility>();
         }
+        normalSpriteLibrary = GetComponent<SpriteLibrary>().spriteLibraryAsset;
     }
 
     // Update is called once per frame
@@ -644,30 +645,10 @@ public class MarioMovement : MonoBehaviour
     }
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.gameObject.tag == "AnimationWorried")
-        {
-            animator.SetBool("isWorried", true);
-
-            // Play MaaaamaMiaAudioClip only if it has not been played before
-            if (!mamaMiaAudioPlayed)
-            {
-                mamaMiaAudioPlayed = true;
-                audioSource.PlayOneShot(MaaaamaMiaAudioClip);
-            }
-        }
-
         // Check if the trigger collider is the one you want to trigger the "yeah" animation
         if (other.gameObject.CompareTag("AnimationYeah"))
         {
             PlayYeahAnimation();
-        }
-    }
-
-    void OnTriggerExit2D(Collider2D other)
-    {
-        if (other.gameObject.tag == "AnimationWorried")
-        {
-            animator.SetBool("isWorried", false);
         }
     }
 
@@ -832,6 +813,10 @@ public class MarioMovement : MonoBehaviour
             audioSource.PlayOneShot(throwSound);
 
         obj.getThrown(facingRight);
+    }
+
+    public void resetSpriteLibrary() {
+        GetComponent<SpriteLibrary>().spriteLibraryAsset = normalSpriteLibrary;
     }
 
 }
