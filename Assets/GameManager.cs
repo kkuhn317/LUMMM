@@ -397,4 +397,12 @@ public class GameManager : MonoBehaviour
             pausemenu.SetActive(false);
     }
 
+    // after level ends, call this (ex: flag cutscene ends)
+    public void FinishLevel()
+    {
+        // This will probably cause a special ending screen to show up, 
+        // but for now just go to the main menu
+        SceneManager.LoadScene("MainMenu");
+    }
+
 }

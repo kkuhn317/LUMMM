@@ -13,6 +13,7 @@ public class Flag : MonoBehaviour
     public float marioSlideSpeed = 50f;
     public float flagMoveSpeed = 50f;
     public float slideTime = 2f; // how long from when mario first touches the flag to when he gets off the pole
+    public float cutsceneTime = 10f; // how long the cutscene lasts before the level ends
 
     bool marioAtBottom = false;
 
@@ -48,6 +49,7 @@ public class Flag : MonoBehaviour
                     marioAtBottom = true;
                     // stop animating mario
                     cutsceneMario.GetComponent<Animator>().SetFloat("climbSpeed", 0f);
+                    Invoke(nameof(endLevel), cutsceneTime);
                 }
             }
         }
@@ -106,5 +108,10 @@ public class Flag : MonoBehaviour
         // collider
         GetComponent<BoxCollider2D>().size = new Vector2(0.25f, height);
         GetComponent<BoxCollider2D>().offset = new Vector2(0, (height + 1) / 2);
+    }
+
+    void endLevel()
+    {
+        GameManager.Instance.FinishLevel();
     }
 }

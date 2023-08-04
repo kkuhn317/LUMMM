@@ -8,5 +8,6 @@ public class SelectionDescription : ScriptableObject
     public string videoLink;
     [Multiline(10)]
     public string levelDescription;
+    public int lives;
     
 }
