@@ -646,8 +646,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1152846357}
   m_HandleRect: {fileID: 1152846356}
   m_Direction: 2
-  m_Value: 0.9352581
-  m_Size: 0.6802237
+  m_Value: 0.84794897
+  m_Size: 0.68137836
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -2228,6 +2228,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 2009164742}
+        m_TargetAssemblyTypeName: DestroyGameMusic, Assembly-CSharp
+        m_MethodName: DestroyGameMusicObjects
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &745828229
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2307,7 +2319,6 @@ GameObject:
   - component: {fileID: 750382024}
   - component: {fileID: 750382023}
   - component: {fileID: 750382022}
-  - component: {fileID: 750382026}
   m_Layer: 5
   m_Name: Level 2
   m_TagString: Untagged
@@ -2429,7 +2440,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 8366470021bc18f408df164545de7281, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 26113eda1814a03469fd60985477b0b7, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -2447,34 +2458,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 750382020}
   m_CullTransparentMesh: 1
---- !u!114 &750382026
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 750382020}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0a4657131e60e2b41966c9b166744109, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  doubleClickDuration: 0.4
-  onDoubleClick:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 9153613489925409451, guid: af3e380b6dac9a248966315ebe0e5e63, type: 3}
-        m_TargetAssemblyTypeName: ChangeScene, Assembly-CSharp
-        m_MethodName: LoadScene
-        m_Mode: 5
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: MariovsTheWorldofSpikes
-          m_BoolArgument: 0
-        m_CallState: 2
 --- !u!1 &773658247
 GameObject:
   m_ObjectHideFlags: 0
@@ -3174,6 +3157,18 @@ MonoBehaviour:
         m_Arguments:
           m_ObjectArgument: {fileID: 11400000, guid: 2a148ffde4344254891dde29da029951, type: 2}
           m_ObjectArgumentAssemblyTypeName: SelectionDescription, Assembly-CSharp
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 2009164742}
+        m_TargetAssemblyTypeName: DestroyGameMusic, Assembly-CSharp
+        m_MethodName: DestroyGameMusicObjects
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -4452,11 +4447,11 @@ RectTransform:
   m_Father: {fileID: 110926840}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -339.766, y: 212.9168}
-  m_SizeDelta: {x: 0, y: 590.1}
-  m_Pivot: {x: 0.1, y: 1}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: -4.1, y: -266.01}
+  m_SizeDelta: {x: 0, y: 589.1}
+  m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &1372153203
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4621,7 +4616,6 @@ GameObject:
   - component: {fileID: 1447588252}
   - component: {fileID: 1447588251}
   - component: {fileID: 1447588250}
-  - component: {fileID: 1447588254}
   m_Layer: 5
   m_Name: Level 3
   m_TagString: Untagged
@@ -4743,7 +4737,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: f8dda2e919de47c4f9befd341bdf6f31, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 5acdfeaf236f40748a44c57a8c11359c, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -4761,34 +4755,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1447588248}
   m_CullTransparentMesh: 1
---- !u!114 &1447588254
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1447588248}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0a4657131e60e2b41966c9b166744109, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  doubleClickDuration: 0.4
-  onDoubleClick:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 9153613489925409451, guid: af3e380b6dac9a248966315ebe0e5e63, type: 3}
-        m_TargetAssemblyTypeName: ChangeScene, Assembly-CSharp
-        m_MethodName: LoadScene
-        m_Mode: 5
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: MarioandLuigiMazeMayhem
-          m_BoolArgument: 0
-        m_CallState: 2
 --- !u!1 &1449229912
 GameObject:
   m_ObjectHideFlags: 0
@@ -6403,6 +6369,18 @@ MonoBehaviour:
           m_StringArgument: TheGreatPyramidofGoomba
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 2009164742}
+        m_TargetAssemblyTypeName: DestroyGameMusic, Assembly-CSharp
+        m_MethodName: DestroyGameMusicObjects
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &1937736824
 GameObject:
   m_ObjectHideFlags: 0
@@ -6716,6 +6694,50 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1989291774}
   m_CullTransparentMesh: 1
+--- !u!1 &2009164741
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2009164743}
+  - component: {fileID: 2009164742}
+  m_Layer: 0
+  m_Name: DestroyGameMusic
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!114 &2009164742
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2009164741}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ebb22d2ad25ac434eb07ebec0b56501d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!4 &2009164743
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2009164741}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 1771.5524, y: 866.3466, z: 38.7096}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2123023425
 GameObject:
   m_ObjectHideFlags: 0

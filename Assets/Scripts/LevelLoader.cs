@@ -6,6 +6,7 @@ using UnityEngine.SceneManagement;
 public class LevelLoader : MonoBehaviour
 {
     public Animator transition;
+    public float transitionChangeDelay = 1.2f;
 
     public void LoadNextLevel()
     {
@@ -17,7 +18,7 @@ public class LevelLoader : MonoBehaviour
         //Play Animation
         transition.SetTrigger("Start");
         //Add a delay
-        yield return new WaitForSeconds(2.5f);
+        yield return new WaitForSeconds(transitionChangeDelay);
         //Load scene
         SceneManager.LoadScene(levelIndex);
     }

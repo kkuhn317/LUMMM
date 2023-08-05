@@ -6,11 +6,20 @@ public class AudioDoNotDestroy : MonoBehaviour
 {
     private void Awake()
     {
-        GameObject[] musicObj = GameObject.FindGameObjectsWithTag("GameMusic");
-        if (musicObj.Length > 1)
-        {
-            Destroy(this.gameObject);
-        }
+        DestroyDuplicateGameMusicObjects();
         DontDestroyOnLoad(this.gameObject);
+    }
+
+    private void DestroyDuplicateGameMusicObjects()
+    {
+        GameObject[] musicObjs = GameObject.FindGameObjectsWithTag("GameMusic");
+        foreach (GameObject musicObj in musicObjs)
+        {
+            // Make sure not to destroy the current game object (this.gameObject)
+            if (musicObj != this.gameObject)
+            {
+                Destroy(musicObj);
+            }
+        }
     }
 }
