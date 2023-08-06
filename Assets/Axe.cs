@@ -59,6 +59,7 @@ public class Axe : MonoBehaviour
 
     [Header("Timing")]
     // these are timed from the time the axe hits the ground or disappears
+    public bool freezePlayerOnHit = true;
     public float bridgeDestroyDelay = 0.5f; // Adjust this value to set the delay in seconds before destroying the bridge when the axe rotation is done.
     public float enemyFallDelay = 2.0f; // how long until the enemies fall
     public float playerResumeDelay = 3.0f; // how long until the player can move again
@@ -114,8 +115,11 @@ public class Axe : MonoBehaviour
             GameManager.Instance.PausePauseableObjects();
 
             // freeze player
-            player = collision.gameObject;
-            player.GetComponent<MarioMovement>().Freeze();
+            if (freezePlayerOnHit)
+            {
+                player = collision.gameObject;
+                player.GetComponent<MarioMovement>().Freeze();
+            }
 
             // Handle behavior based on the axe size.
             if (Size == AxeSize.Big)
@@ -155,10 +159,14 @@ public class Axe : MonoBehaviour
 
         Invoke(nameof(DestroyBridge), bridgeDestroyDelay);
         Invoke(nameof(makeObjectsFall), enemyFallDelay);
-        Invoke(nameof(resumePlayer), playerResumeDelay);
-
         // Set bridgeDestroyed to true after the bridge is destroyed.
         bridgeDestroyed = true;
+
+        // If player is set, resume the player movement.
+        if (player != null)
+        {
+            Invoke(nameof(resumePlayer), playerResumeDelay);
+        }
     }
 
     private IEnumerator FallTile(GameObject tile)
@@ -238,7 +246,10 @@ public class Axe : MonoBehaviour
     }
 
     private void resumePlayer() {
-        // resume player
-        player.GetComponent<MarioMovement>().Unfreeze();
+        // Check if the player variable is not null before unfreezing the player.
+        if (player != null)
+        {
+            player.GetComponent<MarioMovement>().Unfreeze();
+        }
     }
 }

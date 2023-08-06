@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 7869234505290482195}
   - component: {fileID: 7869234505290482193}
   - component: {fileID: 6666431002538250063}
+  - component: {fileID: 4569459309862263671}
   m_Layer: 0
   m_Name: TinyAxe
   m_TagString: Untagged
@@ -129,3 +130,40 @@ MonoBehaviour:
   - {fileID: -1448094487, guid: c9b448e531d67da4f8acf998a69cc746, type: 3}
   - {fileID: -1413185143, guid: c9b448e531d67da4f8acf998a69cc746, type: 3}
   framerate: 0.16666667
+--- !u!114 &4569459309862263671
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7869234505290482194}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 06772a7ff2a0b4744a205ad8868d8cbe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Size: 0
+  Rotation: 0
+  destructionType: 0
+  rotationSpeed: 120
+  bridgeTiles: []
+  timerStop: 0
+  startFromLastTile: 1
+  tilesPerStep: 1
+  bridgeDestroyed: 0
+  fallDistance: 2
+  tileFallDestroyDelay: 0.2
+  grabSound: {fileID: 8300000, guid: 50c654a61c6a42e429c23c583def732d, type: 3}
+  hitGroundSound: {fileID: 8300000, guid: c27ba5c55447bbf46bf6c3e6fce86f50, type: 3}
+  bridgeBreakSound: {fileID: 8300000, guid: a1091af6cfc79874290c5fac41a696cb, type: 3}
+  enemyFallSound: {fileID: 8300000, guid: d11cf02c57053d94cb9b1577b2fbc519, type: 3}
+  cameraFollow: {fileID: 0}
+  numberOfShakes: 3
+  delayBetweenShakes: 0.1
+  duration: 0.1
+  intensity: 2
+  decreaseFactor: 1
+  axisUp: {x: 0, y: 1, z: 0}
+  bridgeDestroyDelay: 0.5
+  enemyFallDelay: 2
+  playerResumeDelay: 3

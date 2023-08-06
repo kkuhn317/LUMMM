@@ -37,6 +37,8 @@ public class QuestionBlock : MonoBehaviour
     private AudioSource audioSource;
 
     private int originalLayer = 3; // Layer 3 = ground layer
+    private bool shouldContinueRiseUp = true; // Add a flag to control coroutine continuation
+
 
     // Start is called before the first frame update
     void Start()
@@ -326,11 +328,16 @@ public class QuestionBlock : MonoBehaviour
         }
     }
 
+    public void StopRiseUp()
+    {
+        shouldContinueRiseUp = false; // Method to stop the RiseUp coroutine prematurely
+    }
+
     IEnumerator RiseUp(GameObject item, string ogTag, int ogLayer, MonoBehaviour[] scripts)
     {
-        while (true)
+        while (item != null && shouldContinueRiseUp) // Add a null check and the flag check here
         {
-            
+            // Rest of the code inside the coroutine
 
             //item.GetComponent<Rigidbody2D>().velocity = Vector3.zero;
 
@@ -349,6 +356,14 @@ public class QuestionBlock : MonoBehaviour
             }
             yield return null;
         }
+
+        // If the item GameObject is null or shouldContinueRiseUp is false, the coroutine will exit here.
+    }
+
+    // Call this method when the player grabs the item
+    public void OnPlayerGrabItem()
+    {
+        StopRiseUp(); // Stop the RiseUp coroutine when the player grabs the item
     }
 
     void OnDrawGizmos()
