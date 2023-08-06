@@ -43,6 +43,13 @@ public class MarioMovement : MonoBehaviour
     private float airtimer = 0;
     private bool changingDirections;
 
+    [Header("Swimming")]
+    public bool swimming = false;
+    public float swimForce = 5f;
+    public float swimGravity = 1f;
+    public float swimDrag = 3f;
+    public float swimTerminalVelocity = 2f;
+
     [Header("Collision")]
     public bool onGround = false;
     public float groundLength = 0.6f;
@@ -86,7 +93,7 @@ public class MarioMovement : MonoBehaviour
 
     [HideInInspector]
     public bool starPower = false;
-    private Color[] StarColors = { Color.green, Color.yellow, Color.blue, Color.red };
+    private readonly Color[] StarColors = { Color.green, Color.yellow, Color.blue, Color.red };
     private int selectedStarColor = 0;
 
     [Header("Death")]
@@ -99,6 +106,7 @@ public class MarioMovement : MonoBehaviour
 
     public AudioClip damageSound;
     public AudioClip bonkSound;
+    public AudioClip swimSound;
     public AudioClip yeahAudioClip;
     private AudioSource audioSource;
     private bool frozen = false;
@@ -237,9 +245,15 @@ public class MarioMovement : MonoBehaviour
 
         // Movement
         moveCharacter(direction.x);
-        if (jumpTimer > Time.time && onGround) {
-            audioSource.Play();
-            Jump();
+        if (jumpTimer > Time.time && (onGround || swimming)) {
+
+            if (!swimming) {
+                audioSource.Play();
+                Jump();
+            } else {
+                audioSource.PlayOneShot(swimSound);
+                Swim();
+            }
         }
 
         // Floor detection
@@ -322,7 +336,7 @@ public class MarioMovement : MonoBehaviour
         bool crouch = (direction.y < -0.5) && canCrouch;
 
         // Crouching
-        if (crouch && powerupState != PowerupState.small && onGround && !carrying) {
+        if (crouch && powerupState != PowerupState.small && onGround && !carrying && !swimming) {
 
             // Start Crouch
             animator.SetBool("isCrouching", true);
@@ -346,19 +360,20 @@ public class MarioMovement : MonoBehaviour
 
         // Running or Walking
         if (!inCrouchState || !onGround) {
-            if (Input.GetButton("Fire3")) {
-                rb.AddForce(Vector2.right * horizontal * runSpeed);
+            if (Input.GetButton("Fire3") && !swimming) {
+                rb.AddForce(horizontal * runSpeed * Vector2.right);
             } else {
                 if (Mathf.Abs(rb.velocity.x) <= maxSpeed) {
-                    rb.AddForce(Vector2.right * horizontal * moveSpeed);
+                    rb.AddForce(horizontal * moveSpeed * Vector2.right);
                 } else {
-                    rb.AddForce(Vector2.left * slowDownForce * Mathf.Sign(rb.velocity.x));
+                    rb.AddForce(Mathf.Sign(rb.velocity.x) * slowDownForce * Vector2.left);
                 }
             }
         }
 
+        // TODO: merge this with the above
         // Crouching
-        if (onGround && Input.GetAxisRaw("Vertical") < 0 && canCrouch)
+        if (onGround && Input.GetAxisRaw("Vertical") < 0 && canCrouch && !swimming)
         {
             inCrouchState = true;
             
@@ -370,7 +385,7 @@ public class MarioMovement : MonoBehaviour
         }
 
         // Changing Direction
-        if (onGround) {
+        if (onGround || swimming) {
             if ((horizontal > 0 && !facingRight) || (horizontal < 0 && facingRight)) {
                 Flip();
             }
@@ -390,8 +405,11 @@ public class MarioMovement : MonoBehaviour
           //      rb.velocity = new Vector2(Mathf.Sign(rb.velocity.x) * maxSpeed, rb.velocity.y);
           //  }
           //}
-        if (-rb.velocity.y > terminalvelocity) {
-            rb.velocity = new Vector2(rb.velocity.x, -terminalvelocity);
+
+        float tvel = swimming ? swimTerminalVelocity : terminalvelocity;
+
+        if (-rb.velocity.y > tvel) {
+            rb.velocity = new Vector2(rb.velocity.x, -tvel);
         }
         animator.SetFloat("Horizontal", Mathf.Abs(rb.velocity.x) / 8);
         if (Mathf.Abs(rb.velocity.x) <= 0.5f) {
@@ -419,8 +437,30 @@ public class MarioMovement : MonoBehaviour
         airtimer = Time.time + airtime;
     }
 
+    // for swimming
+    public void Swim() {
+        rb.AddForce(Vector2.up * swimForce, ForceMode2D.Impulse);
+        animator.SetTrigger("swim");
+        jumpTimer = 0;
+    }
+
+    // jump out of water
+    public void JumpOutOfWater() {
+        rb.velocity = new Vector2(rb.velocity.x, 0);
+        rb.AddForce(.75f * jumpSpeed * Vector2.up, ForceMode2D.Impulse);
+        jumpTimer = 0;
+        airtimer = Time.time + airtime;
+    }
+
     void modifyPhysics() {
         changingDirections = (direction.x > 0 && rb.velocity.x < 0) || (direction.x < 0 && rb.velocity.x > 0);
+
+        // special swimming physics
+        if (swimming) {
+            rb.gravityScale = swimGravity;
+            rb.drag = swimDrag;
+            return;
+        }
 
         if (onGround) {
             // no crazy crouch sliding
@@ -438,7 +478,7 @@ public class MarioMovement : MonoBehaviour
             if (Mathf.Abs(direction.x) < 0.4f || changingDirections) {
 
                 // if running and holding left or right
-                if ((Input.GetButton("Fire3")) && (direction.x != 0)) {
+                if (Input.GetButton("Fire3") && (direction.x != 0)) {
                     rb.drag = runlinearDrag;
 
                     // if not holding left or right
@@ -653,12 +693,33 @@ public class MarioMovement : MonoBehaviour
         {
             PlayYeahAnimation();
         }
+
+        if (other.gameObject.layer == LayerMask.NameToLayer("Water"))
+        {
+            swimming = true;
+            animator.SetTrigger("enterWater");
+        }
+    }
+    
+    private void OnTriggerExit2D(Collider2D other)
+    {
+        if (other.gameObject.layer == LayerMask.NameToLayer("Water"))
+        {
+            swimming = false;
+            animator.SetTrigger("exitWater");
+
+            // if you are moving up, you can jump out of water
+            if (rb.velocity.y > 0)
+            {
+                JumpOutOfWater();
+            }
+        }
     }
 
     void OnCollisionStay2D(Collision2D collision)
     {
         // spikes
-        if (collision.gameObject.tag == "Damaging")
+        if (collision.gameObject.CompareTag("Damaging"))
         {
             damageMario();
         }
