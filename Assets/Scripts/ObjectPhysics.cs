@@ -501,7 +501,7 @@ public class ObjectPhysics : MonoBehaviour
         velocity.y = y;
     }
 
-    private void OnDrawGizmos()
+    protected virtual void OnDrawGizmos()
     {
 
         if (movement == ObjectMovement.still)

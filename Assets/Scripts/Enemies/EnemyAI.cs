@@ -93,7 +93,9 @@ public class EnemyAI : ObjectPhysics
         }
     }
 
-    private void OnDrawGizmos() {
+    protected override void OnDrawGizmos() {
+        base.OnDrawGizmos();
+        
         if (heldItem != null) {
             Gizmos.color = Color.red;
             // spawn position

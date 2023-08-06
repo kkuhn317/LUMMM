@@ -71,6 +71,9 @@ public class MarioMovement : MonoBehaviour
 
     private SpriteLibraryAsset normalSpriteLibrary;
 
+    public bool canSkid = true;
+    public bool canCrouch = true;
+
     [Header("Powerups")]
 
     public PowerupState powerupState = PowerupState.small;
@@ -316,7 +319,7 @@ public class MarioMovement : MonoBehaviour
 
     }
     void moveCharacter(float horizontal) {
-        bool crouch = (direction.y < -0.5);
+        bool crouch = (direction.y < -0.5) && canCrouch;
 
         // Crouching
         if (crouch && powerupState != PowerupState.small && onGround && !carrying) {
@@ -355,7 +358,7 @@ public class MarioMovement : MonoBehaviour
         }
 
         // Crouching
-        if (onGround && Input.GetAxisRaw("Vertical") < 0)
+        if (onGround && Input.GetAxisRaw("Vertical") < 0 && canCrouch)
         {
             inCrouchState = true;
             
@@ -398,7 +401,7 @@ public class MarioMovement : MonoBehaviour
         }
 
         if (onGround) {
-            if (!inCrouchState) {
+            if (!inCrouchState && canSkid) {
                 animator.SetBool("isSkidding", changingDirections);
             }
             animator.SetBool("onGround", true);
