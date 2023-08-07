@@ -28,6 +28,11 @@ public class DonutBlock : MonoBehaviour
 
     private void Update()
     {
+
+        // if we have a child, then we assume the player is on it
+        // this could probably be done better but it works for now
+        isPlayerOn = transform.childCount > 0;
+
         if (isPlayerOn && !isDropping && !isRegenerating)
         {
             spriteRenderer.sprite = droppedSprite; // Change to droppedSprite when the player steps on the block
@@ -67,20 +72,4 @@ public class DonutBlock : MonoBehaviour
         rb.isKinematic = true; // Disable physics while at the initial position
     }
 
-    private void OnCollisionEnter2D(Collision2D collision)
-    {
-        if (collision.gameObject.CompareTag("Player"))
-        {
-            isPlayerOn = true;
-        }
-    }
-
-    private void OnCollisionExit2D(Collision2D collision)
-    {
-        if (collision.gameObject.CompareTag("Player"))
-        {
-            isPlayerOn = false;
-            timeOnBlock = 0f; // Reset the timer when the player leaves the block
-        }
-    }
 }
