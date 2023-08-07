@@ -45,7 +45,7 @@ public class EnemyAI : ObjectPhysics
 
         Rigidbody2D rb = player.GetComponent<Rigidbody2D>();
 
-        float playerHeightSubtract = playerscript.powerupState == MarioMovement.PowerupState.small ? 0.2f : 0.7f;
+        float playerHeightSubtract = player.GetComponent<Collider2D>().bounds.size.y / 2 * (playerscript.powerupState == MarioMovement.PowerupState.small ?  0.4f : 0.7f);
 
         if (rb.position.y - playerHeightSubtract > transform.position.y + stompHeight) {
             hitByStomp(player);
@@ -101,6 +101,10 @@ public class EnemyAI : ObjectPhysics
             // spawn position
             Gizmos.DrawSphere(transform.position + itemSpawnOffset, 0.1f);
         }
+
+        // draw stomp height for debugging if needed
+        // Gizmos.color = Color.magenta;
+        // Gizmos.DrawLine(transform.position + new Vector3(-width/2, stompHeight, 0), transform.position + new Vector3(width/2, stompHeight, 0));
     }
 
     void OnDestroy() {

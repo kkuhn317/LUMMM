@@ -80,6 +80,7 @@ public class MarioMovement : MonoBehaviour
 
     public bool canSkid = true;
     public bool canCrouch = true;
+    public float walkAnimatorSpeed = 0.125f;
 
     [Header("Powerups")]
 
@@ -263,7 +264,7 @@ public class MarioMovement : MonoBehaviour
         RaycastHit2D groundHit1 = Physics2D.Raycast(transform.position + colliderOffset, Vector2.down, groundLength, groundLayer);
         RaycastHit2D groundHit2 = Physics2D.Raycast(transform.position - colliderOffset, Vector2.down, groundLength, groundLayer);
 
-        onGround = groundHit1 || groundHit2;
+        onGround = (groundHit1 || groundHit2) && rb.velocity.y <= 0.01f;
 
         if (onGround) {
 
@@ -288,6 +289,8 @@ public class MarioMovement : MonoBehaviour
 
             if (onMovingPlatform) {
                 transform.parent = hitRay.transform;
+                // change y position to be on top of platform
+                transform.position = new Vector3(transform.position.x, groundPos.y + groundLength - 0.01f, transform.position.z);
             } else {
                 transform.parent = null;
             }
@@ -411,7 +414,7 @@ public class MarioMovement : MonoBehaviour
         if (-rb.velocity.y > tvel) {
             rb.velocity = new Vector2(rb.velocity.x, -tvel);
         }
-        animator.SetFloat("Horizontal", Mathf.Abs(rb.velocity.x) / 8);
+        animator.SetFloat("Horizontal", Mathf.Abs(rb.velocity.x) * walkAnimatorSpeed);
         if (Mathf.Abs(rb.velocity.x) <= 0.5f) {
             animator.SetBool("isRunning", false);
         } else {

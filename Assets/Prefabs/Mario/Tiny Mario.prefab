@@ -74,8 +74,13 @@ MonoBehaviour:
   gravity: 0.075
   fallgravity: 2.625
   airtime: 0.4
+  swimming: 0
+  swimForce: 5
+  swimGravity: 1
+  swimDrag: 3
+  swimTerminalVelocity: 2
   onGround: 0
-  groundLength: 0.2
+  groundLength: 0.213
   onMovingPlatform: 0
   ceilingLength: 0.2
   colliderOffset: {x: 0.1, y: 0, z: 0}
@@ -84,12 +89,14 @@ MonoBehaviour:
   groundPos: {x: 0, y: 0}
   canSkid: 0
   canCrouch: 0
+  walkAnimatorSpeed: 0.25
   powerupState: 0
   powerDownMario: {fileID: 0}
   starPower: 0
   deadMario: {fileID: 2690894693950398662, guid: 341fca9f0145402499a0a4fe44c85b8d, type: 3}
   damageSound: {fileID: 8300000, guid: 938d4a3d1a37b284c81c8c25379c86b4, type: 3}
   bonkSound: {fileID: 8300000, guid: 6db2c81fb3c026d40a90d8d52dc8384b, type: 3}
+  swimSound: {fileID: 0}
   yeahAudioClip: {fileID: 8300000, guid: b4a5b5a191256034ca457e70e758ea5b, type: 3}
   carrying: 0
   pressRunToGrab: 0
