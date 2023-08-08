@@ -127,6 +127,8 @@ public class KoopaController : EnemyAI
 
     protected override void onTouchWall(GameObject other)
     {
+        base.onTouchWall(other);
+        
         if (state == EnemyState.movingShell) {
             // if the wall is a question block, hit it
             if (other.GetComponent<QuestionBlock>()) {

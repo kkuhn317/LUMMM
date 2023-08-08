@@ -23,13 +23,13 @@ public class EnemyAI : ObjectPhysics
         enabled = true;
     }
 
-    private void OnTriggerEnter2D(Collider2D other) {
+    protected virtual void OnTriggerEnter2D(Collider2D other) {
         // don't do anything if we're already dead
         if (objectState == ObjectState.knockedAway || objectState == ObjectState.onLava) {
             return;
         }
 
-        if (other.gameObject.tag == "Player") {
+        if (other.gameObject.CompareTag("Player")) {
             hitByPlayer(other.gameObject);
         } else {
             touchNonPlayer(other.gameObject);
@@ -74,9 +74,9 @@ public class EnemyAI : ObjectPhysics
         // override this for whatever needed
     }
 
-    public override void KnockAway(bool direction)
+    public override void KnockAway(bool direction, bool sound = true)
     {
-        base.KnockAway(direction);
+        base.KnockAway(direction, sound);
         releaseItem();
     }
 
@@ -103,8 +103,8 @@ public class EnemyAI : ObjectPhysics
         }
 
         // draw stomp height for debugging if needed
-        // Gizmos.color = Color.magenta;
-        // Gizmos.DrawLine(transform.position + new Vector3(-width/2, stompHeight, 0), transform.position + new Vector3(width/2, stompHeight, 0));
+        Gizmos.color = Color.magenta;
+        Gizmos.DrawLine(transform.position + new Vector3(-width/2, stompHeight, 0), transform.position + new Vector3(width/2, stompHeight, 0));
     }
 
     void OnDestroy() {

@@ -7,10 +7,15 @@ public class CameraFollow : MonoBehaviour
     public float smoothDampTime = 0.15f;
     private Vector3 smoothDampVelocity = Vector3.zero;
 
+    public bool canMoveHorizontally = true;
     public float leftBounds;
     public float rightBounds;
 
-    private float camWidth, camHeight, levelMinX, levelMaxX;
+    public bool canMoveVertically = false;
+    public float topBounds;
+    public float bottomBounds;
+
+    private float camWidth, camHeight, levelMinX, levelMaxX, levelMinY, levelMaxY;
     private Vector3 originalPosition;
 
     // Camera Shake variables
@@ -28,6 +33,9 @@ public class CameraFollow : MonoBehaviour
         levelMinX = leftBounds + (camWidth / 2);
         levelMaxX = rightBounds - (camWidth / 2);
 
+        levelMinY = bottomBounds + (camHeight / 2);
+        levelMaxY = topBounds - (camHeight / 2);
+
         originalPosition = transform.position;
     }
 
@@ -40,8 +48,10 @@ public class CameraFollow : MonoBehaviour
         {
             GameObject target = Players[0];
             float targetX = Mathf.Max(levelMinX, Mathf.Min(levelMaxX, target.transform.position.x));
-            float x = Mathf.SmoothDamp(transform.position.x, targetX, ref smoothDampVelocity.x, smoothDampTime);
-            transform.position = new Vector3(x, transform.position.y, transform.position.z);
+            float targetY = Mathf.Max(levelMinY, Mathf.Min(levelMaxY, target.transform.position.y));
+            float x = canMoveHorizontally ? Mathf.SmoothDamp(transform.position.x, targetX, ref smoothDampVelocity.x, smoothDampTime) : transform.position.x;
+            float y = canMoveVertically ? Mathf.SmoothDamp(transform.position.y, targetY, ref smoothDampVelocity.y, smoothDampTime) : transform.position.y;
+            transform.position = new Vector3(x, y, transform.position.z);
         }
 
         if (isShaking)
@@ -99,6 +109,17 @@ public class CameraFollow : MonoBehaviour
             ShakeCamera(duration, intensity, decreaseFactor, axis);
             yield return new WaitForSeconds(delayBetweenShakes);
         }
+    }
+
+    private void OnDrawGizmos ()
+    {
+        // draw a square around the camera bounds
+        Gizmos.color = Color.red;
+        Gizmos.DrawLine(new Vector3(leftBounds, topBounds, 0), new Vector3(rightBounds, topBounds, 0));
+        Gizmos.DrawLine(new Vector3(rightBounds, topBounds, 0), new Vector3(rightBounds, bottomBounds, 0));
+        Gizmos.DrawLine(new Vector3(rightBounds, bottomBounds, 0), new Vector3(leftBounds, bottomBounds, 0));
+        Gizmos.DrawLine(new Vector3(leftBounds, bottomBounds, 0), new Vector3(leftBounds, topBounds, 0));
+
     }
 }
 
