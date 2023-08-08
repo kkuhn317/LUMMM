@@ -14,6 +14,11 @@ public class SpineController : MonoBehaviour
 
     private void CreateSpines()
     {
+        if (spinePrefab == null)
+        {
+            return;
+        }
+        
         for (int i = 0; i < numberOfSpines; i++)
         {
             Vector3 spawnPosition = transform.position + Vector3.right * i * spineOffset;
