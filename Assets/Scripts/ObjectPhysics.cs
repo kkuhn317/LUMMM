@@ -34,7 +34,7 @@ public class ObjectPhysics : MonoBehaviour
 
     public bool flipObject = true;
     private Vector2 normalScale;
-    private float adjDeltaTime;
+    protected float adjDeltaTime;
 
     public bool FrequentMovement = false; // if true, will update position every frame instead of every physics update
     private bool firstframe = true;
@@ -50,6 +50,10 @@ public class ObjectPhysics : MonoBehaviour
     private int oldOrderInLayer;
     public Vector2 throwVelocity = new Vector2(12, 10);
 
+    [Header("Knock Away")]
+
+    public Vector2 knockAwayVelocity = new Vector2(5, 5);
+
     public enum ObjectState
     {
         falling,    // in the air
@@ -64,8 +68,8 @@ public class ObjectPhysics : MonoBehaviour
     {
         still,      // not moving at all
         sliding,    // falling and sliding
-        bouncing    // falling and bouncing
-
+        bouncing,    // falling and bouncing
+        special,    // special movement (like a bullet bill)
     }
 
     public ObjectState objectState = ObjectState.falling;
@@ -118,7 +122,7 @@ public class ObjectPhysics : MonoBehaviour
         }
     }
 
-    public void UpdatePosition()
+    public virtual void UpdatePosition()
     {
         // don't move if carried
         if (carried)
@@ -141,43 +145,18 @@ public class ObjectPhysics : MonoBehaviour
         // vertical movement
         if (objectState == ObjectState.falling || objectState == ObjectState.knockedAway || objectState == ObjectState.onLava)
         {
-
-            pos.y += velocity.y * adjDeltaTime;
-
-            if (pos.y > peakHeight)
-            {
-                peakHeight = pos.y;
-            }
-            
-            if (objectState == ObjectState.onLava) {
-                // sinking in lava
-                velocity.y = -sinkSpeed * adjDeltaTime;
-            } else {
-                // regular falling
-                velocity.y -= gravity * adjDeltaTime;
-            }
+            pos = VerticalMovement(pos);
         }
 
         // horizontal movement
-        if (movingLeft)
+        pos = HorizontalMovement(pos);
+
+        // flipping object sprite
+        if (flipObject)
         {
-
-            pos.x -= velocity.x * adjDeltaTime;
-
-            if (flipObject)
-                scale.x = normalScale.x;
-
+            scale.x = movingLeft ? normalScale.x : -normalScale.x;
         }
-        else
-        {
-
-            pos.x += velocity.x * adjDeltaTime;
-
-            if (flipObject)
-                scale.x = -normalScale.x;
-        }
-
-
+        
         // fix bug where object has y velocity but walking
         // making it walk in the air
         if (objectState == ObjectState.grounded)
@@ -352,6 +331,36 @@ public class ObjectPhysics : MonoBehaviour
         return shortestRay;
     }
 
+    protected virtual Vector3 HorizontalMovement(Vector3 pos) {
+        if (movingLeft)
+        {
+            pos.x -= velocity.x * adjDeltaTime;
+        }
+        else
+        {
+            pos.x += velocity.x * adjDeltaTime;
+        }
+        return pos;
+    }
+
+    protected virtual Vector3 VerticalMovement(Vector3 pos) {
+         pos.y += velocity.y * adjDeltaTime;
+
+            if (pos.y > peakHeight)
+            {
+                peakHeight = pos.y;
+            }
+            
+            if (objectState == ObjectState.onLava) {
+                // sinking in lava
+                velocity.y = -sinkSpeed * adjDeltaTime;
+            } else {
+                // regular falling
+                velocity.y -= gravity * adjDeltaTime;
+            }
+        return pos;
+    }
+
     private bool checkifObjectCollideValid(ObjectPhysics other)
     {
         if (!checkObjectCollision)
@@ -414,15 +423,15 @@ public class ObjectPhysics : MonoBehaviour
 
         // hit something
         onTouchWall(hitRay.collider.gameObject);
-        // flip direction
-        movingLeft = !movingLeft;
+        
         return true;
-
     }
 
     protected virtual void onTouchWall(GameObject other)
     {
-        //print("touching wall");
+        // flip direction
+        movingLeft = !movingLeft;
+
         // override me for custom behavior
     }
 
@@ -465,22 +474,22 @@ public class ObjectPhysics : MonoBehaviour
         }
     }
 
-    public virtual void KnockAway(bool direction) {
+    public virtual void KnockAway(bool direction, bool sound = true) {
         if (objectState != ObjectState.knockedAway) {
             GetComponent<SpriteRenderer>().flipY = true;
             objectState = ObjectState.knockedAway;
-            velocity.y = 5;
-            velocity.x = 5;
+            velocity = knockAwayVelocity;
             movingLeft = direction;
             GetComponent<Collider2D>().enabled = false;
             transform.rotation = Quaternion.identity;
             // play sound
-            if (knockAwaySound != null && GetComponent<AudioSource>() != null)
+            if (sound && knockAwaySound != null && GetComponent<AudioSource>() != null)
             {
                 GetComponent<AudioSource>().PlayOneShot(knockAwaySound);
             }
         }
     }
+
 
     private void OnBecameInvisible()
     {
