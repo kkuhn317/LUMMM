@@ -5,7 +5,8 @@ using UnityEngine;
 public class DonutBlock : MonoBehaviour
 {
     public float dropTime = 1f;
-    public float regenerateTime = 5f;
+    public float regenerateTime = 3f;
+    public float fallSpeed = 3f; // Control the falling speed
     public Sprite normalSprite;
     public Sprite droppedSprite;
 
@@ -17,24 +18,27 @@ public class DonutBlock : MonoBehaviour
     private Vector3 initialPosition;
     private SpriteRenderer spriteRenderer;
     private Rigidbody2D rb;
+    private Animator animator;
 
     private void Start()
     {
         initialPosition = transform.position;
         spriteRenderer = GetComponent<SpriteRenderer>();
         rb = GetComponent<Rigidbody2D>();
+        animator = GetComponent<Animator>();
+        animator.enabled = false;
         rb.isKinematic = true;
     }
 
     private void Update()
     {
-
-        // if we have a child, then we assume the player is on it
-        // this could probably be done better but it works for now
+        // Check if the player is on the block
         isPlayerOn = transform.childCount > 0;
 
-        if (isPlayerOn && !isDropping && !isRegenerating)
+        // Change the sprite based on player interaction
+        if (isPlayerOn)
         {
+            animator.enabled = true;
             spriteRenderer.sprite = droppedSprite; // Change to droppedSprite when the player steps on the block
             timeOnBlock += Time.deltaTime;
             if (timeOnBlock >= dropTime)
@@ -44,21 +48,36 @@ public class DonutBlock : MonoBehaviour
         }
         else
         {
-            spriteRenderer.sprite = normalSprite;
-            timeOnBlock = 0f; // Reset the timer if the player leaves the block
+            if (!isDropping && !isRegenerating)
+            {
+                animator.enabled = false;
+                // If the player is not on the block and not dropping or regenerating, change the sprite back to normalSprite
+                spriteRenderer.sprite = normalSprite;
+                timeOnBlock = 0f; // Reset the timer if the player leaves the block
+            }
         }
     }
 
     private IEnumerator Drop()
     {
+        animator.enabled = false;
         isDropping = true;
         rb.isKinematic = false; // Enable physics to let the block fall
+
+        // Set the falling speed
+        rb.velocity = new Vector2(0f, -fallSpeed);
 
         yield return new WaitForSeconds(dropTime);
 
         isPlayerOn = false;
         isDropping = false;
         isRegenerating = true;
+
+        // Make the block static for regeneration
+        rb.velocity = Vector2.zero;
+        rb.angularVelocity = 0f;
+
+        spriteRenderer.sprite = normalSprite;
 
         StartCoroutine(Regenerate());
     }
@@ -69,7 +88,11 @@ public class DonutBlock : MonoBehaviour
 
         isRegenerating = false;
         transform.position = initialPosition;
+
+        // Reset the block's velocity and angular velocity
+        rb.velocity = Vector2.zero;
+        rb.angularVelocity = 0f;
+
         rb.isKinematic = true; // Disable physics while at the initial position
     }
-
 }
