@@ -64,11 +64,20 @@ public class DonutBlock : MonoBehaviour
         isDropping = true;
         rb.isKinematic = false; // Enable physics to let the block fall
 
+        // Set the falling speed
+        rb.velocity = new Vector2(0f, -fallSpeed);
+
         yield return new WaitForSeconds(dropTime);
 
         isPlayerOn = false;
         isDropping = false;
         isRegenerating = true;
+
+        // Make the block static for regeneration
+        rb.velocity = Vector2.zero;
+        rb.angularVelocity = 0f;
+
+        spriteRenderer.sprite = normalSprite;
 
         StartCoroutine(Regenerate());
     }
@@ -79,6 +88,11 @@ public class DonutBlock : MonoBehaviour
 
         isRegenerating = false;
         transform.position = initialPosition;
+
+        // Reset the block's velocity and angular velocity
+        rb.velocity = Vector2.zero;
+        rb.angularVelocity = 0f;
+
         rb.isKinematic = true; // Disable physics while at the initial position
     }
 }

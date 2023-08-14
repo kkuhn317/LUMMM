@@ -29,10 +29,10 @@ public class LeverController : MonoBehaviour
             {
                 RotateObject(targetRotation);
             }
-            else if (isRotating && !isMoving)
+            /*else if (isRotating && !isMoving)
             {
                 RotateObject(initialRotation.eulerAngles);
-            }
+            }*/
             else if (!isRotating && isMoving)
             {
                 MoveObject(targetPosition);
