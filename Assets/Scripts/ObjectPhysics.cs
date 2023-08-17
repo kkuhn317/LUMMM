@@ -90,7 +90,18 @@ public class ObjectPhysics : MonoBehaviour
         adjDeltaTime = Time.fixedDeltaTime;
         lavaMask = LayerMask.GetMask("Lava");
         peakHeight = transform.position.y;
-        oldOrderInLayer = GetComponent<SpriteRenderer>().sortingOrder;
+
+        // temporary fix for objects that don't have the sprite renderer in the parent
+        // TODO: change this so all sprite renderers are affected by carrying
+        if (GetComponent<SpriteRenderer>() != null) {
+            oldOrderInLayer = GetComponent<SpriteRenderer>().sortingOrder;
+        } else {
+            oldOrderInLayer = 69;
+        }
+
+        
+
+        //oldOrderInLayer = GetComponent<SpriteRenderer>().sortingOrder;
     }
 
     protected virtual void Update()
@@ -115,6 +126,10 @@ public class ObjectPhysics : MonoBehaviour
 
     protected virtual void FixedUpdate()
     {
+        if (oldOrderInLayer == 69) {
+            print("got hereee");
+        }
+
         if (!FrequentMovement)
         {
             if (!(movement == ObjectMovement.still) || objectState == ObjectState.knockedAway)
@@ -124,6 +139,10 @@ public class ObjectPhysics : MonoBehaviour
 
     public virtual void UpdatePosition()
     {
+        if (oldOrderInLayer == 69) {
+            print("got here");
+        }
+
         // don't move if carried
         if (carried)
         {

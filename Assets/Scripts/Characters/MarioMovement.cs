@@ -435,7 +435,7 @@ public class MarioMovement : MonoBehaviour
     // for jumping and also stomping enemies
     public void Jump() {
         rb.velocity = new Vector2(rb.velocity.x, 0);
-        rb.AddForce(Vector2.up * jumpSpeed, ForceMode2D.Impulse);
+        rb.AddForce(Vector2.up * jumpSpeed * (swimming ? 0.5f : 1f), ForceMode2D.Impulse);
         jumpTimer = 0;
         airtimer = Time.time + airtime;
     }
