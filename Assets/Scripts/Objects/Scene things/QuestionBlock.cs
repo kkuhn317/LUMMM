@@ -7,7 +7,7 @@ public class QuestionBlock : MonoBehaviour
 {
     [Header("Invisible Block Behavior")]
     public bool isInvisible;
-    public float blockYposition = 1.1f; // apply for both small nd big Mario
+    public float blockYposition = 1.1f; // apply for both small and big Mario
 
     [Header("Block Behavior")]
     public float bounceHeight = 0.5f;
@@ -17,7 +17,7 @@ public class QuestionBlock : MonoBehaviour
 
     public bool noCoinIfNoItem = false;
 
-    public GameObject spawnItem;
+    public GameObject[] spawnableItems; // Array to hold multiple spawnable items
 
     public float coinMoveSpeed = 8f;
     public float coinMoveHeight = 3f;
@@ -173,7 +173,7 @@ public class QuestionBlock : MonoBehaviour
         {
             isInvisible = false;
 
-            if (spawnItem || !brickBlock)
+            if (spawnableItems.Length > 0 || !brickBlock)
             {
                 canBounce = false;
             }
@@ -190,7 +190,7 @@ public class QuestionBlock : MonoBehaviour
 
     public void BrickBlockBreak()
     {
-        if (spawnItem)
+        if (spawnableItems.Length > 0)
         {
             isInvisible = false;
 
@@ -218,25 +218,29 @@ public class QuestionBlock : MonoBehaviour
 
         activated = true;
 
-        if (spawnItem)
+        if (spawnableItems.Length > 0)
         {
             //print("custom item");
             audioSource.PlayOneShot(itemRiseSound);
-            GameObject spawnedItem = (GameObject)Instantiate(spawnItem) as GameObject;
-            MonoBehaviour[] scripts = spawnedItem.GetComponents<MonoBehaviour>();
-            foreach (MonoBehaviour script in scripts)
-            {
-                script.enabled = false;
-            }
 
-            string ogTag = spawnedItem.tag;
-            int ogLayer = spawnedItem.GetComponent<SpriteRenderer>().sortingLayerID;
-            spawnedItem.tag = "RisingItem";
-            spawnedItem.transform.SetParent(this.transform.parent);
-            spawnedItem.GetComponent<SpriteRenderer>().sortingLayerID = 0;
-            spawnedItem.GetComponent<SpriteRenderer>().sortingOrder = -1;
-            spawnedItem.transform.localPosition = new Vector3(originalPosition.x, originalPosition.y, 0);
-            StartCoroutine(RiseUp(spawnedItem, ogTag, ogLayer, scripts));
+            foreach (GameObject itemPrefab in spawnableItems)
+            {
+                GameObject spawnedItem = Instantiate(itemPrefab, transform.parent);
+                MonoBehaviour[] scripts = spawnedItem.GetComponents<MonoBehaviour>();
+                foreach (MonoBehaviour script in scripts)
+                {
+                    script.enabled = false;
+                }
+
+                string ogTag = spawnedItem.tag;
+                int ogLayer = spawnedItem.GetComponent<SpriteRenderer>().sortingLayerID;
+                spawnedItem.tag = "RisingItem";
+                spawnedItem.transform.SetParent(this.transform.parent);
+                spawnedItem.GetComponent<SpriteRenderer>().sortingLayerID = 0;
+                spawnedItem.GetComponent<SpriteRenderer>().sortingOrder = -1;
+                spawnedItem.transform.localPosition = new Vector3(originalPosition.x, originalPosition.y, 0);
+                StartCoroutine(RiseUp(spawnedItem, ogTag, ogLayer, scripts));
+            }
 
         }
         else if (!noCoinIfNoItem)
@@ -257,16 +261,16 @@ public class QuestionBlock : MonoBehaviour
     {
         //print(spawnItem != null);
 
-        if (spawnItem || !brickBlock)
+        if (spawnableItems.Length > 0 || !brickBlock)
         {
             ChangeSprite();
         }
 
-        if (!spawnItem && !brickBlock)
+        if (spawnableItems.Length == 0 && !brickBlock)
         {
             PresentCoin();
         }
-        else if (spawnItem)
+        else if (spawnableItems.Length > 0)
         {
             Invoke("PresentCoin", 0.25f);
         }

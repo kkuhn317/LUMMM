@@ -60,6 +60,8 @@ public class Pipe : MonoBehaviour
         yield return Move(player, enteredPosition, enteredScale);
         yield return new WaitForSeconds(1f);
 
+        PlayWarpEnterSound();
+
         if (exitDirection != Vector3.zero)
         {
             player.position = connection.position - exitDirection;
@@ -96,8 +98,7 @@ public class Pipe : MonoBehaviour
 
         Vector3 startPosition = player.position;
         Vector3 startScale = player.localScale;
-        PlayWarpEnterSound();
-
+        
         while (elapsed < duration)
         {
             float t = elapsed / duration;

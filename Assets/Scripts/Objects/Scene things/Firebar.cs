@@ -5,7 +5,6 @@ using System;
 
 public class Firebar : MonoBehaviour
 {
-
     [Header("Rotation speed")]
     public float firebarRotationSpeed; //declare a public variable for the fire bar rotation speed
     //Direction of rotation

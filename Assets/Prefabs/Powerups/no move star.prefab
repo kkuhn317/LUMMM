@@ -127,7 +127,7 @@ Rigidbody2D:
   m_Interpolate: 1
   m_SleepingMode: 1
   m_CollisionDetection: 1
-  m_Constraints: 0
+  m_Constraints: 4
 --- !u!61 &3119429520273648362
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -183,12 +183,21 @@ MonoBehaviour:
   DontFallOffLedges: 0
   flipObject: 0
   FrequentMovement: 0
+  lavaKill: 1
+  sinkSpeed: 20
+  lavaMask:
+    serializedVersion: 2
+    m_Bits: 0
+  carryable: 0
+  carried: 0
+  throwVelocity: {x: 12, y: 10}
+  knockAwayVelocity: {x: 5, y: 5}
   knockAwaySound: {fileID: 8300000, guid: 62467461e51dddb40931164fd2db1170, type: 3}
   objectState: 0
   movement: 0
   stopAfterLand: 0
-  maxBounces: 1
   bounceHeight: 15
+  minHeightToBounce: 1
   newMarioState: {fileID: 0}
   powerLevel: 1
   starTime: 5

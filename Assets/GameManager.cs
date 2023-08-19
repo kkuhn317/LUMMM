@@ -116,6 +116,7 @@ public class GameManager : MonoBehaviour
                     stopAllMusic();
                     // Debug.Log("The time has run out!");
                     DecrementLives();
+                    ResumeMusic(music);
                 }
             }
         }
