@@ -15,10 +15,19 @@ public class LeverController : MonoBehaviour
     private Quaternion initialRotation;
     private Vector3 initialPosition;
 
+    private AudioSource audioSourcePullerRotate;
+    public AudioSource audioSourceBarrierMove;
+
+    public AudioClip pullerAudioClip; // Audio clip for puller rotation
+    public AudioClip barriermoveAudioClip;   // Audio clip for barrier movement
+
     private void Start()
     {
         initialRotation = objectToRotate.rotation;
         initialPosition = objectToMove.position;
+
+        audioSourcePullerRotate = GetComponent<AudioSource>();
+        audioSourceBarrierMove = GetComponent<AudioSource>();
     }
 
     private void Update()
@@ -27,7 +36,7 @@ public class LeverController : MonoBehaviour
         {
             if (!isRotating && !isMoving)
             {
-                RotateObject(targetRotation);
+                RotateObject(targetRotation); // The puller rotates
             }
             /*else if (isRotating && !isMoving)
             {
@@ -35,15 +44,15 @@ public class LeverController : MonoBehaviour
             }*/
             else if (!isRotating && isMoving)
             {
-                MoveObject(targetPosition);
+                MoveObject(targetPosition); // The object moves to the target position
             }
-            else if (isRotating && isMoving)
+            /*else if (isRotating && isMoving)
             {
                 MoveObject(initialPosition);
-            }
+            }*/
         }
 
-        if (isRotating)
+        if (isRotating) // rotating logic
         {
             // Rotate the object smoothly over time
             float step = rotationSpeed * Time.deltaTime;
@@ -79,12 +88,22 @@ public class LeverController : MonoBehaviour
     {
         targetRotation = targetRot;
         isRotating = true;
+
+        if (audioSourcePullerRotate != null && pullerAudioClip != null)
+        {
+            audioSourcePullerRotate.PlayOneShot(pullerAudioClip);
+        }
     }
 
     private void MoveObject(Vector3 targetPos)
     {
         targetPosition = targetPos;
         isMoving = true;
+
+        if (audioSourceBarrierMove != null && barriermoveAudioClip != null)
+        {
+            audioSourceBarrierMove.PlayOneShot(barriermoveAudioClip);
+        }
     }
 
     private void OnTriggerEnter2D(Collider2D other)

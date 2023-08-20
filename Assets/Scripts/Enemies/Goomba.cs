@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Playables;
 
 public class Goomba : EnemyAI
 {
@@ -14,9 +15,15 @@ public class Goomba : EnemyAI
 
     public bool stompable = true;
 
+    public bool shouldntEnemyMoveWhenDie = true;
     private bool shouldDie = false;
     private float deathTimer = 0;
+    public bool shouldDestroyAfterCrush = true;
     public float timeBeforeDestroy = 1.0f;
+
+    [Header("Cutscene")]
+    public PlayableDirector cutscene;
+    public float delayBeforeCutscene = 1.0f;
 
     protected override void Update() {
         base.Update();
@@ -40,16 +47,38 @@ public class Goomba : EnemyAI
         }
 
         state = EnemyState.crushed;
-        movement = ObjectMovement.still;
+
+        if (shouldntEnemyMoveWhenDie)
+        {
+            movement = ObjectMovement.still;
+        }
+        else
+        {
+            velocity.x = 0; 
+            movement = ObjectMovement.sliding;
+        }
 
         GetComponent<Animator>().SetBool("isCrushed", true);
 
         GetComponent<Collider2D>().enabled = false;
 
-        shouldDie = true;
-
+        if (shouldDestroyAfterCrush)
+        { // Only destroy if the flag is set to true
+            shouldDie = true;       
+        }
         releaseItem();
+        StartCoroutine(PlayCutscene());
 
+    }
+
+    private IEnumerator PlayCutscene()
+    {
+        yield return new WaitForSeconds(delayBeforeCutscene);
+
+        if (cutscene != null)
+        {
+            cutscene.Play();
+        }
     }
 
     void CheckCrushed () {
