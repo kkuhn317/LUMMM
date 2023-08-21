@@ -24,6 +24,11 @@ public class CameraFollow : MonoBehaviour
     private float shakeIntensity = 0.1f;
     private float shakeDecreaseFactor = 1.0f;
 
+    // Camera moving up variables
+    private bool isLookingUp = false;
+    private Vector3 offset;
+    private float returnSpeed = 5.0f; // Adjust the return speed as needed
+
     // Start is called before the first frame update
     void Start()
     {
@@ -37,6 +42,7 @@ public class CameraFollow : MonoBehaviour
         levelMaxY = topBounds - (camHeight / 2);
 
         originalPosition = transform.position;
+        offset = new Vector3(0f, 2.3f, 0f);
     }
 
     // Update is called once per frame
@@ -49,6 +55,18 @@ public class CameraFollow : MonoBehaviour
             GameObject target = Players[0];
             float targetX = Mathf.Max(levelMinX, Mathf.Min(levelMaxX, target.transform.position.x));
             float targetY = Mathf.Max(levelMinY, Mathf.Min(levelMaxY, target.transform.position.y));
+
+            if (isLookingUp)
+            {
+                // Calculate desired position with an offset when looking up
+                targetY += offset.y;
+            }
+            else
+            {
+                // Gradually move the camera back to its original position
+                targetY = Mathf.MoveTowards(transform.position.y, originalPosition.y, returnSpeed * Time.deltaTime);
+            }
+
             float x = canMoveHorizontally ? Mathf.SmoothDamp(transform.position.x, targetX, ref smoothDampVelocity.x, smoothDampTime) : transform.position.x;
             float y = canMoveVertically ? Mathf.SmoothDamp(transform.position.y, targetY, ref smoothDampVelocity.y, smoothDampTime) : transform.position.y;
             transform.position = new Vector3(x, y, transform.position.z);
@@ -58,6 +76,18 @@ public class CameraFollow : MonoBehaviour
         {
             ShakeCamera();
         }
+    }
+
+    // Call this method from the player script when the player looks up
+    public void StartCameraMoveUp()
+    {
+        isLookingUp = true;
+    }
+
+    // Call this method from the player script when the player stops looking up
+    public void StopCameraMoveUp()
+    {
+        isLookingUp = false;
     }
 
     // Call this method to trigger camera shake on any specified axis

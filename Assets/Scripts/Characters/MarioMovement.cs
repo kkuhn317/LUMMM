@@ -28,6 +28,9 @@ public class MarioMovement : MonoBehaviour
     public LayerMask groundLayer;
     private MarioAbility marioAbility;
 
+    [Header("Camera")]
+    public CameraFollow cameraFollow;
+
     [Header("Child Objects")]
     public GameObject heldObjectPosition;
     private GameObject relPosObj;
@@ -128,6 +131,8 @@ public class MarioMovement : MonoBehaviour
 
     private float grabRaycastHeight => powerupState == PowerupState.small ? -0.1f : -0.4f;
 
+    private bool isLookingUp = false;
+
     // use this in other scripts to check if mario is moving (walking or jumping)
     public bool isMoving {
         get {
@@ -185,6 +190,31 @@ public class MarioMovement : MonoBehaviour
                 dropCarry();
             } else {
                 throwCarry();
+            }
+        }
+
+        // Look Up
+        if (!isMoving && Input.GetButton("LookUp"))
+        {
+            // Set the flag to true to indicate that the player is looking up
+            isLookingUp = true;
+        }
+        else
+        {
+            // Reset the flag to false if the player is not looking up
+            isLookingUp = false;
+        }
+        animator.SetBool("isLookingUp", isLookingUp);
+
+        if (cameraFollow != null)
+        {
+            if (isLookingUp)
+            {
+                cameraFollow.StartCameraMoveUp();
+            }
+            else
+            {
+                cameraFollow.StopCameraMoveUp();
             }
         }
 
@@ -744,7 +774,6 @@ public class MarioMovement : MonoBehaviour
         
         Vector3 start = transform.position + new Vector3(0, grabRaycastHeight, 0);
         Gizmos.DrawLine(start, start + (facingRight ? Vector3.right : Vector3.left) * 0.6f);
-
     }
 
     public void Move(InputAction.CallbackContext context)
