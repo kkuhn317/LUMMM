@@ -22,7 +22,7 @@ public class BreakableBlocks : MonoBehaviour
         if (broken) return;
         broken = true;
         Vector2 blockPos = transform.position;
-        GetComponent<AudioSource>().PlayOneShot(breakSound);
+        
         GameObject BlockPiece1 = (GameObject)Instantiate(BlockPiece) as GameObject;
         BlockPiece1.transform.position = new Vector3(blockPos.x - .25f, blockPos.y + .25f, -3);
         BlockPiece1.GetComponent<Rigidbody2D>().velocity = new Vector2(-4, 16);
@@ -35,6 +35,7 @@ public class BreakableBlocks : MonoBehaviour
         GameObject BlockPiece4 = (GameObject)Instantiate(BlockPiece) as GameObject;
         BlockPiece4.transform.position = new Vector3(blockPos.x + .25f, blockPos.y - .25f, -3);
         BlockPiece4.GetComponent<Rigidbody2D>().velocity = new Vector2(4, 10);
+
         GetComponent<AudioSource>().PlayOneShot(breakSound);
         GetComponent<SpriteRenderer>().enabled = false;
         GetComponent<Collider2D>().enabled = false;

@@ -93,8 +93,8 @@ public class EnemyAI : ObjectPhysics
         }
     }
 
-    protected override void OnDrawGizmos() {
-        base.OnDrawGizmos();
+    protected override void OnDrawGizmosSelected() {
+        base.OnDrawGizmosSelected();
         
         if (heldItem != null) {
             Gizmos.color = Color.red;
@@ -102,7 +102,7 @@ public class EnemyAI : ObjectPhysics
             Gizmos.DrawSphere(transform.position + itemSpawnOffset, 0.1f);
         }
 
-        // draw stomp height for debugging if needed
+        // draw stomp height
         Gizmos.color = Color.magenta;
         Gizmos.DrawLine(transform.position + new Vector3(-width/2, stompHeight, 0), transform.position + new Vector3(width/2, stompHeight, 0));
     }

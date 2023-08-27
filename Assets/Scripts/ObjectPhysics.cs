@@ -9,7 +9,26 @@ public class ObjectPhysics : MonoBehaviour
     [Header("Object Physics")]
 
     public bool movingLeft = true;
+
+    /// <summary>
+    /// <para>Does NOT take direction into account.</para>
+    /// <para>Even if moving left, the x velocity should always be positive</para>
+    /// </summary>
     public Vector2 velocity = new Vector2(2, 0);
+
+    /// <summary>
+    /// <para>the velocity with the direction taken into account.</para>
+    /// <para>if the object is moving left, this will be negative</para>
+    /// </summary>
+    public Vector2 realVelocity {
+        get {
+            return new Vector2(velocity.x * (movingLeft ? -1 : 1), velocity.y);
+        }
+        set {
+            velocity = new Vector2(Mathf.Abs(value.x), value.y);
+            movingLeft = value.x < 0 ? true : false;
+        }
+    }
 
     public float gravity = 60f;
 
@@ -53,6 +72,9 @@ public class ObjectPhysics : MonoBehaviour
     [Header("Knock Away")]
 
     public Vector2 knockAwayVelocity = new Vector2(5, 5);
+
+    public bool overrideKnockAwayGravity = false;
+    public float knockAwayGravity = 60f;
 
     public enum ObjectState
     {
@@ -484,7 +506,7 @@ public class ObjectPhysics : MonoBehaviour
 
     }
 
-    void Land()
+    public virtual void Land()
     {
         objectState = ObjectState.grounded;
         if (stopAfterLand)
@@ -498,6 +520,9 @@ public class ObjectPhysics : MonoBehaviour
             GetComponent<SpriteRenderer>().flipY = true;
             objectState = ObjectState.knockedAway;
             velocity = knockAwayVelocity;
+            if (overrideKnockAwayGravity) {
+                gravity = knockAwayGravity;
+            }
             movingLeft = direction;
             GetComponent<Collider2D>().enabled = false;
             transform.rotation = Quaternion.identity;
@@ -529,7 +554,7 @@ public class ObjectPhysics : MonoBehaviour
         velocity.y = y;
     }
 
-    protected virtual void OnDrawGizmos()
+    protected virtual void OnDrawGizmosSelected()
     {
 
         if (movement == ObjectMovement.still)

@@ -58,7 +58,7 @@ MonoBehaviour:
   slowDownForce: 1.875
   direction: {x: 0, y: 0}
   facingRight: 1
-  jumpSpeed: 6
+  jumpSpeed: 4
   jumpDelay: 0.1
   terminalvelocity: 4.6875
   startfallingspeed: 0.375
@@ -66,6 +66,7 @@ MonoBehaviour:
   groundLayer:
     serializedVersion: 2
     m_Bits: 8
+  cameraFollow: {fileID: 0}
   heldObjectPosition: {fileID: 4241799718361322995}
   maxSpeed: 1.875
   maxRunSpeed: 3.75
@@ -82,12 +83,12 @@ MonoBehaviour:
   onGround: 0
   groundLength: 0.213
   onMovingPlatform: 0
-  ceilingLength: 0.2
+  ceilingLength: 0.18
   colliderOffset: {x: 0.1, y: 0, z: 0}
   damageinvinctime: 3
   invincetimeremain: 0
   groundPos: {x: 0, y: 0}
-  canSkid: 0
+  canSkid: 1
   canCrouch: 0
   walkAnimatorSpeed: 0.25
   powerupState: 0
@@ -96,7 +97,7 @@ MonoBehaviour:
   deadMario: {fileID: 2690894693950398662, guid: 341fca9f0145402499a0a4fe44c85b8d, type: 3}
   damageSound: {fileID: 8300000, guid: 938d4a3d1a37b284c81c8c25379c86b4, type: 3}
   bonkSound: {fileID: 8300000, guid: 6db2c81fb3c026d40a90d8d52dc8384b, type: 3}
-  swimSound: {fileID: 0}
+  swimSound: {fileID: 8300000, guid: e2bb1aa0b45968f4b898809f1533541a, type: 3}
   yeahAudioClip: {fileID: 8300000, guid: b4a5b5a191256034ca457e70e758ea5b, type: 3}
   carrying: 0
   pressRunToGrab: 0
@@ -297,7 +298,7 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: -0.029033646, y: -0.04899068}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -308,7 +309,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 0.4, y: 0.5}
+  m_Size: {x: 0.33906826, y: 0.40201864}
   m_EdgeRadius: 0.01
 --- !u!82 &2080700940
 AudioSource:
@@ -323,7 +324,7 @@ AudioSource:
   m_audioClip: {fileID: 8300000, guid: 9892f57a1221643408aa97fdee19da27, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 1
-  m_Pitch: 1
+  m_Pitch: 1.5
   Loop: 0
   Mute: 0
   Spatialize: 0
@@ -444,8 +445,8 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 1497974571
+  m_SortingLayer: -1
   m_SortingOrder: 1
   m_Sprite: {fileID: 1997580843, guid: c9b448e531d67da4f8acf998a69cc746, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -456,7 +457,7 @@ SpriteRenderer:
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
-  m_MaskInteraction: 0
+  m_MaskInteraction: 2
   m_SpriteSortPoint: 0
 --- !u!95 &7590307370426838290
 Animator:
@@ -490,7 +491,37 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c29cff538c195c249b69c6f2236de67b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Library: []
+  m_Library:
+  - m_Name: Skid
+    m_Hash: 0
+    m_CategoryList:
+    - m_Name: Entry
+      m_Hash: 0
+      m_Sprite: {fileID: 21300000, guid: c9eaa9db1fe1c0b40974f344cd89fe85, type: 3}
+  - m_Name: Swim
+    m_Hash: 0
+    m_CategoryList:
+    - m_Name: spr_Mario_TGPOG_20
+      m_Hash: 0
+      m_Sprite: {fileID: -1638707150, guid: c9b448e531d67da4f8acf998a69cc746, type: 3}
+    - m_Name: spr_Mario_TGPOG_21
+      m_Hash: 0
+      m_Sprite: {fileID: 961076391, guid: c9b448e531d67da4f8acf998a69cc746, type: 3}
+    - m_Name: spr_Mario_TGPOG_22
+      m_Hash: 0
+      m_Sprite: {fileID: 1317666473, guid: c9b448e531d67da4f8acf998a69cc746, type: 3}
+    - m_Name: spr_Mario_TGPOG_23
+      m_Hash: 0
+      m_Sprite: {fileID: -1493459795, guid: c9b448e531d67da4f8acf998a69cc746, type: 3}
+    - m_Name: spr_Mario_TGPOG_24
+      m_Hash: 0
+      m_Sprite: {fileID: 1661216821, guid: c9b448e531d67da4f8acf998a69cc746, type: 3}
+  - m_Name: Up
+    m_Hash: 0
+    m_CategoryList:
+    - m_Name: Entry
+      m_Hash: 0
+      m_Sprite: {fileID: 1651705226, guid: c9b448e531d67da4f8acf998a69cc746, type: 3}
   m_SpriteLibraryAsset: {fileID: 7108339969198208228, guid: df404416786646b40a9e9ef04c0458ee, type: 3}
 --- !u!114 &1563295794450405723
 MonoBehaviour:

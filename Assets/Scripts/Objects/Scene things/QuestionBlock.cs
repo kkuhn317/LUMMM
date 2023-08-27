@@ -7,7 +7,6 @@ public class QuestionBlock : MonoBehaviour
 {
     [Header("Invisible Block Behavior")]
     public bool isInvisible;
-    public float blockYposition = 1.1f; // apply for both small and big Mario
 
     [Header("Block Behavior")]
     public float bounceHeight = 0.5f;
@@ -45,56 +44,9 @@ public class QuestionBlock : MonoBehaviour
     {
         audioSource = GetComponent<AudioSource>();
         originalPosition = transform.localPosition;
-    }
-    void Update()
-    {
-        if (isInvisible)
-        {
+
+        if (isInvisible) {
             GetComponent<SpriteRenderer>().enabled = false;
-
-            GameObject player = GameObject.FindGameObjectWithTag("Player");
-
-            if (player != null)
-            {
-                // Check if the player object has a Collider2D component before accessing its bounds
-                if (player.TryGetComponent<Collider2D>(out Collider2D playerCollider))
-                {
-                    Rigidbody2D playerRigidbody = player.GetComponent<Rigidbody2D>();
-                    float playerY = player.transform.position.y;
-                    float playerHeight = playerCollider.bounds.size.y;
-                    float blockY = transform.position.y - blockYposition;
-
-                    // If the player's y position is higher than the adjusted block's y position and moving upward, disable the collider
-                    // Or if the player is falling and directly above the block, disable the collider
-                    if ((playerY + playerHeight / 2f > blockY && playerRigidbody.velocity.y > 0) ||
-                        (playerY + playerHeight / 2f > blockY && playerRigidbody.velocity.y < 0 && playerY > blockY))
-                    {
-                        GetComponent<Collider2D>().enabled = false; // The collider disables
-                    }
-                    else
-                    {
-                        GetComponent<Collider2D>().enabled = true; // The collider enables
-                    }
-                }
-                else
-                {
-                    // The player doesn't have a Collider2D, so we disable the block's collider to be safe.
-                    GetComponent<Collider2D>().enabled = false;
-                }
-            }
-        }
-        else
-        {
-            if (GetComponent<BreakableBlocks>()?.broken == true)
-            {
-                return;
-            }
-            
-            GetComponent<SpriteRenderer>().enabled = true;
-            GetComponent<Collider2D>().enabled = true;
-
-            // Change the layer back to the ground layer to enable player interaction
-            gameObject.layer = originalLayer;
         }
     }
 
@@ -152,9 +104,6 @@ public class QuestionBlock : MonoBehaviour
     {
         if (canBounce)
         {
-            // Change the layer back to the ground layer to enable player interaction
-            gameObject.layer = originalLayer;
-
             if (brickBlock)
             {
                 BrickBlockBreak();
@@ -171,7 +120,14 @@ public class QuestionBlock : MonoBehaviour
 
         if (canBounce)
         {
-            isInvisible = false;
+            if (isInvisible) {
+                isInvisible = false;
+                GetComponent<SpriteRenderer>().enabled = true;
+                GetComponent<PlatformEffector2D>().useOneWay = false;
+
+                // change layer
+                gameObject.layer = originalLayer;
+            }
 
             if (spawnableItems.Length > 0 || !brickBlock)
             {
@@ -192,8 +148,6 @@ public class QuestionBlock : MonoBehaviour
     {
         if (spawnableItems.Length > 0)
         {
-            isInvisible = false;
-
             QuestionBlockBounce();
         }
         else
@@ -370,39 +324,4 @@ public class QuestionBlock : MonoBehaviour
         StopRiseUp(); // Stop the RiseUp coroutine when the player grabs the item
     }
 
-    void OnDrawGizmos()
-    {
-        // Only execute the Gizmos drawing when the game is running (not in edit mode)
-        if (Application.isPlaying)
-        {
-            // Draw a red sphere at the block's position
-            Gizmos.color = Color.red;
-            Gizmos.DrawSphere(transform.position, 0.1f);
-
-            GameObject player = GameObject.FindGameObjectWithTag("Player");
-
-            if (player != null)
-            {
-                // Check if the player object has a Collider2D component before accessing its bounds
-                if (player.TryGetComponent<Collider2D>(out Collider2D playerCollider))
-                {
-                    // Draw a green sphere at the player's position
-                    Gizmos.color = Color.green;
-                    Gizmos.DrawSphere(player.transform.position, 0.1f);
-
-                    float playerY = player.transform.position.y;
-                    float playerHeight = playerCollider.bounds.size.y;
-                    float blockY = transform.position.y - blockYposition; // Adjust the block's Y position
-
-                    // Draw a blue sphere at the adjusted block's position
-                    Gizmos.color = Color.blue;
-                    Gizmos.DrawSphere(new Vector3(transform.position.x, blockY, transform.position.z), 0.1f);
-                }
-                else
-                {
-                    // The player doesn't have a Collider2D, so we don't need to draw the Gizmos for this case.
-                }
-            }
-        }
-    }
 }

@@ -16,7 +16,7 @@ public class Goomba : EnemyAI
     public bool stompable = true;
 
     public bool shouldntEnemyMoveWhenDie = true;
-    private bool shouldDie = false;
+    protected bool shouldDie = false;
     private float deathTimer = 0;
     public bool shouldDestroyAfterCrush = true;
     public float timeBeforeDestroy = 1.0f;

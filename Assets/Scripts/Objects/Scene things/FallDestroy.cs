@@ -4,12 +4,9 @@ using UnityEngine;
 
 public class FallDestroy : MonoBehaviour
 {
-
-    // Update is called once per frame
-    void Update()
+    // destroy when it goes off screen
+    void OnBecameInvisible()
     {
-        if (transform.position.y < -2) {
-            Destroy(gameObject);
-        }
+        Destroy(gameObject);
     }
 }

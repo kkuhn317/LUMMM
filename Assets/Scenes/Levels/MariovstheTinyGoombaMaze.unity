@@ -1056,6 +1056,8 @@ MonoBehaviour:
   carried: 0
   throwVelocity: {x: 12, y: 10}
   knockAwayVelocity: {x: 5, y: 5}
+  overrideKnockAwayGravity: 0
+  knockAwayGravity: 60
   knockAwaySound: {fileID: 0}
   objectState: 0
   movement: 1
@@ -6281,6 +6283,92 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 6b5d1237dc444ef4b89747dacc3314e6, type: 3}
+--- !u!1 &574202307
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 574202310}
+  - component: {fileID: 574202309}
+  - component: {fileID: 574202308}
+  m_Layer: 0
+  m_Name: magic goomba move trigger (1)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!61 &574202308
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 574202307}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: -0.2763815, y: 0.0051795244}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0, y: 0}
+    oldSize: {x: 0, y: 0}
+    newSize: {x: 0, y: 0}
+    adaptiveTilingThreshold: 0
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  serializedVersion: 2
+  m_Size: {x: 0.447237, y: 0.58563447}
+  m_EdgeRadius: 0
+--- !u!114 &574202309
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 574202307}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 30f07fe3a47a8914d8fd0312465e3746, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  onPlayerEnter:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 939574626}
+        m_TargetAssemblyTypeName: WizardGoomba, Assembly-CSharp
+        m_MethodName: MoveToPosition
+        m_Mode: 3
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+--- !u!4 &574202310
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 574202307}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 6.046, y: 2.584, z: 0.112288825}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 96
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &576820964
 GameObject:
   m_ObjectHideFlags: 0
@@ -9881,7 +9969,7 @@ GameObject:
   - component: {fileID: 939574618}
   - component: {fileID: 939574625}
   - component: {fileID: 939574619}
-  - component: {fileID: 939574620}
+  - component: {fileID: 939574626}
   - component: {fileID: 939574622}
   - component: {fileID: 939574624}
   m_Layer: 7
@@ -9951,7 +10039,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 939574615}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 6.91, y: 1.776, z: 0}
+  m_LocalPosition: {x: 7.035, y: 1.99, z: 0}
   m_LocalScale: {x: 0.65, y: 0.65, z: 0.65}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -9983,7 +10071,7 @@ AudioSource:
   m_GameObject: {fileID: 939574615}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 0}
+  OutputAudioMixerGroup: {fileID: 24300002, guid: 52d4409ed4d7bb645aad562fcfd87159, type: 2}
   m_audioClip: {fileID: 8300000, guid: e2bb1aa0b45968f4b898809f1533541a, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 0.7
@@ -10070,61 +10158,6 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!114 &939574620
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 939574615}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 86173d77a3329f6478200d74bd0104ec, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  movingLeft: 1
-  velocity: {x: 0, y: 0}
-  gravity: 0
-  width: 0.25
-  height: 0.2844
-  floorRaycastSpacing: 0.2
-  wallRaycastSpacing: 0.2
-  floorMask:
-    serializedVersion: 2
-    m_Bits: 9
-  wallMask:
-    serializedVersion: 2
-    m_Bits: 1289
-  checkObjectCollision: 1
-  DontFallOffLedges: 0
-  flipObject: 1
-  FrequentMovement: 0
-  lavaKill: 1
-  sinkSpeed: 20
-  lavaMask:
-    serializedVersion: 2
-    m_Bits: 8192
-  carryable: 0
-  carried: 0
-  throwVelocity: {x: 12, y: 10}
-  knockAwayVelocity: {x: 5, y: 5}
-  knockAwaySound: {fileID: 8300000, guid: 62467461e51dddb40931164fd2db1170, type: 3}
-  objectState: 0
-  movement: 1
-  stopAfterLand: 0
-  bounceHeight: 0
-  minHeightToBounce: 1
-  canBeFireballed: 1
-  stompHeight: 0.06
-  heldItem: {fileID: 0}
-  itemSpawnOffset: {x: 0, y: 0, z: 0}
-  state: 0
-  stompable: 1
-  shouldntEnemyMoveWhenDie: 0
-  shouldDestroyAfterCrush: 0
-  timeBeforeDestroy: 1
-  cutscene: {fileID: 939574624}
-  delayBeforeCutscene: 0.5
 --- !u!95 &939574622
 Animator:
   serializedVersion: 4
@@ -10197,6 +10230,73 @@ PolygonCollider2D:
       - {x: 0.19437025, y: -0.34011835}
       - {x: 0.22733513, y: -0.30286375}
       - {x: 0.20757177, y: -0.22264248}
+--- !u!114 &939574626
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 939574615}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 430cb882f6520564abc5b3b72e6540ca, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  movingLeft: 1
+  velocity: {x: 0, y: 0}
+  gravity: 0
+  width: 0.5
+  height: 0.4
+  floorRaycastSpacing: 0.2
+  wallRaycastSpacing: 0.3
+  floorMask:
+    serializedVersion: 2
+    m_Bits: 8
+  wallMask:
+    serializedVersion: 2
+    m_Bits: 0
+  checkObjectCollision: 1
+  DontFallOffLedges: 0
+  flipObject: 1
+  FrequentMovement: 0
+  lavaKill: 1
+  sinkSpeed: 20
+  lavaMask:
+    serializedVersion: 2
+    m_Bits: 0
+  carryable: 0
+  carried: 0
+  throwVelocity: {x: 12, y: 10}
+  knockAwayVelocity: {x: 5, y: 5}
+  overrideKnockAwayGravity: 0
+  knockAwayGravity: 60
+  knockAwaySound: {fileID: 8300000, guid: 62467461e51dddb40931164fd2db1170, type: 3}
+  objectState: 0
+  movement: 1
+  stopAfterLand: 0
+  bounceHeight: 0
+  minHeightToBounce: 1
+  canBeFireballed: 1
+  stompHeight: 0.11
+  heldItem: {fileID: 0}
+  itemSpawnOffset: {x: 0, y: 0, z: 0}
+  state: 0
+  stompable: 1
+  shouldntEnemyMoveWhenDie: 0
+  shouldDestroyAfterCrush: 1
+  timeBeforeDestroy: 5
+  cutscene: {fileID: 939574624}
+  delayBeforeCutscene: 0.5
+  shootRate: 3
+  moveSpeed: 0.5
+  magicPrefab: {fileID: 1519459839122039078, guid: 14a5631da88b9b04086781d7f041d447, type: 3}
+  magicOffset: {x: -0.245, y: 0.025, z: 0}
+  shootSpeed: 1
+  shootSound: {fileID: 0}
+  moveSound: {fileID: 0}
+  positions:
+  - {x: 7.035, y: 1.99}
+  - {x: 7.5, y: 2.23}
 --- !u!1 &941973409
 GameObject:
   m_ObjectHideFlags: 0
@@ -12035,58 +12135,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 2080700945, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
-      propertyPath: m_Size.x
-      value: 0.33906826
-      objectReference: {fileID: 0}
-    - target: {fileID: 2080700945, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
-      propertyPath: m_Size.y
-      value: 0.40201864
-      objectReference: {fileID: 0}
-    - target: {fileID: 2080700945, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
-      propertyPath: m_Offset.x
-      value: -0.029033646
-      objectReference: {fileID: 0}
-    - target: {fileID: 2080700945, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
-      propertyPath: m_Offset.y
-      value: -0.04899068
-      objectReference: {fileID: 0}
-    - target: {fileID: 2080700945, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
-      propertyPath: m_SpriteTilingProperty.pivot.y
-      value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 2080700945, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
-      propertyPath: m_SpriteTilingProperty.oldSize.x
-      value: 0.625
-      objectReference: {fileID: 0}
-    - target: {fileID: 2080700945, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
-      propertyPath: m_SpriteTilingProperty.oldSize.y
-      value: 0.625
-      objectReference: {fileID: 0}
-    - target: {fileID: 1563295794450405723, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
-      propertyPath: m_SpriteKey
-      value: 1.2362407e-29
-      objectReference: {fileID: 0}
-    - target: {fileID: 1771483343543010228, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
-      propertyPath: canSkid
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1771483343543010228, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
-      propertyPath: jumpSpeed
-      value: 4
-      objectReference: {fileID: 0}
-    - target: {fileID: 1771483343543010228, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
-      propertyPath: swimSound
-      value: 
-      objectReference: {fileID: 8300000, guid: e2bb1aa0b45968f4b898809f1533541a, type: 3}
     - target: {fileID: 1771483343543010228, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
       propertyPath: cameraFollow
       value: 
       objectReference: {fileID: 1730604528}
-    - target: {fileID: 1771483343543010228, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
-      propertyPath: ceilingLength
-      value: 0.18
-      objectReference: {fileID: 0}
     - target: {fileID: 1771483343543010229, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
       propertyPath: m_RootOrder
       value: 2
@@ -12135,150 +12187,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: Tiny Mario
       objectReference: {fileID: 0}
-    - target: {fileID: 4251355573957514376, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
-      propertyPath: m_Sprite
-      value: 
-      objectReference: {fileID: 1997580843, guid: c9b448e531d67da4f8acf998a69cc746, type: 3}
-    - target: {fileID: 4251355573957514376, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
-      propertyPath: m_SortingLayer
-      value: -1
-      objectReference: {fileID: 0}
-    - target: {fileID: 4251355573957514376, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
-      propertyPath: m_SortingOrder
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 4251355573957514376, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
-      propertyPath: m_SortingLayerID
-      value: 1497974571
-      objectReference: {fileID: 0}
-    - target: {fileID: 4251355573957514376, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
-      propertyPath: m_MaskInteraction
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 8353199181979657271, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
-      propertyPath: m_Library.Array.size
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 8353199181979657271, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
-      propertyPath: m_Library.Array.data[0].m_Name
-      value: Skid
-      objectReference: {fileID: 0}
-    - target: {fileID: 8353199181979657271, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
-      propertyPath: m_Library.Array.data[1].m_Name
-      value: Swim
-      objectReference: {fileID: 0}
-    - target: {fileID: 8353199181979657271, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
-      propertyPath: m_Library.Array.data[2].m_Name
-      value: Up
-      objectReference: {fileID: 0}
-    - target: {fileID: 8353199181979657271, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
-      propertyPath: m_Library.Array.data[0].m_CategoryList.Array.size
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 8353199181979657271, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
-      propertyPath: m_Library.Array.data[1].m_CategoryList.Array.size
-      value: 5
-      objectReference: {fileID: 0}
-    - target: {fileID: 8353199181979657271, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
-      propertyPath: m_Library.Array.data[2].m_CategoryList.Array.size
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 8353199181979657271, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
-      propertyPath: m_Library.Array.data[0].m_CategoryList.Array.data[0].m_Name
-      value: Entry
-      objectReference: {fileID: 0}
-    - target: {fileID: 8353199181979657271, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
-      propertyPath: m_Library.Array.data[0].m_CategoryList.Array.data[1].m_Name
-      value: spr_Mario_TGPOG_21
-      objectReference: {fileID: 0}
-    - target: {fileID: 8353199181979657271, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
-      propertyPath: m_Library.Array.data[0].m_CategoryList.Array.data[2].m_Name
-      value: spr_Mario_TGPOG_22
-      objectReference: {fileID: 0}
-    - target: {fileID: 8353199181979657271, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
-      propertyPath: m_Library.Array.data[0].m_CategoryList.Array.data[3].m_Name
-      value: spr_Mario_TGPOG_23
-      objectReference: {fileID: 0}
-    - target: {fileID: 8353199181979657271, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
-      propertyPath: m_Library.Array.data[0].m_CategoryList.Array.data[4].m_Name
-      value: spr_Mario_TGPOG_24
-      objectReference: {fileID: 0}
-    - target: {fileID: 8353199181979657271, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
-      propertyPath: m_Library.Array.data[0].m_CategoryList.Array.data[5].m_Name
-      value: Entry
-      objectReference: {fileID: 0}
-    - target: {fileID: 8353199181979657271, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
-      propertyPath: m_Library.Array.data[1].m_CategoryList.Array.data[0].m_Name
-      value: spr_Mario_TGPOG_20
-      objectReference: {fileID: 0}
-    - target: {fileID: 8353199181979657271, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
-      propertyPath: m_Library.Array.data[1].m_CategoryList.Array.data[1].m_Name
-      value: spr_Mario_TGPOG_21
-      objectReference: {fileID: 0}
-    - target: {fileID: 8353199181979657271, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
-      propertyPath: m_Library.Array.data[1].m_CategoryList.Array.data[2].m_Name
-      value: spr_Mario_TGPOG_22
-      objectReference: {fileID: 0}
-    - target: {fileID: 8353199181979657271, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
-      propertyPath: m_Library.Array.data[1].m_CategoryList.Array.data[3].m_Name
-      value: spr_Mario_TGPOG_23
-      objectReference: {fileID: 0}
-    - target: {fileID: 8353199181979657271, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
-      propertyPath: m_Library.Array.data[1].m_CategoryList.Array.data[4].m_Name
-      value: spr_Mario_TGPOG_24
-      objectReference: {fileID: 0}
-    - target: {fileID: 8353199181979657271, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
-      propertyPath: m_Library.Array.data[2].m_CategoryList.Array.data[0].m_Name
-      value: Entry
-      objectReference: {fileID: 0}
-    - target: {fileID: 8353199181979657271, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
-      propertyPath: m_Library.Array.data[0].m_CategoryList.Array.data[0].m_Sprite
-      value: 
-      objectReference: {fileID: 21300000, guid: c9eaa9db1fe1c0b40974f344cd89fe85, type: 3}
-    - target: {fileID: 8353199181979657271, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
-      propertyPath: m_Library.Array.data[0].m_CategoryList.Array.data[1].m_Sprite
-      value: 
-      objectReference: {fileID: 961076391, guid: c9b448e531d67da4f8acf998a69cc746, type: 3}
-    - target: {fileID: 8353199181979657271, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
-      propertyPath: m_Library.Array.data[0].m_CategoryList.Array.data[2].m_Sprite
-      value: 
-      objectReference: {fileID: 1317666473, guid: c9b448e531d67da4f8acf998a69cc746, type: 3}
-    - target: {fileID: 8353199181979657271, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
-      propertyPath: m_Library.Array.data[0].m_CategoryList.Array.data[3].m_Sprite
-      value: 
-      objectReference: {fileID: -1493459795, guid: c9b448e531d67da4f8acf998a69cc746, type: 3}
-    - target: {fileID: 8353199181979657271, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
-      propertyPath: m_Library.Array.data[0].m_CategoryList.Array.data[4].m_Sprite
-      value: 
-      objectReference: {fileID: 1661216821, guid: c9b448e531d67da4f8acf998a69cc746, type: 3}
-    - target: {fileID: 8353199181979657271, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
-      propertyPath: m_Library.Array.data[0].m_CategoryList.Array.data[5].m_Sprite
-      value: 
-      objectReference: {fileID: 1661216821, guid: c9b448e531d67da4f8acf998a69cc746, type: 3}
-    - target: {fileID: 8353199181979657271, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
-      propertyPath: m_Library.Array.data[1].m_CategoryList.Array.data[0].m_Sprite
-      value: 
-      objectReference: {fileID: -1638707150, guid: c9b448e531d67da4f8acf998a69cc746, type: 3}
-    - target: {fileID: 8353199181979657271, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
-      propertyPath: m_Library.Array.data[1].m_CategoryList.Array.data[1].m_Sprite
-      value: 
-      objectReference: {fileID: 961076391, guid: c9b448e531d67da4f8acf998a69cc746, type: 3}
-    - target: {fileID: 8353199181979657271, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
-      propertyPath: m_Library.Array.data[1].m_CategoryList.Array.data[2].m_Sprite
-      value: 
-      objectReference: {fileID: 1317666473, guid: c9b448e531d67da4f8acf998a69cc746, type: 3}
-    - target: {fileID: 8353199181979657271, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
-      propertyPath: m_Library.Array.data[1].m_CategoryList.Array.data[3].m_Sprite
-      value: 
-      objectReference: {fileID: -1493459795, guid: c9b448e531d67da4f8acf998a69cc746, type: 3}
-    - target: {fileID: 8353199181979657271, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
-      propertyPath: m_Library.Array.data[1].m_CategoryList.Array.data[4].m_Sprite
-      value: 
-      objectReference: {fileID: 1661216821, guid: c9b448e531d67da4f8acf998a69cc746, type: 3}
-    - target: {fileID: 8353199181979657271, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
-      propertyPath: m_Library.Array.data[2].m_CategoryList.Array.data[0].m_Sprite
-      value: 
-      objectReference: {fileID: 1651705226, guid: c9b448e531d67da4f8acf998a69cc746, type: 3}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
 --- !u!1 &1185680442 stripped
@@ -15395,6 +15303,8 @@ MonoBehaviour:
   carried: 0
   throwVelocity: {x: 12, y: 10}
   knockAwayVelocity: {x: 5, y: 5}
+  overrideKnockAwayGravity: 0
+  knockAwayGravity: 60
   knockAwaySound: {fileID: 8300000, guid: 62467461e51dddb40931164fd2db1170, type: 3}
   objectState: 0
   movement: 1
@@ -17695,6 +17605,8 @@ MonoBehaviour:
   carried: 0
   throwVelocity: {x: 12, y: 10}
   knockAwayVelocity: {x: 5, y: 5}
+  overrideKnockAwayGravity: 0
+  knockAwayGravity: 60
   knockAwaySound: {fileID: 8300000, guid: 62467461e51dddb40931164fd2db1170, type: 3}
   objectState: 0
   movement: 1
@@ -18324,6 +18236,8 @@ MonoBehaviour:
   carried: 0
   throwVelocity: {x: 12, y: 10}
   knockAwayVelocity: {x: 5, y: 5}
+  overrideKnockAwayGravity: 0
+  knockAwayGravity: 60
   knockAwaySound: {fileID: 8300000, guid: 62467461e51dddb40931164fd2db1170, type: 3}
   objectState: 0
   movement: 1
@@ -18904,6 +18818,92 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 67
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1810274770
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1810274773}
+  - component: {fileID: 1810274772}
+  - component: {fileID: 1810274771}
+  m_Layer: 0
+  m_Name: magic goomba move trigger
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!61 &1810274771
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1810274770}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: -0.017257452, y: 0.088294625}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0, y: 0}
+    oldSize: {x: 0, y: 0}
+    newSize: {x: 0, y: 0}
+    adaptiveTilingThreshold: 0
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  serializedVersion: 2
+  m_Size: {x: 0.44176722, y: 1.9985359}
+  m_EdgeRadius: 0
+--- !u!114 &1810274772
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1810274770}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 30f07fe3a47a8914d8fd0312465e3746, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  onPlayerEnter:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 939574626}
+        m_TargetAssemblyTypeName: WizardGoomba, Assembly-CSharp
+        m_MethodName: MoveToPosition
+        m_Mode: 3
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 1
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+--- !u!4 &1810274773
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1810274770}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 6.851, y: 1.905, z: 0.112288825}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 95
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1815911946
 PrefabInstance:

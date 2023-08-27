@@ -18,10 +18,6 @@ public class Cannon : MonoBehaviour
 
     private AudioSource audioSource;
 
-    // using the angle, we use these internally
-    private float shootAngle;
-    private bool shootDirection = false; // true = left, false = right
-
     // Start is called before the first frame update
     void Start()
     {
@@ -36,37 +32,15 @@ public class Cannon : MonoBehaviour
             return;
         }
 
-        shootAngle = angle;
-
-        angle %= 360;
-
-        if (angle > 90 && angle < 270)
-        {
-            // flip angle on y axis
-            shootAngle = 180 - angle;
-            shootAngle %= 360;
-            shootDirection = true;
-        }
-
         GameObject projectile = Instantiate(projectilePrefab, transform.position, Quaternion.identity);
 
-        // if this object has BulletBill, set the angle
-        if (projectile.TryGetComponent(out BulletBill physics))
-        {   
-            projectile.transform.rotation = Quaternion.Euler(0, 0, angle);
+        // assume it has ObjectPhysics
+        ObjectPhysics physics2 = projectile.GetComponent<ObjectPhysics>();
 
-            physics.velocity.x = projectileSpeed;
+        // set velocity
+        Vector2 vel = new(Mathf.Cos(angle * Mathf.Deg2Rad), Mathf.Sin(angle * Mathf.Deg2Rad));
 
-        } else {
-            // assume it has ObjectPhysics
-            ObjectPhysics physics2 = projectile.GetComponent<ObjectPhysics>();
-
-            // set velocity
-            Vector2 vel = new(Mathf.Cos(shootAngle * Mathf.Deg2Rad), Mathf.Sin(shootAngle * Mathf.Deg2Rad));
-
-            physics2.velocity = vel * projectileSpeed;
-            physics2.movingLeft = shootDirection;
-        }
+        physics2.realVelocity = vel * projectileSpeed;
 
         if (audioSource != null)
         {
