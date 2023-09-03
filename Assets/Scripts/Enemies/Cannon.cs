@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class Cannon : MonoBehaviour
 {
-
     // angle in degrees
     public float angle = 0f;
 

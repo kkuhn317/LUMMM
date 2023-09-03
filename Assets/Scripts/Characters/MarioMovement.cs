@@ -47,6 +47,8 @@ public class MarioMovement : MonoBehaviour
     private bool changingDirections;
 
     [Header("Swimming")]
+    public GameObject bubblePrefab;
+    private GameObject newBubble;
     public bool swimming = false;
     public float swimForce = 5f;
     public float swimGravity = 1f;
@@ -475,6 +477,17 @@ public class MarioMovement : MonoBehaviour
         rb.AddForce(Vector2.up * swimForce, ForceMode2D.Impulse);
         animator.SetTrigger("swim");
         jumpTimer = 0;
+
+        // Create a new bubble at Mario's position
+        Vector3 bubblePosition = transform.position; // Adjust the offset as needed
+        newBubble = Instantiate(bubblePrefab, bubblePosition, Quaternion.identity);
+
+        // Get the BubbleBehavior script from the bubble object
+        BubbleBehavior bubbleBehavior = newBubble.GetComponent<BubbleBehavior>();
+        if (bubbleBehavior != null)
+        {
+            bubbleBehavior.StartRising();
+        }
     }
 
     // jump out of water
@@ -483,6 +496,16 @@ public class MarioMovement : MonoBehaviour
         rb.AddForce(.75f * jumpSpeed * Vector2.up, ForceMode2D.Impulse);
         jumpTimer = 0;
         airtimer = Time.time + airtime;
+
+        // Check if newBubble exists before attempting to destroy it
+        if (newBubble != null)
+        {
+            BubbleBehavior bubbleBehavior = newBubble.GetComponent<BubbleBehavior>();
+            if (bubbleBehavior != null)
+            {
+                bubbleBehavior.DestroyBubble();
+            }
+        }
     }
 
     void modifyPhysics() {
@@ -914,5 +937,4 @@ public class MarioMovement : MonoBehaviour
     public void resetSpriteLibrary() {
         GetComponent<SpriteLibrary>().spriteLibraryAsset = normalSpriteLibrary;
     }
-
 }

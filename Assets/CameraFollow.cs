@@ -26,8 +26,7 @@ public class CameraFollow : MonoBehaviour
 
     // Camera moving up variables
     private bool isLookingUp = false;
-    private Vector3 offset;
-    private float returnSpeed = 5.0f; // Adjust the return speed as needed
+    public Vector3 offset;
 
     // Start is called before the first frame update
     void Start()
@@ -42,7 +41,7 @@ public class CameraFollow : MonoBehaviour
         levelMaxY = topBounds - (camHeight / 2);
 
         originalPosition = transform.position;
-        offset = new Vector3(0f, 2.3f, 0f);
+        offset = new Vector3(0f, 2f, 0f);
     }
 
     // Update is called once per frame
@@ -60,11 +59,6 @@ public class CameraFollow : MonoBehaviour
             {
                 // Calculate desired position with an offset when looking up
                 targetY += offset.y;
-            }
-            else
-            {
-                // Gradually move the camera back to its original position
-                targetY = Mathf.MoveTowards(transform.position.y, originalPosition.y, returnSpeed * Time.deltaTime);
             }
 
             float x = canMoveHorizontally ? Mathf.SmoothDamp(transform.position.x, targetX, ref smoothDampVelocity.x, smoothDampTime) : transform.position.x;
@@ -149,7 +143,5 @@ public class CameraFollow : MonoBehaviour
         Gizmos.DrawLine(new Vector3(rightBounds, topBounds, 0), new Vector3(rightBounds, bottomBounds, 0));
         Gizmos.DrawLine(new Vector3(rightBounds, bottomBounds, 0), new Vector3(leftBounds, bottomBounds, 0));
         Gizmos.DrawLine(new Vector3(leftBounds, bottomBounds, 0), new Vector3(leftBounds, topBounds, 0));
-
     }
 }
-
