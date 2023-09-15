@@ -7,20 +7,33 @@ public class EnemyAI : ObjectPhysics
 {
     [Header("Enemy AI")]
     public bool canBeFireballed = true;
-
     public float stompHeight = 0.2f;
-
     public GameObject heldItem;
     public Vector3 itemSpawnOffset = new Vector3(0, 0, 0);
 
-    protected override void Start() {
+    // Define a condition for visibility
+    public bool IsVisible
+    {
+        get { return isVisible; }
+    }
+
+    private bool isVisible = false; // Flag to track if the enemy is visible to the camera.
+
+    protected override void Start()
+    {
         base.Start();
         enabled = false;
     }
 
-    void OnBecameVisible() {
-        
+    private void OnBecameVisible()
+    {
+        isVisible = true;
         enabled = true;
+    }
+
+    private void OnBecameInvisible()
+    {
+        isVisible = false;
     }
 
     protected virtual void OnTriggerEnter2D(Collider2D other) {

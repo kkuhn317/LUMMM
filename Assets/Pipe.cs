@@ -8,6 +8,9 @@ public class Pipe : MonoBehaviour
     public Vector3 enterDirection = Vector3.down;
     public Vector3 exitDirection = Vector3.zero;
     public AudioClip warpEnterSound;
+    public bool moveCamera = true;
+    public float newCameraHeight = 2.0f; // Adjust this value as needed
+    public bool requireGroundToEnter = true; // New option to require the player to be on the ground
 
     private Vector3 originalScale;
     private AudioSource audioSource;
@@ -23,11 +26,22 @@ public class Pipe : MonoBehaviour
         if (!isEnteringPipe && connection != null && other.CompareTag("Player"))
         {
             KeyCode warpKey = GetWarpKeyFromRotation();
-            if (Input.GetKey(warpKey))
+            if (!requireGroundToEnter || (requireGroundToEnter && IsPlayerOnGround(other.gameObject)))
             {
-                StartCoroutine(Enter(other.transform));
+                if (Input.GetKey(warpKey))
+                {
+                    StartCoroutine(Enter(other.transform));
+                }
             }
         }
+    }
+
+    private bool IsPlayerOnGround(GameObject player)
+    {
+        // Implement your logic to check if the player is on the ground here.
+        // You can use raycasts or any other method suitable for your game.
+        // Return true if the player is on the ground, otherwise return false.
+        return true; // Modify this as needed
     }
 
     private IEnumerator Enter(Transform player)
@@ -88,8 +102,15 @@ public class Pipe : MonoBehaviour
         player.GetComponent<MarioMovement>().enabled = true;
 
         isEnteringPipe = false; // Reset the flag for the next entry
-    }
 
+        // Move the camera
+        if (moveCamera)
+        {
+            /*Vector3 oldCamPos = Camera.main.transform.position;
+            Camera.main.transform.position = new Vector3(player.transform.position.x, newCameraHeight, oldCamPos.z);*/
+            Camera.main.transform.position = new Vector3(player.transform.position.x, newCameraHeight, Camera.main.transform.position.z);
+        }
+    }
 
     private IEnumerator Move(Transform player, Vector3 endPosition, Vector3 endScale)
     {
@@ -98,7 +119,7 @@ public class Pipe : MonoBehaviour
 
         Vector3 startPosition = player.position;
         Vector3 startScale = player.localScale;
-        
+
         while (elapsed < duration)
         {
             float t = elapsed / duration;
@@ -113,7 +134,6 @@ public class Pipe : MonoBehaviour
         player.localScale = endScale;
     }
 
-    // This is the added method from the pipeSystem script
     private KeyCode GetWarpKeyFromRotation()
     {
         float angle = transform.eulerAngles.z;
@@ -136,7 +156,6 @@ public class Pipe : MonoBehaviour
         }
     }
 
-    // This is the added audio functionality to play the warp enter sound
     private void PlayWarpEnterSound()
     {
         if (warpEnterSound != null && audioSource != null)
