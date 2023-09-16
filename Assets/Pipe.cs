@@ -38,10 +38,7 @@ public class Pipe : MonoBehaviour
 
     private bool IsPlayerOnGround(GameObject player)
     {
-        // Implement your logic to check if the player is on the ground here.
-        // You can use raycasts or any other method suitable for your game.
-        // Return true if the player is on the ground, otherwise return false.
-        return true; // Modify this as needed
+        return player.GetComponent<MarioMovement>().onGround;
     }
 
     private IEnumerator Enter(Transform player)
