@@ -5,7 +5,6 @@ using UnityEngine.SceneManagement;
 
 public class DeadMario : MonoBehaviour
 {
-
     public float gravity;
     public Vector2 velocity;
 
@@ -31,8 +30,6 @@ public class DeadMario : MonoBehaviour
             Debug.LogError("GameManager.Instance is null!");
         }
     }
-
-
 
     // Update is called once per frame
     void Update()

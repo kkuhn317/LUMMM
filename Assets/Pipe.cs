@@ -65,16 +65,25 @@ public class Pipe : MonoBehaviour
             playerCollider.enabled = false;
         }
 
+        // Disable player's movement
         player.GetComponent<MarioMovement>().enabled = false;
 
-        Vector3 enteredPosition = transform.position + enterDirection;
+        Vector3 enteredPosition = transform.position + enterDirection; // We get the place where the player will move based on the pipe position and the enter position
         originalScale = player.localScale; // Store the original scale
-        Vector3 enteredScale = Vector3.one * 0.5f;
+        Vector3 enteredScale = Vector3.one * 0.5f; // Reduces the player's scale
 
-        yield return Move(player, enteredPosition, enteredScale);
+        yield return Move(player, enteredPosition, enteredScale); // To enter the pipe, player moves based on the enteredPosition and starts decreasing it's scale
+        // Move the camera
+
         yield return new WaitForSeconds(1f);
 
         PlayWarpEnterSound();
+
+        if (moveCamera)
+        {
+            Vector3 oldCamPos = Camera.main.transform.position;
+            Camera.main.transform.position = new Vector3(player.transform.position.x, newCameraHeight, oldCamPos.z);
+        }
 
         if (exitDirection != Vector3.zero)
         {
@@ -102,14 +111,6 @@ public class Pipe : MonoBehaviour
         player.GetComponent<MarioMovement>().enabled = true;
 
         isEnteringPipe = false; // Reset the flag for the next entry
-
-        // Move the camera
-        if (moveCamera)
-        {
-            /*Vector3 oldCamPos = Camera.main.transform.position;
-            Camera.main.transform.position = new Vector3(player.transform.position.x, newCameraHeight, oldCamPos.z);*/
-            Camera.main.transform.position = new Vector3(player.transform.position.x, newCameraHeight, Camera.main.transform.position.z);
-        }
     }
 
     private IEnumerator Move(Transform player, Vector3 endPosition, Vector3 endScale)
