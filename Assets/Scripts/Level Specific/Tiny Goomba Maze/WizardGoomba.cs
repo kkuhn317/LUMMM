@@ -82,6 +82,7 @@ public class WizardGoomba : Goomba
 
     void ShootMagic() {
         if (shouldDie) return;
+        if (player == null) return;
 
         // create magic
         GameObject magic = Instantiate(magicPrefab, transform.position + (Vector3)magicOffset, Quaternion.identity);

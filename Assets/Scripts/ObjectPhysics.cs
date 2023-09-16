@@ -148,10 +148,6 @@ public class ObjectPhysics : MonoBehaviour
 
     protected virtual void FixedUpdate()
     {
-        if (oldOrderInLayer == 69) {
-            print("got hereee");
-        }
-
         if (!FrequentMovement)
         {
             if (!(movement == ObjectMovement.still) || objectState == ObjectState.knockedAway)
@@ -161,10 +157,6 @@ public class ObjectPhysics : MonoBehaviour
 
     public virtual void UpdatePosition()
     {
-        if (oldOrderInLayer == 69) {
-            print("got here");
-        }
-
         // don't move if carried
         if (carried)
         {
@@ -497,7 +489,7 @@ public class ObjectPhysics : MonoBehaviour
 
     }
 
-    void Fall()
+    public void Fall()
     {
 
         velocity.y = 0;

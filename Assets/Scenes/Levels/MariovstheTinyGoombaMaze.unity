@@ -5186,6 +5186,9 @@ MonoBehaviour:
   enterDirection: {x: 0, y: -1, z: 0}
   exitDirection: {x: 0, y: 0, z: 0}
   warpEnterSound: {fileID: 8300000, guid: 938d4a3d1a37b284c81c8c25379c86b4, type: 3}
+  moveCamera: 1
+  newCameraHeight: 2
+  requireGroundToEnter: 1
 --- !u!82 &392404702
 AudioSource:
   m_ObjectHideFlags: 0
@@ -5628,7 +5631,7 @@ PlatformEffector2D:
   m_RotationalOffset: 0
   m_UseOneWay: 1
   m_UseOneWayGrouping: 0
-  m_SurfaceArc: 180
+  m_SurfaceArc: 178
   m_UseSideFriction: 0
   m_UseSideBounce: 0
   m_SideArc: 1
@@ -6535,6 +6538,9 @@ MonoBehaviour:
   enterDirection: {x: 0, y: 0, z: 0}
   exitDirection: {x: 0, y: 0, z: 0}
   warpEnterSound: {fileID: 8300000, guid: 938d4a3d1a37b284c81c8c25379c86b4, type: 3}
+  moveCamera: 1
+  newCameraHeight: 2
+  requireGroundToEnter: 1
 --- !u!82 &578687246
 AudioSource:
   m_ObjectHideFlags: 0
@@ -6878,6 +6884,9 @@ MonoBehaviour:
   enterDirection: {x: 0, y: 0.1, z: 0}
   exitDirection: {x: -0.5, y: 0, z: 0}
   warpEnterSound: {fileID: 8300000, guid: 938d4a3d1a37b284c81c8c25379c86b4, type: 3}
+  moveCamera: 1
+  newCameraHeight: 2
+  requireGroundToEnter: 1
 --- !u!82 &629034804
 AudioSource:
   m_ObjectHideFlags: 0
@@ -7221,6 +7230,9 @@ MonoBehaviour:
   enterDirection: {x: 0, y: 0.1, z: 0}
   exitDirection: {x: 0.3, y: 0, z: 0}
   warpEnterSound: {fileID: 8300000, guid: 938d4a3d1a37b284c81c8c25379c86b4, type: 3}
+  moveCamera: 1
+  newCameraHeight: 2
+  requireGroundToEnter: 1
 --- !u!82 &662486948
 AudioSource:
   m_ObjectHideFlags: 0
@@ -7865,6 +7877,9 @@ MonoBehaviour:
   enterDirection: {x: 0, y: 0, z: 0}
   exitDirection: {x: 0, y: 0, z: 0}
   warpEnterSound: {fileID: 8300000, guid: 938d4a3d1a37b284c81c8c25379c86b4, type: 3}
+  moveCamera: 1
+  newCameraHeight: 2
+  requireGroundToEnter: 1
 --- !u!82 &819763941
 AudioSource:
   m_ObjectHideFlags: 0
@@ -9596,6 +9611,9 @@ MonoBehaviour:
   enterDirection: {x: 0, y: 0, z: 0}
   exitDirection: {x: 0, y: 0, z: 0}
   warpEnterSound: {fileID: 8300000, guid: 938d4a3d1a37b284c81c8c25379c86b4, type: 3}
+  moveCamera: 1
+  newCameraHeight: 2
+  requireGroundToEnter: 1
 --- !u!82 &864079473
 AudioSource:
   m_ObjectHideFlags: 0
@@ -9723,6 +9741,9 @@ MonoBehaviour:
   enterDirection: {x: 0.1, y: 0, z: 0}
   exitDirection: {x: -0.4, y: 0, z: 0}
   warpEnterSound: {fileID: 8300000, guid: 938d4a3d1a37b284c81c8c25379c86b4, type: 3}
+  moveCamera: 1
+  newCameraHeight: 2
+  requireGroundToEnter: 1
 --- !u!82 &883921567
 AudioSource:
   m_ObjectHideFlags: 0
@@ -11168,15 +11189,15 @@ MonoBehaviour:
   onPlayerEnter:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1700158262}
-        m_TargetAssemblyTypeName: ObjectPhysics, Assembly-CSharp
-        m_MethodName: SetXVelocity
-        m_Mode: 4
+      - m_Target: {fileID: 1700158266}
+        m_TargetAssemblyTypeName: NormalGoombaBoss, Assembly-CSharp
+        m_MethodName: StartFight
+        m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
-          m_FloatArgument: 1
+          m_FloatArgument: 3
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
@@ -11761,6 +11782,9 @@ MonoBehaviour:
   enterDirection: {x: 0, y: 0.1, z: 0}
   exitDirection: {x: 0, y: 0.5, z: 0}
   warpEnterSound: {fileID: 8300000, guid: 938d4a3d1a37b284c81c8c25379c86b4, type: 3}
+  moveCamera: 1
+  newCameraHeight: 2
+  requireGroundToEnter: 1
 --- !u!82 &1093794904
 AudioSource:
   m_ObjectHideFlags: 0
@@ -12328,21 +12352,9 @@ PrefabInstance:
       value: 1.2362407e-29
       objectReference: {fileID: 0}
     - target: {fileID: 1771483343543010228, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
-      propertyPath: canSkid
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1771483343543010228, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
       propertyPath: jumpSpeed
       value: 4
       objectReference: {fileID: 0}
-    - target: {fileID: 1771483343543010228, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
-      propertyPath: swimSound
-      value: 
-      objectReference: {fileID: 8300000, guid: e2bb1aa0b45968f4b898809f1533541a, type: 3}
-    - target: {fileID: 1771483343543010228, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
-      propertyPath: bubblePrefab
-      value: 
-      objectReference: {fileID: 2475560701492738197, guid: 2849fcd8f062bf34da90e9a3c6c7b4e4, type: 3}
     - target: {fileID: 1771483343543010228, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
       propertyPath: cameraFollow
       value: 
@@ -12353,11 +12365,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1771483343543010229, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 3.14
+      value: 3.88
       objectReference: {fileID: 0}
     - target: {fileID: 1771483343543010229, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.27
+      value: 7.36
       objectReference: {fileID: 0}
     - target: {fileID: 1771483343543010229, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
       propertyPath: m_LocalPosition.z
@@ -13072,6 +13084,9 @@ MonoBehaviour:
   enterDirection: {x: 0, y: -0.1, z: 0}
   exitDirection: {x: -0.5, y: 0, z: 0}
   warpEnterSound: {fileID: 8300000, guid: 938d4a3d1a37b284c81c8c25379c86b4, type: 3}
+  moveCamera: 1
+  newCameraHeight: 2
+  requireGroundToEnter: 1
 --- !u!82 &1249881524
 AudioSource:
   m_ObjectHideFlags: 0
@@ -17735,7 +17750,7 @@ GameObject:
   - component: {fileID: 1700158257}
   - component: {fileID: 1700158265}
   - component: {fileID: 1700158260}
-  - component: {fileID: 1700158262}
+  - component: {fileID: 1700158266}
   - component: {fileID: 1700158263}
   - component: {fileID: 1700158264}
   m_Layer: 7
@@ -17825,7 +17840,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1700158256}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.19, y: 7.51, z: 0}
+  m_LocalPosition: {x: 0.19, y: 7.519, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -17846,65 +17861,8 @@ CapsuleCollider2D:
   m_UsedByEffector: 0
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
-  m_Size: {x: 0.87, y: 0.63}
-  m_Direction: 0
---- !u!114 &1700158262
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1700158256}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 86173d77a3329f6478200d74bd0104ec, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  movingLeft: 1
-  velocity: {x: 0, y: 0}
-  gravity: 60
-  width: 1
-  height: 1
-  floorRaycastSpacing: 0.2
-  wallRaycastSpacing: 0.2
-  floorMask:
-    serializedVersion: 2
-    m_Bits: 9
-  wallMask:
-    serializedVersion: 2
-    m_Bits: 1417
-  checkObjectCollision: 1
-  DontFallOffLedges: 0
-  flipObject: 0
-  FrequentMovement: 0
-  lavaKill: 1
-  sinkSpeed: 20
-  lavaMask:
-    serializedVersion: 2
-    m_Bits: 8192
-  carryable: 0
-  carried: 0
-  throwVelocity: {x: 12, y: 10}
-  knockAwayVelocity: {x: 5, y: 5}
-  overrideKnockAwayGravity: 0
-  knockAwayGravity: 60
-  knockAwaySound: {fileID: 8300000, guid: 62467461e51dddb40931164fd2db1170, type: 3}
-  objectState: 0
-  movement: 1
-  stopAfterLand: 0
-  bounceHeight: 0
-  minHeightToBounce: 1
-  canBeFireballed: 1
-  stompHeight: 0.2
-  heldItem: {fileID: 0}
-  itemSpawnOffset: {x: 0, y: 0, z: 0}
-  state: 0
-  stompable: 1
-  shouldntEnemyMoveWhenDie: 1
-  shouldDestroyAfterCrush: 0
-  timeBeforeDestroy: 1
-  cutscene: {fileID: 0}
-  delayBeforeCutscene: 1
+  m_Size: {x: 0.87, y: 0.87}
+  m_Direction: 1
 --- !u!82 &1700158263
 AudioSource:
   m_ObjectHideFlags: 0
@@ -18036,6 +17994,59 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 1
   m_Constraints: 4
+--- !u!114 &1700158266
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1700158256}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 320944a02b82fce4abe2fc0be7936f60, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  movingLeft: 0
+  velocity: {x: 1, y: 0}
+  gravity: 10
+  width: 1
+  height: 1
+  floorRaycastSpacing: 0.2
+  wallRaycastSpacing: 0.2
+  floorMask:
+    serializedVersion: 2
+    m_Bits: 9
+  wallMask:
+    serializedVersion: 2
+    m_Bits: 264
+  checkObjectCollision: 1
+  DontFallOffLedges: 0
+  flipObject: 0
+  FrequentMovement: 0
+  lavaKill: 1
+  sinkSpeed: 20
+  lavaMask:
+    serializedVersion: 2
+    m_Bits: 0
+  carryable: 0
+  carried: 0
+  throwVelocity: {x: 12, y: 10}
+  knockAwayVelocity: {x: 5, y: 5}
+  overrideKnockAwayGravity: 0
+  knockAwayGravity: 60
+  knockAwaySound: {fileID: 0}
+  objectState: 0
+  movement: 0
+  stopAfterLand: 0
+  bounceHeight: 0
+  minHeightToBounce: 1
+  canBeFireballed: 0
+  stompHeight: 0.25
+  heldItem: {fileID: 0}
+  itemSpawnOffset: {x: 0, y: 0, z: 0}
+  health: 3
+  jumpHeight: 4
+  jumpSound: {fileID: 8300000, guid: 57a915119d6b8594982e1d335fa8c953, type: 3}
 --- !u!4 &1715824835 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6763269121090508152, guid: 8006521725c47cc46b914d96f85a3da1, type: 3}
@@ -19252,6 +19263,92 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 74c546d79a8d89f4f998e71b97161414, type: 3}
+--- !u!1 &1820674090
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1820674093}
+  - component: {fileID: 1820674092}
+  - component: {fileID: 1820674091}
+  m_Layer: 0
+  m_Name: magic goomba move trigger (2)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!61 &1820674091
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1820674090}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: -0.2763815, y: 0.0051795244}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0, y: 0}
+    oldSize: {x: 0, y: 0}
+    newSize: {x: 0, y: 0}
+    adaptiveTilingThreshold: 0
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  serializedVersion: 2
+  m_Size: {x: 0.447237, y: 0.58563447}
+  m_EdgeRadius: 0
+--- !u!114 &1820674092
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1820674090}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 30f07fe3a47a8914d8fd0312465e3746, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  onPlayerEnter:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 939574626}
+        m_TargetAssemblyTypeName: WizardGoomba, Assembly-CSharp
+        m_MethodName: MoveToPosition
+        m_Mode: 3
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 1
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+--- !u!4 &1820674093
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1820674090}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 6.712, y: 1.947, z: 0.112288825}
+  m_LocalScale: {x: 1, y: 2.9267228, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 96
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1820830608
 GameObject:
   m_ObjectHideFlags: 0
@@ -20016,6 +20113,9 @@ MonoBehaviour:
   enterDirection: {x: -0.1, y: 0, z: 0}
   exitDirection: {x: 0, y: -0.5, z: 0}
   warpEnterSound: {fileID: 8300000, guid: 938d4a3d1a37b284c81c8c25379c86b4, type: 3}
+  moveCamera: 1
+  newCameraHeight: 2
+  requireGroundToEnter: 1
 --- !u!82 &1880079723
 AudioSource:
   m_ObjectHideFlags: 0
@@ -20267,6 +20367,9 @@ MonoBehaviour:
   enterDirection: {x: 0, y: -1, z: 0}
   exitDirection: {x: 0, y: 0, z: 0}
   warpEnterSound: {fileID: 8300000, guid: 938d4a3d1a37b284c81c8c25379c86b4, type: 3}
+  moveCamera: 1
+  newCameraHeight: 2
+  requireGroundToEnter: 1
 --- !u!82 &1902560008
 AudioSource:
   m_ObjectHideFlags: 0
@@ -20389,6 +20492,9 @@ MonoBehaviour:
   enterDirection: {x: 0, y: -1, z: 0}
   exitDirection: {x: 0, y: 0, z: 0}
   warpEnterSound: {fileID: 8300000, guid: 938d4a3d1a37b284c81c8c25379c86b4, type: 3}
+  moveCamera: 1
+  newCameraHeight: 2
+  requireGroundToEnter: 1
 --- !u!82 &1935950869
 AudioSource:
   m_ObjectHideFlags: 0
@@ -23100,6 +23206,9 @@ MonoBehaviour:
   enterDirection: {x: 0, y: -0.1, z: 0}
   exitDirection: {x: 0, y: -0.5, z: 0}
   warpEnterSound: {fileID: 8300000, guid: 938d4a3d1a37b284c81c8c25379c86b4, type: 3}
+  moveCamera: 1
+  newCameraHeight: 2
+  requireGroundToEnter: 1
 --- !u!1001 &6800365237076991059
 PrefabInstance:
   m_ObjectHideFlags: 0
