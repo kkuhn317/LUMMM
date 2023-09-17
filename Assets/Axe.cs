@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Playables;
 
 public class Axe : MonoBehaviour
 {
@@ -31,7 +32,7 @@ public class Axe : MonoBehaviour
     [Header("Fall And Destroy Bridge Options")]
     public float fallDistance = 2.0f; // Adjust this value to determine how far the tiles should fall.
     public float tileFallDestroyDelay = 0.2f; // delay between tiles falling/destroying.
-    
+
     [Header("Audio Clips")]
     public AudioClip grabSound;
     public AudioClip hitGroundSound;
@@ -60,10 +61,15 @@ public class Axe : MonoBehaviour
     [Header("Timing")]
     // these are timed from the time the axe hits the ground or disappears
     public bool freezePlayerOnHit = true;
-    public bool affectPauseableObjects = true; // whether or not to pause and then resume the pauseable objects
     public float bridgeDestroyDelay = 0.5f; // Adjust this value to set the delay in seconds before destroying the bridge when the axe rotation is done.
     public float enemyFallDelay = 2.0f; // how long until the enemies fall
     public float playerResumeDelay = 3.0f; // how long until the player can move again
+
+    [Header("Ending Cutscene")]
+    public PlayableDirector endingScene;
+    public float playerDestroyDelay = 1f; // delay before destroying the player
+    public float endingSceneDelay = 0.25f; // delay before playing the ending cutscene
+
     private void Start()
     {
         // Get the AudioSource component attached to the same GameObject or add one if missing.
@@ -113,9 +119,7 @@ public class Axe : MonoBehaviour
         if (collision.gameObject.CompareTag("Player") && !isRotating)
         {
             // Pause the pauseable objects when starting the bridge destruction.
-            if (affectPauseableObjects) {
-                GameManager.Instance.PausePauseableObjects();
-            }
+            GameManager.Instance.PausePauseableObjects();
 
             // freeze player
             if (freezePlayerOnHit)
@@ -165,10 +169,40 @@ public class Axe : MonoBehaviour
         // Set bridgeDestroyed to true after the bridge is destroyed.
         bridgeDestroyed = true;
 
-        // If player is set, resume the player movement.
+        // If player is set, resume the player movement with a delay.
         if (player != null)
         {
-            Invoke(nameof(resumePlayer), playerResumeDelay);
+            Invoke(nameof(ResumePlayerAndTriggerCutscene), playerResumeDelay);
+        }
+    }
+
+    private void ResumePlayerAndTriggerCutscene()
+    {
+        // Resume the player's movement.
+        if (player != null)
+        {
+            player.GetComponent<MarioMovement>().Unfreeze();
+        }
+
+        // If there's an ending cutscene, destroy the player and play the cutscene with a delay.
+        if (endingScene != null)
+        {
+            // Destroy the player after a specified delay.
+            Destroy(player, playerDestroyDelay);
+
+            // Play the ending cutscene after a specified delay.
+            StartCoroutine(PlayCutsceneWithDelay(endingSceneDelay));
+        }
+    }
+
+    private IEnumerator PlayCutsceneWithDelay(float delay)
+    {
+        // Wait for the specified delay before playing the ending cutscene.
+        yield return new WaitForSeconds(delay);
+
+        if (endingScene != null)
+        {
+            endingScene.Play(); // Play the ending cutscene.
         }
     }
 
@@ -240,10 +274,6 @@ public class Axe : MonoBehaviour
     }
 
     private void makeObjectsFall() {
-        if (!affectPauseableObjects) {
-            return;
-        }
-
         // play sound
         if (enemyFallSound != null)
             audioSource.PlayOneShot(enemyFallSound);

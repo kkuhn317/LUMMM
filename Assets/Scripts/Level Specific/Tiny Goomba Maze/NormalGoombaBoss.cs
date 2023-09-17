@@ -89,20 +89,20 @@ public class NormalGoombaBoss : EnemyAI
 
         switch (health) {
             case 2:
-                transform.localScale = new Vector3(1, 0.7f, 1f);
-                transform.position = new Vector3(transform.position.x, transform.position.y - 0.15f, transform.position.z);
+                transform.localScale = new Vector3(0.025f, 0.019f, 0.025f);
+                transform.position = new Vector3(transform.position.x, transform.position.y - 0.003395f, transform.position.z); // 0.15f
                 height = 0.7f;
                 stompHeight = 0.15f;
                 break;
             case 1:
-                transform.localScale = new Vector3(1, 0.5f, 1f);
-                transform.position = new Vector3(transform.position.x, transform.position.y - 0.1f, transform.position.z);
+                transform.localScale = new Vector3(0.025f, 0.014f, 0.025f);
+                transform.position = new Vector3(transform.position.x, transform.position.y - 0.005905f, transform.position.z);
                 height = 0.5f;
                 stompHeight = 0.1f;
                 break;
             case 0:
-                transform.localScale = new Vector3(1f, 1f, 1f);
-                transform.position = new Vector3(transform.position.x, transform.position.y + 0.25f, transform.position.z);
+                transform.localScale = new Vector3(0.025f, 0.025f, 0.025f);
+                transform.position = new Vector3(transform.position.x, transform.position.y + 0.00549f, transform.position.z);
                 height = 1f;
 
                 GetComponent<Collider2D>().enabled = false;

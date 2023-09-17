@@ -25,6 +25,7 @@ public class WizardGoomba : Goomba
     public AudioClip moveSound;
 
     private float t;
+    private bool shootingAllowed = true;
 
     public Vector2[] positions;
 
@@ -42,27 +43,34 @@ public class WizardGoomba : Goomba
     protected override void Update() {
         base.Update();
 
-        if (shouldDie || objectState == ObjectState.knockedAway) return;
+        if (shouldDie || objectState == ObjectState.knockedAway || !shootingAllowed) return;
 
-        if (moveToPosition != transform.position) {
-            if (moveInitiated) {
+        if (moveToPosition != transform.position)
+        {
+            if (moveInitiated)
+            {
                 // move to position
                 transform.position = Vector3.Lerp(transform.position, moveToPosition, AnimationCurve.EaseInOut(0, 0, 1, 1).Evaluate(t));
                 t += Time.deltaTime * moveSpeed;
             }
-        } else {
+        }
+        else
+        {
             moveInitiated = false;
             t = 0f;
         }
     }
 
     public void MoveToPosition(int position) {
-        moveInitiated = true;
-        t = 0f;
-        moveToPosition = positions[position];
+        if (!shouldDie)
+        { // Check if the WizardGoomba is not dead
+            moveInitiated = true;
+            t = 0f;
+            moveToPosition = positions[position];
 
-        if (moveSound != null)
-            GetComponent<AudioSource>().PlayOneShot(moveSound);
+            if (moveSound != null)
+                GetComponent<AudioSource>().PlayOneShot(moveSound);
+        }
     }
 
     public void StartShooting() {
@@ -81,7 +89,7 @@ public class WizardGoomba : Goomba
     }
 
     void ShootMagic() {
-        if (shouldDie) return;
+        if (shouldDie || objectState == ObjectState.knockedAway || !shootingAllowed) return;
         if (player == null) return;
 
         // create magic
@@ -102,7 +110,12 @@ public class WizardGoomba : Goomba
     protected override void hitByStomp(GameObject player)
     {
         base.hitByStomp(player);
-        gravity = 30f;
+        // Prevent shooting permanently
+        shootingAllowed = false;
+        // Stop moving
+        moveInitiated = false;
+        t = 0f;
+        gravity = 5f;
     }
 
     // draw a debug point to show magic offset
