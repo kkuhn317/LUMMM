@@ -60,6 +60,7 @@ public class Axe : MonoBehaviour
     [Header("Timing")]
     // these are timed from the time the axe hits the ground or disappears
     public bool freezePlayerOnHit = true;
+    public bool affectPauseableObjects = true; // whether or not to pause and then resume the pauseable objects
     public float bridgeDestroyDelay = 0.5f; // Adjust this value to set the delay in seconds before destroying the bridge when the axe rotation is done.
     public float enemyFallDelay = 2.0f; // how long until the enemies fall
     public float playerResumeDelay = 3.0f; // how long until the player can move again
@@ -112,7 +113,9 @@ public class Axe : MonoBehaviour
         if (collision.gameObject.CompareTag("Player") && !isRotating)
         {
             // Pause the pauseable objects when starting the bridge destruction.
-            GameManager.Instance.PausePauseableObjects();
+            if (affectPauseableObjects) {
+                GameManager.Instance.PausePauseableObjects();
+            }
 
             // freeze player
             if (freezePlayerOnHit)
@@ -237,6 +240,10 @@ public class Axe : MonoBehaviour
     }
 
     private void makeObjectsFall() {
+        if (!affectPauseableObjects) {
+            return;
+        }
+
         // play sound
         if (enemyFallSound != null)
             audioSource.PlayOneShot(enemyFallSound);
