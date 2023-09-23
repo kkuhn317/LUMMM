@@ -15,6 +15,9 @@ public class Cannon : MonoBehaviour
     // movement speed for bullet bills, force for any other objects
     public float projectileSpeed = 10f;
 
+    public bool isShooting = true;
+    bool isVisible = false;
+
     private AudioSource audioSource;
 
     // Start is called before the first frame update
@@ -26,7 +29,7 @@ public class Cannon : MonoBehaviour
 
     void Fire()
     {
-        if (projectilePrefab == null)
+        if (projectilePrefab == null || !isVisible || !isShooting)
         {
             return;
         }
@@ -45,5 +48,15 @@ public class Cannon : MonoBehaviour
         {
             audioSource.Play();
         }
+    }
+
+    void OnBecameVisible()
+    {
+        isVisible = true;
+    }
+
+    void OnBecameInvisible()
+    {
+        isVisible = false;
     }
 }
