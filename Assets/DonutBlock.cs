@@ -23,7 +23,7 @@ public class DonutBlock : MonoBehaviour
     private void Start()
     {
         initialPosition = transform.position;
-        spriteRenderer = GetComponent<SpriteRenderer>();
+        spriteRenderer = transform.GetChild(0).GetComponent<SpriteRenderer>();
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
         animator.enabled = false;
@@ -33,7 +33,7 @@ public class DonutBlock : MonoBehaviour
     private void Update()
     {
         // Check if the player is on the block
-        isPlayerOn = transform.childCount > 0;
+        isPlayerOn = transform.childCount > 1;
 
         // Change the sprite based on player interaction
         if (isPlayerOn)

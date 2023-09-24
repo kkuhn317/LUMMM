@@ -43,7 +43,7 @@ public class QuestionBlock : MonoBehaviour
     void Start()
     {
         audioSource = GetComponent<AudioSource>();
-        originalPosition = transform.localPosition;
+        originalPosition = transform.position;
 
         if (isInvisible) {
             GetComponent<SpriteRenderer>().enabled = false;
@@ -179,7 +179,8 @@ public class QuestionBlock : MonoBehaviour
 
             foreach (GameObject itemPrefab in spawnableItems)
             {
-                GameObject spawnedItem = Instantiate(itemPrefab, transform.parent);
+                GameObject spawnedItem = Instantiate(itemPrefab, transform.parent, true);
+                spawnedItem.transform.position = new Vector3(originalPosition.x, originalPosition.y, 0);
                 MonoBehaviour[] scripts = spawnedItem.GetComponents<MonoBehaviour>();
                 foreach (MonoBehaviour script in scripts)
                 {
@@ -192,7 +193,7 @@ public class QuestionBlock : MonoBehaviour
                 spawnedItem.transform.SetParent(this.transform.parent);
                 spawnedItem.GetComponent<SpriteRenderer>().sortingLayerID = 0;
                 spawnedItem.GetComponent<SpriteRenderer>().sortingOrder = -1;
-                spawnedItem.transform.localPosition = new Vector3(originalPosition.x, originalPosition.y, 0);
+                spawnedItem.transform.position = new Vector3(originalPosition.x, originalPosition.y, 0);
                 StartCoroutine(RiseUp(spawnedItem, ogTag, ogLayer, scripts));
             }
 
@@ -204,7 +205,7 @@ public class QuestionBlock : MonoBehaviour
 
             spinningCoin.transform.SetParent(this.transform.parent);
 
-            spinningCoin.transform.localPosition = new Vector2(originalPosition.x, originalPosition.y + 1);
+            spinningCoin.transform.position = new Vector2(originalPosition.x, originalPosition.y + 1);
 
             StartCoroutine(MoveCoin(spinningCoin));
             GameManager.Instance.AddCoin(1); // The coin counter iterates after the coroutine
@@ -232,9 +233,9 @@ public class QuestionBlock : MonoBehaviour
         while (true)
         {
 
-            transform.localPosition = new Vector2(transform.localPosition.x, transform.localPosition.y + bounceSpeed * Time.deltaTime);
+            transform.position = new Vector2(transform.position.x, transform.position.y + bounceSpeed * Time.deltaTime);
 
-            if (transform.localPosition.y >= originalPosition.y + bounceHeight)
+            if (transform.position.y >= originalPosition.y + bounceHeight)
                 break;
 
             yield return null;
@@ -243,12 +244,12 @@ public class QuestionBlock : MonoBehaviour
         while (true)
         {
 
-            transform.localPosition = new Vector2(transform.localPosition.x, transform.localPosition.y - bounceSpeed * Time.deltaTime);
+            transform.position = new Vector2(transform.position.x, transform.position.y - bounceSpeed * Time.deltaTime);
 
-            if (transform.localPosition.y <= originalPosition.y)
+            if (transform.position.y <= originalPosition.y)
             {
 
-                transform.localPosition = originalPosition;
+                transform.position = originalPosition;
                 break;
             }
 
@@ -262,9 +263,9 @@ public class QuestionBlock : MonoBehaviour
         while (true)
         {
 
-            coin.transform.localPosition = new Vector2(coin.transform.localPosition.x, coin.transform.localPosition.y + coinMoveSpeed * Time.deltaTime);
+            coin.transform.position = new Vector2(coin.transform.position.x, coin.transform.position.y + coinMoveSpeed * Time.deltaTime);
 
-            if (coin.transform.localPosition.y >= originalPosition.y + coinMoveHeight + 1)
+            if (coin.transform.position.y >= originalPosition.y + coinMoveHeight + 1)
                 break;
 
             yield return null;
@@ -273,9 +274,9 @@ public class QuestionBlock : MonoBehaviour
         while (true)
         {
 
-            coin.transform.localPosition = new Vector2(coin.transform.localPosition.x, coin.transform.localPosition.y - coinMoveSpeed * Time.deltaTime);
+            coin.transform.position = new Vector2(coin.transform.position.x, coin.transform.position.y - coinMoveSpeed * Time.deltaTime);
 
-            if (coin.transform.localPosition.y <= originalPosition.y + coinFallDistance + 1)
+            if (coin.transform.position.y <= originalPosition.y + coinFallDistance + 1)
             {
 
                 Destroy(coin.gameObject);
@@ -299,9 +300,9 @@ public class QuestionBlock : MonoBehaviour
 
             //item.GetComponent<Rigidbody2D>().velocity = Vector3.zero;
 
-            item.transform.localPosition = new Vector3(item.transform.localPosition.x, item.transform.localPosition.y + itemMoveSpeed * Time.deltaTime, 0);
-            //print(item.transform.localPosition.y + "vs" + originalPosition.y);
-            if (item.transform.localPosition.y >= originalPosition.y + itemMoveHeight)
+            item.transform.position = new Vector3(item.transform.position.x, item.transform.position.y + itemMoveSpeed * Time.deltaTime, 0);
+            //print(item.transform.position.y + "vs" + originalPosition.y);
+            if (item.transform.position.y >= originalPosition.y + itemMoveHeight)
             {
                 foreach (MonoBehaviour script in scripts)
                 {
