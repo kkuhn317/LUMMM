@@ -220,6 +220,8 @@ public class ObjectPhysics : MonoBehaviour
         transform.position = pos;
         transform.localScale = scale;
 
+        Physics.SyncTransforms();
+
         // are we deep enough in lava to die?
         if (objectState == ObjectState.onLava) {
             if (touchedLava.transform.position.y > transform.position.y + (height / 2)) {
