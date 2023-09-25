@@ -105,10 +105,8 @@ public class MarioMovement : MonoBehaviour
     [Header("Death")]
 
     public GameObject deadMario;
-    public GameObject pigMario;
 
     private bool dead = false;
-    private bool isPig = false;
 
     [Header("Sound Effects")]
 
@@ -706,15 +704,13 @@ public class MarioMovement : MonoBehaviour
         }
     }
 
-    private void transformIntoPig()
+    public void TransformIntoObject(GameObject newMario)
     {
-        // Debug.Log("Transforming into a pig");
-        if (!isPig)
+        if (!dead)
         {
-            // Debug.Log("Well, you're a pig now");
-            isPig = true;
+            dead = true;
             // Instantiate the pigPrefab at the current position and rotation
-            GameObject newPig = Instantiate(pigMario, transform.position, transform.rotation);
+            GameObject m = Instantiate(newMario, transform.position, transform.rotation);
             Destroy(gameObject);
         }
     }
@@ -771,11 +767,6 @@ public class MarioMovement : MonoBehaviour
         {
             swimming = true;
             animator.SetTrigger("enterWater");
-        }
-
-        if (other.tag == "PigAttack")
-        {
-            transformIntoPig();
         }
     }
     

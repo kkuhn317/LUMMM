@@ -13,6 +13,8 @@ public class Magic : EnemyAI
 
     public bool gone = false;
 
+    public GameObject pigMario;
+
     protected override void Update() {
         base.Update();
 
@@ -29,9 +31,9 @@ public class Magic : EnemyAI
         Dissapear();
     }
 
-    protected override void hitByPlayer(GameObject player) {
-        base.hitByPlayer(player); // TODO: Turn mario into pig?
-        Dissapear();
+    protected override void hitOnSide(GameObject player)
+    {
+        player.GetComponent<MarioMovement>().TransformIntoObject(pigMario);
     }
 
     private void Dissapear() {
