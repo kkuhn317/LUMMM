@@ -105,8 +105,10 @@ public class MarioMovement : MonoBehaviour
     [Header("Death")]
 
     public GameObject deadMario;
+    public GameObject pigMario;
 
     private bool dead = false;
+    private bool isPig = false;
 
     [Header("Sound Effects")]
 
@@ -219,7 +221,6 @@ public class MarioMovement : MonoBehaviour
                 cameraFollow.StopCameraMoveUp();
             }
         }
-
     }
 
     private void OnCollisionEnter2D(Collision2D other) {
@@ -625,6 +626,9 @@ public class MarioMovement : MonoBehaviour
                 return;
             }
             damaged = true;
+
+            // If you comment this, the tranformIntoPig will work without instantiating the deadMario with the pigMario
+            // but the player will not be harmed by the enemies, only the wizard goomba's magic attack
             if (powerupState == PowerupState.small) {
                 toDead();
             } else {
@@ -693,12 +697,25 @@ public class MarioMovement : MonoBehaviour
     }
 
     private void toDead() {
-        //print("death attempt");
+        // print("death attempt");
         if (!dead) {
             dead = true;
             GameObject newMario = Instantiate(deadMario, transform.position, transform.rotation);
             Destroy(gameObject);
-            //print("death success");
+            // print("death success");
+        }
+    }
+
+    private void transformIntoPig()
+    {
+        // Debug.Log("Transforming into a pig");
+        if (!isPig)
+        {
+            // Debug.Log("Well, you're a pig now");
+            isPig = true;
+            // Instantiate the pigPrefab at the current position and rotation
+            GameObject newPig = Instantiate(pigMario, transform.position, transform.rotation);
+            Destroy(gameObject);
         }
     }
 
@@ -754,6 +771,11 @@ public class MarioMovement : MonoBehaviour
         {
             swimming = true;
             animator.SetTrigger("enterWater");
+        }
+
+        if (other.tag == "PigAttack")
+        {
+            transformIntoPig();
         }
     }
     

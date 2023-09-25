@@ -19,6 +19,8 @@ public class WizardGoomba : Goomba
     public Vector2 magicOffset;
     public float shootSpeed = 1.0f;
 
+    public GameObject wandPrefab;
+
     private GameObject player;
 
     public AudioClip shootSound;
@@ -26,6 +28,7 @@ public class WizardGoomba : Goomba
 
     private float t;
     private bool shootingAllowed = true;
+    private Animator animator;
 
     public Vector2[] positions;
 
@@ -35,6 +38,9 @@ public class WizardGoomba : Goomba
         player = GameObject.FindGameObjectWithTag("Player");
 
         moveToPosition = transform.position;
+
+        // Get the Animator component
+        animator = GetComponent<Animator>();
 
         // test
         StartCoroutine(Shoot());
@@ -85,6 +91,7 @@ public class WizardGoomba : Goomba
         while (true) {
             yield return new WaitForSeconds(shootRate);
             ShootMagic();
+            animator.SetTrigger("magicAttack");
         }
     }
 
@@ -116,7 +123,37 @@ public class WizardGoomba : Goomba
         moveInitiated = false;
         t = 0f;
         gravity = 5f;
+
+        // Instantiate the wandPrefab
+        if (wandPrefab != null)
+        {
+            wandPrefab = Instantiate(wandPrefab, transform.position + (Vector3)magicOffset, Quaternion.identity);
+
+            StartCoroutine(UpdateWandRotation());
+        }
     }
+    private IEnumerator UpdateWandRotation()
+    {
+        // Check the object state of the wand in a loop
+        while (wandPrefab != null)
+        {
+            ObjectPhysics wandObjectPhysics = wandPrefab.GetComponent<ObjectPhysics>();
+
+            // Check if the wand is in the "grounded" state
+            if (wandObjectPhysics != null && wandObjectPhysics.objectState == ObjectPhysics.ObjectState.grounded)
+            {
+                // Rotate the wand by 90 degrees along the X-axis
+                wandPrefab.transform.rotation = Quaternion.Euler(0f, 0f, 40f);
+
+                // Stop the coroutine once the wand is rotated
+                yield break;
+            }
+
+            // Wait for a short time before checking again
+            yield return new WaitForSeconds(0.1f);
+        }
+    }
+
 
     // draw a debug point to show magic offset
     protected override void OnDrawGizmosSelected() {

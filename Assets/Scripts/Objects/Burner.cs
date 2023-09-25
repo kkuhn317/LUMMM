@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class Burner : MonoBehaviour
 {
-
     public float offtime = 0.5f;
     public float ontime = 0.5f;
 
