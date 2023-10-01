@@ -47,8 +47,9 @@ public class MarioMovement : MonoBehaviour
     private bool changingDirections;
 
     [Header("Swimming")]
+    public float bubbleSpawnDelay = 2.5f;
     public GameObject bubblePrefab;
-    private GameObject newBubble;
+    public GameObject splashWaterPrefab;
     public bool swimming = false;
     public float swimForce = 5f;
     public float swimGravity = 1f;
@@ -246,8 +247,6 @@ public class MarioMovement : MonoBehaviour
         if (selectedStarColor == StarColors.Length)
             selectedStarColor = 0;
     }
-
-
 
     public void startStarPower(float time) {
         // stop any current star power
@@ -476,17 +475,6 @@ public class MarioMovement : MonoBehaviour
         rb.AddForce(Vector2.up * swimForce, ForceMode2D.Impulse);
         animator.SetTrigger("swim");
         jumpTimer = 0;
-
-        // Create a new bubble at Mario's position
-        Vector3 bubblePosition = transform.position; // Adjust the offset as needed
-        newBubble = Instantiate(bubblePrefab, bubblePosition, Quaternion.identity);
-
-        // Get the BubbleBehavior script from the bubble object
-        BubbleBehavior bubbleBehavior = newBubble.GetComponent<BubbleBehavior>();
-        if (bubbleBehavior != null)
-        {
-            bubbleBehavior.StartRising();
-        }
     }
 
     // jump out of water
@@ -496,14 +484,12 @@ public class MarioMovement : MonoBehaviour
         jumpTimer = 0;
         airtimer = Time.time + airtime;
 
-        // Check if newBubble exists before attempting to destroy it
-        if (newBubble != null)
+        StopCoroutine(SpawnBubbles());
+
+        // Instantiate the splash water prefab at the current position
+        if (splashWaterPrefab != null)
         {
-            BubbleBehavior bubbleBehavior = newBubble.GetComponent<BubbleBehavior>();
-            if (bubbleBehavior != null)
-            {
-                bubbleBehavior.DestroyBubble();
-            }
+            Instantiate(splashWaterPrefab, transform.position, Quaternion.identity);
         }
     }
 
@@ -742,6 +728,23 @@ public class MarioMovement : MonoBehaviour
         isYeahAnimationPlaying = false;
     }
 
+    private IEnumerator SpawnBubbles()
+    {
+        while (swimming)
+        {
+            // Wait for the specified delay before spawning the bubble
+            yield return new WaitForSeconds(bubbleSpawnDelay);
+
+            // Instantiate the bubble prefab at the current position
+            if (bubblePrefab != null)
+            {
+                Instantiate(bubblePrefab, transform.position, Quaternion.identity);
+                // Debug.Log("Bubble created");
+            }
+        }
+    }
+
+
     void OnTriggerStay2D(Collider2D other)
     {
         // firebar, flame, etc
@@ -767,6 +770,8 @@ public class MarioMovement : MonoBehaviour
         {
             swimming = true;
             animator.SetTrigger("enterWater");
+
+            StartCoroutine(SpawnBubbles());
         }
     }
     
@@ -776,6 +781,9 @@ public class MarioMovement : MonoBehaviour
         {
             swimming = false;
             animator.SetTrigger("exitWater");
+
+            // Stop the SpawnBubbles coroutine when exiting water
+            StopCoroutine(SpawnBubbles());
 
             // if you are moving up, you can jump out of water
             if (rb.velocity.y > 0)

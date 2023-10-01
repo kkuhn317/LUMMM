@@ -21,6 +21,10 @@ public class LeverController : MonoBehaviour
     public AudioClip pullerAudioClip; // Audio clip for puller rotation
     public AudioClip barriermoveAudioClip;   // Audio clip for barrier movement
 
+    [Header("Activation key")]
+    public GameObject keyActivate;
+    private bool hasPulledLever = false;
+
     private void Start()
     {
         initialRotation = objectToRotate.rotation;
@@ -28,15 +32,27 @@ public class LeverController : MonoBehaviour
 
         audioSourcePullerRotate = GetComponent<AudioSource>();
         audioSourceBarrierMove = GetComponent<AudioSource>();
+
+        // Deactivate the objectToActivate initially
+        if (keyActivate != null)
+        {
+            keyActivate.SetActive(false);
+        }
     }
 
     private void Update()
     {
         if (isPlayerInRange && Input.GetKeyDown(KeyCode.Z))
         {
-            if (!isRotating && !isMoving)
+            if (!isRotating && !isMoving && !hasPulledLever)
             {
+                if (keyActivate != null)
+                {
+                    keyActivate.SetActive(false);
+                }
+
                 RotateObject(targetRotation); // The puller rotates
+                hasPulledLever = true; // Set the flag to true after pulling the lever
             }
             /*else if (isRotating && !isMoving)
             {
@@ -111,6 +127,11 @@ public class LeverController : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             isPlayerInRange = true;
+
+            // Activate the keyActivate when the player enters the trigger zone and haven't pull the level 
+            if (keyActivate != null && !hasPulledLever) {
+                keyActivate.SetActive(true);
+            } 
         }
     }
 
@@ -119,6 +140,12 @@ public class LeverController : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             isPlayerInRange = false;
+
+            // Deactivate the keyActivate when the player exits the trigger zone
+            if (keyActivate != null)
+            {
+                keyActivate.SetActive(false);
+            }
         }
     }
 }

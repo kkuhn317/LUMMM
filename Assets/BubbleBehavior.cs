@@ -1,32 +1,21 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class BubbleBehavior : MonoBehaviour
 {
-    public float riseSpeed = 0.5f;
-    public float horizontalSpeed = 0.025f;
+    public float riseSpeed = 0.25f;
+    public float bubbleDuration = 1.5f;
+    public float fadeDuration = 0.5f;
 
-    public float movementLimit = 0.1f;
-    public float fadeDuration = 2f;
     private float startTime;
-    private float horizontalVelocity; // Define the horizontalVelocity variable
-
-    private SpriteRenderer spriteRenderer;
-
-    private bool movingRight = true; // Added flag for movement direction
+    private bool fading = false;
+    private SpriteRenderer[] childSpriteRenderers; // Array to store child SpriteRenderers
 
     private void Start()
     {
         startTime = Time.time;
-        spriteRenderer = GetComponent<SpriteRenderer>();
-        horizontalVelocity = horizontalSpeed; // Initialize horizontalVelocity here
-    }
-
-    public void StartRising()
-    {
-        // Make the bubble rise and move initially to the right
-        GetComponent<Rigidbody2D>().velocity = new Vector2(horizontalSpeed, riseSpeed);
+        // Get all SpriteRenderers in children
+        childSpriteRenderers = GetComponentsInChildren<SpriteRenderer>();
     }
 
     public void DestroyBubble()
@@ -36,68 +25,56 @@ public class BubbleBehavior : MonoBehaviour
 
     private void Update()
     {
-        // Fade out the bubble over time
         float elapsedTime = Time.time - startTime;
-        if (elapsedTime >= fadeDuration)
+
+        if (!fading)
         {
-            Destroy(gameObject); // Fade out complete, destroy the bubble
-        }
-        else
-        {
-            // Adjust the opacity of the bubble based on time
-            float alpha = 1f - (elapsedTime / fadeDuration);
-            Color color = spriteRenderer.color;
-            color.a = alpha;
-            spriteRenderer.color = color;
+            // Check if it's time to start fading
+            if (elapsedTime >= bubbleDuration)
+            {
+                fading = true;
+                StartCoroutine(FadeOut());
+            }
         }
 
-        // Update horizontal velocity based on movement direction
-        float horizontalVelocity = movingRight ? horizontalSpeed : -horizontalSpeed;
+        // Apply rising velocity to the parent and child GameObjects
+        transform.Translate(Vector3.up * riseSpeed * Time.deltaTime);
+    }
 
-        // Check if the bubble has moved too far left or right
-        if (movingRight && transform.position.x >= movementLimit)
+    private IEnumerator FadeOut()
+    {
+        float elapsedTime = 0f;
+
+        while (elapsedTime < fadeDuration)
         {
-            movingRight = false;
-        }
-        else if (!movingRight && transform.position.x <= -movementLimit)
-        {
-            movingRight = true;
+            foreach (SpriteRenderer childRenderer in childSpriteRenderers)
+            {
+                Color startColor = childRenderer.color;
+                Color endColor = new Color(startColor.r, startColor.g, startColor.b, 0f);
+
+                float alpha = Mathf.Lerp(startColor.a, endColor.a, elapsedTime / fadeDuration);
+                childRenderer.color = new Color(startColor.r, startColor.g, startColor.b, alpha);
+            }
+
+            elapsedTime += Time.deltaTime;
+            yield return null;
         }
 
-        // Apply horizontal velocity
-        GetComponent<Rigidbody2D>().velocity = new Vector2(horizontalVelocity, GetComponent<Rigidbody2D>().velocity.y);
+        // Ensure the final alpha is set for child GameObjects
+        foreach (SpriteRenderer childRenderer in childSpriteRenderers)
+        {
+            childRenderer.color = new Color(childRenderer.color.r, childRenderer.color.g, childRenderer.color.b, 0f);
+        }
+
+        // Destroy the parent GameObject after fading out
+        Destroy(gameObject);
     }
 
     private void OnTriggerExit2D(Collider2D collision)
     {
-        // Check if the bubble has exited the water layer
         if (collision.gameObject.layer == LayerMask.NameToLayer("Water"))
         {
-            Destroy(gameObject); // Destroy the bubble when it exits the water or touches the edge
+            Destroy(gameObject);
         }
-    }
-
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        // Check if the player has entered the water layer
-        if (collision.gameObject.layer == LayerMask.NameToLayer("Water"))
-        {
-            StartRising();
-        }
-    }
-
-    private void OnDrawGizmos()
-    {
-        // Draw vertical movement limits
-        Vector3 upperLimit = transform.position + new Vector3(0f, movementLimit, 0f);
-        Vector3 lowerLimit = transform.position + new Vector3(0f, -movementLimit, 0f);
-        Gizmos.color = Color.red;
-        Gizmos.DrawLine(upperLimit, lowerLimit);
-
-        // Draw horizontal movement limits
-        Vector3 rightLimit = transform.position + new Vector3(movementLimit, 0f, 0f);
-        Vector3 leftLimit = transform.position + new Vector3(-movementLimit, 0f, 0f);
-        Gizmos.color = Color.blue;
-        Gizmos.DrawLine(rightLimit, leftLimit);
     }
 }

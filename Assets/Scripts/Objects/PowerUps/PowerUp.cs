@@ -10,7 +10,10 @@ public class PowerUp : ObjectPhysics
     public float starTime = -1;
     public GameObject starMusicOverride;
 
+    [Header("1UP")]
     public bool is1Up = false;
+    public GameObject oneupSpritePrefab; // Reference to the sprite to move up
+    public float upSpeed = 2.0f; // Speed at which the sprite moves up
 
     // Start is called before the first frame update
     protected override void Start()
@@ -32,6 +35,16 @@ public class PowerUp : ObjectPhysics
             if (is1Up) {
                 GameManager.Instance.AddLives();
                 Destroy(gameObject);
+
+                if (oneupSpritePrefab != null)
+                {
+                    GameObject oneupSprite = Instantiate(oneupSpritePrefab, transform.position, Quaternion.identity);
+                    Rigidbody2D upSpriteRigidbody = oneupSprite.GetComponent<Rigidbody2D>();
+                    upSpriteRigidbody.velocity = Vector2.up * upSpeed;
+
+                    Destroy(oneupSprite, 1.0f);
+                }
+                
                 return;
             }
             if (starTime > 0) {
