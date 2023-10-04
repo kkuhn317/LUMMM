@@ -20,6 +20,7 @@ public class WizardGoomba : Goomba
     public float shootSpeed = 1.0f;
 
     public GameObject wandPrefab;
+    public GameObject hitSpike;
 
     private GameObject player;
 
@@ -123,6 +124,11 @@ public class WizardGoomba : Goomba
         moveInitiated = false;
         t = 0f;
         gravity = 5f;
+
+        if (hitSpike != null)
+        {
+            hitSpike = Instantiate(hitSpike, transform.position, Quaternion.identity);
+        }
 
         // Instantiate the wandPrefab
         if (wandPrefab != null)

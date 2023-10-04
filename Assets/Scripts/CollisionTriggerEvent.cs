@@ -6,12 +6,7 @@ using UnityEngine.Events;
 public class CollisionTriggerEvent : MonoBehaviour
 {
     [SerializeField] UnityEvent onPlayerEnter;
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    [SerializeField] bool autoDeactivate = false;
 
     // check if player enters the trigger
     void OnTriggerEnter2D(Collider2D other)
@@ -19,13 +14,12 @@ public class CollisionTriggerEvent : MonoBehaviour
         if (other.gameObject.tag == "Player")
         {
             onPlayerEnter.Invoke();
+
+            if (autoDeactivate)
+            {
+                // Deactivate the GameObject after the event is triggered
+                gameObject.SetActive(false);
+            }
         }
-    }
-
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 }
