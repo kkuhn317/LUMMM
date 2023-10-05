@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 3447058314901893930}
   - component: {fileID: 3447058314901893943}
   - component: {fileID: 3447058314901893928}
-  - component: {fileID: 3447058314901893942}
+  - component: {fileID: 1504628361758397435}
   m_Layer: 7
   m_Name: TinyGoldenGoomba
   m_TagString: Deadly
@@ -124,7 +124,7 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 1
   m_Constraints: 0
---- !u!114 &3447058314901893942
+--- !u!114 &1504628361758397435
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -133,7 +133,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 3447058314901893931}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 223ca91bb79e8474fa67f08de7e4b770, type: 3}
+  m_Script: {fileID: 11500000, guid: 5b9bd87588ed34c42897c223b53f68da, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  activationProbability: 0.3
+  activationProbability: 0.15
+  activationPositions:
+  - {x: 5.21, y: -0.86}
+  - {x: 2.18, y: 7.15}
+  - {x: -2.81, y: 5.15}
+  smokePrefab: {fileID: 6098009751153003477, guid: 4bffeb562d64dd4489d092ac30f57739, type: 3}

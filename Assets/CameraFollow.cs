@@ -28,6 +28,11 @@ public class CameraFollow : MonoBehaviour
     private bool isLookingUp = false;
     public Vector3 offset;
 
+    [Header("Change Camera Size")]
+    private float originalOrthographicSize;
+    private float targetOrthographicSize;
+    private float zoomSmoothTime = 0.2f;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -42,6 +47,12 @@ public class CameraFollow : MonoBehaviour
 
         originalPosition = transform.position;
         offset = new Vector3(0f, 2f, 0f);
+
+        // Store the original orthographic size of the camera
+        originalOrthographicSize = Camera.main.orthographicSize;
+
+        // Set the initial target orthographic size to match the original size
+        targetOrthographicSize = originalOrthographicSize;
     }
 
     // Update is called once per frame
@@ -66,10 +77,28 @@ public class CameraFollow : MonoBehaviour
             transform.position = new Vector3(x, y, transform.position.z);
         }
 
+        // Smoothly change the camera's orthographic size
+        Camera.main.orthographicSize = Mathf.SmoothDamp(Camera.main.orthographicSize, targetOrthographicSize, ref smoothDampVelocity.z, zoomSmoothTime);
+
         if (isShaking)
         {
             ShakeCamera();
         }
+    }
+
+    // Change the camera size to a specific value
+    public void ChangeCameraSize(float newSize/*, float zoomTime = 0.2f*/)
+    {
+        // Set the target orthographic size for the camera
+        targetOrthographicSize = newSize;
+        //zoomSmoothTime = zoomTime;
+    }
+
+    public void ReturnToOriginalSize(float zoomTime = 0.2f)
+    {
+        // Set the target orthographic size to the original size
+        targetOrthographicSize = originalOrthographicSize;
+        zoomSmoothTime = zoomTime;
     }
 
     // Call this method from the player script when the player looks up
