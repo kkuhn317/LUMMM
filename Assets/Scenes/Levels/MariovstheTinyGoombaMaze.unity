@@ -4195,6 +4195,10 @@ PrefabInstance:
       propertyPath: floorMask.m_Bits
       value: 136
       objectReference: {fileID: 0}
+    - target: {fileID: 1793027683220898541, guid: 74c546d79a8d89f4f998e71b97161414, type: 3}
+      propertyPath: shouldntEnemyMoveWhenDie
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1793027683220898543, guid: 74c546d79a8d89f4f998e71b97161414, type: 3}
       propertyPath: m_Name
       value: TinyGoomba (4)
@@ -7938,7 +7942,7 @@ GameObject:
   - component: {fileID: 614505058}
   - component: {fileID: 614505057}
   m_Layer: 0
-  m_Name: ReturnCameraSize Trigger (1)
+  m_Name: ChangeCameraSize Trigger (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -7961,13 +7965,13 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1730604528}
         m_TargetAssemblyTypeName: CameraFollow, Assembly-CSharp
-        m_MethodName: ReturnToOriginalSize
+        m_MethodName: ChangeCameraSize
         m_Mode: 4
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
-          m_FloatArgument: 0.2
+          m_FloatArgument: 3.2
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
@@ -15509,7 +15513,6 @@ GameObject:
   - component: {fileID: 1286834736}
   - component: {fileID: 1286834735}
   - component: {fileID: 1286834737}
-  - component: {fileID: 1286834738}
   m_Layer: 4
   m_Name: tinywater
   m_TagString: Untagged
@@ -15621,19 +15624,6 @@ PolygonCollider2D:
       - {x: 1.9974102, y: 0.23412752}
       - {x: 2.9968023, y: 0.23505837}
       - {x: 2.996848, y: 0.63777465}
---- !u!114 &1286834738
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1286834734}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 061bc2e527cb04f4aadf324c7e858d8d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  scrollSpeed: {x: -0.1, y: 0}
 --- !u!1001 &1294482998
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -17986,6 +17976,10 @@ PrefabInstance:
       propertyPath: floorMask.m_Bits
       value: 136
       objectReference: {fileID: 0}
+    - target: {fileID: 1793027683220898541, guid: 74c546d79a8d89f4f998e71b97161414, type: 3}
+      propertyPath: shouldntEnemyMoveWhenDie
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1793027683220898543, guid: 74c546d79a8d89f4f998e71b97161414, type: 3}
       propertyPath: m_Name
       value: TinyGoomba (5)
@@ -20257,7 +20251,6 @@ GameObject:
   - component: {fileID: 1655322467}
   - component: {fileID: 1655322466}
   - component: {fileID: 1655322468}
-  - component: {fileID: 1655322469}
   m_Layer: 13
   m_Name: tinylava
   m_TagString: Deadly
@@ -20366,19 +20359,6 @@ PolygonCollider2D:
       - {x: 2.494165, y: 0.26141262}
       - {x: 2.4944537, y: 0.6687398}
       - {x: 0.06845558, y: 0.6728616}
---- !u!114 &1655322469
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1655322465}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 061bc2e527cb04f4aadf324c7e858d8d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  scrollSpeed: {x: -0.1, y: 0}
 --- !u!1001 &1662399852
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -22542,6 +22522,10 @@ PrefabInstance:
       propertyPath: floorMask.m_Bits
       value: 136
       objectReference: {fileID: 0}
+    - target: {fileID: 1793027683220898541, guid: 74c546d79a8d89f4f998e71b97161414, type: 3}
+      propertyPath: shouldntEnemyMoveWhenDie
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1793027683220898543, guid: 74c546d79a8d89f4f998e71b97161414, type: 3}
       propertyPath: m_Name
       value: TinyGoomba (7)
@@ -22741,6 +22725,10 @@ PrefabInstance:
     - target: {fileID: 1793027683220898541, guid: 74c546d79a8d89f4f998e71b97161414, type: 3}
       propertyPath: floorMask.m_Bits
       value: 136
+      objectReference: {fileID: 0}
+    - target: {fileID: 1793027683220898541, guid: 74c546d79a8d89f4f998e71b97161414, type: 3}
+      propertyPath: shouldntEnemyMoveWhenDie
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1793027683220898543, guid: 74c546d79a8d89f4f998e71b97161414, type: 3}
       propertyPath: m_Name
@@ -25189,6 +25177,10 @@ PrefabInstance:
     - target: {fileID: 1793027683220898541, guid: 74c546d79a8d89f4f998e71b97161414, type: 3}
       propertyPath: floorMask.m_Bits
       value: 136
+      objectReference: {fileID: 0}
+    - target: {fileID: 1793027683220898541, guid: 74c546d79a8d89f4f998e71b97161414, type: 3}
+      propertyPath: shouldntEnemyMoveWhenDie
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1793027683220898543, guid: 74c546d79a8d89f4f998e71b97161414, type: 3}
       propertyPath: m_Name

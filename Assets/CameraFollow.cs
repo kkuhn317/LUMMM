@@ -94,13 +94,6 @@ public class CameraFollow : MonoBehaviour
         //zoomSmoothTime = zoomTime;
     }
 
-    public void ReturnToOriginalSize(float zoomTime = 0.2f)
-    {
-        // Set the target orthographic size to the original size
-        targetOrthographicSize = originalOrthographicSize;
-        zoomSmoothTime = zoomTime;
-    }
-
     // Call this method from the player script when the player looks up
     public void StartCameraMoveUp()
     {

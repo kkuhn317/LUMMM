@@ -66,6 +66,7 @@ MonoBehaviour:
   groundLayer:
     serializedVersion: 2
     m_Bits: 8
+  cameraFollow: {fileID: 0}
   heldObjectPosition: {fileID: 4241799718361322995}
   maxSpeed: 5
   maxRunSpeed: 10
@@ -74,6 +75,9 @@ MonoBehaviour:
   gravity: 0.2
   fallgravity: 7
   airtime: 0.4
+  bubbleSpawnDelay: 2
+  bubblePrefab: {fileID: 0}
+  splashWaterPrefab: {fileID: 0}
   swimming: 0
   swimForce: 7
   swimGravity: 1
@@ -89,6 +93,7 @@ MonoBehaviour:
   groundPos: {x: 0, y: 0}
   canSkid: 1
   canCrouch: 1
+  walkAnimatorSpeed: 0.125
   powerupState: 0
   powerDownMario: {fileID: 0}
   starPower: 0
@@ -299,8 +304,8 @@ BoxCollider2D:
   m_Offset: {x: 0, y: 0}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0.5, y: 0.3}
-    oldSize: {x: 2, y: 3}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 1, y: 1}
     newSize: {x: 2, y: 3}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
@@ -446,7 +451,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 1
-  m_Sprite: {fileID: -1259071201, guid: 73ebe437ba3822c45b6bba0a5c538fd0, type: 3}
+  m_Sprite: {fileID: -910772892, guid: 450050db8ca65e74c9b66d15b83fa38d, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
