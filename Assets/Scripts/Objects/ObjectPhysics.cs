@@ -72,9 +72,12 @@ public class ObjectPhysics : MonoBehaviour
     [Header("Knock Away")]
 
     public Vector2 knockAwayVelocity = new Vector2(5, 5);
-
     public bool overrideKnockAwayGravity = false;
     public float knockAwayGravity = 60f;
+    public KnockAwayType knockAwayType = KnockAwayType.flip;
+
+    public float knockAwayRotationSpeed = 10f;  // Used for rotating knock away
+    public float KnockAwayDissapearTime = -1f;  // < 0 means don't dissapear
 
     public enum ObjectState
     {
@@ -92,6 +95,12 @@ public class ObjectPhysics : MonoBehaviour
         sliding,    // falling and sliding
         bouncing,    // falling and bouncing
         special,    // special movement (like a bullet bill)
+    }
+
+    public enum KnockAwayType
+    {
+        flip,   // Immediately flip upside down
+        rotate // Constantly Rotate backwards
     }
 
     public ObjectState objectState = ObjectState.falling;
@@ -142,7 +151,32 @@ public class ObjectPhysics : MonoBehaviour
             if ((!(movement == ObjectMovement.still) || objectState == ObjectState.knockedAway) && !firstframe)
                 UpdatePosition();
         }
-        firstframe = false;
+
+        if (firstframe)
+            firstframe = false;
+
+        // Knock Away Logic
+        if (objectState == ObjectState.knockedAway)
+        {
+            // rotate knock away
+            if (knockAwayType == KnockAwayType.rotate) {
+                // rotate
+                transform.Rotate(0, 0, knockAwayRotationSpeed * Time.deltaTime * (movingLeft ? 1 : -1));
+            }
+
+            // Fade out
+            if (KnockAwayDissapearTime > 0) {
+                SpriteRenderer spriteRenderer = GetComponent<SpriteRenderer>();
+                Color color = spriteRenderer.color;
+                color.a -= Time.deltaTime / KnockAwayDissapearTime;
+                spriteRenderer.color = color;
+                if (color.a <= 0) {
+                    Destroy(gameObject);
+                }
+            }
+            
+        }
+
 
     }
 
@@ -509,22 +543,41 @@ public class ObjectPhysics : MonoBehaviour
         }
     }
 
-    public virtual void KnockAway(bool direction, bool sound = true) {
+    public virtual void KnockAway(bool direction, bool sound = true, KnockAwayType? overrideType = null, Vector2? overrideVelocity = null) {
         if (objectState != ObjectState.knockedAway) {
-            GetComponent<SpriteRenderer>().flipY = true;
             objectState = ObjectState.knockedAway;
-            velocity = knockAwayVelocity;
+
+            // Physics
+            velocity = overrideVelocity ?? knockAwayVelocity;
             if (overrideKnockAwayGravity) {
                 gravity = knockAwayGravity;
             }
-            movingLeft = direction;
-            GetComponent<Collider2D>().enabled = false;
-            transform.rotation = Quaternion.identity;
+
             // play sound
             if (sound && knockAwaySound != null && GetComponent<AudioSource>() != null)
             {
                 GetComponent<AudioSource>().PlayOneShot(knockAwaySound);
             }
+
+            movingLeft = direction;
+
+            if (overrideType != null) {
+                knockAwayType = overrideType.Value;
+            }
+            
+            switch (knockAwayType) {
+                case KnockAwayType.flip:
+                    GetComponent<SpriteRenderer>().flipY = true;
+                    break;
+                case KnockAwayType.rotate:
+                    // Handled in update
+                    break;
+            }
+
+            GetComponent<Collider2D>().enabled = false;
+            transform.rotation = Quaternion.identity;
+
+            
         }
     }
 

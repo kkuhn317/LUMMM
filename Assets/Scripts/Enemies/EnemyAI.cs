@@ -87,9 +87,9 @@ public class EnemyAI : ObjectPhysics
         // override this for whatever needed
     }
 
-    public override void KnockAway(bool direction, bool sound = true)
+    public override void KnockAway(bool direction, bool sound = true, KnockAwayType? type = null, Vector2? velocity = null)
     {
-        base.KnockAway(direction, sound);
+        base.KnockAway(direction, sound, type, velocity);
         releaseItem();
     }
 

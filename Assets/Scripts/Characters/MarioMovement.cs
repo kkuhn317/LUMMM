@@ -156,6 +156,8 @@ public class MarioMovement : MonoBehaviour
             marioAbility = GetComponent<MarioAbility>();
         }
         normalSpriteLibrary = GetComponent<SpriteLibrary>().spriteLibraryAsset;
+
+        StartCoroutine(SpawnBubbles());
     }
 
     // Update is called once per frame
@@ -484,8 +486,6 @@ public class MarioMovement : MonoBehaviour
         jumpTimer = 0;
         airtimer = Time.time + airtime;
 
-        StopCoroutine(SpawnBubbles());
-
         // Instantiate the splash water prefab at the current position
         if (splashWaterPrefab != null)
         {
@@ -522,24 +522,18 @@ public class MarioMovement : MonoBehaviour
                 if (Input.GetButton("Fire3") && (direction.x != 0)) {
                     rb.drag = runlinearDrag;
 
-                    // if not holding left or right
+                // if not holding left or right
                 } else if (direction.x == 0) {
 
-                    //if ((facingRight && rb.velocity.x < 0) || (!facingRight && rb.velocity.x > 0)) {
                     if (Mathf.Abs(rb.velocity.x) < 5f) {
                         rb.drag = linearDrag;
                     } else {
                         rb.drag = 3 * runlinearDrag;
                     }
-                    //rb.drag = 3 * runlinearDrag;
 
-                    // if walking left or right (not all the way or changing directions)
+                // if walking left or right (not all the way or changing directions)
                 } else {
-                    //if ((facingRight && rb.velocity.x < 0) || (!facingRight && rb.velocity.x > 0)) {
-                    //    rb.drag = linearDrag * 2;
-                    //} else {
                     rb.drag = linearDrag;
-                    //}
                 }
 
                 // if holding left or right all the way and not changing directions
@@ -730,13 +724,13 @@ public class MarioMovement : MonoBehaviour
 
     private IEnumerator SpawnBubbles()
     {
-        while (swimming)
+        while (true)
         {
             // Wait for the specified delay before spawning the bubble
             yield return new WaitForSeconds(bubbleSpawnDelay);
 
             // Instantiate the bubble prefab at the current position
-            if (bubblePrefab != null)
+            if (swimming && bubblePrefab != null)
             {
                 Instantiate(bubblePrefab, transform.position, Quaternion.identity);
                 // Debug.Log("Bubble created");
@@ -770,8 +764,6 @@ public class MarioMovement : MonoBehaviour
         {
             swimming = true;
             animator.SetTrigger("enterWater");
-
-            StartCoroutine(SpawnBubbles());
         }
     }
     
@@ -781,9 +773,6 @@ public class MarioMovement : MonoBehaviour
         {
             swimming = false;
             animator.SetTrigger("exitWater");
-
-            // Stop the SpawnBubbles coroutine when exiting water
-            StopCoroutine(SpawnBubbles());
 
             // if you are moving up, you can jump out of water
             if (rb.velocity.y > 0)

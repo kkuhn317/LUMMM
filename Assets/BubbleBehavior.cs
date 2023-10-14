@@ -7,6 +7,9 @@ public class BubbleBehavior : MonoBehaviour
     public float bubbleDuration = 1.5f;
     public float fadeDuration = 0.5f;
 
+    private bool firstFrame = true;
+    private bool inWater = false;   // This should be set to true when it is spawned in water. if not, it will be destroyed
+
     private float startTime;
     private bool fading = false;
     private SpriteRenderer[] childSpriteRenderers; // Array to store child SpriteRenderers
@@ -39,6 +42,13 @@ public class BubbleBehavior : MonoBehaviour
 
         // Apply rising velocity to the parent and child GameObjects
         transform.Translate(Vector3.up * riseSpeed * Time.deltaTime);
+    }
+
+    private void FixedUpdate() {
+        if (!firstFrame && !inWater) {
+            Destroy(gameObject);
+        }
+        firstFrame = false;
     }
 
     private IEnumerator FadeOut()
@@ -75,6 +85,14 @@ public class BubbleBehavior : MonoBehaviour
         if (collision.gameObject.layer == LayerMask.NameToLayer("Water"))
         {
             Destroy(gameObject);
+        }
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.gameObject.layer == LayerMask.NameToLayer("Water"))
+        {
+            inWater = true;
         }
     }
 }

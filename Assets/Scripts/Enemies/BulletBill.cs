@@ -13,9 +13,10 @@ public class BulletBill : EnemyAI
         if (objectState != ObjectState.knockedAway) {
             float angle = Mathf.Atan2(realVelocity.y, realVelocity.x) * Mathf.Rad2Deg;
             transform.rotation = Quaternion.AngleAxis(angle + 180, Vector3.forward);
+            GetComponent<SpriteRenderer>().flipY = !movingLeft;
         }
 
-        GetComponent<SpriteRenderer>().flipY = !movingLeft;
+        
     }
 
     // knock away on stomp
@@ -25,7 +26,7 @@ public class BulletBill : EnemyAI
         MarioMovement playerscript = player.GetComponent<MarioMovement>();
         playerscript.Jump();
 
-        KnockAway(movingLeft, false);
+        KnockAway(movingLeft, false, KnockAwayType.flip, new Vector2(1,0));
 
         GetComponent<AudioSource>().Play();
         

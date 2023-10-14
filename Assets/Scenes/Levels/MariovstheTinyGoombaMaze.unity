@@ -1241,6 +1241,9 @@ MonoBehaviour:
   knockAwayVelocity: {x: 5, y: 5}
   overrideKnockAwayGravity: 0
   knockAwayGravity: 60
+  knockAwayType: 0
+  knockAwayRotationSpeed: 10
+  KnockAwayDissapearTime: -1
   knockAwaySound: {fileID: 0}
   objectState: 0
   movement: 1
@@ -11969,6 +11972,9 @@ MonoBehaviour:
   knockAwayVelocity: {x: 5, y: 5}
   overrideKnockAwayGravity: 0
   knockAwayGravity: 60
+  knockAwayType: 0
+  knockAwayRotationSpeed: 10
+  KnockAwayDissapearTime: -1
   knockAwaySound: {fileID: 8300000, guid: 62467461e51dddb40931164fd2db1170, type: 3}
   objectState: 0
   movement: 1
@@ -14151,39 +14157,11 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 2080700945, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
-      propertyPath: m_Size.x
-      value: 0.33906826
-      objectReference: {fileID: 0}
-    - target: {fileID: 2080700945, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
-      propertyPath: m_Size.y
-      value: 0.40201864
-      objectReference: {fileID: 0}
-    - target: {fileID: 2080700945, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
-      propertyPath: m_Offset.x
-      value: -0.029033646
-      objectReference: {fileID: 0}
-    - target: {fileID: 2080700945, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
-      propertyPath: m_Offset.y
-      value: -0.04899068
-      objectReference: {fileID: 0}
-    - target: {fileID: 2080700945, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
-      propertyPath: m_SpriteTilingProperty.pivot.y
-      value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 2080700945, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
       propertyPath: m_SpriteTilingProperty.newSize.x
       value: 0.625
       objectReference: {fileID: 0}
     - target: {fileID: 2080700945, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
       propertyPath: m_SpriteTilingProperty.newSize.y
-      value: 0.625
-      objectReference: {fileID: 0}
-    - target: {fileID: 2080700945, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
-      propertyPath: m_SpriteTilingProperty.oldSize.x
-      value: 0.6875
-      objectReference: {fileID: 0}
-    - target: {fileID: 2080700945, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
-      propertyPath: m_SpriteTilingProperty.oldSize.y
       value: 0.625
       objectReference: {fileID: 0}
     - target: {fileID: 1563295794450405723, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
@@ -14195,40 +14173,24 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 8282462989337860828, guid: feb8f576a6f092d4a91f09dde1560854, type: 3}
     - target: {fileID: 1771483343543010228, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
-      propertyPath: jumpSpeed
-      value: 4
-      objectReference: {fileID: 0}
-    - target: {fileID: 1771483343543010228, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
-      propertyPath: facingRight
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1771483343543010228, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
       propertyPath: cameraFollow
       value: 
       objectReference: {fileID: 1730604528}
-    - target: {fileID: 1771483343543010228, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
-      propertyPath: yeahAudioClip
-      value: 
-      objectReference: {fileID: 8300000, guid: 0b9367568aa56394a9be369ec36ccf53, type: 3}
-    - target: {fileID: 1771483343543010228, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
-      propertyPath: splashWaterPrefab
-      value: 
-      objectReference: {fileID: 9025682128279497783, guid: d51c44c0d299ad14b8aa8f4388aabd41, type: 3}
     - target: {fileID: 1771483343543010229, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
       propertyPath: m_RootOrder
       value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 1771483343543010229, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 4.457
+      value: -4.47
       objectReference: {fileID: 0}
     - target: {fileID: 1771483343543010229, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.205
+      value: -3.73
       objectReference: {fileID: 0}
     - target: {fileID: 1771483343543010229, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0.040486585
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1771483343543010229, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
       propertyPath: m_LocalRotation.w
@@ -18331,6 +18293,9 @@ MonoBehaviour:
   knockAwayVelocity: {x: 5, y: 5}
   overrideKnockAwayGravity: 0
   knockAwayGravity: 60
+  knockAwayType: 0
+  knockAwayRotationSpeed: 10
+  KnockAwayDissapearTime: -1
   knockAwaySound: {fileID: 8300000, guid: 62467461e51dddb40931164fd2db1170, type: 3}
   objectState: 0
   movement: 1
@@ -20650,9 +20615,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   angle: 180
   initialDelay: 1
-  rateOfFire: 3
+  rateOfFire: 2
   projectilePrefab: {fileID: 6049510752361955699, guid: 10c495d729ad86542863ec8ef544c80f, type: 3}
-  projectileSpeed: 1
+  projectileSpeed: 2
   isShooting: 1
 --- !u!82 &1668925773
 AudioSource:
@@ -21338,6 +21303,9 @@ MonoBehaviour:
   knockAwayVelocity: {x: 5, y: 5}
   overrideKnockAwayGravity: 0
   knockAwayGravity: 60
+  knockAwayType: 0
+  knockAwayRotationSpeed: 10
+  KnockAwayDissapearTime: -1
   knockAwaySound: {fileID: 0}
   objectState: 0
   movement: 0
@@ -21885,6 +21853,9 @@ MonoBehaviour:
   knockAwayVelocity: {x: 5, y: 5}
   overrideKnockAwayGravity: 0
   knockAwayGravity: 60
+  knockAwayType: 0
+  knockAwayRotationSpeed: 10
+  KnockAwayDissapearTime: -1
   knockAwaySound: {fileID: 8300000, guid: 62467461e51dddb40931164fd2db1170, type: 3}
   objectState: 0
   movement: 1
