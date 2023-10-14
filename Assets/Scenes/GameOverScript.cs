@@ -5,28 +5,16 @@ using UnityEngine.SceneManagement;
 
 public class GameOverScript : MonoBehaviour
 {
-    // Reference to the player or game controller script
-    public MarioMovement playerScript;
-
-    // Name of the Game Over scene
-    public string gameOverSceneName;
-
-    // Reference to the audio source
-    public AudioSource audioSource;
+    public float transitionChangeDelay = 3f;
 
     void Start()
     {
-        // Play the audio clip
-        audioSource.Play();
+        Invoke(nameof(ChangeScene), transitionChangeDelay);
     }
 
-    void Update()
+    void ChangeScene()
     {
-        // Check if the game over condition is met and the song is over
-        /*if (playerScript.isGameOver && !audioSource.isPlaying)
-        {
-            // Load the main scene
-            SceneManager.LoadScene("MainMenu");
-        }*/
+        SceneManager.LoadScene("SelectLevel");
     }
+
 }

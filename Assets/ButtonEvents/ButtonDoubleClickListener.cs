@@ -39,6 +39,7 @@ public class ButtonDoubleClickListener : MonoBehaviour,IPointerClickHandler {
         else if (clicks > 1) {
             if (elapsedSeconds <= doubleClickDuration) {
                 if (button.interactable)
+                    print("activated");
                     onDoubleClick?.Invoke();
             }
             clicks = 0;

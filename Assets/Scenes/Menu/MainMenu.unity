@@ -1590,6 +1590,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d9880b00e179648419b1bbe5b78414db, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  duplicateAction: 1
 --- !u!1 &819004049
 GameObject:
   m_ObjectHideFlags: 0
@@ -1684,6 +1685,7 @@ GameObject:
   - component: {fileID: 956525936}
   - component: {fileID: 956525935}
   - component: {fileID: 956525937}
+  - component: {fileID: 956525938}
   m_Layer: 0
   m_Name: EventSystem
   m_TagString: Untagged
@@ -1751,6 +1753,20 @@ MonoBehaviour:
   m_DeselectOnBackgroundClick: 0
   m_PointerBehavior: 0
   m_CursorLockBehavior: 0
+--- !u!114 &956525938
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 956525933}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8fbfb77b568f9af40af3d3ff9d5525dc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  musicMixer: {fileID: 24100000, guid: 44648a194bc63354d827c6c13f697d72, type: 2}
+  sfxMixer: {fileID: 24100000, guid: 52d4409ed4d7bb645aad562fcfd87159, type: 2}
 --- !u!1 &1029850705
 GameObject:
   m_ObjectHideFlags: 0
@@ -2396,7 +2412,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1843098768}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 44acc42c4bcd0b14aa13a720535d01f4, type: 3}
+  m_Script: {fileID: 11500000, guid: dd3ee184fa596d54ebdbc9a9d9b60dd6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &1858032369

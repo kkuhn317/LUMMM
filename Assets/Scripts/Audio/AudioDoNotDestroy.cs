@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+// TODO: either merge with MusicDontDestroy or delete this script
+
 public class AudioDoNotDestroy : MonoBehaviour
 {
     private void Awake()

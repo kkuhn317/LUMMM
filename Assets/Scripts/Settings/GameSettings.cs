@@ -27,12 +27,6 @@ public class GameSettings : MonoBehaviour
     public Sprite enableCheckpoints;
     public Sprite disabledCheckpoints;
 
-    private const string FullscreenPlayerPrefsKey = "Fullscreen";
-    private const string ResolutionPlayerPrefsKey = "Resolution";
-    private const string GraphicsQualityPlayerPrefsKey = "GraphicsQuality";
-    private const string InfiniteLivesPlayerPrefsKey = "InfiniteLives";
-    private const string CheckpointsPlayerPrefsKey = "Checkpoints";
-
     private void Start()
     {
         ConfigureResolution();
@@ -45,7 +39,7 @@ public class GameSettings : MonoBehaviour
     private void ConfigureResolution()
     {
         // Get current screen resolution from PlayerPrefs or use the current screen resolution
-        string savedResolution = PlayerPrefs.GetString(ResolutionPlayerPrefsKey, Screen.currentResolution.width + "x" + Screen.currentResolution.height);
+        string savedResolution = PlayerPrefs.GetString(SettingsKeys.ResolutionKey, Screen.currentResolution.width + "x" + Screen.currentResolution.height);
         string[] resolutionParts = savedResolution.Split('x');
         int savedWidth = int.Parse(resolutionParts[0]);
         int savedHeight = int.Parse(resolutionParts[1]);
@@ -73,10 +67,24 @@ public class GameSettings : MonoBehaviour
         resolutionDropdown.RefreshShownValue();
     }
 
+    public void ChangeResolution(int index)
+    {
+        Resolution[] availableResolutions = Screen.resolutions;
+
+        if (index >= 0 && index < availableResolutions.Length)
+        {
+            Resolution selectedResolution = availableResolutions[index];
+            Screen.SetResolution(selectedResolution.width, selectedResolution.height, Screen.fullScreen);
+            resolutionText.text = selectedResolution.width + "x" + selectedResolution.height;
+            PlayerPrefs.SetString(SettingsKeys.ResolutionKey, selectedResolution.width + "x" + selectedResolution.height);
+        }
+    }
+
     private void ConfigureFullscreenToggle()
     {
-        bool isFullscreen = PlayerPrefs.GetInt(FullscreenPlayerPrefsKey, 1) == 1;
+        bool isFullscreen = PlayerPrefs.GetInt(SettingsKeys.FullscreenKey, 1) == 1;
         fullscreenToggle.isOn = isFullscreen;
+        fullscreenImage.sprite = isFullscreen ? fullscreenOnSprite : fullscreenOffSprite;
         fullscreenToggle.onValueChanged.AddListener(OnFullscreenToggleValueChanged);
     }
 
@@ -84,12 +92,12 @@ public class GameSettings : MonoBehaviour
     {
         fullscreenImage.sprite = isFullscreen ? fullscreenOnSprite : fullscreenOffSprite;
         Screen.fullScreen = isFullscreen;
-        PlayerPrefs.SetInt(FullscreenPlayerPrefsKey, isFullscreen ? 1 : 0);
+        PlayerPrefs.SetInt(SettingsKeys.FullscreenKey, isFullscreen ? 1 : 0);
     }
 
     private void ConfigureGraphicsQuality()
     {
-        int currentQualityIndex = PlayerPrefs.GetInt(GraphicsQualityPlayerPrefsKey, QualitySettings.GetQualityLevel());
+        int currentQualityIndex = PlayerPrefs.GetInt(SettingsKeys.GraphicsQualityKey, QualitySettings.GetQualityLevel());
         graphicsQualityDropdown.ClearOptions();
         string[] qualityLevels = QualitySettings.names;
 
@@ -109,32 +117,19 @@ public class GameSettings : MonoBehaviour
     {
         QualitySettings.SetQualityLevel(qualityIndex);
         graphicsQualityText.text = QualitySettings.names[qualityIndex];
-        PlayerPrefs.SetInt(GraphicsQualityPlayerPrefsKey, qualityIndex);
-    }
-
-    public void ChangeResolution(int index)
-    {
-        Resolution[] availableResolutions = Screen.resolutions;
-
-        if (index >= 0 && index < availableResolutions.Length)
-        {
-            Resolution selectedResolution = availableResolutions[index];
-            Screen.SetResolution(selectedResolution.width, selectedResolution.height, Screen.fullScreen);
-            resolutionText.text = selectedResolution.width + "x" + selectedResolution.height;
-            PlayerPrefs.SetString(ResolutionPlayerPrefsKey, selectedResolution.width + "x" + selectedResolution.height);
-        }
+        PlayerPrefs.SetInt(SettingsKeys.GraphicsQualityKey, qualityIndex);
     }
 
     private void ConfigureInfiniteLives()
     {
-        bool isInfiniteLivesMode = PlayerPrefs.GetInt(InfiniteLivesPlayerPrefsKey, 0) == 1;
+        bool isInfiniteLivesMode = PlayerPrefs.GetInt(SettingsKeys.InfiniteLivesKey, 0) == 1;
         InfiniteLivesToggle.isOn = isInfiniteLivesMode;
         InfiniteLivesToggle.onValueChanged.AddListener(OnInfiniteLivesToggleValueChanged);
     }
 
     private void ConfigureCheckpoints()
     {
-        bool isCheckpointAllowed = PlayerPrefs.GetInt(CheckpointsPlayerPrefsKey, 0) == 1;
+        bool isCheckpointAllowed = PlayerPrefs.GetInt(SettingsKeys.CheckpointsKey, 0) == 1;
         CheckpointsToggle.isOn = isCheckpointAllowed;
         CheckpointsToggle.onValueChanged.AddListener(OnCheckpointsToggleValueChanged);
     }
@@ -143,13 +138,13 @@ public class GameSettings : MonoBehaviour
     {
         InfiniteLivesToggle.isOn = isInfiniteLivesMode;
         InfiniteLivesMode.sprite = isInfiniteLivesMode ? enableInfiniteLivesMode : disabledInfiniteLivesMode;
-        PlayerPrefs.SetInt(InfiniteLivesPlayerPrefsKey, isInfiniteLivesMode ? 1 : 0);
+        PlayerPrefs.SetInt(SettingsKeys.InfiniteLivesKey, isInfiniteLivesMode ? 1 : 0);
     }
 
     private void OnCheckpointsToggleValueChanged(bool isCheckpointAllowed)
     {
         CheckpointsToggle.isOn = isCheckpointAllowed;
         CheckpointsAllowed.sprite = isCheckpointAllowed ? enableCheckpoints : disabledCheckpoints;
-        PlayerPrefs.SetInt(CheckpointsPlayerPrefsKey, isCheckpointAllowed ? 1 : 0);
+        PlayerPrefs.SetInt(SettingsKeys.CheckpointsKey, isCheckpointAllowed ? 1 : 0);
     }
 }

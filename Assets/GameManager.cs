@@ -325,6 +325,18 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    // Quit Level
+    public void QuitLevel()
+    {
+        // Destroy all music objects
+        foreach (GameObject musicObj in GameObject.FindGameObjectsWithTag("GameMusic"))
+        {
+            Destroy(musicObj);
+        }
+        ResumeGame();
+        SceneManager.LoadScene("SelectLevel");
+    }
+
     // Function to add objects with PauseableMovement scripts to the list.
     public void RegisterPauseableObject(PauseableObject pauseableObject)
     {
@@ -401,6 +413,11 @@ public class GameManager : MonoBehaviour
     // after level ends, call this (ex: flag cutscene ends)
     public void FinishLevel()
     {
+        // Destroy all music objects
+        foreach (GameObject musicObj in GameObject.FindGameObjectsWithTag("GameMusic"))
+        {
+            Destroy(musicObj);
+        }
         // This will probably cause a special ending screen to show up, 
         // but for now just go to the main menu
         SceneManager.LoadScene("MainMenu");

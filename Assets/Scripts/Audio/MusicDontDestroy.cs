@@ -10,7 +10,8 @@ using System.Collections;
             if (music.Length > 1) {
                 Destroy (music[1]);
                 // set me as new music
-                GameManager.Instance.music = music[0];
+                if (GameManager.Instance != null)
+                    GameManager.Instance.music = music[0];
             }
             
         }

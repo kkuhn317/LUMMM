@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Audio;
 using TMPro;
 
 public class AudioManager : MonoBehaviour
@@ -12,13 +13,15 @@ public class AudioManager : MonoBehaviour
     [SerializeField] TMP_Text masterVolumeText;
     [SerializeField] TMP_Text bgmVolumeText;
     [SerializeField] TMP_Text sfxVolumeText;
+    [SerializeField] AudioMixer musicMixer;
+    [SerializeField] AudioMixer sfxMixer;
 
     void Start()
     {
         // Set initial volume values
-        masterVolumeSlider.value = PlayerPrefs.GetFloat("MasterVolume", 1f);
-        bgmVolumeSlider.value = PlayerPrefs.GetFloat("BGMVolume", 1f);
-        sfxVolumeSlider.value = PlayerPrefs.GetFloat("SFXVolume", 1f);
+        masterVolumeSlider.value = PlayerPrefs.GetFloat(SettingsKeys.MasterVolumeKey, 1f);
+        bgmVolumeSlider.value = PlayerPrefs.GetFloat(SettingsKeys.BGMVolumeKey, 1f);
+        sfxVolumeSlider.value = PlayerPrefs.GetFloat(SettingsKeys.SFXVolumeKey, 1f);
 
         // Update the volume and text labels
         UpdateVolumeText(masterVolumeText, masterVolumeSlider.value);
@@ -36,23 +39,23 @@ public class AudioManager : MonoBehaviour
     {
         float volume = masterVolumeSlider.value;
         AudioListener.volume = volume;
-        PlayerPrefs.SetFloat("MasterVolume", volume);
+        PlayerPrefs.SetFloat(SettingsKeys.MasterVolumeKey, volume);
         UpdateVolumeText(masterVolumeText, volume);
     }
 
     public void ChangeBGMVolume()
     {
         float volume = bgmVolumeSlider.value;
-        // Set your background music volume here
-        PlayerPrefs.SetFloat("BGMVolume", volume);
+        musicMixer.SetFloat("MusicVolume", Mathf.Log10(volume) * 20f);
+        PlayerPrefs.SetFloat(SettingsKeys.BGMVolumeKey, volume);
         UpdateVolumeText(bgmVolumeText, volume);
     }
 
     public void ChangeSFXVolume()
     {
         float volume = sfxVolumeSlider.value;
-        // Set your sound effects volume here
-        PlayerPrefs.SetFloat("SFXVolume", volume);
+        sfxMixer.SetFloat("SFXVolume", Mathf.Log10(volume) * 20f);
+        PlayerPrefs.SetFloat(SettingsKeys.SFXVolumeKey, volume);
         UpdateVolumeText(sfxVolumeText, volume);
     }
 
