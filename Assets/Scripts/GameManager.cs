@@ -91,6 +91,8 @@ public class GameManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        ToggleCheckpoints();
+
         // Check for pause input only if the game is not over
         if (!isTimeUp)
         {
@@ -371,6 +373,30 @@ public class GameManager : MonoBehaviour
         else
         {
             ResumeGame();
+        }
+    }
+
+    public void ToggleCheckpoints()
+    {
+        if (GlobalVariables.enableCheckpoints)
+        {
+            // Activa todos los objetos con el script de Checkpoint en la escena actual.
+            Checkpoint[] checkpoints = FindObjectsOfType<Checkpoint>();
+            foreach (Checkpoint checkpoint in checkpoints)
+            {
+                checkpoint.ActivateCheckpoint();
+                // Debug.Log("All checkpoints have been enabled");
+            }
+        }
+        else
+        {
+            // Desactiva todos los objetos con el script de Checkpoint en la escena actual.
+            Checkpoint[] checkpoints = FindObjectsOfType<Checkpoint>();
+            foreach (Checkpoint checkpoint in checkpoints)
+            {
+                checkpoint.DeactivateCheckpoint();
+                // Debug.Log("All checkpoints have been disabled");
+            }
         }
     }
 

@@ -27,6 +27,17 @@ public class Checkpoint : MonoBehaviour
         audioSource = GetComponent<AudioSource>();
     }
 
+    public void ActivateCheckpoint()
+    {
+        gameObject.SetActive(true);
+        checkpointSet = false;
+    }
+
+    public void DeactivateCheckpoint()
+    {
+        gameObject.SetActive(false);
+    }
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.CompareTag("Player") && !checkpointSet)
@@ -36,16 +47,15 @@ public class Checkpoint : MonoBehaviour
             // Change the sprite to an "active" sprite
             int activeSpriteIndex = 0;
             spriteRenderer.sprite = active[activeSpriteIndex];
-            audioSource.PlayOneShot(CheckpointSound); // Play an audio 
-            GameManager.Instance.AddScorePoints(2000); // Give 2000 points
+            audioSource.PlayOneShot(CheckpointSound);
+            GameManager.Instance.AddScorePoints(2000);
 
-            if (checkpointParticles != null) // If there're particles attached
+            if (checkpointParticles != null)
             {
-                checkpointParticles.Play(); // Play the particles
+                checkpointParticles.Play();
             }
 
-            checkpointSet = true; // The checkpoint has been set
+            checkpointSet = true;
         }
     }
 }
-

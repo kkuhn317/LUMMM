@@ -134,7 +134,7 @@ public class GameSettings : MonoBehaviour
         InfiniteLivesMode.sprite = isInfiniteLivesMode ? enableInfiniteLivesMode : disabledInfiniteLivesMode;
         PlayerPrefs.SetInt(SettingsKeys.InfiniteLivesKey, isInfiniteLivesMode ? 1 : 0);
 
-        GlobalVariables.infiniteLivesMode = isInfiniteLivesMode; // Set the static bool in GlobalVariables
+        GlobalVariables.infiniteLivesMode = isInfiniteLivesMode;
     }
 
     private void ConfigureCheckpoints()
