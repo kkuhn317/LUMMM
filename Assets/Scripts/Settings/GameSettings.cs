@@ -124,14 +124,8 @@ public class GameSettings : MonoBehaviour
     {
         bool isInfiniteLivesMode = PlayerPrefs.GetInt(SettingsKeys.InfiniteLivesKey, 0) == 1;
         InfiniteLivesToggle.isOn = isInfiniteLivesMode;
+        InfiniteLivesMode.sprite = isInfiniteLivesMode ? enableInfiniteLivesMode : disabledInfiniteLivesMode;
         InfiniteLivesToggle.onValueChanged.AddListener(OnInfiniteLivesToggleValueChanged);
-    }
-
-    private void ConfigureCheckpoints()
-    {
-        bool isCheckpointAllowed = PlayerPrefs.GetInt(SettingsKeys.CheckpointsKey, 0) == 1;
-        CheckpointsToggle.isOn = isCheckpointAllowed;
-        CheckpointsToggle.onValueChanged.AddListener(OnCheckpointsToggleValueChanged);
     }
 
     private void OnInfiniteLivesToggleValueChanged(bool isInfiniteLivesMode)
@@ -139,6 +133,16 @@ public class GameSettings : MonoBehaviour
         InfiniteLivesToggle.isOn = isInfiniteLivesMode;
         InfiniteLivesMode.sprite = isInfiniteLivesMode ? enableInfiniteLivesMode : disabledInfiniteLivesMode;
         PlayerPrefs.SetInt(SettingsKeys.InfiniteLivesKey, isInfiniteLivesMode ? 1 : 0);
+
+        GlobalVariables.infiniteLivesMode = isInfiniteLivesMode; // Set the static bool in GlobalVariables
+    }
+
+    private void ConfigureCheckpoints()
+    {
+        bool isCheckpointAllowed = PlayerPrefs.GetInt(SettingsKeys.CheckpointsKey, 0) == 1;
+        CheckpointsToggle.isOn = isCheckpointAllowed;
+        CheckpointsAllowed.sprite = isCheckpointAllowed ? enableCheckpoints : disabledCheckpoints;
+        CheckpointsToggle.onValueChanged.AddListener(OnCheckpointsToggleValueChanged);
     }
 
     private void OnCheckpointsToggleValueChanged(bool isCheckpointAllowed)
@@ -146,5 +150,7 @@ public class GameSettings : MonoBehaviour
         CheckpointsToggle.isOn = isCheckpointAllowed;
         CheckpointsAllowed.sprite = isCheckpointAllowed ? enableCheckpoints : disabledCheckpoints;
         PlayerPrefs.SetInt(SettingsKeys.CheckpointsKey, isCheckpointAllowed ? 1 : 0);
+
+        GlobalVariables.enableCheckpoints = isCheckpointAllowed;
     }
 }

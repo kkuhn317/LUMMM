@@ -36,15 +36,15 @@ public class Checkpoint : MonoBehaviour
             // Change the sprite to an "active" sprite
             int activeSpriteIndex = 0;
             spriteRenderer.sprite = active[activeSpriteIndex];
-            audioSource.PlayOneShot(CheckpointSound);
-            GameManager.Instance.AddScorePoints(2000);
+            audioSource.PlayOneShot(CheckpointSound); // Play an audio 
+            GameManager.Instance.AddScorePoints(2000); // Give 2000 points
 
-            if (checkpointParticles != null)
+            if (checkpointParticles != null) // If there're particles attached
             {
-                checkpointParticles.Play();
+                checkpointParticles.Play(); // Play the particles
             }
 
-            checkpointSet = true;
+            checkpointSet = true; // The checkpoint has been set
         }
     }
 }

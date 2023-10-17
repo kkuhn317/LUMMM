@@ -11,4 +11,7 @@ public static class GlobalVariables
 
     public static int levelscene = 0;
 
+    public static bool infiniteLivesMode = false;
+
+    public static bool enableCheckpoints = false;
 }

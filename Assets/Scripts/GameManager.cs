@@ -28,6 +28,10 @@ public class GameManager : MonoBehaviour
     public AudioClip bigCoin;
     [SerializeField] TMP_Text coinText;
 
+    [Header("High Score")]
+    public int highScore;
+    [SerializeField] TMP_Text highScoreText;
+
     [Header("Score System")]
     public int scoreCount;
     public AudioClip extraLife;
@@ -76,7 +80,12 @@ public class GameManager : MonoBehaviour
             currentlyPlayingMusic = music;
         currentTime = startingTime;
         GlobalVariables.levelscene = SceneManager.GetActiveScene().buildIndex;
-        UpdateLivesUI();
+
+        // Load the high score from PlayerPrefs, defaulting to 0 if it doesn't exist.
+        highScore = PlayerPrefs.GetInt("HighScore", 0);
+
+        UpdateHighScoreUI();
+        UpdateLivesUI();  
     }
 
     // Update is called once per frame
@@ -120,7 +129,13 @@ public class GameManager : MonoBehaviour
                 }
             }
         }
-    }  
+    }
+
+    public void ReloadScene()
+    {
+        int currentSceneIndex = SceneManager.GetActiveScene().buildIndex;
+        SceneManager.LoadScene(currentSceneIndex);
+    }
 
     public void AddLives()
     {
@@ -134,6 +149,16 @@ public class GameManager : MonoBehaviour
 
         // Save the current number of lives to PlayerPrefs
         PlayerPrefs.SetInt("GlobalVariables.lives", GlobalVariables.lives);
+    }
+
+    private void UpdateHighScore()
+    {
+        if (scoreCount > highScore)
+        {
+            highScore = scoreCount;
+            PlayerPrefs.SetInt("HighScore", highScore);
+            PlayerPrefs.Save();
+        }
     }
 
     IEnumerator AnimateTextColor(TMP_Text text, Color targetColor, float duration)
@@ -167,24 +192,42 @@ public class GameManager : MonoBehaviour
 
     public void DecrementLives()
     {
-        GlobalVariables.lives--;
-        if (GlobalVariables.lives <= 0)
+        // Check if the player is not in infinite lives mode
+        if (!GlobalVariables.infiniteLivesMode)
         {
-            // Load the Game Over scene
-            SceneManager.LoadScene(gameOverSceneName);
-            GlobalVariables.lives = 3;
+            GlobalVariables.lives--;
+
+            // Check if the player has run out of lives
+            if (GlobalVariables.lives <= 0)
+            {
+                // Reload the current scene when the player runs out of lives
+                ReloadScene();
+                GlobalVariables.lives = 3;
+            }
+            else
+            {
+                // Load the LoseLife scene and restart the current level
+                PlayerPrefs.SetInt("GlobalVariables.lives", GlobalVariables.lives);
+                SceneManager.LoadScene(loseLifeSceneName);
+            }
         }
         else
         {
-            // Load the LoseLife scene and restart the current level
-            PlayerPrefs.SetInt("GlobalVariables.lives", GlobalVariables.lives);
-            SceneManager.LoadScene(loseLifeSceneName);
+            // Reload the current scene when the player dies in infinite lives mode
+            ReloadScene();
         }
     }
 
     private void UpdateLivesUI()
     {
-        livesText.text = GlobalVariables.lives.ToString("D2"); // 00
+        if (GlobalVariables.infiniteLivesMode)
+        {
+            livesText.text = "infinite!";
+        }
+        else
+        {
+            livesText.text = GlobalVariables.lives.ToString("D2"); // 00
+        } 
     }
 
     private void UpdateCoinsUI()
@@ -199,6 +242,12 @@ public class GameManager : MonoBehaviour
     private void UpdateScoreUI()
     {
         scoreText.text = scoreCount.ToString("D9"); // 000000000
+        
+    }
+
+    private void UpdateHighScoreUI()
+    {
+        highScoreText.text = highScore.ToString("D9"); // 000000000 | Display the high score
     }
 
     public void AddCoin(int coinValue)
@@ -413,6 +462,9 @@ public class GameManager : MonoBehaviour
     // after level ends, call this (ex: flag cutscene ends)
     public void FinishLevel()
     {
+        // Save the high score when the level ends
+        UpdateHighScore();
+
         // Destroy all music objects
         foreach (GameObject musicObj in GameObject.FindGameObjectsWithTag("GameMusic"))
         {

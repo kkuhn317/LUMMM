@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class PowerUp : ObjectPhysics
 {
-
     public GameObject newMarioState;
     public int powerLevel = 1;
     public float starTime = -1;
@@ -48,11 +47,13 @@ public class PowerUp : ObjectPhysics
                 return;
             }
             if (starTime > 0) {
+                GameManager.Instance.AddScorePoints(1000);
                 other.GetComponent<MarioMovement>().startStarPower(starTime);
                 GameObject starSong = Instantiate(starMusicOverride);
                 starSong.GetComponent<MusicOverride>().stopPlayingAfterTime(starTime);
             }
             if (newMarioState) {
+                GameManager.Instance.AddScorePoints(1000);
                 MarioMovement player = other.GetComponent<MarioMovement>();
                 MarioMovement.PowerupState playerState = player.powerupState;
                 if (canGetPowerup(playerState)) 
