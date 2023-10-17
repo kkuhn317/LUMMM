@@ -7,7 +7,7 @@ public class Door : MonoBehaviour
     public GameObject destination;
     public bool locked = false;
 
-    public AudioClip unlockSound, openSound, closeSound;
+    public AudioClip unlockSound, openSound, closeSound, blockedSound;
 
     private GameObject player;
 
@@ -75,7 +75,9 @@ public class Door : MonoBehaviour
                     if (GameManager.Instance.keys.Count > 0) {
                         inUse = true;
                         Unlock();
-                    }
+                    } /*else {
+                        GetComponent<AudioSource>().PlayOneShot(blockedSound);
+                    }*/
                 } else {
                     inUse = true;
                     Open();

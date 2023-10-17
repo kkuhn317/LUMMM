@@ -259,10 +259,8 @@ public class QuestionBlock : MonoBehaviour
 
     IEnumerator MoveCoin(GameObject coin)
     {
-
         while (true)
         {
-
             coin.transform.position = new Vector2(coin.transform.position.x, coin.transform.position.y + coinMoveSpeed * Time.deltaTime);
 
             if (coin.transform.position.y >= originalPosition.y + coinMoveHeight + 1)

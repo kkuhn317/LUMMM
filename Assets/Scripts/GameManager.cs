@@ -120,7 +120,7 @@ public class GameManager : MonoBehaviour
                 }
             }
         }
-    }
+    }  
 
     public void AddLives()
     {
@@ -420,7 +420,7 @@ public class GameManager : MonoBehaviour
         }
         // This will probably cause a special ending screen to show up, 
         // but for now just go to the main menu
-        SceneManager.LoadScene("MainMenu");
+        SceneManager.LoadScene("SelectLevel");
     }
 
 }
