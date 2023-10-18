@@ -97,7 +97,7 @@ public class GameManager : MonoBehaviour
         if (!isTimeUp)
         {
             // Toggle pause when the Esc key is pressed
-            if (Input.GetKeyDown(KeyCode.Escape))
+            if (Input.GetKeyDown("Pause"))
             {
                 TogglePauseGame();
             }
@@ -202,8 +202,8 @@ public class GameManager : MonoBehaviour
             // Check if the player has run out of lives
             if (GlobalVariables.lives <= 0)
             {
-                // Reload the current scene when the player runs out of lives
-                ReloadScene();
+                // Load the Game Over scene
+                SceneManager.LoadScene(gameOverSceneName);
                 GlobalVariables.lives = 3;
             }
             else
@@ -224,7 +224,7 @@ public class GameManager : MonoBehaviour
     {
         if (GlobalVariables.infiniteLivesMode)
         {
-            livesText.text = "infinite!";
+            livesText.text = "INF!";
         }
         else
         {
@@ -378,9 +378,8 @@ public class GameManager : MonoBehaviour
 
     public void ToggleCheckpoints()
     {
-        if (GlobalVariables.enableCheckpoints)
+        if (!GlobalVariables.enableCheckpoints)
         {
-            // Activa todos los objetos con el script de Checkpoint en la escena actual.
             Checkpoint[] checkpoints = FindObjectsOfType<Checkpoint>();
             foreach (Checkpoint checkpoint in checkpoints)
             {
@@ -390,7 +389,6 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            // Desactiva todos los objetos con el script de Checkpoint en la escena actual.
             Checkpoint[] checkpoints = FindObjectsOfType<Checkpoint>();
             foreach (Checkpoint checkpoint in checkpoints)
             {

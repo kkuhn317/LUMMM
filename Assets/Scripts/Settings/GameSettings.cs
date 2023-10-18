@@ -11,8 +11,7 @@ public class GameSettings : MonoBehaviour
     public TMP_Dropdown resolutionDropdown;
     public TMP_Text resolutionText;
     public TMP_Dropdown graphicsQualityDropdown;
-    public TMP_Text graphicsQualityText;
-    
+    public TMP_Text graphicsQualityText;   
 
     [Header("Fullscreen")]
     public Image fullscreenImage;

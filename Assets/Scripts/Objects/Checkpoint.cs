@@ -19,30 +19,23 @@ public class Checkpoint : MonoBehaviour
 
     private SpriteRenderer spriteRenderer;
     private AudioSource audioSource;
-    private bool checkpointSet = false;
+    private BoxCollider2D boxCollider;
+    [SerializeField] private bool checkpointSet = false;
+    private Vector3 respawnPosition; // Store the respawn position
 
     private void Awake()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
         audioSource = GetComponent<AudioSource>();
-    }
-
-    public void ActivateCheckpoint()
-    {
-        gameObject.SetActive(true);
-        checkpointSet = false;
-    }
-
-    public void DeactivateCheckpoint()
-    {
-        gameObject.SetActive(false);
-    }
+        boxCollider = GetComponent<BoxCollider2D>();
+    }   
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.CompareTag("Player") && !checkpointSet)
         {
             Debug.Log("Checkpoint!", gameObject);
+            boxCollider.enabled = false;
 
             // Change the sprite to an "active" sprite
             int activeSpriteIndex = 0;
@@ -56,6 +49,18 @@ public class Checkpoint : MonoBehaviour
             }
 
             checkpointSet = true;
+            respawnPosition = CheckPointPosition.position;
         }
+    }
+
+    public void ActivateCheckpoint()
+    {
+        gameObject.SetActive(true);
+        checkpointSet = false;
+    }
+
+    public void DeactivateCheckpoint()
+    {
+        gameObject.SetActive(false);
     }
 }

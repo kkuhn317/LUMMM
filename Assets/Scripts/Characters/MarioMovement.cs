@@ -22,6 +22,9 @@ public class MarioMovement : MonoBehaviour
     private float jumpTimer;
     private bool jumpPressed = false;
 
+    [Header("Respawn")]
+    private Transform respawnPoint;
+
     [Header("Components")]
     public Rigidbody2D rb;
     private Animator animator;
@@ -152,10 +155,13 @@ public class MarioMovement : MonoBehaviour
         relPosObj = transform.GetChild(0).gameObject;
         animator = GetComponent<Animator>();
         animator.SetInteger("grabMethod", (int)carryMethod);
+
         if (powerupState == PowerupState.power) {
             marioAbility = GetComponent<MarioAbility>();
         }
         normalSpriteLibrary = GetComponent<SpriteLibrary>().spriteLibraryAsset;
+
+        transform.position = respawnPoint.position;
 
         StartCoroutine(SpawnBubbles());
     }
