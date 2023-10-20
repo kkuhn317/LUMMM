@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class Checkpoint : MonoBehaviour
 {
+    [SerializeField] private bool checkpointSet = false;
+
     [Header("Position")]
     public Transform CheckPointPosition;
 
@@ -19,15 +21,13 @@ public class Checkpoint : MonoBehaviour
 
     private SpriteRenderer spriteRenderer;
     private AudioSource audioSource;
-    private BoxCollider2D boxCollider;
-    [SerializeField] private bool checkpointSet = false;
-    private Vector3 respawnPosition; // Store the respawn position
+    private BoxCollider2D checkpointCollider;
 
     private void Awake()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
         audioSource = GetComponent<AudioSource>();
-        boxCollider = GetComponent<BoxCollider2D>();
+        checkpointCollider = GetComponent<BoxCollider2D>();
     }   
 
     private void OnTriggerEnter2D(Collider2D collision)
@@ -35,7 +35,7 @@ public class Checkpoint : MonoBehaviour
         if (collision.CompareTag("Player") && !checkpointSet)
         {
             Debug.Log("Checkpoint!", gameObject);
-            boxCollider.enabled = false;
+            checkpointCollider.enabled = false;
 
             // Change the sprite to an "active" sprite
             int activeSpriteIndex = 0;
@@ -49,8 +49,14 @@ public class Checkpoint : MonoBehaviour
             }
 
             checkpointSet = true;
-            respawnPosition = CheckPointPosition.position;
+            CheckpointManager.Instance.SetCheckpoint(transform.position);
         }
+    }
+
+    void RespawnPlayer()
+    {
+        Vector3 respawnPosition = CheckpointManager.Instance.GetRespawnPosition();
+        transform.position = respawnPosition;
     }
 
     public void ActivateCheckpoint()

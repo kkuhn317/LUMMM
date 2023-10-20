@@ -55,8 +55,6 @@ public class GameManager : MonoBehaviour
     public List<GameObject> keys = new List<GameObject>();
 
     private AudioSource audioSource;
-
-
     // List to keep track of all PauseableObject scripts.
     private List<PauseableObject> pauseableObjects = new List<PauseableObject>();
 
@@ -97,7 +95,7 @@ public class GameManager : MonoBehaviour
         if (!isTimeUp)
         {
             // Toggle pause when the Esc key is pressed
-            if (Input.GetKeyDown("Pause"))
+            if (Input.GetButton("Pause"))
             {
                 TogglePauseGame();
             }
@@ -383,8 +381,8 @@ public class GameManager : MonoBehaviour
             Checkpoint[] checkpoints = FindObjectsOfType<Checkpoint>();
             foreach (Checkpoint checkpoint in checkpoints)
             {
-                checkpoint.ActivateCheckpoint();
-                // Debug.Log("All checkpoints have been enabled");
+                checkpoint.DeactivateCheckpoint();
+                Debug.Log("All checkpoints have been disabled");
             }
         }
         else
@@ -392,8 +390,8 @@ public class GameManager : MonoBehaviour
             Checkpoint[] checkpoints = FindObjectsOfType<Checkpoint>();
             foreach (Checkpoint checkpoint in checkpoints)
             {
-                checkpoint.DeactivateCheckpoint();
-                // Debug.Log("All checkpoints have been disabled");
+                checkpoint.ActivateCheckpoint();
+                Debug.Log("All checkpoints have been enabled");
             }
         }
     }
@@ -487,7 +485,8 @@ public class GameManager : MonoBehaviour
     public void FinishLevel()
     {
         // Save the high score when the level ends
-        UpdateHighScore();
+        UpdateHighScore(); 
+        ResumeGame();
 
         // Destroy all music objects
         foreach (GameObject musicObj in GameObject.FindGameObjectsWithTag("GameMusic"))
@@ -498,5 +497,4 @@ public class GameManager : MonoBehaviour
         // but for now just go to the main menu
         SceneManager.LoadScene("SelectLevel");
     }
-
 }

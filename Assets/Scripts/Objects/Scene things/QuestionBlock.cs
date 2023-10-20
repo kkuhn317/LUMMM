@@ -37,12 +37,14 @@ public class QuestionBlock : MonoBehaviour
 
     private int originalLayer = 3; // Layer 3 = ground layer
     private bool shouldContinueRiseUp = true; // Add a flag to control coroutine continuation
+    private BoxCollider2D boxCollider;
 
 
     // Start is called before the first frame update
     void Start()
     {
         audioSource = GetComponent<AudioSource>();
+        boxCollider = GetComponent<BoxCollider2D>();
         originalPosition = transform.position;
 
         if (isInvisible) {
@@ -83,6 +85,7 @@ public class QuestionBlock : MonoBehaviour
             if (!brickBlock)
             {
                 QuestionBlockBounce();
+                DefeatEnemy(other.collider);
             }
             else
             {
@@ -90,14 +93,39 @@ public class QuestionBlock : MonoBehaviour
                 if (playerScript.powerupState == MarioMovement.PowerupState.small)
                 {
                     QuestionBlockBounce();
+                    DefeatEnemy(other.collider);
                 }
                 else
                 {
                     BrickBlockBreak();
+                    DefeatEnemy(other.collider);
+                }
+            }
+
+            
+        }
+    }
+
+    private void DefeatEnemy(Collider2D blockCollider)
+    {
+        // When there's an enemy on the block the player hits
+        Collider2D[] hitEnemies = Physics2D.OverlapBoxAll(boxCollider.bounds.center, boxCollider.bounds.size, 0f, LayerMask.GetMask("Enemy"));
+
+        if (hitEnemies.Length > 0)
+        {
+            foreach (Collider2D enemyCollider in hitEnemies)
+            {
+                EnemyAI enemy = enemyCollider.GetComponent<EnemyAI>();
+                if (enemy != null)
+                {
+                    // Use the KnockAway method to change the enemy's state
+                    enemy.KnockAway(blockCollider.transform.position.x > enemy.transform.position.x);
+                    GameManager.Instance.AddScorePoints(100);
                 }
             }
         }
     }
+
 
     // this is called when a koopa shell hits the block for example
     public void Activate()
@@ -322,5 +350,4 @@ public class QuestionBlock : MonoBehaviour
     {
         StopRiseUp(); // Stop the RiseUp coroutine when the player grabs the item
     }
-
 }

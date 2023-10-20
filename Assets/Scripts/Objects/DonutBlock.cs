@@ -4,9 +4,9 @@ using UnityEngine;
 
 public class DonutBlock : MonoBehaviour
 {
-    public float dropTime = 1f;
+    public float dropTime = 3f;
     public float regenerateTime = 3f;
-    public float fallSpeed = 3f; // Control the falling speed
+    public float fallSpeed = 0.5f; // Control the falling speed
     public Sprite normalSprite;
     public Sprite droppedSprite;
 
@@ -28,6 +28,24 @@ public class DonutBlock : MonoBehaviour
         animator = GetComponent<Animator>();
         animator.enabled = false;
         rb.isKinematic = true;
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag("Player"))
+        {
+            // Make the player a child of the DonutBlock
+            collision.transform.parent = transform;
+        }
+    }
+
+    private void OnCollisionExit2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag("Player"))
+        {
+            // Remove the player as a child of the DonutBlock
+            collision.transform.parent = null;
+        }
     }
 
     private void Update()

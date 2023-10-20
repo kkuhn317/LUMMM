@@ -6,6 +6,9 @@ using UnityEngine.U2D.Animation;
 
 public class MarioMovement : MonoBehaviour
 {
+    [Header("Position")]
+    private Vector3 originalPosition;
+
     [Header("Horizontal Movement")]
     public float moveSpeed = 10f;
     public float runSpeed = 20f;
@@ -21,9 +24,6 @@ public class MarioMovement : MonoBehaviour
     public float startfallingspeed = 1f;
     private float jumpTimer;
     private bool jumpPressed = false;
-
-    [Header("Respawn")]
-    private Transform respawnPoint;
 
     [Header("Components")]
     public Rigidbody2D rb;
@@ -161,7 +161,9 @@ public class MarioMovement : MonoBehaviour
         }
         normalSpriteLibrary = GetComponent<SpriteLibrary>().spriteLibraryAsset;
 
-        transform.position = respawnPoint.position;
+        // Store player's spawn and original position
+        originalPosition = transform.position;
+        CheckpointManager.Instance.SetOriginalPosition(originalPosition);
 
         StartCoroutine(SpawnBubbles());
     }
@@ -169,7 +171,6 @@ public class MarioMovement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
         direction = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
 
         SpriteRenderer sprite = GetComponent<SpriteRenderer>();
@@ -370,9 +371,8 @@ public class MarioMovement : MonoBehaviour
 
         // Physics
         modifyPhysics();
-
-
     }
+
     void moveCharacter(float horizontal) {
         bool crouch = (direction.y < -0.5) && canCrouch;
 
@@ -744,7 +744,6 @@ public class MarioMovement : MonoBehaviour
         }
     }
 
-
     void OnTriggerStay2D(Collider2D other)
     {
         // firebar, flame, etc
@@ -772,7 +771,7 @@ public class MarioMovement : MonoBehaviour
             animator.SetTrigger("enterWater");
         }
     }
-    
+
     private void OnTriggerExit2D(Collider2D other)
     {
         if (other.gameObject.layer == LayerMask.NameToLayer("Water"))

@@ -22,8 +22,7 @@ public class Door : MonoBehaviour
     public float newCameraHeight;
 
     public GameObject blackFade;
-
-
+    private bool hasPlayedBlockedSound = false;
 
     // Start is called before the first frame update
     void Start()
@@ -64,24 +63,36 @@ public class Door : MonoBehaviour
         float ydist = Mathf.Abs(playerPos.y - transform.position.y);
 
         // if player is at the door
-        if (xdist < 0.4 && ydist < 0.1 && playerScript.onGround) {
+        if (xdist < 0.4 && ydist < 0.1 && playerScript.onGround)
+        {
             // if pressing up
             if (Input.GetAxisRaw("Vertical") > 0)
             {
-                //print("attempting to open door");
                 // if the door is locked
-                if (locked) {
+                if (locked)
+                {
                     // if player has the key
-                    if (GameManager.Instance.keys.Count > 0) {
+                    if (GameManager.Instance.keys.Count > 0)
+                    {
                         inUse = true;
                         Unlock();
-                    } /*else {
+                    }
+                    else if (!hasPlayedBlockedSound)
+                    {
                         GetComponent<AudioSource>().PlayOneShot(blockedSound);
-                    }*/
-                } else {
+                        animator.SetTrigger("Blocked");
+                        hasPlayedBlockedSound = true;
+                    }
+                }
+                else
+                {
                     inUse = true;
                     Open();
                 }
+            }
+            else
+            {
+                hasPlayedBlockedSound = false;
             }
         }
     }
