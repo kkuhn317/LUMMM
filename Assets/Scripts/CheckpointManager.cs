@@ -4,11 +4,9 @@ using UnityEngine;
 
 public class CheckpointManager : MonoBehaviour
 {
-    private Vector3 originalPosition;
-    private Vector3 checkpointPosition;
-
     // Singleton pattern to ensure there's only one CheckpointManager
     public static CheckpointManager Instance { get; private set; }
+    public Vector2 lastCheckpointPosition;
 
     private void Awake()
     {
@@ -21,20 +19,5 @@ public class CheckpointManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
-    }
-
-    public void SetCheckpoint(Vector3 position)
-    {
-        checkpointPosition = position;
-    }
-
-    public void SetOriginalPosition(Vector3 position)
-    {
-        originalPosition = position;
-    }
-
-    public Vector3 GetRespawnPosition()
-    {
-        return checkpointPosition != Vector3.zero ? checkpointPosition : originalPosition;
     }
 }

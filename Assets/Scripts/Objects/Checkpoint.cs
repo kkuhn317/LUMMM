@@ -7,7 +7,7 @@ public class Checkpoint : MonoBehaviour
     [SerializeField] private bool checkpointSet = false;
 
     [Header("Position")]
-    public Transform CheckPointPosition;
+    public Transform checkpointPosition;
 
     [Header("Checkpoint Audio")]
     public AudioClip CheckpointSound;
@@ -49,16 +49,10 @@ public class Checkpoint : MonoBehaviour
             }
 
             checkpointSet = true;
-            CheckpointManager.Instance.SetCheckpoint(transform.position);
+            CheckpointManager.Instance.lastCheckpointPosition = new Vector2(transform.position.x, transform.position.y);
+            Debug.Log("Checkpoint has been set at" + CheckpointManager.Instance.lastCheckpointPosition);
         }
     }
-
-    void RespawnPlayer()
-    {
-        Vector3 respawnPosition = CheckpointManager.Instance.GetRespawnPosition();
-        transform.position = respawnPosition;
-    }
-
     public void ActivateCheckpoint()
     {
         gameObject.SetActive(true);

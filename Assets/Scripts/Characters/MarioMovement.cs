@@ -161,9 +161,10 @@ public class MarioMovement : MonoBehaviour
         }
         normalSpriteLibrary = GetComponent<SpriteLibrary>().spriteLibraryAsset;
 
-        // Store player's spawn and original position
+        // Store player's position at the beginning of the level (respawn)
         originalPosition = transform.position;
-        CheckpointManager.Instance.SetOriginalPosition(originalPosition);
+        Debug.Log("Player's spawn: " + originalPosition);
+        // transform.position = CheckpointManager.Instance.lastCheckpointPosition;
 
         StartCoroutine(SpawnBubbles());
     }

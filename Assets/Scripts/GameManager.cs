@@ -95,7 +95,7 @@ public class GameManager : MonoBehaviour
         if (!isTimeUp)
         {
             // Toggle pause when the Esc key is pressed
-            if (Input.GetButton("Pause"))
+            if (Input.GetButtonDown("Pause"))
             {
                 TogglePauseGame();
             }
@@ -464,7 +464,7 @@ public class GameManager : MonoBehaviour
     public void PauseGame()
     {
         isPaused = true;
-        Time.timeScale = 0f;
+        Time.timeScale = 0f;  // Set time scale to 0 (pause)
 
         // Activate the pause menu
         if (pausemenu != null)
@@ -474,7 +474,7 @@ public class GameManager : MonoBehaviour
     public void ResumeGame()
     {
         isPaused = false;
-        Time.timeScale = 1f;
+        Time.timeScale = 1f; // Set time scale to normal (unpause)
 
         // Deactivate the pause menu
         if (pausemenu != null)
