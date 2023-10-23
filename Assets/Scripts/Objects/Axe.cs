@@ -71,6 +71,15 @@ public class Axe : MonoBehaviour
     public float playerDestroyDelay = 1f; // delay before destroying the player
     public float endingSceneDelay = 0.25f; // delay before playing the ending cutscene
 
+    [Header("Music")]
+    public MusicStopMode musicStopMode = MusicStopMode.DontStop;
+    public enum MusicStopMode
+    {
+        DontStop,
+        StopOnTouch,
+        StopAfterBridgeDestroyed
+    }
+
     private void Start()
     {
         // Get the AudioSource component attached to the same GameObject or add one if missing.
@@ -127,6 +136,12 @@ public class Axe : MonoBehaviour
             {
                 player = collision.gameObject;
                 player.GetComponent<MarioMovement>().Freeze();
+            }
+
+            // Stop music if needed
+            if (musicStopMode == MusicStopMode.StopOnTouch)
+            {
+                GameManager.Instance.StopAllMusic();
             }
 
             // Handle behavior based on the axe size.
@@ -187,6 +202,12 @@ public class Axe : MonoBehaviour
         if (player != null)
         {
             player.GetComponent<MarioMovement>().Unfreeze();
+        }
+
+        // Stop the music if needed.
+        if (musicStopMode == MusicStopMode.StopAfterBridgeDestroyed)
+        {
+            GameManager.Instance.StopAllMusic();
         }
 
         // If there's an ending cutscene, destroy the player and play the cutscene with a delay.

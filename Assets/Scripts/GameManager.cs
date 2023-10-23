@@ -122,7 +122,7 @@ public class GameManager : MonoBehaviour
                     currentTime = 0;
                     isTimeUp = true;
                     // Debug.Log("Stop music!");
-                    stopAllMusic();
+                    StopAllMusic();
                     // Debug.Log("The time has run out!");
                     DecrementLives();
                     ResumeMusic(music);
@@ -192,6 +192,9 @@ public class GameManager : MonoBehaviour
 
     public void DecrementLives()
     {
+        // turn off all music overrides
+        RemoveAllMusicOverrides();
+        
         // Check if the player is not in infinite lives mode
         if (!GlobalVariables.infiniteLivesMode)
         {
@@ -339,7 +342,18 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public void stopAllMusic()
+    public void RemoveAllMusicOverrides()
+    {
+        StopAllMusic();
+        currentlyPlayingMusic.GetComponent<AudioSource>().mute = false;
+    }
+
+    public void RestartMusic()
+    {
+        currentlyPlayingMusic.GetComponent<AudioSource>().Play();
+    }
+
+    public void StopAllMusic()
     {
         // turn off currentlyPlayingMusic (everything else should be muted)
         if (currentlyPlayingMusic != null)
