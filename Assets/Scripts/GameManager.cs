@@ -82,6 +82,8 @@ public class GameManager : MonoBehaviour
         // Load the high score from PlayerPrefs, defaulting to 0 if it doesn't exist.
         highScore = PlayerPrefs.GetInt("HighScore", 0);
 
+        ToggleCheckpoints();
+
         UpdateHighScoreUI();
         UpdateLivesUI();  
     }
@@ -89,8 +91,6 @@ public class GameManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        ToggleCheckpoints();
-
         // Check for pause input only if the game is not over
         if (!isTimeUp)
         {

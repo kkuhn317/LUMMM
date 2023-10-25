@@ -24,14 +24,23 @@ public class Burner : MonoBehaviour
 
     void TurnOn()
     {
-        anim.SetTrigger("On");
-        GetComponent<AudioSource>().Play();
+        if (anim != null)
+        {
+            anim.SetTrigger("On");
+        }       
+        if (GetComponent<AudioSource>() != null)
+        {
+            GetComponent<AudioSource>().Play();
+        }
         Invoke("TurnOff", ontime);
     }
 
     void TurnOff()
     {
-        anim.SetTrigger("Off");
+        if (anim != null)
+        {
+            anim.SetTrigger("Off");
+        }
         Invoke("TurnOn", offtime);
     }
 }

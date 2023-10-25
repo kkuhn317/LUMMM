@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class MusicChangeArea : MonoBehaviour
 {
-
     public bool restartOldMusicOnExit = false;
     public bool permanent = false;
     bool entered = false;
@@ -17,8 +16,7 @@ public class MusicChangeArea : MonoBehaviour
         {
             entered = true;
             GetComponent<AudioSource>().Play();
-            GameManager.Instance.OverrideMusic(gameObject);
-            
+            GameManager.Instance.OverrideMusic(gameObject);       
         }
     }
 
@@ -31,8 +29,7 @@ public class MusicChangeArea : MonoBehaviour
             GameManager.Instance.ResumeMusic(gameObject);
             if (restartOldMusicOnExit)
                 GameManager.Instance.RestartMusic();
-            GetComponent<AudioSource>().Stop();
-            
+            GetComponent<AudioSource>().Stop();      
         }
     }
 }

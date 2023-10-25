@@ -6757,6 +6757,7 @@ GameObject:
   - component: {fileID: 486352588}
   - component: {fileID: 486352587}
   - component: {fileID: 486352586}
+  - component: {fileID: 486352589}
   m_Layer: 0
   m_Name: EventSystem
   m_TagString: Untagged
@@ -6814,6 +6815,58 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 13
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!212 &486352589
+SpriteRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 486352585}
+  m_Enabled: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 0
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_Sprite: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_FlipX: 0
+  m_FlipY: 0
+  m_DrawMode: 0
+  m_Size: {x: 1, y: 1}
+  m_AdaptiveModeThreshold: 0.5
+  m_SpriteTileMode: 0
+  m_WasSpriteAssigned: 0
+  m_MaskInteraction: 0
+  m_SpriteSortPoint: 0
 --- !u!4 &486536488 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 648239456224336777, guid: 6b5d1237dc444ef4b89747dacc3314e6, type: 3}
@@ -24614,6 +24667,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1917324504}
   - component: {fileID: 1917324503}
+  - component: {fileID: 1917324505}
   - component: {fileID: 1917324502}
   m_Layer: 0
   m_Name: GoldenGoomba PositionTrigger (1)
@@ -24691,6 +24745,35 @@ Transform:
   m_Father: {fileID: 237002289}
   m_RootOrder: 9
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!60 &1917324505
+PolygonCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1917324501}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0, y: 0}
+    oldSize: {x: 0, y: 0}
+    newSize: {x: 0, y: 0}
+    adaptiveTilingThreshold: 0
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Points:
+    m_Paths:
+    - - {x: -2.5560951, y: 2.2406116}
+      - {x: -3.5522535, y: 2.2422178}
+      - {x: -3.5502872, y: 0.24305928}
+      - {x: -2.5568368, y: 0.2433784}
 --- !u!4 &1918415457 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 172912344910861533, guid: 5d82c8b7118f18f4fb1e3be77b2169a2, type: 3}
@@ -27057,6 +27140,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 237002289}
     m_Modifications:
+    - target: {fileID: 1504628361758397435, guid: 640f6a7a2885b504f89dd87eb2eba112, type: 3}
+      propertyPath: activationProbability
+      value: 0.5
+      objectReference: {fileID: 0}
     - target: {fileID: 3447058314901893929, guid: 640f6a7a2885b504f89dd87eb2eba112, type: 3}
       propertyPath: m_RootOrder
       value: 4
@@ -27113,9 +27200,17 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3447058314901893930, guid: 640f6a7a2885b504f89dd87eb2eba112, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 3447058314901893931, guid: 640f6a7a2885b504f89dd87eb2eba112, type: 3}
       propertyPath: m_Name
       value: TinyGoldenGoomba
+      objectReference: {fileID: 0}
+    - target: {fileID: 3447058314901893931, guid: 640f6a7a2885b504f89dd87eb2eba112, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 640f6a7a2885b504f89dd87eb2eba112, type: 3}

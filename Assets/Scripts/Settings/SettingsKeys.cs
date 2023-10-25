@@ -1,4 +1,3 @@
-
 class SettingsKeys
 {
     public const string FullscreenKey = "Fullscreen";
@@ -11,5 +10,3 @@ class SettingsKeys
     public const string BGMVolumeKey = "BGMVolume";
     public const string SFXVolumeKey = "SFXVolume";
 }
-
-

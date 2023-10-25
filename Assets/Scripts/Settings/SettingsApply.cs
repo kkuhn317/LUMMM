@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.Audio;
 
 public class SettingsApply : MonoBehaviour
-{
+{ 
     [SerializeField] AudioMixer musicMixer;
     [SerializeField] AudioMixer sfxMixer;
 
@@ -16,6 +16,8 @@ public class SettingsApply : MonoBehaviour
         InitSFXVolume();
         InitResolution();
         InitGraphicsQuality();
+        InitInfiniteLives();
+        InitCheckpoints();   
     }
 
     private void InitMasterVolume()
@@ -53,4 +55,16 @@ public class SettingsApply : MonoBehaviour
         int qualityLevel = PlayerPrefs.GetInt(SettingsKeys.GraphicsQualityKey, QualitySettings.GetQualityLevel());
         QualitySettings.SetQualityLevel(qualityLevel);
     }
+
+    private void InitInfiniteLives()
+    {
+        bool isInfiniteLivesEnabled = PlayerPrefs.GetInt(SettingsKeys.InfiniteLivesKey, 0) == 1;
+        GlobalVariables.infiniteLivesMode = isInfiniteLivesEnabled;
+    }
+
+    private void InitCheckpoints()
+    {
+        bool areCheckpointsEnabled = PlayerPrefs.GetInt(SettingsKeys.CheckpointsKey, 0) == 1;
+        GlobalVariables.enableCheckpoints = areCheckpointsEnabled;
+    }  
 }

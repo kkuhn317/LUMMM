@@ -7,7 +7,7 @@ public class GoldenGoomba : MonoBehaviour
     public float activationProbability = 0.5f; // Probability of activation (0 to 1)
     public Vector2[] activationPositions; // Array of positions where the GameObject can be activated
     private Vector2 startPosition; // The starting position (position 0)
-    private bool isActive = false;
+    [SerializeField] private bool isActive = false;
     private int currentPositionIndex = 0;
 
     public GameObject smokePrefab;
@@ -23,24 +23,21 @@ public class GoldenGoomba : MonoBehaviour
 
     IEnumerator ActivateRandomly()
     {
+        float randomValue = Random.Range(0f, 1f); // Store random value 
+        // It will generate only one random number per coroutine call
+
         while (true)
         {
-            // Check if the object has changed positions
-            if (transform.position != new Vector3(activationPositions[currentPositionIndex].x, activationPositions[currentPositionIndex].y, transform.position.z))
+            Debug.Log("Random value: " + randomValue);
+
+            if (!isActive && randomValue > activationProbability) 
             {
-                // The object has changed positions, reset isActive and currentPositionIndex
-                isActive = false;
-                currentPositionIndex = 0;
+                gameObject.SetActive(false);
+                isActive = true;
+            } else {
+                yield break;
             }
 
-            if (!isActive && Random.value < activationProbability)
-            {
-                // Trigger the activation by choosing a random position
-                int randomIndex = Random.Range(0, activationPositions.Length);
-                ChangePosition(randomIndex);
-            }
-
-            // Wait for the next activation cycle
             yield return null;
         }
     }
@@ -53,7 +50,7 @@ public class GoldenGoomba : MonoBehaviour
             // Set the position based on the provided index
             Vector2 newPosition = activationPositions[positionIndex];
 
-            // Instantiate the Smoke prefab at the new position
+            // Instantiate the Smoke prefab at the old position
             Instantiate(smokePrefab, new Vector3(transform.position.x, transform.position.y, transform.position.z), Quaternion.identity);
 
             // Set the new position for the GoldenGoomba
