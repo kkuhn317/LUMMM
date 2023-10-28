@@ -1,10 +1,8 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Coin : MonoBehaviour
 {
-    public enum Amount {one, ten, thirty, fifty}
+    public enum Amount {one, ten, thirty, fifty, green}
     public Amount type;
 
     void OnTriggerEnter2D(Collider2D other)
@@ -19,7 +17,18 @@ public class Coin : MonoBehaviour
             } else if (type == Amount.fifty) {
                 GameManager.Instance.AddCoin(50); //Add fifty coins to current coin counter value and five thousand points to the score counter
             }
-            Destroy(this.gameObject); //Delete coin when touch gameObject tag "Player"
+            
+            if (type != Amount.green) {
+                Destroy(gameObject); //Delete coin when touch gameObject tag "Player"
+            } else {
+                GameManager.Instance.CollectGreenCoin(gameObject);
+
+                Collider2D collider = GetComponent<Collider2D>();
+                collider.enabled = false;
+
+                SpriteRenderer spriteRenderer = GetComponent<SpriteRenderer>();
+                spriteRenderer.enabled = false;
+            }
         }
     }
 }

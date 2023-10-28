@@ -1,6 +1,8 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using TMPro;
 
@@ -28,7 +30,14 @@ public class GameManager : MonoBehaviour
     public AudioClip bigCoin;
     [SerializeField] TMP_Text coinText;
 
-    [Header("High Score")]
+    [Header("Green coins")]
+    public GameObject[] greenCoins; // Array of green coin GameObjects in the scene
+    public List<Image> greenCoinUIImages; // List of UI Image components representing green coins
+    public Sprite collectedSprite; // Sprite for the collected state
+
+    private List<GameObject> collectedGreenCoins = new List<GameObject>();
+
+    [Header("High Score System")]
     public int highScore;
     [SerializeField] TMP_Text highScoreText;
 
@@ -57,6 +66,14 @@ public class GameManager : MonoBehaviour
     private AudioSource audioSource;
     // List to keep track of all PauseableObject scripts.
     private List<PauseableObject> pauseableObjects = new List<PauseableObject>();
+    private float originalVolume;
+
+    [System.Serializable]
+    public class CollectedCoinsData
+    {
+        public List<string> collectedCoinNames = new List<string>();
+    }
+
 
     void Awake()
     {
@@ -69,6 +86,9 @@ public class GameManager : MonoBehaviour
             Destroy(gameObject);
         }
         audioSource = GetComponent<AudioSource>();
+
+        // Store the original audio volume
+        originalVolume = AudioListener.volume;
     }
 
     // Start is called before the first frame update
@@ -82,11 +102,44 @@ public class GameManager : MonoBehaviour
         // Load the high score from PlayerPrefs, defaulting to 0 if it doesn't exist.
         highScore = PlayerPrefs.GetInt("HighScore", 0);
 
-        ToggleCheckpoints();
+        // Load collected coins data from PlayerPrefs
+        LoadCollectedCoins();
 
+        ToggleCheckpoints();
         UpdateHighScoreUI();
-        UpdateLivesUI();  
+        UpdateLivesUI();
     }
+
+    void LoadCollectedCoins()
+    {
+        if (PlayerPrefs.HasKey("CollectedCoinsData"))
+        {
+            // Retrieve and deserialize the data from PlayerPrefs
+            string jsonData = PlayerPrefs.GetString("CollectedCoinsData");
+            CollectedCoinsData data = JsonUtility.FromJson<CollectedCoinsData>(jsonData);
+
+            // Update UI and collectedGreenCoins list
+            foreach (string coinName in data.collectedCoinNames)
+            {
+                GameObject coinObject = Array.Find(greenCoins, coin => coin.name == coinName);
+                if (coinObject != null)
+                {
+                    collectedGreenCoins.Add(coinObject);
+
+                    // Change the alpha of the sprite renderer to indicate it's collected
+                    SpriteRenderer coinRenderer = coinObject.GetComponent<SpriteRenderer>();
+                    Color coinColor = coinRenderer.color;
+                    coinColor.a = 0.5f;
+                    coinRenderer.color = coinColor;
+
+                    // Update UI for the collected coin
+                    Image uiImage = greenCoinUIImages[Array.IndexOf(greenCoins, coinObject)];
+                    uiImage.sprite = collectedSprite;
+                }
+            }
+        }
+    }
+
 
     // Update is called once per frame
     void Update()
@@ -194,7 +247,7 @@ public class GameManager : MonoBehaviour
     {
         // turn off all music overrides
         RemoveAllMusicOverrides();
-        
+
         // Check if the player is not in infinite lives mode
         if (!GlobalVariables.infiniteLivesMode)
         {
@@ -230,7 +283,7 @@ public class GameManager : MonoBehaviour
         else
         {
             livesText.text = GlobalVariables.lives.ToString("D2"); // 00
-        } 
+        }
     }
 
     private void UpdateCoinsUI()
@@ -245,7 +298,7 @@ public class GameManager : MonoBehaviour
     private void UpdateScoreUI()
     {
         scoreText.text = scoreCount.ToString("D9"); // 000000000
-        
+
     }
 
     private void UpdateHighScoreUI()
@@ -288,6 +341,51 @@ public class GameManager : MonoBehaviour
 
         UpdateCoinsUI();
         UpdateScoreUI();
+    }
+
+    public void CollectGreenCoin(GameObject greenCoin)
+    {
+        AddScorePoints(4000);
+        audioSource.PlayOneShot(coin);
+
+        // Check if the green coin is uncollected
+        if (!collectedGreenCoins.Contains(greenCoin))
+        {         
+            Debug.Log("Collecting green coin: " + greenCoin.name);
+
+            Image uiImage = greenCoinUIImages[Array.IndexOf(greenCoins, greenCoin)];
+            collectedGreenCoins.Add(greenCoin);
+            uiImage.sprite = collectedSprite;
+
+            // Change the alpha of the sprite renderer to indicate it's collected
+            SpriteRenderer coinRenderer = greenCoin.GetComponent<SpriteRenderer>();
+            Color coinColor = coinRenderer.color;
+            coinColor.a = 0.5f;
+            coinRenderer.color = coinColor;
+        }
+    }
+
+    void SaveCollectedCoins()
+    {
+        CollectedCoinsData data = new CollectedCoinsData();
+        foreach (GameObject coin in collectedGreenCoins)
+        {
+            data.collectedCoinNames.Add(coin.name);
+        }
+
+        // Serialize and save the data to PlayerPrefs
+        string jsonData = JsonUtility.ToJson(data);
+        PlayerPrefs.SetString("CollectedCoinsData", jsonData);
+        PlayerPrefs.Save();
+    }
+
+
+    void CheckGameCompletion()
+    {
+        if (collectedGreenCoins.Count == greenCoins.Length)
+        {
+            Debug.Log("All green coins collected");
+        }
     }
 
     public void AddScorePoints(int pointsToAdd)
@@ -478,6 +576,9 @@ public class GameManager : MonoBehaviour
     public void PauseGame()
     {
         isPaused = true;
+
+        // Lower the audio volume when the game is paused
+        AudioListener.volume = originalVolume * 0.25f;
         Time.timeScale = 0f;  // Set time scale to 0 (pause)
 
         // Activate the pause menu
@@ -488,6 +589,9 @@ public class GameManager : MonoBehaviour
     public void ResumeGame()
     {
         isPaused = false;
+
+        // Raise the audio volume back to its original level
+        AudioListener.volume = originalVolume;
         Time.timeScale = 1f; // Set time scale to normal (unpause)
 
         // Deactivate the pause menu
@@ -499,7 +603,10 @@ public class GameManager : MonoBehaviour
     public void FinishLevel()
     {
         // Save the high score when the level ends
-        UpdateHighScore(); 
+        UpdateHighScore();
+        // Save the collected coin names in PlayerPrefs
+        SaveCollectedCoins();
+        CheckGameCompletion();
         ResumeGame();
 
         // Destroy all music objects
@@ -508,7 +615,7 @@ public class GameManager : MonoBehaviour
             Destroy(musicObj);
         }
         // This will probably cause a special ending screen to show up, 
-        // but for now just go to the main menu
+        // but for now just go to the select level menu
         SceneManager.LoadScene("SelectLevel");
     }
 }

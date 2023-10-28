@@ -4,8 +4,6 @@ using UnityEngine;
 
 public class Checkpoint : MonoBehaviour
 {
-    [SerializeField] private bool checkpointSet = false;
-
     [Header("Position")]
     public Transform checkpointPosition;
 
@@ -23,26 +21,42 @@ public class Checkpoint : MonoBehaviour
     private SpriteRenderer spriteRenderer;
     private AudioSource audioSource;
     private BoxCollider2D checkpointCollider;
+    private Vector2 lastCheckpointPosition;
 
     private void Awake()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
         audioSource = GetComponent<AudioSource>();
         checkpointCollider = GetComponent<BoxCollider2D>();
-    }   
+    }
+
+    private void Start()
+    {
+        // Load checkpoint data when the scene starts
+        if (lastCheckpointPosition != Vector2.zero)
+        {
+            transform.position = new Vector3(lastCheckpointPosition.x, lastCheckpointPosition.y, 0f);
+        }
+    }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.CompareTag("Player") && !checkpointSet)
+        if (collision.CompareTag("Player"))
         {
-            Debug.Log("Checkpoint!", gameObject);
+            // Save checkpoint data
+            lastCheckpointPosition = transform.position;
+
+            // Save checkpoint data to PlayerPrefs
+            PlayerPrefs.SetFloat("LastCheckpointX", transform.position.x);
+            PlayerPrefs.SetFloat("LastCheckpointY", transform.position.y);
+
+            Debug.Log("Checkpoint!");
             checkpointCollider.enabled = false;
 
             // Change the sprite to an "active" sprite
             int activeSpriteIndex = 0;
             spriteRenderer.sprite = active[activeSpriteIndex];
             audioSource.PlayOneShot(CheckpointSound);
-            GameManager.Instance.AddScorePoints(2000);
 
             if (checkpointParticles != null)
             {
@@ -53,23 +67,23 @@ public class Checkpoint : MonoBehaviour
             {
                 spawnParticles();
             }
-
-            checkpointSet = true;
-            CheckpointManager.Instance.lastCheckpointPosition = new Vector2(transform.position.x, transform.position.y);
-            Debug.Log("Checkpoint has been set at" + CheckpointManager.Instance.lastCheckpointPosition);
         }
     }
+
     public void ActivateCheckpoint()
     {
         gameObject.SetActive(true);
-        checkpointSet = false;
+        checkpointCollider.enabled = true;
+        spriteRenderer.sprite = passive;
     }
 
     public void DeactivateCheckpoint()
     {
         gameObject.SetActive(false);
+        checkpointCollider.enabled = false;
     }
 
+    #region particles
     void spawnParticles()
     {
         // spawn 8 of them around the key and make them move outwards in specific directions
@@ -102,4 +116,5 @@ public class Checkpoint : MonoBehaviour
             }
         }
     }
+    #endregion
 }

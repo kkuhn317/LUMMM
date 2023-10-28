@@ -6,7 +6,6 @@ public class CheckpointManager : MonoBehaviour
 {
     // Singleton pattern to ensure there's only one CheckpointManager
     public static CheckpointManager Instance { get; private set; }
-    public Vector2 lastCheckpointPosition;
 
     private void Awake()
     {
