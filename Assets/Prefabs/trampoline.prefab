@@ -14,6 +14,8 @@ GameObject:
   - component: {fileID: 572095785153829306}
   - component: {fileID: 572095785153829308}
   - component: {fileID: 339743697261911428}
+  - component: {fileID: 1960658292}
+  - component: {fileID: 1960658286}
   m_Layer: 10
   m_Name: trampoline
   m_TagString: Untagged
@@ -245,3 +247,73 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!50 &1960658292
+Rigidbody2D:
+  serializedVersion: 4
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 572095785153829303}
+  m_BodyType: 1
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDrag: 0
+  m_AngularDrag: 0
+  m_GravityScale: 1
+  m_Material: {fileID: 0}
+  m_Interpolate: 1
+  m_SleepingMode: 1
+  m_CollisionDetection: 1
+  m_Constraints: 0
+--- !u!114 &1960658286
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 572095785153829303}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5e8931df7dee4174a9adff541f544856, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  movingLeft: 1
+  velocity: {x: 0, y: 0}
+  gravity: 60
+  width: 1
+  height: 1
+  floorRaycastSpacing: 0.2
+  wallRaycastSpacing: 0.2
+  floorMask:
+    serializedVersion: 2
+    m_Bits: 8
+  wallMask:
+    serializedVersion: 2
+    m_Bits: 264
+  checkObjectCollision: 1
+  DontFallOffLedges: 0
+  flipObject: 0
+  FrequentMovement: 0
+  lavaKill: 1
+  sinkSpeed: -20
+  lavaMask:
+    serializedVersion: 2
+    m_Bits: 0
+  carryable: 1
+  carried: 0
+  throwVelocity: {x: 12, y: 10}
+  knockAwayVelocity: {x: 5, y: 5}
+  overrideKnockAwayGravity: 0
+  knockAwayGravity: 60
+  knockAwayType: 0
+  knockAwayRotationSpeed: 10
+  KnockAwayDissapearTime: -1
+  knockAwaySound: {fileID: 0}
+  objectState: 0
+  movement: 2
+  stopAfterLand: 1
+  bounceHeight: 3
+  minHeightToBounce: 1

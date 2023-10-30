@@ -4,24 +4,16 @@ using UnityEngine;
 
 public class Checkpoint : MonoBehaviour
 {
-    [Header("Position")]
-    public Transform checkpointPosition;
-
-    [Header("Checkpoint Audio")]
+    [Header("Checkpoint")]
     public AudioClip CheckpointSound;
-
-    [Header("Checkpoint Sprites")]
     public Sprite passive;
     public Sprite[] active;
-
-    [Header("Particles")]
     public ParticleSystem checkpointParticles;
     public GameObject particle;
 
     private SpriteRenderer spriteRenderer;
     private AudioSource audioSource;
     private BoxCollider2D checkpointCollider;
-    private Vector2 lastCheckpointPosition;
 
     private void Awake()
     {
@@ -30,26 +22,10 @@ public class Checkpoint : MonoBehaviour
         checkpointCollider = GetComponent<BoxCollider2D>();
     }
 
-    private void Start()
-    {
-        // Load checkpoint data when the scene starts
-        if (lastCheckpointPosition != Vector2.zero)
-        {
-            transform.position = new Vector3(lastCheckpointPosition.x, lastCheckpointPosition.y, 0f);
-        }
-    }
-
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.CompareTag("Player"))
         {
-            // Save checkpoint data
-            lastCheckpointPosition = transform.position;
-
-            // Save checkpoint data to PlayerPrefs
-            PlayerPrefs.SetFloat("LastCheckpointX", transform.position.x);
-            PlayerPrefs.SetFloat("LastCheckpointY", transform.position.y);
-
             Debug.Log("Checkpoint!");
             checkpointCollider.enabled = false;
 

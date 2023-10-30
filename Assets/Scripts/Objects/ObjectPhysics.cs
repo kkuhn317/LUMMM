@@ -5,7 +5,6 @@ using UnityEngine.Events;
 
 public class ObjectPhysics : MonoBehaviour
 {
-
     [Header("Object Physics")]
 
     public bool movingLeft = true;
@@ -46,7 +45,6 @@ public class ObjectPhysics : MonoBehaviour
     public bool checkObjectCollision = true;
     public bool DontFallOffLedges = false;
 
-
     // this is possible, but i'd say to just put these in the objects that actually need them
     //[SerializeField] UnityEvent onFloorTouch;
     //[SerializeField] UnityEvent onWallTouch;
@@ -68,6 +66,7 @@ public class ObjectPhysics : MonoBehaviour
     public bool carried = false;
     private int oldOrderInLayer;
     public Vector2 throwVelocity = new Vector2(12, 10);
+    private bool hasBeenThrown = false;
 
     [Header("Knock Away")]
 
@@ -129,9 +128,6 @@ public class ObjectPhysics : MonoBehaviour
         } else {
             oldOrderInLayer = 69;
         }
-
-        
-
         //oldOrderInLayer = GetComponent<SpriteRenderer>().sortingOrder;
     }
 
@@ -581,7 +577,6 @@ public class ObjectPhysics : MonoBehaviour
         }
     }
 
-
     private void OnBecameInvisible()
     {
         // once the knocked away object is off screen, destroy it
@@ -626,8 +621,6 @@ public class ObjectPhysics : MonoBehaviour
         Gizmos.DrawLine(originMiddle, originMiddle + new Vector2(0, -distance));
         Gizmos.DrawLine(originRight, originRight + new Vector2(0, -distance));
 
-
-
         // Wall Raycasts
         float direction = movingLeft ? -1 : 1;
 
@@ -640,7 +633,6 @@ public class ObjectPhysics : MonoBehaviour
         Gizmos.DrawLine(originTop, originTop + new Vector2(distance * direction, 0));
         Gizmos.DrawLine(originMiddleSide, originMiddleSide + new Vector2(distance * direction, 0));
         Gizmos.DrawLine(originBottom, originBottom + new Vector2(distance * direction, 0));
-
     }
 
     // call this after mario picks up the object
@@ -672,6 +664,25 @@ public class ObjectPhysics : MonoBehaviour
         GetComponent<Collider2D>().enabled = true;
         GetComponent<SpriteRenderer>().sortingOrder = oldOrderInLayer;
         objectState = ObjectState.falling;
+
+        // Set a flag to indicate that the enemy has been thrown
+        hasBeenThrown = true;
+    }
+    void OnTriggerEnter2D(Collider2D collision)
+    {
+        // Check if the enemy has been thrown before handling the collision
+        if (collision.gameObject.CompareTag("Enemy"))
+        {
+            if (hasBeenThrown && objectState == ObjectState.falling)
+            {
+                EnemyAI enemy = collision.gameObject.GetComponent<EnemyAI>();
+                if (enemy != null)
+                {
+                    enemy.KnockAway(transform.position.x > enemy.transform.position.x);
+                }
+                GameManager.Instance.AddScorePoints(100);
+            }
+        }    
     }
 
     public virtual void escapeMario()
@@ -684,7 +695,5 @@ public class ObjectPhysics : MonoBehaviour
         }
         
     }
-
-
 }
 

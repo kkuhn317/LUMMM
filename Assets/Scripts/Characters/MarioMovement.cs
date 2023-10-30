@@ -684,6 +684,12 @@ public class MarioMovement : MonoBehaviour
     private void toDead() {
         // print("death attempt");
         if (!dead) {
+            // Drop the carried object
+            if (carrying)
+            {
+                dropCarry();
+            }
+
             dead = true;
             GameObject newMario = Instantiate(deadMario, transform.position, transform.rotation);
             Destroy(gameObject);

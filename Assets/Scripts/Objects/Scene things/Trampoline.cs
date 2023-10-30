@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class Trampoline : MonoBehaviour
 {
-
     public bool enemyBounce = false;
     public float playerBouncePower = 10;
     public float enemyBouncePower = 25;
@@ -18,7 +17,6 @@ public class Trampoline : MonoBehaviour
         AudioSource audioSource = GetComponent<AudioSource>();
         if (audioSource != null) // If it contains an audio
             audioSource.Play();
-
     }
 
     private void OnCollisionEnter2D(Collision2D other) {
@@ -44,11 +42,9 @@ public class Trampoline : MonoBehaviour
     }
 
     private void OnTriggerEnter2D(Collider2D other) {
-        if (other.tag == "Enemy" && enemyBounce && other.transform.position.y > transform.position.y && other.transform.position.x > transform.position.x - 1 && other.transform.position.x < transform.position.x  + 1) {
+        if (other.tag == "Enemy" && enemyBounce && other.transform.position.y > transform.position.y && other.transform.position.x > transform.position.x - 1 && other.transform.position.x < transform.position.x + 1) {
             other.GetComponent<EnemyAI>().velocity = new Vector2(other.GetComponent<EnemyAI>().velocity.x, enemyBouncePower);
             Bounce();
         }
-
-
     }
 }

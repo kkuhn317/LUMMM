@@ -24,6 +24,7 @@ public class GameManager : MonoBehaviour
     [Header("Lives")]
     private int maxLives = 99;
     [SerializeField] TMP_Text livesText;
+    public Color targetColor = Color.green;
 
     [Header("Coin System")]
     public AudioClip coin;
@@ -73,7 +74,6 @@ public class GameManager : MonoBehaviour
     {
         public List<string> collectedCoinNames = new List<string>();
     }
-
 
     void Awake()
     {
@@ -140,7 +140,6 @@ public class GameManager : MonoBehaviour
         }
     }
 
-
     // Update is called once per frame
     void Update()
     {
@@ -198,20 +197,10 @@ public class GameManager : MonoBehaviour
         UpdateLivesUI();
 
         // Start the color change coroutine
-        StartCoroutine(AnimateTextColor(livesText, Color.green, 0.5f));
+        StartCoroutine(AnimateTextColor(livesText, targetColor, 0.5f));
 
         // Save the current number of lives to PlayerPrefs
         PlayerPrefs.SetInt("GlobalVariables.lives", GlobalVariables.lives);
-    }
-
-    private void UpdateHighScore()
-    {
-        if (scoreCount > highScore)
-        {
-            highScore = scoreCount;
-            PlayerPrefs.SetInt("HighScore", highScore);
-            PlayerPrefs.Save();
-        }
     }
 
     IEnumerator AnimateTextColor(TMP_Text text, Color targetColor, float duration)
@@ -273,6 +262,16 @@ public class GameManager : MonoBehaviour
             ReloadScene();
         }
     }
+    #region updateUI
+    private void UpdateHighScore()
+    {
+        if (scoreCount > highScore)
+        {
+            highScore = scoreCount;
+            PlayerPrefs.SetInt("HighScore", highScore);
+            PlayerPrefs.Save();
+        }
+    }
 
     private void UpdateLivesUI()
     {
@@ -305,6 +304,7 @@ public class GameManager : MonoBehaviour
     {
         highScoreText.text = highScore.ToString("D9"); // 000000000 | Display the high score
     }
+    #endregion
 
     public void AddCoin(int coinValue)
     {
@@ -378,7 +378,6 @@ public class GameManager : MonoBehaviour
         PlayerPrefs.SetString("CollectedCoinsData", jsonData);
         PlayerPrefs.Save();
     }
-
 
     void CheckGameCompletion()
     {
