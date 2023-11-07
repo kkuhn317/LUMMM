@@ -8,18 +8,35 @@ public class LevelLoader : MonoBehaviour
     public Animator transition;
     public float transitionChangeDelay = 1.2f;
 
-    public void LoadNextLevel()
+    public void LoadNextLevel() => LoadLevel(SceneManager.GetActiveScene().buildIndex + 1);
+
+    public void LoadSceneByName(string sceneName)
     {
-        StartCoroutine(LoadLevel(SceneManager.GetActiveScene().buildIndex + 1));
+        StartCoroutine(LoadSceneByNameCoroutine(sceneName));
     }
 
-    IEnumerator LoadLevel(int levelIndex)
+    void LoadLevel(int levelIndex)
     {
-        //Play Animation
+        StartCoroutine(LoadLevelCoroutine(levelIndex));
+    }
+
+    IEnumerator LoadLevelCoroutine(int levelIndex)
+    {
+        // Play Animation
         transition.SetTrigger("Start");
-        //Add a delay
+        // Add a delay
         yield return new WaitForSeconds(transitionChangeDelay);
-        //Load scene
+        // Load scene
         SceneManager.LoadScene(levelIndex);
+    }
+
+    IEnumerator LoadSceneByNameCoroutine(string scenename)
+    {
+        // Play Animation
+        transition.SetTrigger("Start");
+        // Add a delay
+        yield return new WaitForSeconds(transitionChangeDelay);
+        // Load scene
+        SceneManager.LoadScene(scenename);
     }
 }

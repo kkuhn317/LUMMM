@@ -15,7 +15,7 @@ public class GameManager : MonoBehaviour
     float currentTime;
     public float startingTime;
     private bool timesRunning = true;
-    private bool isPaused = false;
+    public static bool isPaused = false;
     private bool isTimeUp = false;
     private bool stopTimer = false;
     public AudioClip timeWarning;
@@ -384,6 +384,16 @@ public class GameManager : MonoBehaviour
         if (collectedGreenCoins.Count == greenCoins.Length)
         {
             Debug.Log("All green coins collected");
+        }
+
+        if (GlobalVariables.infiniteLivesMode && GlobalVariables.enableCheckpoints)
+        {
+            Debug.Log("You complete the level without advantages, Congrats! You did it! Yay :D!");
+        }
+
+        if (collectedGreenCoins.Count == greenCoins.Length && GlobalVariables.infiniteLivesMode && GlobalVariables.enableCheckpoints)
+        {
+            Debug.Log("Level completed perfect");
         }
     }
 
