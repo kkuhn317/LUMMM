@@ -54,6 +54,8 @@ public class GameManager : MonoBehaviour
 
     [Header("Pause Menu")]
     public GameObject pausemenu;
+    public GameObject mainPauseMenu;
+    public GameObject optionsPauseMenu;
 
     [Header("Game Over & Lose Life")]
     // Name of the Game Over scene
@@ -593,6 +595,8 @@ public class GameManager : MonoBehaviour
         // Activate the pause menu
         if (pausemenu != null)
             pausemenu.SetActive(true);
+            mainPauseMenu.SetActive(true);
+            optionsPauseMenu.SetActive(false);
     }
 
     public void ResumeGame()
@@ -606,6 +610,8 @@ public class GameManager : MonoBehaviour
         // Deactivate the pause menu
         if (pausemenu != null)
             pausemenu.SetActive(false);
+            mainPauseMenu.SetActive(true);
+            optionsPauseMenu.SetActive(false);
     }
 
     // after level ends, call this (ex: flag cutscene ends)
