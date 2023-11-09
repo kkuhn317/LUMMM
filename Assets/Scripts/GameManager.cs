@@ -103,10 +103,8 @@ public class GameManager : MonoBehaviour
 
         // Load the high score from PlayerPrefs, defaulting to 0 if it doesn't exist.
         highScore = PlayerPrefs.GetInt("HighScore", 0);
-
-        // Load collected coins data from PlayerPrefs
-        LoadCollectedCoins();
-
+        
+        LoadCollectedCoins(); // Load collected coins data from PlayerPrefs
         ToggleCheckpoints();
         UpdateHighScoreUI();
         UpdateLivesUI();
@@ -152,6 +150,13 @@ public class GameManager : MonoBehaviour
             if (Input.GetButtonDown("Pause"))
             {
                 TogglePauseGame();
+            }
+
+            // Check if enablePlushies is true, then activate "Plushie" objects.
+            if (GlobalVariables.enablePlushies) {
+                ActivatePlushieObjects();
+            } else {
+                DeactivatePlushieObjects();
             }
 
             if (!isPaused && !stopTimer)
@@ -531,6 +536,7 @@ public class GameManager : MonoBehaviour
         SceneManager.LoadScene("SelectLevel");
     }
 
+    #region pausableobjects
     // Function to add objects with PauseableMovement scripts to the list.
     public void RegisterPauseableObject(PauseableObject pauseableObject)
     {
@@ -583,6 +589,33 @@ public class GameManager : MonoBehaviour
             }
         }
     }
+    #endregion
+
+    #region ActivatePlushies
+    private void ActivatePlushieObjects()
+    {
+        GameObject[] plushieObjects = GameObject.FindGameObjectsWithTag("Plushie");
+        foreach (var plushieObject in plushieObjects)
+        {
+            plushieObject.SetActive(true);
+        }
+    }
+
+    private void DeactivatePlushieObjects()
+    {
+        GameObject[] plushieObjects = GameObject.FindGameObjectsWithTag("Plushie");
+        foreach (var plushieObject in plushieObjects)
+        {
+            plushieObject.SetActive(false);
+        }
+    }
+
+    private void OnApplicationQuit()
+    {
+        // Set enablePlushies to false when the game exits.
+        GlobalVariables.enablePlushies = false;
+    }
+    #endregion
 
     public void PauseGame()
     {

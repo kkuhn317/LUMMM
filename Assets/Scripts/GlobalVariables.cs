@@ -14,4 +14,6 @@ public static class GlobalVariables
     public static bool infiniteLivesMode = false;
 
     public static bool enableCheckpoints = false;
+
+    public static bool enablePlushies = false;
 }
