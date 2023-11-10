@@ -6760,6 +6760,7 @@ GameObject:
   - component: {fileID: 486352587}
   - component: {fileID: 486352589}
   - component: {fileID: 486352590}
+  - component: {fileID: 486352591}
   m_Layer: 0
   m_Name: EventSystem
   m_TagString: Untagged
@@ -6879,6 +6880,20 @@ MonoBehaviour:
   m_DeselectOnBackgroundClick: 1
   m_PointerBehavior: 0
   m_CursorLockBehavior: 0
+--- !u!114 &486352591
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 486352585}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8fbfb77b568f9af40af3d3ff9d5525dc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  musicMixer: {fileID: 24100000, guid: 44648a194bc63354d827c6c13f697d72, type: 2}
+  sfxMixer: {fileID: 24100000, guid: 52d4409ed4d7bb645aad562fcfd87159, type: 2}
 --- !u!4 &486536488 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 648239456224336777, guid: 6b5d1237dc444ef4b89747dacc3314e6, type: 3}
@@ -17184,6 +17199,10 @@ PrefabInstance:
       propertyPath: startingTime
       value: 230
       objectReference: {fileID: 0}
+    - target: {fileID: 1209335749245954322, guid: 6c3da054316607e43b17e4af15d611e6, type: 3}
+      propertyPath: considerAllEnemiesKilled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 1209335749245954323, guid: 6c3da054316607e43b17e4af15d611e6, type: 3}
       propertyPath: m_Name
       value: GameManager
@@ -17331,6 +17350,30 @@ PrefabInstance:
     - target: {fileID: 3831329655274250176, guid: 6c3da054316607e43b17e4af15d611e6, type: 3}
       propertyPath: m_LocalRotation.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5103801115137626365, guid: 6c3da054316607e43b17e4af15d611e6, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 5103801115137626365, guid: 6c3da054316607e43b17e4af15d611e6, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 5103801115137626365, guid: 6c3da054316607e43b17e4af15d611e6, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 5359171159723441400, guid: 6c3da054316607e43b17e4af15d611e6, type: 3}
+      propertyPath: m_Color.b
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5359171159723441400, guid: 6c3da054316607e43b17e4af15d611e6, type: 3}
+      propertyPath: m_Color.g
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5359171159723441400, guid: 6c3da054316607e43b17e4af15d611e6, type: 3}
+      propertyPath: m_Color.r
+      value: 0.8509804
       objectReference: {fileID: 0}
     - target: {fileID: 7414580712052208517, guid: 6c3da054316607e43b17e4af15d611e6, type: 3}
       propertyPath: m_LocalScale.x

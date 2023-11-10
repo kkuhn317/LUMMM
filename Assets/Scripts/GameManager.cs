@@ -57,6 +57,108 @@ public class GameManager : MonoBehaviour
     public GameObject mainPauseMenu;
     public GameObject optionsPauseMenu;
 
+    [Header("Rank")]
+    public RawImage currentRankImage;
+    public RawImage highestRankImage;
+    public Sprite questionsprite;
+    public Sprite[] rankTypes;
+
+    #region RankSystem
+    public enum PlayerRank
+    {
+        Default,
+        D,
+        C,
+        B,
+        A,
+        S
+    }
+
+    public int scoreForSRank = 10000;
+    public int scoreForARank = 9000;
+    public int scoreForBRank = 7000;
+    public int scoreForCRank = 5000;
+
+    public bool considerAllEnemiesKilled = true;
+    private PlayerRank highestRank;
+    private PlayerRank currentRank;
+
+    private bool AllEnemiesKilled()
+    {
+        // Check if there are any objects with the tag "Enemy"
+        GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
+
+        return enemies.Length == 0; // True if there are no enemies, false otherwise
+    }
+
+    private void UpdateRank()
+    {
+        PlayerRank currentRank;
+        bool allEnemiesKilledRequirementMet = !considerAllEnemiesKilled || AllEnemiesKilled();
+
+        if (scoreCount >= scoreForSRank && allEnemiesKilledRequirementMet)
+        {
+            currentRankImage.texture = rankTypes[4].texture; // S Rank
+            currentRank = PlayerRank.S;
+        }
+        else if (scoreCount >= scoreForARank && allEnemiesKilledRequirementMet)
+        {
+            currentRankImage.texture = rankTypes[3].texture; // A Rank
+            currentRank = PlayerRank.A;
+        }
+        else if (scoreCount >= scoreForBRank)
+        {
+            currentRankImage.texture = rankTypes[2].texture; // B Rank
+            currentRank = PlayerRank.B;
+        }
+        else if (scoreCount >= scoreForCRank)
+        {
+            currentRankImage.texture = rankTypes[1].texture; // C Rank
+            currentRank = PlayerRank.C;
+        }
+        else
+        {
+            if (highestRank == PlayerRank.Default)
+            {
+                currentRankImage.texture = questionsprite.texture; // Default
+            }
+            else
+            {
+                currentRankImage.texture = rankTypes[0].texture; // D Rank
+            }
+            currentRank = PlayerRank.D;
+        }
+
+        // Check if the current rank is higher than the stored highest rank
+        if (currentRank > highestRank)
+        {
+            highestRank = currentRank;
+
+            // Save the highest rank to PlayerPrefs
+            SaveHighestRank(highestRank);
+        }
+    }
+
+    private void SaveHighestRank(PlayerRank rank)
+    {
+        // Save the highest rank to PlayerPrefs
+        PlayerPrefs.SetInt("HighestPlayerRank", (int)rank);
+        PlayerPrefs.Save();
+    }
+
+    private PlayerRank LoadHighestRank()
+    {
+        // Load the highest rank from PlayerPrefs, defaulting to "Default" if it doesn't exist.
+        return (PlayerRank)PlayerPrefs.GetInt("HighestPlayerRank", (int)PlayerRank.Default);
+    }
+
+    private void ResetCurrentRank()
+    {
+        currentRank = PlayerRank.Default;
+        currentRankImage.texture = questionsprite.texture; // Set currentRankImage to the default texture
+    }
+    #endregion
+
     [Header("Game Over & Lose Life")]
     // Name of the Game Over scene
     public string gameOverSceneName;
@@ -103,7 +205,18 @@ public class GameManager : MonoBehaviour
 
         // Load the high score from PlayerPrefs, defaulting to 0 if it doesn't exist.
         highScore = PlayerPrefs.GetInt("HighScore", 0);
-        
+
+        // Load the highest rank from PlayerPrefs
+        highestRank = LoadHighestRank();
+
+        // Set the texture for highestRankImage based on the loaded highest rank
+        if (highestRank != PlayerRank.Default)
+        {
+            highestRankImage.texture = rankTypes[(int)highestRank - 1].texture;
+        }
+
+        ResetCurrentRank();
+
         LoadCollectedCoins(); // Load collected coins data from PlayerPrefs
         ToggleCheckpoints();
         UpdateHighScoreUI();
@@ -146,9 +259,10 @@ public class GameManager : MonoBehaviour
         // Check for pause input only if the game is not over
         if (!isTimeUp)
         {
+            UpdateRank();
+
             // Toggle pause when the Esc key is pressed
-            if (Input.GetButtonDown("Pause"))
-            {
+            if (Input.GetButtonDown("Pause")) {
                 TogglePauseGame();
             }
 
@@ -654,6 +768,12 @@ public class GameManager : MonoBehaviour
         UpdateHighScore();
         // Save the collected coin names in PlayerPrefs
         SaveCollectedCoins();
+
+        // Update the rank based on the final score
+        UpdateRank();
+        // Set the texture for highestRankImage based on the updated highest rank
+        highestRankImage.texture = rankTypes[(int)highestRank - 1].texture;
+
         CheckGameCompletion();
         ResumeGame();
 
