@@ -12,7 +12,7 @@ public class GameManager : MonoBehaviour
     public static GameManager Instance { get; private set; }
 
     [Header("Timer")]
-    float currentTime;
+    public float currentTime;
     public float startingTime;
     private bool timesRunning = true;
     public static bool isPaused = false;
@@ -297,7 +297,7 @@ public class GameManager : MonoBehaviour
                     // Debug.Log("Stop music!");
                     StopAllMusic();
                     // Debug.Log("The time has run out!");
-                    DecrementLives();
+                    // DecrementLives();
                     ResumeMusic(music);
                 }
             }

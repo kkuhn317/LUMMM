@@ -176,6 +176,12 @@ public class MarioMovement : MonoBehaviour
 
         SpriteRenderer sprite = GetComponent<SpriteRenderer>();
 
+        // die
+        if (GameManager.Instance.currentTime <= 0)
+        {
+            toDead();
+        }
+
         if (invincetimeremain > 0f) {
             sprite.color = new Color(sprite.color.r, sprite.color.g, sprite.color.b, 0.5f);
             invincetimeremain -= Time.deltaTime;
@@ -207,13 +213,10 @@ public class MarioMovement : MonoBehaviour
         }
 
         // Look Up
-        if (!isMoving && Input.GetButton("LookUp"))
-        {
+        if (!isMoving && Input.GetButton("LookUp")) {
             // Set the flag to true to indicate that the player is looking up
             isLookingUp = true;
-        }
-        else
-        {
+        } else {
             // Reset the flag to false if the player is not looking up
             isLookingUp = false;
         }
@@ -221,12 +224,9 @@ public class MarioMovement : MonoBehaviour
 
         if (cameraFollow != null)
         {
-            if (isLookingUp)
-            {
+            if (isLookingUp) {
                 cameraFollow.StartCameraMoveUp();
-            }
-            else
-            {
+            } else {
                 cameraFollow.StopCameraMoveUp();
             }
         }
