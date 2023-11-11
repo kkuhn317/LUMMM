@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using TMPro;
+using static LeanTween;
 
 public class GameManager : MonoBehaviour
 {
@@ -13,7 +14,9 @@ public class GameManager : MonoBehaviour
     private int currentLevelIndex;
 
     [Header("Timer")]
+    [HideInInspector]
     public float currentTime;
+
     public float startingTime;
     private bool timesRunning = true;
     public static bool isPaused = false;
@@ -37,9 +40,9 @@ public class GameManager : MonoBehaviour
     public List<Image> greenCoinUIImages; // List of UI Image components representing green coins
     public Sprite collectedSprite; // Sprite for the collected state
 
+    #region GreenCoindata
     private List<GameObject> collectedGreenCoins = new List<GameObject>();
 
-    #region GreenCoindata
     [System.Serializable]
     public class CollectedCoinsData
     {
@@ -116,6 +119,20 @@ public class GameManager : MonoBehaviour
     public Sprite questionsprite;
     public Sprite[] rankTypes;
 
+    [Header("Rank conditions")]
+    public int scoreForSRank = 10000;
+    public int scoreForARank = 9000;
+    public int scoreForBRank = 7000;
+    public int scoreForCRank = 5000;
+
+    public bool considerAllEnemiesKilled = true;
+    private PlayerRank highestRank;
+    private PlayerRank currentRank;
+
+    [Header("Rank Change")]
+    public float animationDuration = 1.0f;
+    public float animationDelay = 0.0f;
+
     #region RankSystem
     public enum PlayerRank
     {
@@ -126,15 +143,6 @@ public class GameManager : MonoBehaviour
         A,
         S
     }
-
-    public int scoreForSRank = 10000;
-    public int scoreForARank = 9000;
-    public int scoreForBRank = 7000;
-    public int scoreForCRank = 5000;
-
-    public bool considerAllEnemiesKilled = true;
-    private PlayerRank highestRank;
-    private PlayerRank currentRank;
 
     private bool AllEnemiesKilled()
     {
@@ -189,7 +197,17 @@ public class GameManager : MonoBehaviour
 
             // Save the highest rank to PlayerPrefs
             SaveHighestRank(highestRank);
+
+            SetCurrentRank(currentRank);
         }
+    }
+
+    private void SetCurrentRank(PlayerRank newRank)
+    {
+        currentRank = newRank;
+
+        // Trigger the scale animation
+        PlayScaleAnimation(currentRankImage.gameObject);
     }
 
     private void SaveHighestRank(PlayerRank rank)
@@ -210,6 +228,14 @@ public class GameManager : MonoBehaviour
         currentRank = PlayerRank.Default;
         currentRankImage.texture = questionsprite.texture; // Set currentRankImage to the default texture
     }
+
+    private void PlayScaleAnimation(GameObject targetObject)
+    {
+        // Example: Scale from 0.25 to 0.35 and back over 0.25 second
+        LeanTween.scale(targetObject, new Vector3(0.35f, 0.35f, 0.35f), 0.25f)
+            .setEase(LeanTweenType.easeInOutQuad)
+            .setLoopPingPong(1);  // Play the animation once forward and once backward
+    }
     #endregion
 
     [Header("Game Over & Lose Life")]
@@ -225,7 +251,6 @@ public class GameManager : MonoBehaviour
     // List to keep track of all PauseableObject scripts.
     private List<PauseableObject> pauseableObjects = new List<PauseableObject>();
     private float originalVolume;
-
 
     void Awake()
     {
@@ -612,12 +637,9 @@ public class GameManager : MonoBehaviour
     {
         isPaused = !isPaused;
 
-        if (isPaused)
-        {
+        if (isPaused) {
             PauseGame();
-        }
-        else
-        {
+        } else {
             ResumeGame();
         }
     }
