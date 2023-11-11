@@ -10,6 +10,7 @@ public class GameManager : MonoBehaviour
 {
     //It allows me to access other scripts
     public static GameManager Instance { get; private set; }
+    private int currentLevelIndex;
 
     [Header("Timer")]
     public float currentTime;
@@ -37,6 +38,58 @@ public class GameManager : MonoBehaviour
     public Sprite collectedSprite; // Sprite for the collected state
 
     private List<GameObject> collectedGreenCoins = new List<GameObject>();
+
+    #region GreenCoindata
+    [System.Serializable]
+    public class CollectedCoinsData
+    {
+        public List<string> collectedCoinNames = new List<string>();
+    }
+
+    void SaveCollectedCoins()
+    {
+        CollectedCoinsData data = new CollectedCoinsData();
+        foreach (GameObject coin in collectedGreenCoins)
+        {
+            data.collectedCoinNames.Add(coin.name);
+        }
+
+        // Serialize and save the data to PlayerPrefs using the level index
+        string jsonData = JsonUtility.ToJson(data);
+        PlayerPrefs.SetString("CollectedCoinsData_" + currentLevelIndex, jsonData);
+        PlayerPrefs.Save();
+    }
+
+    void LoadCollectedCoins()
+    {
+        if (PlayerPrefs.HasKey("CollectedCoinsData_" + currentLevelIndex))
+        {
+            // Retrieve and deserialize the data from PlayerPrefs
+            string jsonData = PlayerPrefs.GetString("CollectedCoinsData_" + currentLevelIndex);
+            CollectedCoinsData data = JsonUtility.FromJson<CollectedCoinsData>(jsonData);
+
+            // Update UI and collectedGreenCoins list
+            foreach (string coinName in data.collectedCoinNames)
+            {
+                GameObject coinObject = Array.Find(greenCoins, coin => coin.name == coinName);
+                if (coinObject != null)
+                {
+                    collectedGreenCoins.Add(coinObject);
+
+                    // Change the alpha of the sprite renderer to indicate it's collected
+                    SpriteRenderer coinRenderer = coinObject.GetComponent<SpriteRenderer>();
+                    Color coinColor = coinRenderer.color;
+                    coinColor.a = 0.5f;
+                    coinRenderer.color = coinColor;
+
+                    // Update UI for the collected coin
+                    Image uiImage = greenCoinUIImages[Array.IndexOf(greenCoins, coinObject)];
+                    uiImage.sprite = collectedSprite;
+                }
+            }
+        }
+    }
+    #endregion
 
     [Header("High Score System")]
     public int highScore;
@@ -142,14 +195,14 @@ public class GameManager : MonoBehaviour
     private void SaveHighestRank(PlayerRank rank)
     {
         // Save the highest rank to PlayerPrefs
-        PlayerPrefs.SetInt("HighestPlayerRank", (int)rank);
+        PlayerPrefs.SetInt("HighestPlayerRank_" + currentLevelIndex, (int)rank);
         PlayerPrefs.Save();
     }
 
     private PlayerRank LoadHighestRank()
     {
         // Load the highest rank from PlayerPrefs, defaulting to "Default" if it doesn't exist.
-        return (PlayerRank)PlayerPrefs.GetInt("HighestPlayerRank", (int)PlayerRank.Default);
+        return (PlayerRank)PlayerPrefs.GetInt("HighestPlayerRank_" + currentLevelIndex, (int)PlayerRank.Default);
     }
 
     private void ResetCurrentRank()
@@ -173,11 +226,6 @@ public class GameManager : MonoBehaviour
     private List<PauseableObject> pauseableObjects = new List<PauseableObject>();
     private float originalVolume;
 
-    [System.Serializable]
-    public class CollectedCoinsData
-    {
-        public List<string> collectedCoinNames = new List<string>();
-    }
 
     void Awake()
     {
@@ -202,6 +250,8 @@ public class GameManager : MonoBehaviour
             currentlyPlayingMusic = music;
         currentTime = startingTime;
         GlobalVariables.levelscene = SceneManager.GetActiveScene().buildIndex;
+        currentLevelIndex = GlobalVariables.levelscene;
+        Debug.Log("Current level ID: " + currentLevelIndex);
 
         // Load the high score from PlayerPrefs, defaulting to 0 if it doesn't exist.
         highScore = PlayerPrefs.GetInt("HighScore", 0);
@@ -221,36 +271,6 @@ public class GameManager : MonoBehaviour
         ToggleCheckpoints();
         UpdateHighScoreUI();
         UpdateLivesUI();
-    }
-
-    void LoadCollectedCoins()
-    {
-        if (PlayerPrefs.HasKey("CollectedCoinsData"))
-        {
-            // Retrieve and deserialize the data from PlayerPrefs
-            string jsonData = PlayerPrefs.GetString("CollectedCoinsData");
-            CollectedCoinsData data = JsonUtility.FromJson<CollectedCoinsData>(jsonData);
-
-            // Update UI and collectedGreenCoins list
-            foreach (string coinName in data.collectedCoinNames)
-            {
-                GameObject coinObject = Array.Find(greenCoins, coin => coin.name == coinName);
-                if (coinObject != null)
-                {
-                    collectedGreenCoins.Add(coinObject);
-
-                    // Change the alpha of the sprite renderer to indicate it's collected
-                    SpriteRenderer coinRenderer = coinObject.GetComponent<SpriteRenderer>();
-                    Color coinColor = coinRenderer.color;
-                    coinColor.a = 0.5f;
-                    coinRenderer.color = coinColor;
-
-                    // Update UI for the collected coin
-                    Image uiImage = greenCoinUIImages[Array.IndexOf(greenCoins, coinObject)];
-                    uiImage.sprite = collectedSprite;
-                }
-            }
-        }
     }
 
     // Update is called once per frame
@@ -484,20 +504,6 @@ public class GameManager : MonoBehaviour
             coinColor.a = 0.5f;
             coinRenderer.color = coinColor;
         }
-    }
-
-    void SaveCollectedCoins()
-    {
-        CollectedCoinsData data = new CollectedCoinsData();
-        foreach (GameObject coin in collectedGreenCoins)
-        {
-            data.collectedCoinNames.Add(coin.name);
-        }
-
-        // Serialize and save the data to PlayerPrefs
-        string jsonData = JsonUtility.ToJson(data);
-        PlayerPrefs.SetString("CollectedCoinsData", jsonData);
-        PlayerPrefs.Save();
     }
 
     void CheckGameCompletion()
