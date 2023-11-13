@@ -13,10 +13,10 @@ public class GameManager : MonoBehaviour
     public static GameManager Instance { get; private set; }
     private int currentLevelIndex;
 
-    [Header("Timer")]
     [HideInInspector]
     public float currentTime;
 
+    [Header("Timer")]
     public float startingTime;
     private bool timesRunning = true;
     public static bool isPaused = false;
@@ -286,9 +286,7 @@ public class GameManager : MonoBehaviour
 
         // Set the texture for highestRankImage based on the loaded highest rank
         if (highestRank != PlayerRank.Default)
-        {
             highestRankImage.texture = rankTypes[(int)highestRank - 1].texture;
-        }
 
         ResetCurrentRank();
 
@@ -351,8 +349,7 @@ public class GameManager : MonoBehaviour
 
     public void ReloadScene()
     {
-        int currentSceneIndex = SceneManager.GetActiveScene().buildIndex;
-        SceneManager.LoadScene(currentSceneIndex);
+        SceneManager.LoadScene(currentLevelIndex);
     }
 
     public void AddLives()
