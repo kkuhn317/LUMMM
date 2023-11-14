@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class SecretCommandToggle : MonoBehaviour
 {
-    private string secretCode = "poton";
+    private string secretCode = "club";
     private string inputBuffer = "";
     private AudioSource audioSource;
 
