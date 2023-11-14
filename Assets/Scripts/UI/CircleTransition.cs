@@ -26,6 +26,11 @@ public class CircleTransition : MonoBehaviour
         OpenBlackScreen();
     }
 
+    private void Update()
+    {
+        DrawBlackScreen();
+    }
+
     public void OpenBlackScreen()
     {
         DrawBlackScreen();
@@ -43,6 +48,10 @@ public class CircleTransition : MonoBehaviour
         var screenWidth = Screen.width;
         var screenHeight = Screen.height;
         // Need a target
+        if (player == null)
+        {
+            return;
+        }
         var playerScreenPos = Camera.main.WorldToScreenPoint(player.position);
 
         // To Draw to Image to Full Screen, we get the Canvas Rect size

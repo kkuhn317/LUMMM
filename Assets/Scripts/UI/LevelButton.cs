@@ -34,8 +34,8 @@ public class LevelButton : MonoBehaviour
         // Remove any existing listeners from the button's onClick event
         videoLinkButton.onClick.RemoveAllListeners();
 
-        // set lives
-        GlobalVariables.lives = levelDescription.lives;
+        // Reset global variables for the level
+        GlobalVariables.ResetForLevel(levelDescription.lives);
 
         videoLinkButton.onClick.AddListener(OpenVideoLink);
     }

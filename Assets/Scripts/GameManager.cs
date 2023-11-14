@@ -6,6 +6,7 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using TMPro;
 using static LeanTween;
+using System.Linq;
 
 public class GameManager : MonoBehaviour
 {
@@ -48,6 +49,10 @@ public class GameManager : MonoBehaviour
     {
         public List<string> collectedCoinNames = new List<string>();
     }
+
+    [Header("Checkpoints")]
+
+    private Checkpoint[] checkpoints;
 
     void SaveCollectedCoins()
     {
@@ -292,6 +297,7 @@ public class GameManager : MonoBehaviour
 
         LoadCollectedCoins(); // Load collected coins data from PlayerPrefs
         ToggleCheckpoints();
+        SetMarioPosition();
         UpdateHighScoreUI();
         UpdateLivesUI();
     }
@@ -648,19 +654,43 @@ public class GameManager : MonoBehaviour
             Checkpoint[] checkpoints = FindObjectsOfType<Checkpoint>();
             foreach (Checkpoint checkpoint in checkpoints)
             {
-                checkpoint.DeactivateCheckpoint();
+                checkpoint.DisableCheckpoint();
                 Debug.Log("All checkpoints have been disabled");
             }
         }
         else
         {
-            Checkpoint[] checkpoints = FindObjectsOfType<Checkpoint>();
+            checkpoints = FindObjectsOfType<Checkpoint>();
             foreach (Checkpoint checkpoint in checkpoints)
             {
-                checkpoint.ActivateCheckpoint();
+                checkpoint.EnableCheckpoint();
                 Debug.Log("All checkpoints have been enabled");
             }
         }
+    }
+
+    public int GetCheckpointID(Checkpoint checkpoint)
+    {
+        return Array.IndexOf(checkpoints, checkpoint);
+    }
+
+    // Called when scene is loaded to place mario at the checkpoint
+    private void SetMarioPosition()
+    {
+        if (!GlobalVariables.enableCheckpoints) return;
+        if (GlobalVariables.checkpoint == -1) return;
+
+        // Get the checkpoint object
+        Checkpoint checkpoint = checkpoints[GlobalVariables.checkpoint];
+
+        // Set it active
+        checkpoint.SetActive();
+
+        // Get the player object
+        GameObject player = GameObject.FindGameObjectWithTag("Player"); // TODO: Replace when we improve player management
+
+        // Set the player's position to the checkpoint's spawn position
+        player.transform.position = checkpoint.SpawnPosition;
     }
 
     // Quit Level

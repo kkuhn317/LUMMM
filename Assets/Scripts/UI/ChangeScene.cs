@@ -11,6 +11,9 @@ public class ChangeScene : MonoBehaviour
 
     //Method to reset the current level
     public void ResetLevel() {
+        // Reset Checkpoint
+        GlobalVariables.checkpoint = -1;
+        
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         // Debug.Log("Reset level");
     }

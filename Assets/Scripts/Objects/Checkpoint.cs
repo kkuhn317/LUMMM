@@ -5,6 +5,7 @@ using UnityEngine;
 public class Checkpoint : MonoBehaviour
 {
     [Header("Checkpoint")]
+
     public AudioClip CheckpointSound;
     public Sprite passive;
     public Sprite[] active;
@@ -14,6 +15,16 @@ public class Checkpoint : MonoBehaviour
     private SpriteRenderer spriteRenderer;
     private AudioSource audioSource;
     private BoxCollider2D checkpointCollider;
+
+    public Vector2 spawnOffset = new(0, 0); // 0,0 is the bottom center of the checkpoint
+
+    public Vector2 SpawnPosition    // the actual position where the player should spawn (used by GameManager)
+    {
+        get
+        {
+            return transform.position + (Vector3)spawnOffset + new Vector3(0, 0, -1);
+        }
+    }
 
     private void Awake()
     {
@@ -26,12 +37,7 @@ public class Checkpoint : MonoBehaviour
     {
         if (collision.CompareTag("Player"))
         {
-            Debug.Log("Checkpoint!");
-            checkpointCollider.enabled = false;
-
-            // Change the sprite to an "active" sprite
-            int activeSpriteIndex = 0;
-            spriteRenderer.sprite = active[activeSpriteIndex];
+            SetActive();
             audioSource.PlayOneShot(CheckpointSound);
 
             if (checkpointParticles != null)
@@ -43,17 +49,30 @@ public class Checkpoint : MonoBehaviour
             {
                 spawnParticles();
             }
+
+            // Set the checkpoint in GlobalVariables
+            GlobalVariables.checkpoint = GameManager.Instance.GetCheckpointID(this);
         }
     }
 
-    public void ActivateCheckpoint()
+    public void SetActive()
+    {
+        Debug.Log("Checkpoint!");
+        checkpointCollider.enabled = false;
+
+        // Change the sprite to an "active" sprite
+        int activeSpriteIndex = 0;
+        spriteRenderer.sprite = active[activeSpriteIndex];
+    }
+
+    public void EnableCheckpoint()
     {
         gameObject.SetActive(true);
         checkpointCollider.enabled = true;
         spriteRenderer.sprite = passive;
     }
 
-    public void DeactivateCheckpoint()
+    public void DisableCheckpoint()
     {
         gameObject.SetActive(false);
         checkpointCollider.enabled = false;
