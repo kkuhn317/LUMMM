@@ -13,6 +13,7 @@ public class GameManager : MonoBehaviour
     //It allows me to access other scripts
     public static GameManager Instance { get; private set; }
     private int currentLevelIndex;
+    private FadeInOutScene fadeInOutScene;
 
     [HideInInspector]
     public float currentTime;
@@ -276,6 +277,8 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        fadeInOutScene = FindObjectOfType<FadeInOutScene>();
+
         if (music)
             currentlyPlayingMusic = music;
         currentTime = startingTime;
@@ -702,7 +705,7 @@ public class GameManager : MonoBehaviour
             Destroy(musicObj);
         }
         ResumeGame();
-        SceneManager.LoadScene("SelectLevel");
+        fadeInOutScene.LoadSceneWithFade("SelectLevel");
     }
 
     #region pausableobjects
@@ -839,6 +842,6 @@ public class GameManager : MonoBehaviour
         }
         // This will probably cause a special ending screen to show up, 
         // but for now just go to the select level menu
-        SceneManager.LoadScene("SelectLevel");
+        fadeInOutScene.LoadSceneWithFade("SelectLevel");
     }
 }

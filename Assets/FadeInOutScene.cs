@@ -8,78 +8,71 @@ public class FadeInOutScene : MonoBehaviour
     public Image fadeImage;
     public float fadeSpeed = 5f;
 
-    private static FadeInOutScene instance;
-
-    [SerializeField] bool fadeIn = false;
-    [SerializeField] bool fadeOut = false;
+    private static FadeInOutScene Instance;
 
     private void Awake()
     {
-        if (instance == null)
+        if (Instance != null && Instance != this)
         {
-            instance = this;
-            DontDestroyOnLoad(gameObject);
+            Destroy(gameObject);
+            return;
         }
-        else
-        {
-            Destroy(instance.gameObject);
-            instance = this;
-            DontDestroyOnLoad(gameObject);
-        }
+
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
     }
 
-    private void Update()
+    private IEnumerator FadeIn(float waitTime)
     {
-        if (fadeIn)
+        fadeImage.gameObject.SetActive(true);
+
+        float elapsedTime = 0f;
+
+        while (elapsedTime < fadeSpeed)
         {
-            fadeImage.color = Color.Lerp(fadeImage.color, Color.black, fadeSpeed * Time.deltaTime);   
+            fadeImage.color = Color.Lerp(Color.clear, Color.black, elapsedTime / fadeSpeed);
+            elapsedTime += Time.deltaTime;
+            yield return null;
         }
-        else if (fadeOut)
+
+        yield return new WaitForSeconds(waitTime);
+
+        StartCoroutine(FadeOut());
+    }
+
+    private IEnumerator FadeOut()
+    {
+        float elapsedTime = 0f;
+
+        while (elapsedTime < fadeSpeed)
         {
-            fadeImage.color = Color.Lerp(fadeImage.color, Color.clear, fadeSpeed * Time.deltaTime);
+            fadeImage.color = Color.Lerp(Color.black, Color.clear, elapsedTime / fadeSpeed);
+            elapsedTime += Time.deltaTime;
+            yield return null;
         }
+
+        fadeImage.gameObject.SetActive(false);
     }
 
     public void LoadSceneWithFade(string sceneName)
     {
-        StartCoroutine(FadeInAndLoad(sceneName));
+        StartCoroutine(FadeInAndLoad(sceneName, true));
     }
 
-    public void LoadSceneWithoutFadeIn(string sceneName)
+    public void LoadSceneWithoutFadeOut(string sceneName)
     {
-        StartCoroutine(FadeInAndLoad(sceneName, false));
+        StartCoroutine(FadeInAndLoad(sceneName, false, 0.5f));
     }
 
-    IEnumerator FadeInAndLoad(string sceneName, bool doFadeOut = true)
+    private IEnumerator FadeInAndLoad(string sceneName, bool doFadeOut = true, float waitTime = 1.5f)
     {
-        fadeIn = true;
-        fadeOut = doFadeOut;
+        yield return StartCoroutine(FadeIn(fadeSpeed));
 
-        fadeImage.gameObject.SetActive(true);
-
-        // Wait until the fade in is complete
-        while (fadeImage.color.a >= 1)
-        {
-            yield return null;
-        }
-
-        yield return new WaitForSeconds(1.5f);
         SceneManager.LoadScene(sceneName);
 
-        fadeImage.gameObject.SetActive(true);
-
-        fadeIn = false;
-        fadeOut = true;
-
-        // Wait until the fade out is complete
-        while (fadeImage.color.a <= 0.01f)
+        if (doFadeOut)
         {
-            yield return null;
+            yield return new WaitForSeconds(waitTime);
         }
-
-        //fadeOut = false;
-
-        yield return new WaitForSeconds(1.5f);
-        fadeImage.gameObject.SetActive(false);
     }
 }
