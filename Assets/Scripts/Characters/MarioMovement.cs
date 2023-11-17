@@ -841,8 +841,7 @@ public class MarioMovement : MonoBehaviour
         if (context.canceled)
         {
             jumpPressed = false;
-        }
-        
+        }     
     }
 
     public void Crouch(InputAction.CallbackContext context)

@@ -101,8 +101,6 @@ public class QuestionBlock : MonoBehaviour
                     DefeatEnemy(other.collider);
                 }
             }
-
-            
         }
     }
 
@@ -145,7 +143,6 @@ public class QuestionBlock : MonoBehaviour
 
     public void QuestionBlockBounce()
     {
-
         if (canBounce)
         {
             if (isInvisible) {
