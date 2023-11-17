@@ -82,23 +82,26 @@ public class QuestionBlock : MonoBehaviour
             }
 
             // Brick Block and Question Block
-            if (!brickBlock)
+            if (!brickBlock) // When it's a question block
             {
+                if (canBounce) // If the block bounces when the player collides
+                {
+                    DefeatEnemy(other.collider); // Defeat the enemy
+                }
                 QuestionBlockBounce();
-                DefeatEnemy(other.collider);
             }
-            else
+            else // When it's a brick block
             {
                 MarioMovement playerScript = other.gameObject.GetComponent<MarioMovement>();
                 if (playerScript.powerupState == MarioMovement.PowerupState.small)
                 {
-                    QuestionBlockBounce();
                     DefeatEnemy(other.collider);
+                    QuestionBlockBounce();
                 }
                 else
                 {
-                    BrickBlockBreak();
                     DefeatEnemy(other.collider);
+                    BrickBlockBreak();         
                 }
             }
         }
@@ -123,7 +126,6 @@ public class QuestionBlock : MonoBehaviour
             }
         }
     }
-
 
     // this is called when a koopa shell hits the block for example
     public void Activate()
