@@ -260,12 +260,14 @@ public class GameManager : MonoBehaviour
 
     void Awake()
     {
+        print("GameManager Awake");
         if (Instance == null)
         {
             Instance = this;
         }
         else
         {
+            print("Destroying duplicate GameManager instance");
             Destroy(gameObject);
         }
         audioSource = GetComponent<AudioSource>();
@@ -279,8 +281,10 @@ public class GameManager : MonoBehaviour
     {
         fadeInOutScene = FindObjectOfType<FadeInOutScene>();
 
-        if (music)
+        if (music) {
+            print("Music found");
             currentlyPlayingMusic = music;
+        }
         currentTime = startingTime;
         GlobalVariables.levelscene = SceneManager.GetActiveScene().buildIndex;
         currentLevelIndex = GlobalVariables.levelscene;
@@ -303,6 +307,7 @@ public class GameManager : MonoBehaviour
         SetMarioPosition();
         UpdateHighScoreUI();
         UpdateLivesUI();
+        UpdateCoinsUI();
     }
 
     // Update is called once per frame
@@ -356,9 +361,59 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    public void RestartLevelFromBeginning()
+    {
+        // reset lives, checkpoint, etc
+        GlobalVariables.ResetForLevel(GlobalVariables.startLives);
+
+        // turn off all music overrides
+        RemoveAllMusicOverrides();
+
+        ReloadScene();
+    }
+    
+    public void RestartLevelFromCheckpoint()
+    {
+        // turn off all music overrides
+        RemoveAllMusicOverrides();
+
+        ReloadScene();
+    }
+
     public void ReloadScene()
     {
         SceneManager.LoadScene(currentLevelIndex);
+    }
+
+    public void DecrementLives()
+    {
+        // turn off all music overrides
+        RemoveAllMusicOverrides();
+
+        // Check if the player is not in infinite lives mode
+        if (!GlobalVariables.infiniteLivesMode)
+        {
+            GlobalVariables.lives--;
+
+            // Check if the player has run out of lives
+            if (GlobalVariables.lives <= 0)
+            {
+                // Load the Game Over scene
+                SceneManager.LoadScene(gameOverSceneName);
+                GlobalVariables.lives = 3;
+            }
+            else
+            {
+                // Load the LoseLife scene and restart the current level
+                PlayerPrefs.SetInt("GlobalVariables.lives", GlobalVariables.lives);
+                SceneManager.LoadScene(loseLifeSceneName);
+            }
+        }
+        else
+        {
+            // Reload the current scene when the player dies in infinite lives mode
+            ReloadScene();
+        }
     }
 
     public void AddLives()
@@ -404,36 +459,7 @@ public class GameManager : MonoBehaviour
         text.color = initialColor;
     }
 
-    public void DecrementLives()
-    {
-        // turn off all music overrides
-        RemoveAllMusicOverrides();
-
-        // Check if the player is not in infinite lives mode
-        if (!GlobalVariables.infiniteLivesMode)
-        {
-            GlobalVariables.lives--;
-
-            // Check if the player has run out of lives
-            if (GlobalVariables.lives <= 0)
-            {
-                // Load the Game Over scene
-                SceneManager.LoadScene(gameOverSceneName);
-                GlobalVariables.lives = 3;
-            }
-            else
-            {
-                // Load the LoseLife scene and restart the current level
-                PlayerPrefs.SetInt("GlobalVariables.lives", GlobalVariables.lives);
-                SceneManager.LoadScene(loseLifeSceneName);
-            }
-        }
-        else
-        {
-            // Reload the current scene when the player dies in infinite lives mode
-            ReloadScene();
-        }
-    }
+    
     #region updateUI
     private void UpdateHighScore()
     {
@@ -559,6 +585,14 @@ public class GameManager : MonoBehaviour
     {
         scoreCount += pointsToAdd;
         UpdateScoreUI();
+    }
+
+    public void SetNewMainMusic(GameObject music) {
+        // is currentlyPlayingMusic the main music?
+        if (currentlyPlayingMusic == this.music) {
+            currentlyPlayingMusic = music;
+        }
+        this.music = music;
     }
 
     public void OverrideMusic(GameObject musicOverride)

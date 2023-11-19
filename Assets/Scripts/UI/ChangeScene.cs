@@ -10,6 +10,9 @@ public class ChangeScene : MonoBehaviour
     }
 
     //Method to reset the current level
+    //! DO NOT USE THIS METHOD TO RESET THE LEVEL!
+    //! Use GameManager.Instance.ResetLevelFromCheckpoint OR ResetLevelFromBeginning instead
+    // TODO: Remove this method when we know it's not being used
     public void ResetLevel() {
         // Reset Checkpoint
         GlobalVariables.checkpoint = -1;

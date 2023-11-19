@@ -11,6 +11,8 @@ public class CircleTransition : MonoBehaviour
 
     private Vector2 _playerCanvasPos;
 
+    private readonly float duration = 4f;   // How long the transition should take
+
     private static readonly int RADIUS = Shader.PropertyToID("_Radius");
     private static readonly int CENTER_X = Shader.PropertyToID("_CenterX");
     private static readonly int CENTER_Y = Shader.PropertyToID("_CenterY");
@@ -34,13 +36,13 @@ public class CircleTransition : MonoBehaviour
     public void OpenBlackScreen()
     {
         DrawBlackScreen();
-        StartCoroutine(Transition(2, 0, 1));
+        StartCoroutine(Transition(0, 2));
     }
 
     public void CloseBlackScreen()
     {
         DrawBlackScreen();
-        StartCoroutine(Transition(2, 1, 0));
+        StartCoroutine(Transition(2, 0));
     }
 
     private void DrawBlackScreen()
@@ -94,7 +96,7 @@ public class CircleTransition : MonoBehaviour
         // And input into the shader
     }
 
-    private IEnumerator Transition(float duration, float beginRadius, float endRadius)
+    private IEnumerator Transition(float beginRadius, float endRadius)
     {
         var mat = _blackScreen.material;
         var time = 0f;

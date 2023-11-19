@@ -330,7 +330,8 @@ public class MarioMovement : MonoBehaviour
             if (onMovingPlatform) {
                 transform.parent = hitRay.transform;
                 // change y position to be on top of platform
-                transform.position = new Vector3(transform.position.x, groundPos.y + groundLength - 0.01f, transform.position.z);
+                //transform.position = new Vector3(transform.position.x, groundPos.y + groundLength - 0.01f, transform.position.z);
+                // apparently without this line, the moving platform works better lol
             } else {
                 transform.parent = null;
             }
