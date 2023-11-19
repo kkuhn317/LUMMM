@@ -180,19 +180,32 @@ MonoBehaviour:
   lavaMask:
     serializedVersion: 2
     m_Bits: 8192
+  carryable: 0
+  carried: 0
+  throwVelocity: {x: 12, y: 10}
+  knockAwayVelocity: {x: 5, y: 5}
+  overrideKnockAwayGravity: 0
+  knockAwayGravity: 60
+  knockAwayType: 0
+  knockAwayRotationSpeed: 10
+  KnockAwayDissapearTime: -1
   knockAwaySound: {fileID: 8300000, guid: 62467461e51dddb40931164fd2db1170, type: 3}
   objectState: 0
   movement: 1
   stopAfterLand: 0
-  maxBounces: 1
   bounceHeight: 0
+  minHeightToBounce: 1
   canBeFireballed: 1
-  stompHeight: 0.2
+  stompHeight: 0.05
   heldItem: {fileID: 0}
   itemSpawnOffset: {x: 0, y: 0, z: 0}
   state: 0
   stompable: 1
+  shouldntEnemyMoveWhenDie: 1
+  shouldDestroyAfterCrush: 1
   timeBeforeDestroy: 1
+  cutscene: {fileID: 0}
+  delayBeforeCutscene: 1
 --- !u!82 &4396391775771328628
 AudioSource:
   m_ObjectHideFlags: 0
