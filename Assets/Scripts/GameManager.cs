@@ -117,6 +117,8 @@ public class GameManager : MonoBehaviour
     [Header("Pause Menu")]
     public GameObject pausemenu;
     public GameObject mainPauseMenu;
+    public GameObject CheckpointIndicator;
+    public GameObject ResetPopUp;
     public GameObject optionsPauseMenu;
 
     [Header("Rank")]
@@ -313,6 +315,12 @@ public class GameManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if(GlobalVariables.checkpoint != -1) {
+            CheckpointIndicator.SetActive(true);
+        } else {
+            CheckpointIndicator.SetActive(false);
+        }
+
         // Check for pause input only if the game is not over
         if (!isTimeUp)
         {
@@ -369,6 +377,15 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    public void Restart()
+    {
+        if(GlobalVariables.checkpoint != -1) {
+            ResetPopUp.SetActive(true);
+        } else {
+            RestartLevelFromBeginning();
+        }
+    }
+
     public void RestartLevelFromBeginning()
     {
         // reset lives, checkpoint, etc
@@ -378,6 +395,8 @@ public class GameManager : MonoBehaviour
         RemoveAllMusicOverrides();
 
         ReloadScene();
+
+        ResumeGame();
     }
     
     public void RestartLevelFromCheckpoint()
@@ -386,6 +405,8 @@ public class GameManager : MonoBehaviour
         RemoveAllMusicOverrides();
 
         ReloadScene();
+
+        ResumeGame();
     }
 
     public void ReloadScene()
@@ -840,6 +861,7 @@ public class GameManager : MonoBehaviour
         if (pausemenu != null)
             pausemenu.SetActive(true);
             mainPauseMenu.SetActive(true);
+            ResetPopUp.SetActive(false);
             optionsPauseMenu.SetActive(false);
     }
 
@@ -853,6 +875,7 @@ public class GameManager : MonoBehaviour
         if (pausemenu != null)
             pausemenu.SetActive(false);
             mainPauseMenu.SetActive(true);
+            ResetPopUp.SetActive(false);
             optionsPauseMenu.SetActive(false);
     }
 
