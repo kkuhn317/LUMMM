@@ -330,6 +330,14 @@ public class GameManager : MonoBehaviour
                 DeactivatePlushieObjects();
             }
 
+            if (!isPaused) {
+                // Raise the audio volume back to its original level
+                AudioListener.volume = originalVolume;
+            } else {
+                // Lower the audio volume when the game is paused
+                AudioListener.volume = originalVolume * 0.25f;
+            }
+
             if (!isPaused && !stopTimer)
             {
                 // Timer 
@@ -826,9 +834,6 @@ public class GameManager : MonoBehaviour
     public void PauseGame()
     {
         isPaused = true;
-
-        // Lower the audio volume when the game is paused
-        AudioListener.volume = originalVolume * 0.25f;
         Time.timeScale = 0f;  // Set time scale to 0 (pause)
 
         // Activate the pause menu
@@ -841,9 +846,7 @@ public class GameManager : MonoBehaviour
     public void ResumeGame()
     {
         isPaused = false;
-
-        // Raise the audio volume back to its original level
-        AudioListener.volume = originalVolume;
+        
         Time.timeScale = 1f; // Set time scale to normal (unpause)
 
         // Deactivate the pause menu
