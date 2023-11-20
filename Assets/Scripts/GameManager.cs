@@ -36,11 +36,15 @@ public class GameManager : MonoBehaviour
     public AudioClip coin;
     public AudioClip bigCoin;
     [SerializeField] TMP_Text coinText;
+    private int totalCoins = 0;
 
     [Header("Green coins")]
     public GameObject[] greenCoins; // Array of green coin GameObjects in the scene
     public List<Image> greenCoinUIImages; // List of UI Image components representing green coins
     public Sprite collectedSprite; // Sprite for the collected state
+
+    [Header("Checkpoints")]
+    private Checkpoint[] checkpoints;
 
     #region GreenCoindata
     private List<GameObject> collectedGreenCoins = new List<GameObject>();
@@ -50,10 +54,6 @@ public class GameManager : MonoBehaviour
     {
         public List<string> collectedCoinNames = new List<string>();
     }
-
-    [Header("Checkpoints")]
-
-    private Checkpoint[] checkpoints;
 
     void SaveCollectedCoins()
     {
@@ -260,6 +260,15 @@ public class GameManager : MonoBehaviour
     private List<PauseableObject> pauseableObjects = new List<PauseableObject>();
     private float originalVolume;
 
+    [Header("Win Screen")]
+    public GameObject WinScreenGameObject;
+    [SerializeField] TMP_Text timerFinishText;
+    [SerializeField] TMP_Text collectedCoinsText;
+    [SerializeField] TMP_Text totalCoinsText;
+    [SerializeField] TMP_Text scoreWinScreenText;
+    public List<Image> greenCoinUIWin;
+    public RawImage ObtainedRank;
+
     void Awake()
     {
         print("GameManager Awake");
@@ -301,6 +310,8 @@ public class GameManager : MonoBehaviour
         // Set the texture for highestRankImage based on the loaded highest rank
         if (highestRank != PlayerRank.Default)
             highestRankImage.texture = rankTypes[(int)highestRank - 1].texture;
+
+        GetTotalCoins();
 
         ResetCurrentRank();
 
@@ -394,8 +405,10 @@ public class GameManager : MonoBehaviour
         // turn off all music overrides
         RemoveAllMusicOverrides();
 
+        // Reloads the level
         ReloadScene();
 
+        // Unpause the game
         ResumeGame();
     }
     
@@ -404,8 +417,10 @@ public class GameManager : MonoBehaviour
         // turn off all music overrides
         RemoveAllMusicOverrides();
 
+        // Reloads the level
         ReloadScene();
 
+        // Unpause the game
         ResumeGame();
     }
 
@@ -584,6 +599,9 @@ public class GameManager : MonoBehaviour
             collectedGreenCoins.Add(greenCoin);
             uiImage.sprite = collectedSprite;
 
+            Image uiImageWin = greenCoinUIWin[Array.IndexOf(greenCoins, greenCoin)];
+            uiImageWin.sprite = collectedSprite;
+
             // Change the alpha of the sprite renderer to indicate it's collected
             SpriteRenderer coinRenderer = greenCoin.GetComponent<SpriteRenderer>();
             Color coinColor = coinRenderer.color;
@@ -591,6 +609,51 @@ public class GameManager : MonoBehaviour
             coinRenderer.color = coinColor;
         }
     }
+
+    #region TotalCoins
+    // Get the totalCoins based on coins and block that contains blocks
+    public void GetTotalCoins()
+    {
+        totalCoins = 0; // Reset totalCoins before counting
+
+        // Find all objects with QuestionBlock script
+        QuestionBlock[] questionBlocks = FindObjectsOfType<QuestionBlock>();
+
+        foreach (QuestionBlock questionBlock in questionBlocks)
+        {
+            // Check the condition for adding coins
+            if (questionBlock.spawnableItems.Length == 0 && !questionBlock.brickBlock)
+            {
+                // Add coins to the total count
+                totalCoins++;
+            }
+        }
+
+        // Find all object with Coin script
+        Coin[] coins = FindObjectsOfType<Coin>();
+
+        foreach (Coin coin in coins)
+        {
+            // Check if the coin type is not green
+            if (coin.type != Coin.Amount.green)
+            {
+                // Sum the coin value to the total coins based on the GetCoinValue method which gets the coin value and sum it to totalCoins
+                totalCoins += coin.GetCoinValue();
+            }
+        }
+
+        // Find all objects with the "Coin" tag and add their count to totalCoins
+        /*GameObject[] coins = GameObject.FindGameObjectsWithTag("Coin");
+        totalCoins += coins.Length;*/
+    }
+
+    // Retrieve the totalCoins value if needed
+    public int ShowTotalCoins()
+    {
+        totalCoinsText.text = ((int)totalCoins).ToString("D3");
+        return totalCoins;
+    }
+    #endregion
 
     void CheckGameCompletion()
     {
@@ -879,11 +942,34 @@ public class GameManager : MonoBehaviour
             optionsPauseMenu.SetActive(false);
     }
 
+    public void WinScreenStats()
+    {
+        // Win screen
+
+        // Display total coins on the level
+        ShowTotalCoins();
+
+        // Time when you get to the end
+        timerFinishText.text = timerText.text;
+
+        // Collected coins
+        collectedCoinsText.text = coinText.text; 
+
+        // Score amount achieved
+        scoreWinScreenText.text = scoreText.text;
+
+        // Ensure ObtainedRank matches the currentRank
+        ObtainedRank.texture = currentRankImage.texture;
+    }
+
     // after level ends, call this (ex: flag cutscene ends)
     public void FinishLevel()
     {
+        WinScreenStats();
+
         // Save the high score when the level ends
         UpdateHighScore();
+        
         // Save the collected coin names in PlayerPrefs
         SaveCollectedCoins();
 
@@ -902,6 +988,7 @@ public class GameManager : MonoBehaviour
         }
         // This will probably cause a special ending screen to show up, 
         // but for now just go to the select level menu
-        fadeInOutScene.LoadSceneWithFade("SelectLevel");
+        WinScreenGameObject.SetActive(true);
+        // fadeInOutScene.LoadSceneWithFade("SelectLevel");
     }
 }
