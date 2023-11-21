@@ -945,7 +945,6 @@ public class GameManager : MonoBehaviour
     public void WinScreenStats()
     {
         // Win screen
-
         // Display total coins on the level
         ShowTotalCoins();
 
