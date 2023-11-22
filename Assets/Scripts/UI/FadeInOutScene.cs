@@ -54,6 +54,32 @@ public class FadeInOutScene : MonoBehaviour
         fadeImage.gameObject.SetActive(false);
     }
 
+    public void LoadNextSceneWithFade()
+    {
+        int nextSceneIndex = SceneManager.GetActiveScene().buildIndex + 1;
+
+        if (nextSceneIndex < SceneManager.sceneCountInBuildSettings)
+        {
+            StartCoroutine(FadeInAndLoad(nextSceneIndex, true));
+        }
+        else
+        {
+            Debug.LogWarning("No next scene available.");
+        }
+    }
+
+    private IEnumerator FadeInAndLoad(int sceneIndex, bool doFadeOut = true, float waitTime = 1.5f)
+    {
+        yield return StartCoroutine(FadeIn(fadeSpeed));
+
+        SceneManager.LoadScene(sceneIndex);
+
+        if (doFadeOut)
+        {
+            yield return new WaitForSeconds(waitTime);
+        }
+    }
+
     public void LoadSceneWithFade(string sceneName)
     {
         StartCoroutine(FadeInAndLoad(sceneName, true));
