@@ -3,15 +3,19 @@ using UnityEngine.UI;
 
 public class KeyPressButtonActivator : MonoBehaviour
 {
-    public Button backButton;
+    public Button targetButton;
+    public string[] inputButtonNames = { "Select" }; // Add the desired input button names
 
     void Update()
     {
-        // Check for key press, e.g., 'Backspace'
-        if (Input.GetKeyDown(KeyCode.Backspace))
+        // Check for button press using the specified input buttons
+        foreach (string inputButtonName in inputButtonNames)
         {
-            // Simulate button click
-            backButton.onClick.Invoke();
+            if (Input.GetButtonDown(inputButtonName))
+            {
+                // Simulate button click
+                targetButton.onClick.Invoke();
+            }
         }
     }
 }

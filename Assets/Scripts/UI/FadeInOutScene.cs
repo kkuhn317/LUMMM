@@ -8,7 +8,7 @@ public class FadeInOutScene : MonoBehaviour
     public Image fadeImage;
     public float fadeSpeed = 5f;
 
-    private static FadeInOutScene Instance;
+    public static FadeInOutScene Instance;
 
     private void Awake()
     {
@@ -21,7 +21,7 @@ public class FadeInOutScene : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(gameObject);
     }
-
+    #region FadeInAndOut
     private IEnumerator FadeIn(float waitTime)
     {
         fadeImage.gameObject.SetActive(true);
@@ -53,6 +53,7 @@ public class FadeInOutScene : MonoBehaviour
 
         fadeImage.gameObject.SetActive(false);
     }
+    #endregion  
 
     public void LoadNextSceneWithFade()
     {
