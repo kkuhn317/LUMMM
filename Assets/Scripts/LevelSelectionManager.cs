@@ -7,10 +7,8 @@ public class LevelSelectionManager : MonoBehaviour
     public static LevelSelectionManager Instance { get; private set; }
 
     public Button playButton;
-    public Sprite uncollectedGreenCoinsprite;
-    public Sprite collectedGreenCoinsprite;
-
-    public Sprite[] minirankTypes;
+    public Sprite[] GreenCoinsprite; // 0 - uncollected, 1 - collected
+    public Sprite[] minirankTypes; // 0 - poison, 1 - mushroom, 2 - flower, 3 - 1up, 4 - star
 
     [System.Serializable]
     public class LevelAction
