@@ -10,6 +10,8 @@ public class LevelSelectionManager : MonoBehaviour
     public Sprite uncollectedGreenCoinsprite;
     public Sprite collectedGreenCoinsprite;
 
+    public Sprite[] minirankTypes;
+
     [System.Serializable]
     public class LevelAction
     {
@@ -20,6 +22,7 @@ public class LevelSelectionManager : MonoBehaviour
         public GameObject completeLevelMark;
         public GameObject perfectLevelMark;
         public GameObject checkpointFlag;
+        public GameObject obtainedRank;
         public List<Image> greenCoinListImages;
 
         [HideInInspector]
