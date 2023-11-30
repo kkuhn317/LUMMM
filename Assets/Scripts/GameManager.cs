@@ -13,7 +13,6 @@ public class GameManager : MonoBehaviour
     //It allows me to access other scripts
     public static GameManager Instance { get; private set; }
     private int currentLevelIndex;
-    private FadeInOutScene fadeInOutScene;
 
     [HideInInspector]
     public float currentTime;
@@ -69,7 +68,7 @@ public class GameManager : MonoBehaviour
         PlayerPrefs.Save();
     }
 
-    void LoadCollectedCoins()
+    public void LoadCollectedCoins()
     {
         if (PlayerPrefs.HasKey("CollectedCoinsData_" + currentLevelIndex))
         {
@@ -290,8 +289,6 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        fadeInOutScene = FindObjectOfType<FadeInOutScene>();
-
         if (music) {
             print("Music found");
             currentlyPlayingMusic = music;
@@ -831,7 +828,7 @@ public class GameManager : MonoBehaviour
             Destroy(musicObj);
         }
         ResumeGame();
-        fadeInOutScene.LoadSceneWithFade("SelectLevel");
+        FadeInOutScene.Instance.LoadSceneWithFade("SelectLevel");
     }
 
     #region pausableobjects

@@ -81,14 +81,28 @@ public class FadeInOutScene : MonoBehaviour
         }
     }
 
-    public void LoadSceneWithFade(string sceneName)
+    public void LoadSceneWithFade(string sceneNameOrIndex)
     {
-        StartCoroutine(FadeInAndLoad(sceneName, true));
+        if (int.TryParse(sceneNameOrIndex, out int sceneIndex))
+        {
+            StartCoroutine(FadeInAndLoad(sceneIndex, true));
+        }
+        else
+        {
+            StartCoroutine(FadeInAndLoad(sceneNameOrIndex, true));
+        }
     }
 
-    public void LoadSceneWithoutFadeOut(string sceneName)
+    public void LoadSceneWithoutFadeOut(string sceneNameOrIndex)
     {
-        StartCoroutine(FadeInAndLoad(sceneName, false, 0.5f));
+        if (int.TryParse(sceneNameOrIndex, out int sceneIndex))
+        {
+            StartCoroutine(FadeInAndLoad(sceneIndex, false, 0.5f));
+        }
+        else
+        {
+            StartCoroutine(FadeInAndLoad(sceneNameOrIndex, false, 0.5f));
+        }
     }
 
     private IEnumerator FadeInAndLoad(string sceneName, bool doFadeOut = true, float waitTime = 1.5f)
