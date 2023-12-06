@@ -6,9 +6,8 @@ using System.Collections.Generic;
 public static class GlobalVariables
 {
     public static int lives = 3;
-    public static int startLives = 3;
     public static int coinCount = 0;
-    public static int levelscene = 0;
+    public static LevelInfo levelInfo;
 
     // The id of the last checkpoint the player touched
     // -1 means no checkpoint
@@ -20,10 +19,9 @@ public static class GlobalVariables
 
     public static bool enablePlushies = false;
 
-    public static void ResetForLevel(int lives)
+    public static void ResetForLevel()
     {
-        GlobalVariables.lives = lives;
-        GlobalVariables.startLives = lives;
+        GlobalVariables.lives = levelInfo.lives;
         coinCount = 0;
         checkpoint = -1;
     }

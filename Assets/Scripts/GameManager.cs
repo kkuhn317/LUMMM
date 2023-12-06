@@ -7,12 +7,13 @@ using UnityEngine.SceneManagement;
 using TMPro;
 using static LeanTween;
 using System.Linq;
+using System.Globalization;
 
 public class GameManager : MonoBehaviour
 {
     //It allows me to access other scripts
     public static GameManager Instance { get; private set; }
-    private int currentLevelIndex;
+    private string levelID;
 
     [HideInInspector]
     public float currentTime;
@@ -48,52 +49,37 @@ public class GameManager : MonoBehaviour
     #region GreenCoindata
     private List<GameObject> collectedGreenCoins = new List<GameObject>();
 
-    [System.Serializable]
-    public class CollectedCoinsData
-    {
-        public List<string> collectedCoinNames = new List<string>();
-    }
-
     void SaveCollectedCoins()
     {
-        CollectedCoinsData data = new CollectedCoinsData();
         foreach (GameObject coin in collectedGreenCoins)
         {
-            data.collectedCoinNames.Add(coin.name);
+            int coinIndex = Array.IndexOf(greenCoins, coin);
+            PlayerPrefs.SetInt("CollectedCoin" + coinIndex + "_" + levelID, 1);
         }
 
-        // Serialize and save the data to PlayerPrefs using the level index
-        string jsonData = JsonUtility.ToJson(data);
-        PlayerPrefs.SetString("CollectedCoinsData_" + currentLevelIndex, jsonData);
         PlayerPrefs.Save();
     }
 
     public void LoadCollectedCoins()
     {
-        if (PlayerPrefs.HasKey("CollectedCoinsData_" + currentLevelIndex))
+
+        for(int i = 0; i < greenCoins.Length; i++)
         {
-            // Retrieve and deserialize the data from PlayerPrefs
-            string jsonData = PlayerPrefs.GetString("CollectedCoinsData_" + currentLevelIndex);
-            CollectedCoinsData data = JsonUtility.FromJson<CollectedCoinsData>(jsonData);
-
-            // Update UI and collectedGreenCoins list
-            foreach (string coinName in data.collectedCoinNames)
+            if (PlayerPrefs.GetInt("CollectedCoin" + i + "_" + levelID, 0) == 1)
             {
-                GameObject coinObject = Array.Find(greenCoins, coin => coin.name == coinName);
-                if (coinObject != null)
-                {
-                    collectedGreenCoins.Add(coinObject);
+                GameObject coinObject = greenCoins[i];
 
-                    // Change the alpha of the sprite renderer to indicate it's collected
-                    SpriteRenderer coinRenderer = coinObject.GetComponent<SpriteRenderer>();
-                    Color coinColor = coinRenderer.color;
-                    coinColor.a = 0.5f;
-                    coinRenderer.color = coinColor;
+                collectedGreenCoins.Add(coinObject);
 
-                    // Update UI for the collected coin
-                    Image uiImage = greenCoinUIImages[Array.IndexOf(greenCoins, coinObject)];
-                    uiImage.sprite = collectedSprite;
-                }
+                // Change the alpha of the sprite renderer to indicate it's collected
+                SpriteRenderer coinRenderer = coinObject.GetComponent<SpriteRenderer>();
+                Color coinColor = coinRenderer.color;
+                coinColor.a = 0.5f;
+                coinRenderer.color = coinColor;
+
+                // Update UI for the collected coin
+                Image uiImage = greenCoinUIImages[i];
+                uiImage.sprite = collectedSprite;
             }
         }
     }
@@ -220,14 +206,14 @@ public class GameManager : MonoBehaviour
     private void SaveHighestRank(PlayerRank rank)
     {
         // Save the highest rank to PlayerPrefs
-        PlayerPrefs.SetInt("HighestPlayerRank_" + currentLevelIndex, (int)rank);
+        PlayerPrefs.SetInt("HighestPlayerRank_" + levelID, (int)rank);
         PlayerPrefs.Save();
     }
 
     private PlayerRank LoadHighestRank()
     {
         // Load the highest rank from PlayerPrefs, defaulting to "Default" if it doesn't exist.
-        return (PlayerRank)PlayerPrefs.GetInt("HighestPlayerRank_" + currentLevelIndex, (int)PlayerRank.Default);
+        return (PlayerRank)PlayerPrefs.GetInt("HighestPlayerRank_" + levelID, (int)PlayerRank.Default);
     }
 
     private void ResetCurrentRank()
@@ -294,9 +280,8 @@ public class GameManager : MonoBehaviour
             currentlyPlayingMusic = music;
         }
         currentTime = startingTime;
-        GlobalVariables.levelscene = SceneManager.GetActiveScene().buildIndex;
-        currentLevelIndex = GlobalVariables.levelscene;
-        Debug.Log("Current level ID: " + currentLevelIndex);
+        levelID = GlobalVariables.levelInfo.levelID;
+        Debug.Log("Current level ID: " + levelID);
 
         // Load the high score from PlayerPrefs, defaulting to 0 if it doesn't exist.
         highScore = PlayerPrefs.GetInt("HighScore", 0);
@@ -397,7 +382,7 @@ public class GameManager : MonoBehaviour
     public void RestartLevelFromBeginning()
     {
         // reset lives, checkpoint, etc
-        GlobalVariables.ResetForLevel(GlobalVariables.startLives);
+        GlobalVariables.ResetForLevel();
 
         // turn off all music overrides
         RemoveAllMusicOverrides();
@@ -423,7 +408,7 @@ public class GameManager : MonoBehaviour
 
     public void ReloadScene()
     {
-        SceneManager.LoadScene(currentLevelIndex);
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
     public void DecrementLives()
@@ -445,13 +430,18 @@ public class GameManager : MonoBehaviour
             }
             else
             {
+                // Save progress
+                SaveProgress();
+
                 // Load the LoseLife scene and restart the current level
-                PlayerPrefs.SetInt("GlobalVariables.lives", GlobalVariables.lives);
                 SceneManager.LoadScene(loseLifeSceneName);
             }
         }
         else
         {
+            // Save progress
+            SaveProgress();
+
             // Reload the current scene when the player dies in infinite lives mode
             ReloadScene();
         }
@@ -466,9 +456,6 @@ public class GameManager : MonoBehaviour
 
         // Start the color change coroutine
         StartCoroutine(AnimateTextColor(livesText, targetColor, 0.5f));
-
-        // Save the current number of lives to PlayerPrefs
-        PlayerPrefs.SetInt("GlobalVariables.lives", GlobalVariables.lives);
     }
 
     IEnumerator AnimateTextColor(TMP_Text text, Color targetColor, float duration)
@@ -659,12 +646,12 @@ public class GameManager : MonoBehaviour
             Debug.Log("All green coins collected");
         }
 
-        if (GlobalVariables.infiniteLivesMode && GlobalVariables.enableCheckpoints)
+        if (!GlobalVariables.infiniteLivesMode && !GlobalVariables.enableCheckpoints)
         {
             Debug.Log("You complete the level without advantages, Congrats! You did it! Yay :D!");
         }
 
-        if (collectedGreenCoins.Count == greenCoins.Length && GlobalVariables.infiniteLivesMode && GlobalVariables.enableCheckpoints)
+        if (collectedGreenCoins.Count == greenCoins.Length && !GlobalVariables.infiniteLivesMode && !GlobalVariables.enableCheckpoints)
         {
             Debug.Log("Level completed perfect");
         }
@@ -819,6 +806,25 @@ public class GameManager : MonoBehaviour
         player.transform.position = checkpoint.SpawnPosition;
     }
 
+    // Save the Level Progress
+    public void SaveProgress() 
+    {
+        // Save level progress if reached a checkpoint
+        if (GlobalVariables.checkpoint != -1)
+        {
+            // Save the current number of lives to PlayerPrefs
+            PlayerPrefs.SetInt("SavedLives", GlobalVariables.lives);
+
+            // Save the current number of coins to PlayerPrefs
+            PlayerPrefs.SetInt("SavedCoins", GlobalVariables.coinCount);
+
+            // Save the current checkpoint to PlayerPrefs
+            PlayerPrefs.SetInt("SavedCheckpoint", GlobalVariables.checkpoint);
+
+            PlayerPrefs.SetString("SavedLevel", levelID);
+        }
+    }
+
     // Quit Level
     public void QuitLevel()
     {
@@ -971,8 +977,12 @@ public class GameManager : MonoBehaviour
 
         // Update the rank based on the final score
         UpdateRank();
+
         // Set the texture for highestRankImage based on the updated highest rank
         highestRankImage.texture = rankTypes[(int)highestRank - 1].texture;
+
+        // Set Level Completed
+        PlayerPrefs.SetInt("LevelCompleted_" + levelID, 1);
 
         CheckGameCompletion();
         ResumeGame();
@@ -982,9 +992,6 @@ public class GameManager : MonoBehaviour
         {
             Destroy(musicObj);
         }
-        // This will probably cause a special ending screen to show up, 
-        // but for now just go to the select level menu
         WinScreenGameObject.SetActive(true);
-        // fadeInOutScene.LoadSceneWithFade("SelectLevel");
     }
 }

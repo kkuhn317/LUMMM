@@ -52,6 +52,9 @@ public class Checkpoint : MonoBehaviour
 
             // Set the checkpoint in GlobalVariables
             GlobalVariables.checkpoint = GameManager.Instance.GetCheckpointID(this);
+
+            // Save Progress
+            GameManager.Instance.SaveProgress();
         }
     }
 

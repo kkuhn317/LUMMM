@@ -24,7 +24,7 @@ public class LivesCounter : MonoBehaviour
     }
 
     void GoBackToLevel() {
-        SceneManager.LoadScene(GlobalVariables.levelscene);
+        SceneManager.LoadScene(GlobalVariables.levelInfo.levelScene);
     }
 
     void PlaySound() {

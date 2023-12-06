@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -6,30 +8,15 @@ public class LevelSelectionManager : MonoBehaviour
 {
     public static LevelSelectionManager Instance { get; private set; }
 
+    public TMP_Text levelNameText;
+    public TMP_Text videoYearText;
+    public Button videoLinkButton;
+    public TMP_Text levelDescriptionText;
     public Button playButton;
     public Sprite[] GreenCoinsprite; // 0 - uncollected, 1 - collected
     public Sprite[] minirankTypes; // 0 - poison, 1 - mushroom, 2 - flower, 3 - 1up, 4 - star
 
-    [System.Serializable]
-    public class LevelAction
-    {
-        public Button levelButton;
-        public string levelName;
-        public bool isCompleted;
-        public bool isPerfect;
-        public GameObject completeLevelMark;
-        public GameObject perfectLevelMark;
-        public GameObject checkpointFlag;
-        public GameObject obtainedRank;
-        public List<Image> greenCoinListImages;
-
-        [HideInInspector]
-        public bool hasCompletedActionsExecuted = false;
-        [HideInInspector]
-        public bool hasPerfectActionsExecuted = false;
-    }
-
-    public List<LevelAction> levelActions = new List<LevelAction>();
+    public LevelButton selectedLevelButton;
 
     void Awake()
     {
@@ -47,54 +34,70 @@ public class LevelSelectionManager : MonoBehaviour
     {
         playButton.gameObject.SetActive(false); // Deactivate the button if it's initially active
 
-        // Hook up each level button to the OnClick event
-        foreach (var levelAction in levelActions)
-        {
-            var action = levelAction; // Create a local variable
-            action.levelButton.onClick.AddListener(() => OnLevelButtonClick(action));
-        }
-
     }
 
-    void Update()
+    public void OnLevelButtonClick(LevelButton button)
     {
-        foreach (var buttonAction in levelActions)
-        {
-            if (buttonAction.isCompleted && !buttonAction.hasCompletedActionsExecuted)
-            {
-                // Execute actions for completed state only once
-                buttonAction.completeLevelMark.SetActive(true);
-                buttonAction.hasCompletedActionsExecuted = true;
-            }
+        selectedLevelButton = button;
+        
+        // Update the level info text
+        levelNameText.text = button.levelInfo.levelName;
+        videoYearText.text = button.levelInfo.videoYear;
+        levelDescriptionText.text = button.levelInfo.levelDescription;
 
-            if (buttonAction.isPerfect && !buttonAction.hasPerfectActionsExecuted)
-            {
-                // Execute actions for perfect state only once
-                buttonAction.perfectLevelMark.SetActive(true);
-                buttonAction.hasPerfectActionsExecuted = true;
-                // Deactivate other GameObjects if needed
-                buttonAction.completeLevelMark.SetActive(false);
-            }
-        }
-    }
+        // Remove any existing listeners from the play button's onClick event
+        videoLinkButton.onClick.RemoveAllListeners();
 
+        videoLinkButton.onClick.AddListener(OpenVideoLink);
 
-    void OnLevelButtonClick(LevelAction buttonAction)
-    {
         playButton.gameObject.SetActive(true);
         playButton.onClick.RemoveAllListeners(); // Remove previous listeners if any
 
-        if (!string.IsNullOrEmpty(buttonAction.levelName))
+        if (string.IsNullOrEmpty(button.levelInfo.levelScene))
         {
-            playButton.onClick.AddListener(() => OnPlayButtonClick(buttonAction.levelName));
+            playButton.gameObject.SetActive(false);
+            return;
+        }
+
+    }
+
+    // Allows you open an URL
+    private void OpenVideoLink()
+    {
+        Application.OpenURL(selectedLevelButton.levelInfo.videoLink);
+    }
+
+    public void OnPlayButtonClick()
+    {   
+        if (selectedLevelButton == null)
+        {
+            return;
+        }
+
+
+        if (!string.IsNullOrEmpty(selectedLevelButton.levelInfo.levelScene))
+        {
+            // Set the level info in GlobalVariables
+            GlobalVariables.levelInfo = selectedLevelButton.levelInfo;
+            // Reset global variables for the level
+            GlobalVariables.ResetForLevel();
+
+            // Check if level is a save game
+            if (selectedLevelButton.levelInfo.levelID == PlayerPrefs.GetString("SavedLevel", "none"))
+            {
+                LoadSaveGame();
+            }
+
+            // Open the scene
+            FadeInOutScene.Instance.LoadSceneWithFade(selectedLevelButton.levelInfo.levelScene);
         }
     }
 
-    void OnPlayButtonClick(string levelName)
+    private void LoadSaveGame()
     {
-        if (!string.IsNullOrEmpty(levelName))
-        {
-            FadeInOutScene.Instance.LoadSceneWithFade(levelName);
-        }
+        // Load the saved info
+        GlobalVariables.lives = PlayerPrefs.GetInt("SavedLives", 3);
+        GlobalVariables.coinCount = PlayerPrefs.GetInt("SavedCoins", 0);
+        GlobalVariables.checkpoint = PlayerPrefs.GetInt("SavedCheckpoint", -1);
     }
 }
