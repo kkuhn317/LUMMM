@@ -19,6 +19,15 @@ public class LevelButton : MonoBehaviour
 
     void Start()
     {
+        if (levelInfo.levelScene == "") // Unavilable level
+        {
+            foreach (Image coin in greenCoinListImages)
+            {
+                coin.gameObject.SetActive(false);
+            }
+            return;
+        }
+
         string id = levelInfo.levelID;
         // Set the saved info
         
@@ -48,10 +57,10 @@ public class LevelButton : MonoBehaviour
 
         // Rank
         int rank = PlayerPrefs.GetInt("HighestPlayerRank_" + id, -1);
-        if (rank != -1)
+        if (rank > 0)
         {
             obtainedRank.SetActive(true);
-            obtainedRank.GetComponent<Image>().sprite = minirankTypes[rank];
+            obtainedRank.GetComponent<Image>().sprite = minirankTypes[rank - 1];
         }
     }
 

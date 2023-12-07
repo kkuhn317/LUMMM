@@ -86,6 +86,9 @@ public class LevelSelectionManager : MonoBehaviour
             if (selectedLevelButton.levelInfo.levelID == PlayerPrefs.GetString("SavedLevel", "none"))
             {
                 LoadSaveGame();
+            } else {
+                // Remove saved info
+                PlayerPrefs.DeleteKey("SavedLevel");
             }
 
             // Open the scene

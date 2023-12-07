@@ -56,8 +56,6 @@ public class GameManager : MonoBehaviour
             int coinIndex = Array.IndexOf(greenCoins, coin);
             PlayerPrefs.SetInt("CollectedCoin" + coinIndex + "_" + levelID, 1);
         }
-
-        PlayerPrefs.Save();
     }
 
     public void LoadCollectedCoins()
@@ -119,8 +117,9 @@ public class GameManager : MonoBehaviour
     public int scoreForCRank = 5000;
 
     public bool considerAllEnemiesKilled = true;
-    private PlayerRank highestRank;
-    private PlayerRank currentRank;
+    private PlayerRank highestRank; // The highest rank achieved after the level is completed (saved and loaded from PlayerPrefs)
+    private PlayerRank prevRank;  // The previous rank, to see if the rank has changed
+    private PlayerRank currentRank; // The current rank
 
     [Header("Rank Change")]
     public float animationDuration = 1.0f;
@@ -129,12 +128,12 @@ public class GameManager : MonoBehaviour
     #region RankSystem
     public enum PlayerRank
     {
-        Default,
-        D,
-        C,
-        B,
-        A,
-        S
+        Default,    // Question mark
+        D,          // Rotten Mushroom
+        C,          // Mushroom
+        B,          // Fire Flower
+        A,          // 1up
+        S           // Star
     }
 
     private bool AllEnemiesKilled()
@@ -147,7 +146,6 @@ public class GameManager : MonoBehaviour
 
     private void UpdateRank()
     {
-        PlayerRank currentRank;
         bool allEnemiesKilledRequirementMet = !considerAllEnemiesKilled || AllEnemiesKilled();
 
         if (scoreCount >= scoreForSRank && allEnemiesKilledRequirementMet)
@@ -183,13 +181,10 @@ public class GameManager : MonoBehaviour
             currentRank = PlayerRank.D;
         }
 
-        // Check if the current rank is higher than the stored highest rank
-        if (currentRank > highestRank)
+        // Check if the current rank is higher than the previous rank (last frame)
+        if (currentRank > prevRank)
         {
-            highestRank = currentRank;
-
-            // Save the highest rank to PlayerPrefs
-            SaveHighestRank(highestRank);
+            prevRank = currentRank;
 
             SetCurrentRank(currentRank);
         }
@@ -207,7 +202,6 @@ public class GameManager : MonoBehaviour
     {
         // Save the highest rank to PlayerPrefs
         PlayerPrefs.SetInt("HighestPlayerRank_" + levelID, (int)rank);
-        PlayerPrefs.Save();
     }
 
     private PlayerRank LoadHighestRank()
@@ -384,6 +378,9 @@ public class GameManager : MonoBehaviour
         // reset lives, checkpoint, etc
         GlobalVariables.ResetForLevel();
 
+        // Remove saved progress
+        RemoveProgress();
+
         // turn off all music overrides
         RemoveAllMusicOverrides();
 
@@ -424,6 +421,7 @@ public class GameManager : MonoBehaviour
             // Check if the player has run out of lives
             if (GlobalVariables.lives <= 0)
             {
+                PlayerPrefs.Save();
                 // Load the Game Over scene
                 SceneManager.LoadScene(gameOverSceneName);
                 GlobalVariables.lives = 3;
@@ -495,7 +493,6 @@ public class GameManager : MonoBehaviour
         {
             highScore = scoreCount;
             PlayerPrefs.SetInt("HighScore", highScore);
-            PlayerPrefs.Save();
         }
     }
 
@@ -654,6 +651,7 @@ public class GameManager : MonoBehaviour
         if (collectedGreenCoins.Count == greenCoins.Length && !GlobalVariables.infiniteLivesMode && !GlobalVariables.enableCheckpoints)
         {
             Debug.Log("Level completed perfect");
+            PlayerPrefs.SetInt("LevelPerfect_" + levelID, 1);
         }
     }
 
@@ -824,10 +822,19 @@ public class GameManager : MonoBehaviour
             PlayerPrefs.SetString("SavedLevel", levelID);
         }
     }
+    public void RemoveProgress()
+    {
+        PlayerPrefs.DeleteKey("SavedLives");
+        PlayerPrefs.DeleteKey("SavedCoins");
+        PlayerPrefs.DeleteKey("SavedCheckpoint");
+        PlayerPrefs.DeleteKey("SavedLevel");
+    }
 
     // Quit Level
     public void QuitLevel()
     {
+        PlayerPrefs.Save();
+
         // Destroy all music objects
         foreach (GameObject musicObj in GameObject.FindGameObjectsWithTag("GameMusic"))
         {
@@ -978,11 +985,22 @@ public class GameManager : MonoBehaviour
         // Update the rank based on the final score
         UpdateRank();
 
+        // Save the highest rank to PlayerPrefs if the current rank is higher than the saved rank
+        if (currentRank > highestRank) {
+            highestRank = currentRank;
+            SaveHighestRank(currentRank);
+        }
+
         // Set the texture for highestRankImage based on the updated highest rank
-        highestRankImage.texture = rankTypes[(int)highestRank - 1].texture;
+        if (highestRank != PlayerRank.Default) {
+            highestRankImage.texture = rankTypes[(int)highestRank - 1].texture;
+        }
 
         // Set Level Completed
         PlayerPrefs.SetInt("LevelCompleted_" + levelID, 1);
+
+        // Remove saved progress
+        RemoveProgress();
 
         CheckGameCompletion();
         ResumeGame();
