@@ -25,13 +25,16 @@ public class Pipe : MonoBehaviour
     {
         if (!isEnteringPipe && connection != null && other.CompareTag("Player"))
         {
-            KeyCode warpKey = GetWarpKeyFromRotation();
+            KeyCode warpKey1 = GetWarpKeyFromRotationArrowKeys();
+            KeyCode warpKey2 = GetWarpKeyFromRotationWASD();
+            
             if (!requireGroundToEnter || (requireGroundToEnter && IsPlayerOnGround(other.gameObject)))
             {
-                if (Input.GetKey(warpKey))
+                if (Input.GetKey(warpKey1) || Input.GetKey(warpKey2))
                 {
                     StartCoroutine(Enter(other.transform));
                 }
+               
             }
         }
     }
@@ -132,7 +135,7 @@ public class Pipe : MonoBehaviour
         player.localScale = endScale;
     }
 
-    private KeyCode GetWarpKeyFromRotation()
+    private KeyCode GetWarpKeyFromRotationArrowKeys()
     {
         float angle = transform.eulerAngles.z;
 
@@ -151,6 +154,28 @@ public class Pipe : MonoBehaviour
         else
         {
             return KeyCode.LeftArrow; // Facing left
+        }
+    }
+    //wasd now
+    private KeyCode GetWarpKeyFromRotationWASD()
+    {
+        float angle = transform.eulerAngles.z;
+
+        if (angle < 45f || angle >= 315f)
+        {
+            return KeyCode.S; // Facing down
+        }
+        else if (angle >= 45f && angle < 135f)
+        {
+            return KeyCode.D; // Facing right
+        }
+        else if (angle >= 135f && angle < 225f)
+        {
+            return KeyCode.W; // Facing up
+        }
+        else
+        {
+            return KeyCode.A; // Facing left
         }
     }
 
