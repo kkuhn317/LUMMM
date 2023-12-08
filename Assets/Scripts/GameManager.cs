@@ -245,6 +245,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] TMP_Text collectedCoinsText;
     [SerializeField] TMP_Text totalCoinsText;
     [SerializeField] TMP_Text scoreWinScreenText;
+    public GameObject NewBestRankText;
+    public GameObject NewHighScoreText;
     public List<Image> greenCoinUIWin;
     public RawImage ObtainedRank;
 
@@ -964,11 +966,27 @@ public class GameManager : MonoBehaviour
         // Collected coins
         collectedCoinsText.text = coinText.text; 
 
+        if (GlobalVariables.coinCount == totalCoins) { // If the amount of coins collected match the total coins on the level
+            totalCoinsText.color = Color.yellow; // The total coins text will change to yellow
+        }
+
         // Score amount achieved
         scoreWinScreenText.text = scoreText.text;
 
+        if (scoreCount > highScore) { // If the scoreCount is higher than highScore  on the level
+            NewHighScoreText.SetActive(true); // A text saying "New HighScore!" will appear
+        } else {
+            NewHighScoreText.SetActive(false); // The text won't appear
+        }
+            
         // Ensure ObtainedRank matches the currentRank
         ObtainedRank.texture = currentRankImage.texture;
+
+        /*if (currentRank > highestRank) { // If the current obtained rank is higher than highest rank you obtained on the level
+            NewBestRankText.SetActive(true); // A text saying "New Best!" will appear
+        } else {
+            NewHighScoreText.SetActive(false); // The text won't appear
+        }*/
     }
 
     // after level ends, call this (ex: flag cutscene ends)

@@ -58,8 +58,8 @@ public class CircleTransition : MonoBehaviour
 
         // To Draw to Image to Full Screen, we get the Canvas Rect size
         var canvasRect = _canvas.GetComponent<RectTransform>().rect;
-        var canvasWidth = canvasRect.width;
-        var canvasHeight = canvasRect.height;
+        var canvasWidth = canvasRect.width + 100;
+        var canvasHeight = canvasRect.height + 100;
 
         // But because the Black Screen is now square (different to Screen). So we much added the different of width/height to it
         // Now we convert Screen Pos to Canvas Pos

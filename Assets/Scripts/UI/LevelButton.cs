@@ -17,8 +17,12 @@ public class LevelButton : MonoBehaviour
     public Sprite[] GreenCoinsprite; // 0 - uncollected, 1 - collected
     public Sprite[] minirankTypes; // 0 - poison, 1 - mushroom, 2 - flower, 3 - 1up, 4 - star
 
+    private AudioSource audioSource;
+
     void Start()
     {
+        audioSource = GetComponent<AudioSource>();
+
         if (levelInfo.levelScene == "") // Unavilable level
         {
             foreach (Image coin in greenCoinListImages)
@@ -73,6 +77,7 @@ public class LevelButton : MonoBehaviour
     public void OnDoubleClick()
     {
         LevelSelectionManager.Instance.OnPlayButtonClick();
+        audioSource.Play();
     }
 
 
