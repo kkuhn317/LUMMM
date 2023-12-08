@@ -77,6 +77,8 @@ public class LevelSelectionManager : MonoBehaviour
 
         if (!string.IsNullOrEmpty(selectedLevelButton.levelInfo.levelScene))
         {
+            DestroyGameMusic.DestroyGameMusicObjects();
+            
             // Set the level info in GlobalVariables
             GlobalVariables.levelInfo = selectedLevelButton.levelInfo;
             // Reset global variables for the level

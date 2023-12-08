@@ -720,7 +720,11 @@ public class GameManager : MonoBehaviour
     public void RemoveAllMusicOverrides()
     {
         StopAllMusic();
-        currentlyPlayingMusic.GetComponent<AudioSource>().mute = false;
+       
+        if (currentlyPlayingMusic != null){
+            currentlyPlayingMusic.GetComponent<AudioSource>().mute = false;
+        }
+        
     }
 
     public void RestartMusic()

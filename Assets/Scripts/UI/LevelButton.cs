@@ -54,9 +54,12 @@ public class LevelButton : MonoBehaviour
         }
 
         // Checkpoint
-        if (PlayerPrefs.GetString("SavedLevel") == id)
+        if (PlayerPrefs.GetString("SavedLevel") == id && PlayerPrefs.GetInt(SettingsKeys.CheckpointsKey, 0 )== 1)
         {
             checkpointFlag.SetActive(true);
+        }
+        else{
+            checkpointFlag.SetActive(false);
         }
 
         // Rank

@@ -9,7 +9,7 @@ public class DestroyGameMusic : MonoBehaviour
         DestroyGameMusicObjects();
     }
 
-    public void DestroyGameMusicObjects()
+    public static void DestroyGameMusicObjects()
     {
         GameObject[] musicObjs = GameObject.FindGameObjectsWithTag("GameMusic");
         foreach (GameObject musicObj in musicObjs)
