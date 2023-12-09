@@ -115,6 +115,7 @@ public class GameManager : MonoBehaviour
     public int scoreForARank = 9000;
     public int scoreForBRank = 7000;
     public int scoreForCRank = 5000;
+    public int scoreForDRank = 3000;
 
     public bool considerAllEnemiesKilled = true;
     private PlayerRank highestRank; // The highest rank achieved after the level is completed (saved and loaded from PlayerPrefs)
@@ -168,17 +169,17 @@ public class GameManager : MonoBehaviour
             currentRankImage.texture = rankTypes[1].texture; // C Rank
             currentRank = PlayerRank.C;
         }
+        else if (scoreCount >= scoreForDRank)
+        {
+            currentRankImage.texture = rankTypes[0].texture; // D Rank
+            currentRank = PlayerRank.D;
+        }
         else
         {
             if (highestRank == PlayerRank.Default)
             {
                 currentRankImage.texture = questionsprite.texture; // Default
             }
-            else
-            {
-                currentRankImage.texture = rankTypes[0].texture; // D Rank
-            }
-            currentRank = PlayerRank.D;
         }
 
         // Check if the current rank is higher than the previous rank (last frame)
@@ -982,15 +983,25 @@ public class GameManager : MonoBehaviour
         } else {
             NewHighScoreText.SetActive(false); // The text won't appear
         }
-            
-        // Ensure ObtainedRank matches the currentRank
-        ObtainedRank.texture = currentRankImage.texture;
 
-        /*if (currentRank > highestRank) { // If the current obtained rank is higher than highest rank you obtained on the level
+        // Save the highest rank to PlayerPrefs if the current rank is higher than the saved rank
+        if (currentRank > highestRank) {
+            highestRank = currentRank;
+            SaveHighestRank(currentRank);
+
+            if (highestRank != PlayerRank.Default) // You got a rank that isn't the question mark?
             NewBestRankText.SetActive(true); // A text saying "New Best!" will appear
         } else {
-            NewHighScoreText.SetActive(false); // The text won't appear
-        }*/
+            NewBestRankText.SetActive(false); // The text won't appear
+        }
+
+        // Set the texture for highestRankImage based on the updated highest rank
+        if (highestRank != PlayerRank.Default)
+        {
+            highestRankImage.texture = rankTypes[(int)highestRank - 1].texture;
+        }
+        // Ensure ObtainedRank matches the currentRank
+        ObtainedRank.texture = currentRankImage.texture;  
     }
 
     // after level ends, call this (ex: flag cutscene ends)
@@ -1006,17 +1017,6 @@ public class GameManager : MonoBehaviour
 
         // Update the rank based on the final score
         UpdateRank();
-
-        // Save the highest rank to PlayerPrefs if the current rank is higher than the saved rank
-        if (currentRank > highestRank) {
-            highestRank = currentRank;
-            SaveHighestRank(currentRank);
-        }
-
-        // Set the texture for highestRankImage based on the updated highest rank
-        if (highestRank != PlayerRank.Default) {
-            highestRankImage.texture = rankTypes[(int)highestRank - 1].texture;
-        }
 
         // Set Level Completed
         PlayerPrefs.SetInt("LevelCompleted_" + levelID, 1);
