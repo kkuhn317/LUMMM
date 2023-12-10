@@ -159,14 +159,30 @@ MonoBehaviour:
   DontFallOffLedges: 0
   flipObject: 1
   FrequentMovement: 0
+  lavaKill: 1
+  sinkSpeed: 20
+  lavaMask:
+    serializedVersion: 2
+    m_Bits: 0
+  carryable: 0
+  carried: 0
+  throwVelocity: {x: 12, y: 10}
+  knockAwayVelocity: {x: 5, y: 5}
+  overrideKnockAwayGravity: 0
+  knockAwayGravity: 60
+  knockAwayType: 0
+  knockAwayRotationSpeed: 10
+  KnockAwayDissapearTime: -1
   knockAwaySound: {fileID: 8300000, guid: 62467461e51dddb40931164fd2db1170, type: 3}
   objectState: 0
   movement: 1
   stopAfterLand: 0
-  maxBounces: 1
   bounceHeight: 0
+  minHeightToBounce: 1
   canBeFireballed: 1
   stompHeight: 0.2
+  heldItem: {fileID: 0}
+  itemSpawnOffset: {x: 0, y: 0, z: 0}
   state: 0
   walkingSpeed: 2
   movingShellSpeed: 5
@@ -179,7 +195,7 @@ AudioSource:
   m_GameObject: {fileID: 608183684984082099}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 0}
+  OutputAudioMixerGroup: {fileID: 24300002, guid: 52d4409ed4d7bb645aad562fcfd87159, type: 2}
   m_audioClip: {fileID: 8300000, guid: e2bb1aa0b45968f4b898809f1533541a, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 1

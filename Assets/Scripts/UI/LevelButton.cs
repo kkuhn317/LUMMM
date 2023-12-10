@@ -14,7 +14,7 @@ public class LevelButton : MonoBehaviour
     public GameObject obtainedRank;
     public List<Image> greenCoinListImages;
 
-    public Sprite[] GreenCoinsprite; // 0 - uncollected, 1 - collected
+    public Sprite[] GreenCoinsprite; // 0 - uncollected, 1 - collected, 2 - unavailable
     public Sprite[] minirankTypes; // 0 - poison, 1 - mushroom, 2 - flower, 3 - 1up, 4 - star
 
     private AudioSource audioSource;
@@ -27,6 +27,7 @@ public class LevelButton : MonoBehaviour
         {
             foreach (Image coin in greenCoinListImages)
             {
+                // coin.sprite = GreenCoinsprite[2];
                 coin.gameObject.SetActive(false);
             }
             return;
@@ -54,7 +55,7 @@ public class LevelButton : MonoBehaviour
         }
 
         // Checkpoint
-        if (PlayerPrefs.GetString("SavedLevel") == id && PlayerPrefs.GetInt(SettingsKeys.CheckpointsKey, 0 )== 1)
+        if (PlayerPrefs.GetString("SavedLevel") == id && PlayerPrefs.GetInt(SettingsKeys.CheckpointsKey, 0 ) == 1)
         {
             checkpointFlag.SetActive(true);
         }
