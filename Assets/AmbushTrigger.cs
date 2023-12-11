@@ -40,7 +40,17 @@ public class AmbushTrigger : MonoBehaviour
             foreach (Goomba enemy in group.enemies)
             {
                 if (enemy != null)
-                    enemy.state = Goomba.EnemyState.ambush; // Each enemy on the list will change their state to Ambush
+                {
+                    // Set the enemy's movement
+                    enemy.movement = ObjectPhysics.ObjectMovement.bouncing;
+
+                    // Reset bounceHeight if it's not in the still state
+                    if (enemy.movement != ObjectPhysics.ObjectMovement.still)
+                    {
+                        enemy.bounceHeight = 0;
+                    }
+                }
+                
             }
 
             // Wait a little to do the same for the next group (if there is another)

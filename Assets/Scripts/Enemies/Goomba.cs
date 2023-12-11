@@ -7,14 +7,12 @@ public class Goomba : EnemyAI
 {
     public enum EnemyState {
         walking,
-        crushed,
-        ambush
+        crushed
     }
 
     public EnemyState state = EnemyState.walking;
 
     public bool stompable = true;
-    private bool isAmbushing = false;
 
     public bool shouldntEnemyMoveWhenDie = true;
     protected bool shouldDie = false;
@@ -28,8 +26,6 @@ public class Goomba : EnemyAI
 
     protected override void Update() {
         base.Update();
-
-        CheckAmbush();
         CheckCrushed();
     }
 
@@ -98,21 +94,6 @@ public class Goomba : EnemyAI
 
                 Destroy(this.gameObject);
             }
-        }
-    }
-
-    public void Ambush()
-    {
-        isAmbushing = true;
-        movement = ObjectMovement.bouncing;
-    }
-
-    public void CheckAmbush()
-    {
-        if (state == EnemyState.ambush && !isAmbushing) {
-            Ambush();
-        } else {
-            bounceHeight = 0;
         }
     }
 }
