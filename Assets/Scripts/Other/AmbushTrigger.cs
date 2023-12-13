@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Playables;
 
 [System.Serializable]
 public class EnemyGroup
@@ -12,6 +13,7 @@ public class AmbushTrigger : MonoBehaviour
 {
     public float delayBetweenGroups = 0.025f; // Adjust as needed
     public float delayBeforeAmbush = 1f; // Adjust as needed 
+    public PlayableDirector spikeygoombasgodown;
 
     public List<EnemyGroup> enemyGroups = new List<EnemyGroup>();
 
@@ -19,6 +21,11 @@ public class AmbushTrigger : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
+            if(spikeygoombasgodown != null)
+            {
+                spikeygoombasgodown.Play();
+            }
+
             StartCoroutine(TriggerAmbush());
         }
     }
