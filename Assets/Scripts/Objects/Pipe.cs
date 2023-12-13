@@ -34,7 +34,6 @@ public class Pipe : MonoBehaviour
                 {
                     StartCoroutine(Enter(other.transform));
                 }
-               
             }
         }
     }
