@@ -89,6 +89,9 @@ public class Flag : MonoBehaviour
     {
         state = FlagState.Cutscene;
 
+        Animator marioAnimator = cutsceneMario.GetComponent<Animator>();
+        marioAnimator.SetFloat("climbSpeed", 0f);
+
         // play the cutscene
         GetComponent<PlayableDirector>().Play();
     }
