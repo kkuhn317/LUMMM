@@ -19,6 +19,7 @@ public class Goomba : EnemyAI
     private float deathTimer = 0;
     public bool shouldDestroyAfterCrush = true;
     public float timeBeforeDestroy = 1.0f;
+    public AudioClip goombastomp;
 
     [Header("Cutscene")]
     public PlayableDirector cutscene;
@@ -39,6 +40,7 @@ public class Goomba : EnemyAI
 
     public void Crush () {
 
+        GetComponent<AudioSource>().clip = goombastomp;
         GetComponent<AudioSource>().Play();
         
         if (!stompable) {
