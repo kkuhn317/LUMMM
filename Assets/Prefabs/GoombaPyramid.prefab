@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 4218637866291520380}
   - component: {fileID: 2997031150096691213}
   - component: {fileID: 4396391775771328628}
+  - component: {fileID: 3314078269769558182}
   m_Layer: 23
   m_Name: GoombaPyramid
   m_TagString: Enemy
@@ -159,8 +160,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   movingLeft: 0
-  velocity: {x: 5, y: 0}
-  gravity: 60
+  velocity: {x: 4, y: 0}
+  gravity: 30
   width: 1
   height: 1
   floorRaycastSpacing: 0.2
@@ -172,7 +173,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 1417
   checkObjectCollision: 1
-  DontFallOffLedges: 0
+  DontFallOffLedges: 1
   flipObject: 0
   FrequentMovement: 0
   lavaKill: 1
@@ -193,7 +194,7 @@ MonoBehaviour:
   objectState: 0
   movement: 2
   stopAfterLand: 1
-  bounceHeight: 3.5
+  bounceHeight: 8
   minHeightToBounce: 0
   canBeFireballed: 1
   stompHeight: 0.05
@@ -303,3 +304,15 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &3314078269769558182
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7384276377935262440}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 61c9cc981e6bd25438e8536f31227423, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

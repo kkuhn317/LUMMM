@@ -6,7 +6,7 @@ using UnityEngine.Playables;
 [System.Serializable]
 public class EnemyGroup
 {
-    public List<EnemyAI> enemies;
+    public List<Goomba> enemies; // Assuming Goomba is the correct type, adjust if needed
 }
 
 public class AmbushTrigger : MonoBehaviour
@@ -16,12 +16,17 @@ public class AmbushTrigger : MonoBehaviour
     public PlayableDirector spikeygoombasgodown;
     public float delayBetweenAudio = 0.025f;
     public AudioClip ambushAudioClip;
+    public AudioClip Mariowhoaaa;
+    public SpriteSwapArea spriteswaparea;
 
     public List<EnemyGroup> enemyGroups = new List<EnemyGroup>();
     private List<AudioSource> allAudioSources = new List<AudioSource>();
+    private bool hasPlayedMariowhoaaa = false;
 
     private void Start()
     {
+        spriteswaparea.enabled = false;
+
         // Collect all AudioSources at the start
         foreach (EnemyGroup group in enemyGroups)
         {
@@ -50,13 +55,45 @@ public class AmbushTrigger : MonoBehaviour
             {
                 spikeygoombasgodown.Play();
             }
-            StartCoroutine(TriggerAmbush());
+
+            StartCoroutine(TriggerAmbush(other.gameObject));
         }
     }
 
-    private IEnumerator TriggerAmbush()
+    private void OnTriggerExit2D(Collider2D other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            // Set isScared to false on the Player's animator
+            Animator playerAnimator = other.GetComponent<Animator>();
+            if (playerAnimator != null)
+            {
+                playerAnimator.SetBool("isScared", false);
+            }
+        }
+    }
+
+    private IEnumerator TriggerAmbush(GameObject player)
     {
         yield return new WaitForSeconds(delayBeforeAmbush);
+
+        // Enable scared player library
+        spriteswaparea.enabled = true;
+
+        // Set the "isScared" parameter of the player's animator
+        Animator playerAnimator = player.GetComponent<Animator>();
+        if (playerAnimator != null)
+        {
+            playerAnimator.SetBool("isScared", true);
+        }
+
+        // Play the Mariowhoaaa audio clip
+        if (!hasPlayedMariowhoaaa)
+        {
+            AudioSource playerAudioSource = player.GetComponent<AudioSource>();
+            playerAudioSource.PlayOneShot(Mariowhoaaa);
+            hasPlayedMariowhoaaa = true;
+        }
 
         // Set the movement and reset bounceHeight for all enemies
         foreach (EnemyGroup group in enemyGroups)
@@ -72,7 +109,8 @@ public class AmbushTrigger : MonoBehaviour
 
                     if (enemy.movement != ObjectPhysics.ObjectMovement.still)
                     {
-                        enemy.bounceHeight = 0;
+                        // Start the bouncing coroutine
+                        StartCoroutine(BounceEnemy(enemy));
                     }
                 }
 
@@ -85,6 +123,22 @@ public class AmbushTrigger : MonoBehaviour
 
         // Disable the collider
         GetComponent<Collider2D>().enabled = false;
+        // Return player to normal library
+        spriteswaparea.enabled = false;
+    }
+
+    private IEnumerator BounceEnemy(Goomba enemy)
+    {
+        // Second jump
+        enemy.velocity.x = 3;
+        enemy.bounceHeight = 8;
+
+        // Wait for a short duration
+        yield return new WaitForSeconds(1.25f);
+
+        enemy.velocity.x = 1;
+        // To stop the bounce
+        enemy.bounceHeight = 0;
     }
 
     private IEnumerator EnemyAudio()
@@ -94,7 +148,7 @@ public class AmbushTrigger : MonoBehaviour
         {
             audioSource.clip = ambushAudioClip;
             audioSource.Play();
-            yield return new WaitForSeconds(delayBetweenAudio);
+            yield return new WaitForSeconds(delayBetweenAudio * Time.deltaTime);
         }
     }
 }
