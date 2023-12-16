@@ -953,7 +953,7 @@ public class MarioMovement : MonoBehaviour
         if (throwSound != null)
             audioSource.PlayOneShot(throwSound);
 
-        obj.getThrown(facingRight);
+        obj.GetThrown(facingRight);
     }
 
     public void resetSpriteLibrary() {

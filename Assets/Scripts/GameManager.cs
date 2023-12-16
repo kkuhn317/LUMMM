@@ -264,9 +264,6 @@ public class GameManager : MonoBehaviour
             Destroy(gameObject);
         }
         audioSource = GetComponent<AudioSource>();
-
-        // Store the original audio volume
-        originalVolume = AudioListener.volume;
     }
 
     // Start is called before the first frame update
@@ -277,6 +274,11 @@ public class GameManager : MonoBehaviour
             currentlyPlayingMusic = music;
         }
         currentTime = startingTime;
+
+        if (GlobalVariables.levelInfo == null) {
+            GlobalVariables.levelInfo = TestLevelInfo();
+        }
+
         levelID = GlobalVariables.levelInfo.levelID;
         Debug.Log("Current level ID: " + levelID);
 
@@ -300,6 +302,19 @@ public class GameManager : MonoBehaviour
         UpdateHighScoreUI();
         UpdateLivesUI();
         UpdateCoinsUI();
+    }
+
+    // So no error when running starting in the level scene
+    LevelInfo TestLevelInfo() {
+        LevelInfo info = ScriptableObject.CreateInstance<LevelInfo>();
+        info.levelID = "test";
+        info.levelName = "Unknown. Run from SelectLevel scene.";
+        info.levelScene = SceneManager.GetActiveScene().name;
+        info.lives = 3;
+        info.videoYear = "Unknown";
+        info.videoLink = "Unknown";
+        info.levelDescription = "Unknown. Run from SelectLevel scene.";
+        return info;
     }
 
     // Update is called once per frame
@@ -326,14 +341,6 @@ public class GameManager : MonoBehaviour
                 ActivatePlushieObjects();
             } else {
                 DeactivatePlushieObjects();
-            }
-
-            if (!isPaused) {
-                // Raise the audio volume back to its original level
-                AudioListener.volume = originalVolume;
-            } else {
-                // Lower the audio volume when the game is paused
-                AudioListener.volume = originalVolume * 0.25f;
             }
 
             if (!isPaused && !stopTimer)
@@ -937,6 +944,9 @@ public class GameManager : MonoBehaviour
         isPaused = true;
         Time.timeScale = 0f;  // Set time scale to 0 (pause)
 
+        originalVolume = currentlyPlayingMusic.GetComponent<AudioSource>().volume;
+        currentlyPlayingMusic.GetComponent<AudioSource>().volume = originalVolume * 0.25f;
+
         // Activate the pause menu
         if (pausemenu != null)
             pausemenu.SetActive(true);
@@ -950,6 +960,8 @@ public class GameManager : MonoBehaviour
         isPaused = false;
         
         Time.timeScale = 1f; // Set time scale to normal (unpause)
+
+        currentlyPlayingMusic.GetComponent<AudioSource>().volume = originalVolume;
 
         // Deactivate the pause menu
         if (pausemenu != null)

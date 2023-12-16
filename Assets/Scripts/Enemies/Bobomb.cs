@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class BombOmb : EnemyAI
+public class Bobomb : EnemyAI
 {
     public enum EnemyState {
         walking,
@@ -39,17 +39,18 @@ public class BombOmb : EnemyAI
         }
     }
 
-    // protected override void Update()
-    // {
-    //     base.Update();
-    //     if (state == EnemyState.primed) {
-    //         // if y velocity is 0, then we are on the ground
-    //         // so stop x velocity
-    //         if (velocity.y == 0) {
-    //             velocity.x = 0;
-    //         }
-    //     }
-    // }
+    protected override void Update()
+    {
+        base.Update();
+
+        // if we're walking or not moving, make objects act as walls
+        // otherwise, don't so that we can knock them away (similar to koopa)
+        if (state == EnemyState.walking || velocity.x == 0 || velocity.y == 0) {
+            checkObjectCollision = true;
+        } else {
+            checkObjectCollision = false;
+        }
+    }
 
     protected override void touchNonPlayer(GameObject other)
     {
@@ -66,6 +67,8 @@ public class BombOmb : EnemyAI
                         break;
                 }
             }
+        } else if (other.CompareTag("Enemy") && state == EnemyState.primed && (velocity.x != 0 || velocity.y != 0)) {
+            other.GetComponent<EnemyAI>().KnockAway(movingLeft);
         }
     }
 

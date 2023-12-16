@@ -38,8 +38,8 @@ public class KoopaController : EnemyAI
 
     protected override void touchNonPlayer(GameObject other)
     {
-        if (other.gameObject.tag == "Enemy" && state == EnemyState.movingShell) {
-            other.gameObject.GetComponent<EnemyAI>().KnockAway(movingLeft);
+        if (other.CompareTag("Enemy") && state == EnemyState.movingShell) {
+            other.GetComponent<EnemyAI>().KnockAway(movingLeft);
             audioSource.PlayOneShot(knockAwaySound);
         }
     }

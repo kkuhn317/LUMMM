@@ -549,7 +549,7 @@ public class ObjectPhysics : MonoBehaviour
                 gravity = knockAwayGravity;
             }
 
-            // play sound
+            // Play sound
             if (sound && knockAwaySound != null && GetComponent<AudioSource>() != null)
             {
                 GetComponent<AudioSource>().PlayOneShot(knockAwaySound);
@@ -655,7 +655,7 @@ public class ObjectPhysics : MonoBehaviour
         objectState = ObjectState.falling;
     }
 
-    public virtual void getThrown(bool direction)
+    public virtual void GetThrown(bool direction)
     {
         carried = false;
 
@@ -668,6 +668,7 @@ public class ObjectPhysics : MonoBehaviour
         // Set a flag to indicate that the enemy has been thrown
         hasBeenThrown = true;
     }
+    
     void OnTriggerEnter2D(Collider2D collision)
     {
         // Check if the enemy has been thrown before handling the collision
