@@ -123,6 +123,11 @@ public class AmbushTrigger : MonoBehaviour
 
         // Disable the collider
         GetComponent<Collider2D>().enabled = false;
+        // Disable scared animator
+        if (playerAnimator != null)
+        {
+            playerAnimator.SetBool("isScared", false);
+        }
         // Return player to normal library
         spriteswaparea.enabled = false;
     }
