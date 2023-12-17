@@ -1263,6 +1263,7 @@ MonoBehaviour:
   shouldntEnemyMoveWhenDie: 1
   shouldDestroyAfterCrush: 1
   timeBeforeDestroy: 1
+  goombastomp: {fileID: 0}
   cutscene: {fileID: 0}
   delayBeforeCutscene: 1
 --- !u!4 &104645507 stripped
@@ -12433,6 +12434,7 @@ MonoBehaviour:
   shouldntEnemyMoveWhenDie: 0
   shouldDestroyAfterCrush: 0
   timeBeforeDestroy: 5
+  goombastomp: {fileID: 0}
   cutscene: {fileID: 939574624}
   delayBeforeCutscene: 0.5
   shootRate: 3
@@ -14738,11 +14740,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2080700945, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
       propertyPath: m_SpriteTilingProperty.oldSize.x
-      value: 1.375
+      value: 0.625
       objectReference: {fileID: 0}
     - target: {fileID: 2080700945, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
       propertyPath: m_SpriteTilingProperty.oldSize.y
-      value: 1.125
+      value: 0.625
       objectReference: {fileID: 0}
     - target: {fileID: 1563295794450405723, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
       propertyPath: m_SpriteKey
@@ -14756,6 +14758,14 @@ PrefabInstance:
       propertyPath: cameraFollow
       value: 
       objectReference: {fileID: 1730604528}
+    - target: {fileID: 1771483343543010228, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
+      propertyPath: cornerLength
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1771483343543010228, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
+      propertyPath: cornerXAlignment
+      value: 0.5
+      objectReference: {fileID: 0}
     - target: {fileID: 1771483343543010229, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
       propertyPath: m_RootOrder
       value: 7
@@ -16199,7 +16209,6 @@ GameObject:
   - component: {fileID: 1286834736}
   - component: {fileID: 1286834735}
   - component: {fileID: 1286834737}
-  - component: {fileID: 1286834738}
   m_Layer: 4
   m_Name: tinywater
   m_TagString: Untagged
@@ -16227,7 +16236,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: d64e72fd4a6a2044a9905b0f411bff57, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -16248,12 +16257,12 @@ SpriteRenderer:
   m_SortingLayerID: -989642263
   m_SortingLayer: 6
   m_SortingOrder: 2
-  m_Sprite: {fileID: -689606105, guid: 4b893f488aa9668498c285b646c33708, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 4b893f488aa9668498c285b646c33708, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 0.5882353}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 2
-  m_Size: {x: 6.0071354, y: 1.5664029}
+  m_Size: {x: -6, y: 1.6}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -16292,7 +16301,7 @@ PolygonCollider2D:
     border: {x: 0, y: 0, z: 0, w: 0.125}
     pivot: {x: 0.5, y: 0.5}
     oldSize: {x: 0.25, y: 0.25}
-    newSize: {x: 6.0071354, y: 1.5664029}
+    newSize: {x: -6, y: 1.6}
     adaptiveTilingThreshold: 0.5
     drawMode: 2
     adaptiveTiling: 0
@@ -16311,22 +16320,6 @@ PolygonCollider2D:
       - {x: 1.9968082, y: 0.21676278}
       - {x: 2.9967656, y: 0.21667296}
       - {x: 2.9977012, y: 0.6603407}
---- !u!114 &1286834738
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1286834734}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4cb9da356c73567459f7339185ce3ebc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  sprites:
-  - {fileID: -689606105, guid: 4b893f488aa9668498c285b646c33708, type: 3}
-  - {fileID: -1457222074, guid: 4b893f488aa9668498c285b646c33708, type: 3}
-  framerate: 0.1666667
 --- !u!1001 &1294482998
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -19413,6 +19406,7 @@ MonoBehaviour:
   shouldntEnemyMoveWhenDie: 1
   shouldDestroyAfterCrush: 1
   timeBeforeDestroy: 2
+  goombastomp: {fileID: 0}
   cutscene: {fileID: 0}
   delayBeforeCutscene: 1
 --- !u!95 &1568280023
@@ -21345,7 +21339,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: d64e72fd4a6a2044a9905b0f411bff57, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -23250,6 +23244,7 @@ MonoBehaviour:
   shouldntEnemyMoveWhenDie: 1
   shouldDestroyAfterCrush: 1
   timeBeforeDestroy: 2
+  goombastomp: {fileID: 0}
   cutscene: {fileID: 0}
   delayBeforeCutscene: 1
 --- !u!95 &1739160480

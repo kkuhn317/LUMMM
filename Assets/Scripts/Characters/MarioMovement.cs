@@ -49,6 +49,9 @@ public class MarioMovement : MonoBehaviour
     private float airtimer = 0;
     private bool changingDirections;
 
+    [Header("Corner Correction")]
+    public float cornerXAlignment = 0.5f;
+
     [Header("Swimming")]
     public float bubbleSpawnDelay = 2.5f;
     public GameObject bubblePrefab;
@@ -369,7 +372,7 @@ public class MarioMovement : MonoBehaviour
 
             if (gapWidth >= 0)
             {
-                float newPositionX = 0.5f * (hitLeft.point.x + hitRight.point.x);
+                float newPositionX = cornerXAlignment * (hitLeft.point.x + hitRight.point.x);
                 transform.position = new Vector3(newPositionX, transform.position.y, transform.position.z);
             }
         }
