@@ -62,6 +62,8 @@ public class MarioMovement : MonoBehaviour
     [Header("Collision")]
     public bool onGround = false;
     public float groundLength = 0.6f;
+    public float cornerHeight = 0.13f;
+    public float cornerLength = 1.0f;
     public bool onMovingPlatform = false;
     public float ceilingLength = 0.5f;
 
@@ -338,6 +340,37 @@ public class MarioMovement : MonoBehaviour
 
             if (hitRay.transform.gameObject.tag == "Damaging") {
                 damageMario();
+            }
+        }
+
+        // Corner correction
+        // Get the player's height from the collider
+        float playerHeight = GetComponent<BoxCollider2D>().bounds.size.y;
+
+        // Calculate ray length based on player's height
+        float rayLength = (playerHeight / 2 + cornerHeight) * cornerLength;
+
+        // Perform raycasts to check for gaps on both sides of the player
+        RaycastHit2D hitLeft = Physics2D.Raycast(transform.position + new Vector3(0, playerHeight / 2 + cornerHeight, 0), Vector2.left, rayLength + cornerHeight, groundLayer);
+        RaycastHit2D hitRight = Physics2D.Raycast(transform.position + new Vector3(0, playerHeight / 2 + cornerHeight, 0), Vector2.right, rayLength + cornerHeight, groundLayer);
+
+        // Check if there's a gap and adjust player's position accordingly
+        if (hitLeft.collider == null && hitRight.collider == null)
+        {
+            // No gaps detected, do nothing
+        } else {
+            float totalDistance = hitLeft.distance + hitRight.distance;
+            float gapWidth = totalDistance - playerHeight;
+
+            Debug.Log("Left Hit: " + hitLeft.collider);
+            Debug.Log("Right Hit: " + hitRight.collider);
+            Debug.Log("Total Distance: " + totalDistance);
+            Debug.Log("Gap Width: " + gapWidth);
+
+            if (gapWidth >= 0)
+            {
+                float newPositionX = 0.5f * (hitLeft.point.x + hitRight.point.x);
+                transform.position = new Vector3(newPositionX, transform.position.y, transform.position.z);
             }
         }
 
@@ -634,7 +667,6 @@ public class MarioMovement : MonoBehaviour
         }
         
         var newMarioMovement = transferProperties(newMario);
-
         newMarioMovement.invincetimeremain = damageinvinctime;
         newMarioMovement.playDamageSound();
 
@@ -810,7 +842,34 @@ public class MarioMovement : MonoBehaviour
         Gizmos.DrawLine(transform.position + colliderOffset, transform.position + colliderOffset + Vector3.down * groundLength);
         Gizmos.DrawLine(transform.position - colliderOffset, transform.position - colliderOffset + Vector3.down * groundLength);
 
+        // Corner
+        float playerHeight = GetComponent<BoxCollider2D>().bounds.size.y;
+        float rayLength = (playerHeight / 2 + cornerHeight) * cornerLength;
+
+        Gizmos.color = Color.green;
+        RaycastHit2D hitLeft = Physics2D.Raycast(transform.position + new Vector3(0, playerHeight / 2 + cornerHeight, 0), Vector2.left, rayLength, groundLayer);
+
+        if (hitLeft.collider != null)
+        {
+            Gizmos.color = Color.yellow;
+        }
+
+        // Draw left corner correction
+        Gizmos.DrawLine(transform.position + new Vector3(0, playerHeight / 2 + cornerHeight, 0), transform.position + new Vector3(-rayLength, playerHeight / 2 + cornerHeight, 0));
+
+        Gizmos.color = Color.cyan;
+        RaycastHit2D hitRight = Physics2D.Raycast(transform.position + new Vector3(0, playerHeight / 2 + cornerHeight, 0), Vector2.right, rayLength, groundLayer);
+
+        if (hitRight.collider != null)
+        {
+            Gizmos.color = Color.yellow;
+        }
+
+        // Draw right corner correction
+        Gizmos.DrawLine(transform.position + new Vector3(0, playerHeight / 2 + cornerHeight, 0), transform.position + new Vector3(rayLength, playerHeight / 2 + cornerHeight, 0));
+
         // Ceiling
+        Gizmos.color = Color.yellow;
         Gizmos.DrawLine(transform.position, transform.position + Vector3.up * ceilingLength);
         Gizmos.DrawLine(transform.position + colliderOffset, transform.position + colliderOffset + Vector3.up * ceilingLength);
         Gizmos.DrawLine(transform.position - colliderOffset, transform.position - colliderOffset + Vector3.up * ceilingLength);
