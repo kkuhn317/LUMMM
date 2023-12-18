@@ -14,6 +14,9 @@ public class KoopaController : EnemyAI
     public EnemyState state = EnemyState.walking;
     public float walkingSpeed = 2;
     public float movingShellSpeed = 10;
+
+    public float hitCooldown = 0.5f; // after mario touches the enemy, how long until it can be hit again
+    public float hitCooldownTimer = 0;
     private Animator animator;
 
     private AudioSource audioSource;
@@ -33,6 +36,15 @@ public class KoopaController : EnemyAI
             case EnemyState.movingShell:
                 ToMovingShell(movingLeft);
                 break;
+        }
+    }
+
+    protected override void Update()
+    {
+        base.Update();
+
+        if (hitCooldownTimer > 0) {
+            hitCooldownTimer -= Time.deltaTime;
         }
     }
 
@@ -70,7 +82,19 @@ public class KoopaController : EnemyAI
         checkObjectCollision = false;
     }
 
+    private bool HitCooldownCheck() {
+        if (hitCooldownTimer > 0) {
+            return false;
+        }
+        hitCooldownTimer = hitCooldown;
+        return true;
+    }
+
     protected override void hitByStomp(GameObject player) {
+        if (!HitCooldownCheck()) {
+            return;
+        }
+        hitCooldownTimer = hitCooldown;
         MarioMovement playerScript = player.GetComponent<MarioMovement>();
         switch (state) {
             case EnemyState.walking:
@@ -92,6 +116,9 @@ public class KoopaController : EnemyAI
     }
 
     protected override void hitOnSide(GameObject player) {
+        if (!HitCooldownCheck()) {
+            return;
+        }
         MarioMovement playerScript = player.GetComponent<MarioMovement>();
         switch (state) {
             case EnemyState.walking:

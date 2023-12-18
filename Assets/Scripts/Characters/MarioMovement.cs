@@ -49,9 +49,6 @@ public class MarioMovement : MonoBehaviour
     private float airtimer = 0;
     private bool changingDirections;
 
-    [Header("Corner Correction")]
-    public float cornerXAlignment = 0.5f;
-
     [Header("Swimming")]
     public float bubbleSpawnDelay = 2.5f;
     public GameObject bubblePrefab;
@@ -65,10 +62,10 @@ public class MarioMovement : MonoBehaviour
     [Header("Collision")]
     public bool onGround = false;
     public float groundLength = 0.6f;
-    public float cornerHeight = 0.13f;
-    public float cornerLength = 1.0f;
     public bool onMovingPlatform = false;
     public float ceilingLength = 0.5f;
+    public float cornerCorrection = 0.1f; // Portion of the player's width that can overlap with the ceiling and still correct the position
+    // Example: 0.1f means that if the player's width is 1, the player can overlap with the ceiling by up to 0.1 (10%) and still correct the position
 
     float colliderY;
     float collideroffsetY;
@@ -347,64 +344,88 @@ public class MarioMovement : MonoBehaviour
         }
 
         // Corner correction
-        // Get the player's height from the collider
-        float playerHeight = GetComponent<BoxCollider2D>().bounds.size.y;
+        if (rb.velocity.y > 0) {
 
-        // Calculate ray length based on player's height
-        float rayLength = (playerHeight / 2 + cornerHeight) * cornerLength;
+            // Get the height to start at which will be 1 physics frame ahead of the boxcollider top
+            float startHeight = GetComponent<BoxCollider2D>().bounds.size.y / 2 + (rb.velocity.y * Time.fixedDeltaTime) + 0.01f;
+            float playerWidth = GetComponent<BoxCollider2D>().bounds.size.x;
 
-        // Perform raycasts to check for gaps on both sides of the player
-        RaycastHit2D hitLeft = Physics2D.Raycast(transform.position + new Vector3(0, playerHeight / 2 + cornerHeight, 0), Vector2.left, rayLength + cornerHeight, groundLayer);
-        RaycastHit2D hitRight = Physics2D.Raycast(transform.position + new Vector3(0, playerHeight / 2 + cornerHeight, 0), Vector2.right, rayLength + cornerHeight, groundLayer);
+            // Calculate ray length based on player's width
+            float rayLength = playerWidth / 2 * 1.1f;
 
-        // Check if there's a gap and adjust player's position accordingly
-        if (hitLeft.collider == null && hitRight.collider == null)
-        {
-            // No gaps detected, do nothing
-        } else {
-            float totalDistance = hitLeft.distance + hitRight.distance;
-            float gapWidth = totalDistance - playerHeight;
+            // Perform raycasts to check for gaps on both sides of the player
+            RaycastHit2D hitLeft = Physics2D.Raycast(transform.position + new Vector3(0, startHeight, 0), Vector2.left, rayLength, groundLayer);
+            RaycastHit2D hitRight = Physics2D.Raycast(transform.position + new Vector3(0, startHeight, 0), Vector2.right, rayLength, groundLayer);
 
-            Debug.Log("Left Hit: " + hitLeft.collider);
-            Debug.Log("Right Hit: " + hitRight.collider);
-            Debug.Log("Total Distance: " + totalDistance);
-            Debug.Log("Gap Width: " + gapWidth);
-
-            if (gapWidth >= 0)
+            // Check if there's a gap and adjust player's position accordingly
+            if (hitLeft.collider == null && hitRight.collider == null)
             {
-                float newPositionX = cornerXAlignment * (hitLeft.point.x + hitRight.point.x);
-                transform.position = new Vector3(newPositionX, transform.position.y, transform.position.z);
+                // No gaps detected, do nothing
+            } else {
+                float distleft = hitLeft.collider == null ? 999 : hitLeft.distance;
+                float distright = hitRight.collider == null ? 999 : hitRight.distance;
+                float totalDistance = distleft + distright;
+                float gapWidth = totalDistance - playerWidth;
+
+                // Debug.Log("Left Hit: " + hitLeft.point.x);
+                // Debug.Log("Right Hit: " + hitRight.point.x);
+                // Debug.Log("Total Distance: " + totalDistance);
+                // Debug.Log("Gap Width: " + gapWidth);
+
+                float playerleft = transform.position.x - playerWidth / 2;
+                float playerright = transform.position.x + playerWidth / 2;
+
+                if (gapWidth >= 0)
+                {
+                    //print("GAP WIDE ENOUGH");
+                    // check each side to see if:
+                    // 1. there is a wall
+                    // 2. the hit point is close enough to the player's edge
+                    // 3. the hit point is still within the player's bounds (or else no correction is needed)
+                    if (hitLeft.collider != null && hitLeft.point.x < playerleft + cornerCorrection && hitLeft.point.x > playerleft)
+                    {
+                        Debug.Log("CORNER CORRECTION ACTIVE LEFT");
+                        float newPositionX = hitLeft.point.x + (playerWidth / 2 * 1.1f);
+                        transform.position = new Vector3(newPositionX, transform.position.y, transform.position.z);
+                    }
+                    else if (hitRight.collider != null && hitRight.point.x > playerright - cornerCorrection && hitRight.point.x < playerright)
+                    {
+                        Debug.Log("CORNER CORRECTION ACTIVE RIGHT");
+                        float newPositionX = hitRight.point.x - (playerWidth / 2 * 1.1f);
+                        transform.position = new Vector3(newPositionX, transform.position.y, transform.position.z);
+                    }
+                }
             }
-        }
 
-        // Ceiling detection
-        RaycastHit2D ceilLeft = Physics2D.Raycast(transform.position - colliderOffset, Vector2.up, ceilingLength, groundLayer);
-        RaycastHit2D ceilMid = Physics2D.Raycast(transform.position, Vector2.up, ceilingLength, groundLayer);
-        RaycastHit2D ceilRight = Physics2D.Raycast(transform.position + colliderOffset, Vector2.up, ceilingLength, groundLayer);
+            // Ceiling detection
+            RaycastHit2D ceilLeft = Physics2D.Raycast(transform.position - colliderOffset, Vector2.up, ceilingLength, groundLayer);
+            RaycastHit2D ceilMid = Physics2D.Raycast(transform.position, Vector2.up, ceilingLength, groundLayer);
+            RaycastHit2D ceilRight = Physics2D.Raycast(transform.position + colliderOffset, Vector2.up, ceilingLength, groundLayer);
 
-        if (ceilLeft.collider != null || ceilMid.collider != null || ceilRight.collider != null) {
+            if (ceilLeft.collider != null || ceilMid.collider != null || ceilRight.collider != null) {
 
-            RaycastHit2D hitRay = ceilMid;
+                RaycastHit2D hitRay = ceilMid;
 
-            if (ceilMid) {
-                hitRay = ceilMid;
-            } else if (ceilLeft) {
-                hitRay = ceilLeft;
-            } else if (ceilRight) {
-                hitRay = ceilRight;
+                if (ceilMid) {
+                    hitRay = ceilMid;
+                } else if (ceilLeft) {
+                    hitRay = ceilLeft;
+                } else if (ceilRight) {
+                    hitRay = ceilRight;
+                }
+
+
+                //if (hitRay.collider.tag == "QuestionBlock") {
+                //
+                //    hitRay.collider.GetComponent<QuestionBlock>().QuestionBlockBounce();
+                //} else if (hitRay.collider.tag == "BrickBlock") {
+                //    if (powerupState == PowerupState.small) {
+                //        hitRay.collider.GetComponent<QuestionBlock>().QuestionBlockBounce();
+                //    } else {
+                //        hitRay.collider.GetComponent<QuestionBlock>().BrickBlockBreak();
+                //    }
+                //}
             }
-
-
-            //if (hitRay.collider.tag == "QuestionBlock") {
-            //
-            //    hitRay.collider.GetComponent<QuestionBlock>().QuestionBlockBounce();
-            //} else if (hitRay.collider.tag == "BrickBlock") {
-            //    if (powerupState == PowerupState.small) {
-            //        hitRay.collider.GetComponent<QuestionBlock>().QuestionBlockBounce();
-            //    } else {
-            //        hitRay.collider.GetComponent<QuestionBlock>().BrickBlockBreak();
-            //    }
-            //}
         }
 
         // Physics
@@ -846,11 +867,13 @@ public class MarioMovement : MonoBehaviour
         Gizmos.DrawLine(transform.position - colliderOffset, transform.position - colliderOffset + Vector3.down * groundLength);
 
         // Corner
-        float playerHeight = GetComponent<BoxCollider2D>().bounds.size.y;
-        float rayLength = (playerHeight / 2 + cornerHeight) * cornerLength;
+        float startHeight = GetComponent<BoxCollider2D>().bounds.size.y / 2 + (rb.velocity.y * Time.fixedDeltaTime) + 0.01f;
+        float playerWidth = GetComponent<BoxCollider2D>().bounds.size.x;
+        float rayLength = playerWidth / 2 * 1.1f;
+        Vector3 start = transform.position + new Vector3(0, startHeight, 0);
 
         Gizmos.color = Color.green;
-        RaycastHit2D hitLeft = Physics2D.Raycast(transform.position + new Vector3(0, playerHeight / 2 + cornerHeight, 0), Vector2.left, rayLength, groundLayer);
+        RaycastHit2D hitLeft = Physics2D.Raycast(start, Vector2.left, rayLength, groundLayer);
 
         if (hitLeft.collider != null)
         {
@@ -858,10 +881,10 @@ public class MarioMovement : MonoBehaviour
         }
 
         // Draw left corner correction
-        Gizmos.DrawLine(transform.position + new Vector3(0, playerHeight / 2 + cornerHeight, 0), transform.position + new Vector3(-rayLength, playerHeight / 2 + cornerHeight, 0));
+        Gizmos.DrawLine(start, start + new Vector3(-rayLength, 0, 0));
 
         Gizmos.color = Color.cyan;
-        RaycastHit2D hitRight = Physics2D.Raycast(transform.position + new Vector3(0, playerHeight / 2 + cornerHeight, 0), Vector2.right, rayLength, groundLayer);
+        RaycastHit2D hitRight = Physics2D.Raycast(start, Vector2.right, rayLength, groundLayer);
 
         if (hitRight.collider != null)
         {
@@ -869,7 +892,7 @@ public class MarioMovement : MonoBehaviour
         }
 
         // Draw right corner correction
-        Gizmos.DrawLine(transform.position + new Vector3(0, playerHeight / 2 + cornerHeight, 0), transform.position + new Vector3(rayLength, playerHeight / 2 + cornerHeight, 0));
+        Gizmos.DrawLine(start, start + new Vector3(rayLength, 0, 0));
 
         // Ceiling
         Gizmos.color = Color.yellow;
@@ -880,7 +903,7 @@ public class MarioMovement : MonoBehaviour
         // Carry Raycast
         Gizmos.color = Color.blue;
         
-        Vector3 start = transform.position + new Vector3(0, grabRaycastHeight, 0);
+        start = transform.position + new Vector3(0, grabRaycastHeight, 0);
         Gizmos.DrawLine(start, start + (facingRight ? Vector3.right : Vector3.left) * 0.6f);
     }
 
