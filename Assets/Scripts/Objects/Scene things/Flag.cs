@@ -70,7 +70,7 @@ public class Flag : MonoBehaviour
             var animator = cutsceneMario.GetComponent<Animator>();
 
             animator.SetFloat("climbSpeed", 1f);
-            animator.Play("mario_climbside");
+            // animator.Play("mario_climbside");
 
             state = FlagState.Sliding;
 
