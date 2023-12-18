@@ -246,6 +246,9 @@ public class Key : MonoBehaviour
         // now go to mario speeding up over time
         while (collected == false)
         {
+            if (player == null) {
+                yield break;
+            }
             Vector3 playerPos = player.transform.position;
             float distance = Vector2.Distance(transform.position, playerPos);
 

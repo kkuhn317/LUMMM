@@ -70,6 +70,7 @@ public class Axe : MonoBehaviour
     public PlayableDirector endingScene;
     public float playerDestroyDelay = 1f; // delay before destroying the player
     public float endingSceneDelay = 0.25f; // delay before playing the ending cutscene
+    public float timeUntilWinScreen = 10f; // how long to play the ending cutscene before the win screen appears
 
     [Header("Music")]
     public MusicStopMode musicStopMode = MusicStopMode.DontStop;
@@ -229,6 +230,7 @@ public class Axe : MonoBehaviour
         if (endingScene != null)
         {
             endingScene.Play(); // Play the ending cutscene.
+            Invoke(nameof(EndLevel), timeUntilWinScreen); // Show the win screen after a specified delay.
         }
     }
 
@@ -314,5 +316,10 @@ public class Axe : MonoBehaviour
         {
             player.GetComponent<MarioMovement>().Unfreeze();
         }
+    }
+
+    void EndLevel()
+    {
+        GameManager.Instance.FinishLevel();
     }
 }

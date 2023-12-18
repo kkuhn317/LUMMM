@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Playables;
+using UnityEngine.U2D.Animation;
 
 public class Flag : MonoBehaviour
 {
@@ -10,6 +11,18 @@ public class Flag : MonoBehaviour
     public GameObject flag;
     public GameObject pole;
     public GameObject cutsceneMario;
+
+
+    // if null, it always uses cutsceneMario
+    // if not null, use cutsceneMario if mario is small, and use optCutsceneBigMario if mario is big or higher
+    // for big cutscene mario, its sprite library will be set to the same as the mario that touched the flag
+    // so all powerups will be preserved
+    public GameObject optCutsceneBigMario;
+
+    GameObject csMario; // the mario that will be used in the cutscene
+    Vector3 endPos = new(-0.4f, 1.0f, 0); // Where mario will stop sliding down the pole (changes when he's big)
+    
+
     public float marioSlideSpeed = 50f;
     public float flagMoveSpeed = 50f;
     public float slideTime = 2f; // how long from when mario first touches the flag to when he gets off the pole
@@ -44,12 +57,11 @@ public class Flag : MonoBehaviour
             // cutsceneMario moves down
             // final position is -0.4, 1.0 relative to the pole
             if (!marioAtBottom) {
-                cutsceneMario.transform.localPosition = Vector3.MoveTowards(cutsceneMario.transform.localPosition, new Vector3(-0.4f, 1.0f, 0), marioSlideSpeed * Time.deltaTime);
-                if (cutsceneMario.transform.localPosition.y == 1.0f) {
+                csMario.transform.localPosition = Vector3.MoveTowards(csMario.transform.localPosition, endPos, marioSlideSpeed * Time.deltaTime);
+                if (csMario.transform.localPosition.y == endPos.y) {
                     marioAtBottom = true;
                     // stop animating mario
-                    cutsceneMario.GetComponent<Animator>().SetFloat("climbSpeed", 0f);
-                    Invoke(nameof(endLevel), cutsceneTime);
+                    csMario.GetComponent<Animator>().SetFloat("climbSpeed", 0f);
                 }
             }
         }
@@ -57,20 +69,29 @@ public class Flag : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.gameObject.tag == "Player" && state == FlagState.Idle)
+        if (other.gameObject.CompareTag("Player") && state == FlagState.Idle)
         {
             GameManager.Instance.StopTimer();
 
-            cutsceneMario.SetActive(true);
-            cutsceneMario.transform.position = new Vector2(transform.position.x - 0.4f, other.transform.position.y);
+            csMario = cutsceneMario;
+
+
+            if (optCutsceneBigMario != null && other.gameObject.GetComponent<MarioMovement>().powerupState != MarioMovement.PowerupState.small)
+            {
+                csMario = optCutsceneBigMario;
+                csMario.GetComponent<SpriteLibrary>().spriteLibraryAsset = other.gameObject.GetComponent<SpriteLibrary>().spriteLibraryAsset;
+                endPos = new(-0.4f, 1.5f, 0);
+            }
+
+            csMario.SetActive(true);
+            csMario.transform.position = new Vector2(transform.position.x - 0.4f, other.transform.position.y);
 
             // delete the player
             Destroy(other.gameObject);
 
-            var animator = cutsceneMario.GetComponent<Animator>();
-
+            var animator = csMario.GetComponent<Animator>();
+            animator.SetBool("isClimbing", true);
             animator.SetFloat("climbSpeed", 1f);
-            // animator.Play("mario_climbside");
 
             state = FlagState.Sliding;
 
@@ -81,16 +102,17 @@ public class Flag : MonoBehaviour
             GameManager.Instance.StopAllMusic();
 
             // change to cutscene state after a certain amount of time
-            Invoke("toCutsceneState", slideTime);
+            Invoke(nameof(ToCutsceneState), slideTime);
         }
     }
 
-    void toCutsceneState()
+    void ToCutsceneState()
     {
         state = FlagState.Cutscene;
 
         // play the cutscene
         GetComponent<PlayableDirector>().Play();
+        Invoke(nameof(endLevel), cutsceneTime);
     }
 
     // used in the editor to change the height of the entire flagpole easily
