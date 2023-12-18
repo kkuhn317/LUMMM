@@ -38,8 +38,16 @@ public class LevelSelectionManager : MonoBehaviour
 
     public void OnLevelButtonClick(LevelButton button)
     {
+        if (selectedLevelButton != null)
+        {
+            // Deactivate selectionMark of the previously selected button
+            selectedLevelButton.selectionMark.SetActive(false);
+        }
+
         selectedLevelButton = button;
-        
+
+        selectedLevelButton.selectionMark.SetActive(true);
+
         // Update the level info text
         levelNameText.text = button.levelInfo.levelName;
         videoYearText.text = button.levelInfo.videoYear;

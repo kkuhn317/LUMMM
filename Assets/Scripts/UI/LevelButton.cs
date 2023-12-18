@@ -8,6 +8,7 @@ public class LevelButton : MonoBehaviour
 {
     public LevelInfo levelInfo;
 
+    public GameObject selectionMark;
     public GameObject completeLevelMark;
     public GameObject perfectLevelMark;
     public GameObject checkpointFlag;
