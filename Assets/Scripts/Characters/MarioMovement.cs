@@ -27,6 +27,7 @@ public class MarioMovement : MonoBehaviour
 
     [Header("Components")]
     public Rigidbody2D rb;
+    private SpriteRenderer sprite;
     private Animator animator;
     public LayerMask groundLayer;
     private MarioAbility marioAbility;
@@ -152,6 +153,7 @@ public class MarioMovement : MonoBehaviour
     void Start()
     {
         audioSource = GetComponent<AudioSource>();
+        sprite = GetComponent<SpriteRenderer>();
         colliderY = GetComponent<BoxCollider2D>().size.y;
         collideroffsetY = GetComponent<BoxCollider2D>().offset.y;
         relPosObj = transform.GetChild(0).gameObject;
@@ -166,7 +168,6 @@ public class MarioMovement : MonoBehaviour
         // Store player's position at the beginning of the level (respawn)
         originalPosition = transform.position;
         Debug.Log("Player's spawn: " + originalPosition);
-        //transform.position = CheckpointManager.Instance.lastCheckpointPosition;
 
         StartCoroutine(SpawnBubbles());
     }
@@ -473,15 +474,11 @@ public class MarioMovement : MonoBehaviour
 
         // TODO: merge this with the above
         // Crouching
-        if (onGround && Input.GetAxisRaw("Vertical") < 0 && canCrouch && !swimming)
-        {
+        if (onGround && Input.GetAxisRaw("Vertical") < 0 && canCrouch && !swimming) {
             inCrouchState = true;
             
-        }
-        else
-        {
-            inCrouchState = false;
-            
+        } else {
+            inCrouchState = false;  
         }
 
         // Changing Direction
