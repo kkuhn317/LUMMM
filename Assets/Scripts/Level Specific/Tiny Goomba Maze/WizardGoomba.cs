@@ -14,7 +14,6 @@ public class WizardGoomba : Goomba
     private bool moveInitiated = false;
     public float moveSpeed = 1.0f;
 
-
     public GameObject magicPrefab;
     public Vector2 magicOffset;
     public float shootSpeed = 1.0f;
@@ -29,6 +28,7 @@ public class WizardGoomba : Goomba
 
     private float t;
     private bool shootingAllowed = true;
+    private AudioSource audioSource;
     private Animator animator;
 
     public Vector2[] positions;
@@ -42,6 +42,9 @@ public class WizardGoomba : Goomba
 
         // Get the Animator component
         animator = GetComponent<Animator>();
+
+        // Get the AudioSource component
+        audioSource = GetComponent<AudioSource>();
 
         // test
         StartCoroutine(Shoot());
@@ -76,7 +79,7 @@ public class WizardGoomba : Goomba
             moveToPosition = positions[position];
 
             if (moveSound != null)
-                GetComponent<AudioSource>().PlayOneShot(moveSound);
+                audioSource.PlayOneShot(moveSound);
         }
     }
 
@@ -173,5 +176,4 @@ public class WizardGoomba : Goomba
             Gizmos.DrawSphere(positions[i], 0.02f);
         }
     }
-
 }

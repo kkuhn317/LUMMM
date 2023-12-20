@@ -8,17 +8,20 @@ public class TinyGoombaFlee : MonoBehaviour
     public Vector2 targetPoint;
     public PlayableDirector goombaOnPipeDirector;
     public float scaredIdleDuration = 0.5f;
+    public AudioClip scaredGoombaSound;
 
     private Vector2 startPosition;
     private Animator animator;
     private Goomba goomba;
     private bool isDone = false;
+    private AudioSource audioSource;
 
     // Start is called before the first frame update
     void Start()
     {
         startPosition = targetPoint;
         animator = GetComponent<Animator>();
+        audioSource = GetComponent<AudioSource>();
         goomba = GetComponent<Goomba>();
     }
 
@@ -63,6 +66,7 @@ public class TinyGoombaFlee : MonoBehaviour
 
         while (elapsedTime < duration)
         {
+            audioSource.PlayOneShot(scaredGoombaSound);
             transform.position = Vector3.Lerp(initialPosition, targetPosition, elapsedTime / duration);
             elapsedTime += Time.deltaTime;
 
