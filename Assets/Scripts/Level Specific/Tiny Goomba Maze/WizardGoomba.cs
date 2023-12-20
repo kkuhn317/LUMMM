@@ -53,7 +53,7 @@ public class WizardGoomba : Goomba
     protected override void Update() {
         base.Update();
 
-        if (shouldDie || objectState == ObjectState.knockedAway || !shootingAllowed) return;
+        if (crushed || objectState == ObjectState.knockedAway || !shootingAllowed) return;
 
         if (moveToPosition != transform.position)
         {
@@ -72,7 +72,7 @@ public class WizardGoomba : Goomba
     }
 
     public void MoveToPosition(int position) {
-        if (!shouldDie)
+        if (!crushed)
         { // Check if the WizardGoomba is not dead
             moveInitiated = true;
             t = 0f;
@@ -100,7 +100,7 @@ public class WizardGoomba : Goomba
     }
 
     void ShootMagic() {
-        if (shouldDie || objectState == ObjectState.knockedAway || !shootingAllowed) return;
+        if (crushed || objectState == ObjectState.knockedAway || !shootingAllowed) return;
         if (player == null) return;
 
         // create magic

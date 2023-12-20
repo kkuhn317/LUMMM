@@ -15,11 +15,10 @@ public class Goomba : EnemyAI
     public bool stompable = true;
 
     public bool shouldntEnemyMoveWhenDie = true;
-    protected bool shouldDie = false;
+    protected bool crushed = false;
     private float deathTimer = 0;
     public bool shouldDestroyAfterCrush = true;
     public float timeBeforeDestroy = 1.0f;
-    public AudioClip goombastomp;
 
     [Header("Cutscene")]
     public PlayableDirector cutscene;
@@ -40,7 +39,6 @@ public class Goomba : EnemyAI
 
     public void Crush () {
 
-        GetComponent<AudioSource>().clip = goombastomp;
         GetComponent<AudioSource>().Play();
         
         if (!stompable) {
@@ -63,10 +61,8 @@ public class Goomba : EnemyAI
 
         GetComponent<Collider2D>().enabled = false;
 
-        if (shouldDestroyAfterCrush)
-        { // Only destroy if the flag is set to true
-            shouldDie = true;       
-        }
+        crushed = true;       
+
         releaseItem();
         StartCoroutine(PlayCutscene());
 
@@ -84,7 +80,7 @@ public class Goomba : EnemyAI
 
     void CheckCrushed () {
 
-        if (shouldDie) {
+        if (crushed && shouldDestroyAfterCrush) {
             
             if (deathTimer <= timeBeforeDestroy) {
 
@@ -92,7 +88,7 @@ public class Goomba : EnemyAI
 
             } else {
                 
-                shouldDie = false;
+                crushed = false;
 
                 Destroy(this.gameObject);
             }
