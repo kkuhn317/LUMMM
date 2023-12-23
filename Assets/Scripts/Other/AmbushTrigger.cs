@@ -77,9 +77,6 @@ public class AmbushTrigger : MonoBehaviour
     {
         yield return new WaitForSeconds(delayBeforeAmbush);
 
-        // Enable scared player library
-        spriteswaparea.enabled = true;
-
         // Set the "isScared" parameter of the player's animator
         Animator playerAnimator = player.GetComponent<Animator>();
         if (playerAnimator != null)
@@ -94,6 +91,9 @@ public class AmbushTrigger : MonoBehaviour
             playerAudioSource.PlayOneShot(Mariowhoaaa);
             hasPlayedMariowhoaaa = true;
         }
+
+        // Enable scared player library
+        spriteswaparea.enabled = true;
 
         // Set the movement and reset bounceHeight for all enemies
         foreach (EnemyGroup group in enemyGroups)

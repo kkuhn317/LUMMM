@@ -494,7 +494,6 @@ public class GameManager : MonoBehaviour
         // Set the text color back to the original color
         text.color = initialColor;
     }
-
     
     #region updateUI
     private void UpdateHighScore()

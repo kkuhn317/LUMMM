@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 4911071950371744578}
   - component: {fileID: -5886811245336740393}
   - component: {fileID: -1387090879760085223}
+  - component: {fileID: 5811915372710149762}
   m_Layer: 7
   m_Name: FaceDown Spikey Goomba
   m_TagString: Enemy
@@ -29,7 +30,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4911071950371744579}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 5.5, y: 4.25, z: 0.27862218}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -117,7 +118,7 @@ CapsuleCollider2D:
   m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: -0.0019922256, y: 0.0030755997}
+  m_Offset: {x: -0.0019922256, y: 0.75}
   m_Size: {x: 0.9322605, y: 1.4938488}
   m_Direction: 0
 --- !u!50 &-5886811245336740393
@@ -170,12 +171,48 @@ MonoBehaviour:
   DontFallOffLedges: 0
   flipObject: 1
   FrequentMovement: 0
+  lavaKill: 1
+  sinkSpeed: 20
+  lavaMask:
+    serializedVersion: 2
+    m_Bits: 0
+  carryable: 0
+  carried: 0
+  throwVelocity: {x: 12, y: 10}
+  knockAwayVelocity: {x: 5, y: 5}
+  overrideKnockAwayGravity: 0
+  knockAwayGravity: 60
+  knockAwayType: 0
+  knockAwayRotationSpeed: 10
+  KnockAwayDissapearTime: -1
   knockAwaySound: {fileID: 8300000, guid: 62467461e51dddb40931164fd2db1170, type: 3}
   objectState: 0
   movement: 0
   stopAfterLand: 0
-  maxBounces: 1
   bounceHeight: 0
+  minHeightToBounce: 1
   canBeFireballed: 1
   stompHeight: 0.2
+  heldItem: {fileID: 0}
+  itemSpawnOffset: {x: 0, y: 0, z: 0}
   deadly: 1
+--- !u!95 &5811915372710149762
+Animator:
+  serializedVersion: 4
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4911071950371744579}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 66b729183f6c11a47825a8aa92de7800, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorControllerStateOnDisable: 0

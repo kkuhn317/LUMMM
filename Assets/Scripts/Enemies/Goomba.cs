@@ -38,7 +38,6 @@ public class Goomba : EnemyAI
     }
 
     public void Crush () {
-
         GetComponent<AudioSource>().Play();
         
         if (!stompable) {
