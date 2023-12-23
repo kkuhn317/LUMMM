@@ -64,9 +64,10 @@ public class TinyGoombaFlee : MonoBehaviour
         Vector3 initialPosition = transform.position;
         Vector3 targetPosition = new Vector3(startPosition.x, startPosition.y, transform.position.z);
 
+        audioSource.PlayOneShot(scaredGoombaSound);
+
         while (elapsedTime < duration)
         {
-            audioSource.PlayOneShot(scaredGoombaSound);
             transform.position = Vector3.Lerp(initialPosition, targetPosition, elapsedTime / duration);
             elapsedTime += Time.deltaTime;
 
