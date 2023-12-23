@@ -5,7 +5,6 @@ using UnityEngine.SceneManagement;
 using UnityEngine.Playables;
 using UnityEngine.UI;
 using TMPro;
-using UnityEditor.Timeline.Actions;
 using UnityEngine.Timeline;
 
 public class LivesCounter : MonoBehaviour
@@ -31,7 +30,7 @@ public class LivesCounter : MonoBehaviour
             if (GlobalVariables.lives == 1 && oneLifeCutscene != null) {
                 director.playableAsset = oneLifeCutscene;
             }
-            
+
             director.Play();
 
             if (director != null) {
