@@ -95,6 +95,8 @@ public class AmbushTrigger : MonoBehaviour
         // Enable scared player library
         spriteswaparea.enabled = true;
 
+        StartCoroutine(EnemyAudio());
+
         // Set the movement and reset bounceHeight for all enemies
         foreach (EnemyGroup group in enemyGroups)
         {
@@ -113,8 +115,6 @@ public class AmbushTrigger : MonoBehaviour
                         StartCoroutine(BounceEnemy(enemy));
                     }
                 }
-
-                StartCoroutine(EnemyAudio());
             }
 
             // Wait before the next group
@@ -151,8 +151,7 @@ public class AmbushTrigger : MonoBehaviour
         // Play audio sources with a delay   
         foreach (AudioSource audioSource in allAudioSources)
         {
-            audioSource.clip = ambushAudioClip;
-            audioSource.Play();
+            audioSource.PlayOneShot(ambushAudioClip);
             yield return new WaitForSeconds(delayBetweenAudio * Time.deltaTime);
         }
     }
