@@ -11,6 +11,7 @@ public class WizardGoomba : Goomba
     public float shootRate = 1.0f;
 
     private Vector3 moveToPosition;
+    private Vector3 realPosition;
     private bool moveInitiated = false;
     public float moveSpeed = 1.0f;
 
@@ -25,13 +26,16 @@ public class WizardGoomba : Goomba
 
     public AudioClip shootSound;
     public AudioClip moveSound;
-
     private float t;
     private bool shootingAllowed = true;
     private AudioSource audioSource;
     private Animator animator;
-
     public Vector2[] positions;
+
+    [Header("Bobbing")]
+
+    public float bobbingSpeed = 1.0f; // how fast the wizard goomba bobs up and down
+    public float bobbingHeight = 0.5f; // how high the wizard goomba bobs up and down
 
     protected override void Start() {
         base.Start();
@@ -39,6 +43,7 @@ public class WizardGoomba : Goomba
         player = GameObject.FindGameObjectWithTag("Player");
 
         moveToPosition = transform.position;
+        realPosition = transform.position;
 
         // Get the Animator component
         animator = GetComponent<Animator>();
@@ -55,12 +60,12 @@ public class WizardGoomba : Goomba
 
         if (crushed || objectState == ObjectState.knockedAway || !shootingAllowed) return;
 
-        if (moveToPosition != transform.position)
+        if (moveToPosition != realPosition)
         {
             if (moveInitiated)
             {
                 // move to position
-                transform.position = Vector3.Lerp(transform.position, moveToPosition, AnimationCurve.EaseInOut(0, 0, 1, 1).Evaluate(t));
+                realPosition = Vector3.Lerp(realPosition, moveToPosition, AnimationCurve.EaseInOut(0, 0, 1, 1).Evaluate(t));
                 t += Time.deltaTime * moveSpeed;
             }
         }
@@ -69,6 +74,8 @@ public class WizardGoomba : Goomba
             moveInitiated = false;
             t = 0f;
         }
+
+        transform.position = realPosition + new Vector3(0, Mathf.Sin(Time.time * bobbingSpeed) * bobbingHeight, 0);
     }
 
     public void MoveToPosition(int position) {

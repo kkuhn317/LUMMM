@@ -5,10 +5,17 @@ using UnityEngine.SceneManagement;
 using UnityEngine.Playables;
 using UnityEngine.UI;
 using TMPro;
+using UnityEditor.Timeline.Actions;
+using UnityEngine.Timeline;
 
 public class LivesCounter : MonoBehaviour
 {
     public bool oldNumber = false;
+
+    public PlayableDirector playableDirector;
+    public TimelineAsset oneLifeCutscene;    // Cutscene to play when there is only one life left (optional)
+
+    public float delay = 1f; // Additional delay after cutscene ends before going back to level
 
     // Start is called before the first frame update
     void Start()
@@ -19,10 +26,16 @@ public class LivesCounter : MonoBehaviour
         if (oldNumber) {
             Invoke("PlaySound", 0.5f);
 
-            PlayableDirector director = GameObject.FindObjectOfType<PlayableDirector>();
+            PlayableDirector director = playableDirector;
+
+            if (GlobalVariables.lives == 1 && oneLifeCutscene != null) {
+                director.playableAsset = oneLifeCutscene;
+            }
+            
+            director.Play();
 
             if (director != null) {
-                double timelineDuration = director.duration;
+                double timelineDuration = director.duration + delay;
 
                 // Use the timeline duration as the delay before loading the scene
                 Invoke("GoBackToLevel", (float)timelineDuration);
