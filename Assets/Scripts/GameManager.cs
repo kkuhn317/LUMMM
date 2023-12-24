@@ -22,6 +22,7 @@ public class GameManager : MonoBehaviour
     public float startingTime;
     private bool timesRunning = true;
     public static bool isPaused = false;
+    private static bool pauseable = true; // turn off when win screen shows up or when fading to another scene
     private bool isTimeUp = false;
     private bool stopTimer = false;
     public AudioClip timeWarning;
@@ -269,6 +270,7 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        pauseable = true;
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
 
@@ -765,9 +767,7 @@ public class GameManager : MonoBehaviour
     // Function to toggle the game between paused and resumed states.
     public void TogglePauseGame()
     {
-        isPaused = !isPaused;
-
-        if (isPaused) {
+        if (!isPaused) {
             PauseGame();
         } else {
             ResumeGame();
@@ -859,6 +859,7 @@ public class GameManager : MonoBehaviour
         ResumeGame();
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
+        pauseable = false;
         FadeInOutScene.Instance.LoadSceneWithFade("SelectLevel");
     }
 
@@ -945,25 +946,30 @@ public class GameManager : MonoBehaviour
 
     public void PauseGame()
     {
+        if (pausemenu == null) return;
+        if (!pauseable) return;
+
         isPaused = true;
         Time.timeScale = 0f;  // Set time scale to 0 (pause)
 
-        originalVolume = currentlyPlayingMusic.GetComponent<AudioSource>().volume;
-        currentlyPlayingMusic.GetComponent<AudioSource>().volume = originalVolume * 0.25f;
+        if (currentlyPlayingMusic != null) {
+            originalVolume = currentlyPlayingMusic.GetComponent<AudioSource>().volume;
+            currentlyPlayingMusic.GetComponent<AudioSource>().volume = originalVolume * 0.25f;
+        }
 
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
 
         // Activate the pause menu
-        if (pausemenu != null)
-            pausemenu.SetActive(true);
-            mainPauseMenu.SetActive(true);
-            ResetPopUp.SetActive(false);
-            optionsPauseMenu.SetActive(false);
+        pausemenu.SetActive(true);
+        mainPauseMenu.SetActive(true);
+        ResetPopUp.SetActive(false);
+        optionsPauseMenu.SetActive(false);
     }
 
     public void ResumeGame()
     {
+        // print("resume");
         isPaused = false;
         
         Time.timeScale = 1f; // Set time scale to normal (unpause)
@@ -1031,6 +1037,8 @@ public class GameManager : MonoBehaviour
     // after level ends, call this (ex: flag cutscene ends)
     public void FinishLevel()
     {
+        pauseable = false;
+
         WinScreenStats();
 
         // Save the high score when the level ends
@@ -1057,6 +1065,7 @@ public class GameManager : MonoBehaviour
             Destroy(musicObj);
         }
         WinScreenGameObject.SetActive(true);
+
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
     }
