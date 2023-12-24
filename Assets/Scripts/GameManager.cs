@@ -269,6 +269,9 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
+
         if (music) {
             print("Music found");
             currentlyPlayingMusic = music;
@@ -331,7 +334,7 @@ public class GameManager : MonoBehaviour
         {
             UpdateRank();
 
-            // Toggle pause when the Esc key is pressed
+            // Toggle pause when the Esc or P key is pressed
             if (Input.GetButtonDown("Pause")) {
                 TogglePauseGame();
             }
@@ -854,6 +857,8 @@ public class GameManager : MonoBehaviour
             Destroy(musicObj);
         }
         ResumeGame();
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
         FadeInOutScene.Instance.LoadSceneWithFade("SelectLevel");
     }
 
@@ -946,6 +951,9 @@ public class GameManager : MonoBehaviour
         originalVolume = currentlyPlayingMusic.GetComponent<AudioSource>().volume;
         currentlyPlayingMusic.GetComponent<AudioSource>().volume = originalVolume * 0.25f;
 
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
+
         // Activate the pause menu
         if (pausemenu != null)
             pausemenu.SetActive(true);
@@ -960,7 +968,12 @@ public class GameManager : MonoBehaviour
         
         Time.timeScale = 1f; // Set time scale to normal (unpause)
 
+        if(currentlyPlayingMusic != null) { 
         currentlyPlayingMusic.GetComponent<AudioSource>().volume = originalVolume;
+        }
+
+        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
 
         // Deactivate the pause menu
         if (pausemenu != null)
@@ -1044,5 +1057,7 @@ public class GameManager : MonoBehaviour
             Destroy(musicObj);
         }
         WinScreenGameObject.SetActive(true);
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
     }
 }
