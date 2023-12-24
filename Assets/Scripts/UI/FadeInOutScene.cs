@@ -8,6 +8,8 @@ public class FadeInOutScene : MonoBehaviour
     public Image fadeImage;
     public float fadeSpeed = 5f;
 
+    public bool transitioning = false;
+
     public static FadeInOutScene Instance;
 
     private void Awake()
@@ -22,7 +24,7 @@ public class FadeInOutScene : MonoBehaviour
         DontDestroyOnLoad(gameObject);
     }
     #region FadeInAndOut
-    private IEnumerator FadeIn(float waitTime)
+    private IEnumerator FadeIn(float waitTime, bool doFadeOut = true)
     {
         fadeImage.gameObject.SetActive(true);
 
@@ -35,9 +37,15 @@ public class FadeInOutScene : MonoBehaviour
             yield return null;
         }
 
-        yield return new WaitForSeconds(waitTime);
+        if (doFadeOut)
+        {
+            yield return new WaitForSeconds(waitTime);
 
-        StartCoroutine(FadeOut());
+            StartCoroutine(FadeOut());
+        } else {
+            fadeImage.gameObject.SetActive(false);
+            transitioning = false;
+        }
     }
 
     private IEnumerator FadeOut()
@@ -52,6 +60,7 @@ public class FadeInOutScene : MonoBehaviour
         }
 
         fadeImage.gameObject.SetActive(false);
+        transitioning = false;
     }
     #endregion  
 
@@ -69,51 +78,43 @@ public class FadeInOutScene : MonoBehaviour
         }
     }
 
-    private IEnumerator FadeInAndLoad(int sceneIndex, bool doFadeOut = true, float waitTime = 1.5f)
+    private IEnumerator FadeInAndLoad(int sceneIndex, bool doFadeOut = true)
     {
-        yield return StartCoroutine(FadeIn(fadeSpeed));
+        yield return StartCoroutine(FadeIn(fadeSpeed, doFadeOut));
 
         SceneManager.LoadScene(sceneIndex);
-
-        if (doFadeOut)
-        {
-            yield return new WaitForSeconds(waitTime);
-        }
     }
 
-    public void LoadSceneWithFade(string sceneNameOrIndex)
+    private IEnumerator FadeInAndLoad(string sceneName, bool doFadeOut = true)
     {
+        yield return StartCoroutine(FadeIn(fadeSpeed, doFadeOut));
+
+        SceneManager.LoadScene(sceneName);
+    }
+
+    public void LoadSceneWithFade(string sceneNameOrIndex, bool doFadeOut = true)
+    {
+        if (transitioning)
+        {
+            return;
+        }
+        transitioning = true;
+        
+
         if (int.TryParse(sceneNameOrIndex, out int sceneIndex))
         {
-            StartCoroutine(FadeInAndLoad(sceneIndex, true));
+            StartCoroutine(FadeInAndLoad(sceneIndex, doFadeOut));
         }
         else
         {
-            StartCoroutine(FadeInAndLoad(sceneNameOrIndex, true));
+            StartCoroutine(FadeInAndLoad(sceneNameOrIndex, doFadeOut));
         }
     }
 
     public void LoadSceneWithoutFadeOut(string sceneNameOrIndex)
     {
-        if (int.TryParse(sceneNameOrIndex, out int sceneIndex))
-        {
-            StartCoroutine(FadeInAndLoad(sceneIndex, false, 0.5f));
-        }
-        else
-        {
-            StartCoroutine(FadeInAndLoad(sceneNameOrIndex, false, 0.5f));
-        }
+        LoadSceneWithFade(sceneNameOrIndex, false);
     }
 
-    private IEnumerator FadeInAndLoad(string sceneName, bool doFadeOut = true, float waitTime = 1.5f)
-    {
-        yield return StartCoroutine(FadeIn(fadeSpeed));
 
-        SceneManager.LoadScene(sceneName);
-
-        if (doFadeOut)
-        {
-            yield return new WaitForSeconds(waitTime);
-        }
-    }
 }
