@@ -11,7 +11,7 @@ public class MenuSelection : MonoBehaviour
     int indicatorPos;
     float moveTimer;
 
-    //Update is called once per frame
+    // Update is called once per frame
     void Update()
     {
         if (moveTimer < moveDelay)
@@ -19,65 +19,59 @@ public class MenuSelection : MonoBehaviour
             moveTimer += Time.deltaTime;
         }
 
-        //Handle keyboard input
+        // Handle keyboard input
         if (Input.GetKey(KeyCode.DownArrow))
         {
-            if (moveTimer >= moveDelay)
-            {
-                if (indicatorPos < menuBtn.Length - 1)
-                {
-                    indicatorPos++;
-                }
-                else
-                {
-                    indicatorPos = 0;
-                }
-                moveTimer = 0;
-            }
+            MoveIndicator(1);
         }
         else if (Input.GetKey(KeyCode.UpArrow))
         {
-            if (moveTimer >= moveDelay)
-            {
-                if (indicatorPos > 0)
-                {
-                    indicatorPos--;
-                }
-                else
-                {
-                    indicatorPos = menuBtn.Length - 1;
-                }
-                moveTimer = 0;
-            }
+            MoveIndicator(-1);
         }
 
-        //Handle mouse input
+        // Handle mouse input
         if (Input.GetMouseButton(0))
         {
-            Vector2 mousePos = Input.mousePosition;
-            Vector2 localPos = transform.InverseTransformPoint(mousePos);
-
-            int closestButtonIndex = -1;
-            float closestButtonDistance = float.MaxValue;
-            for (int i = 0; i < menuBtn.Length; i++)
-            {
-                Vector3 buttonWorldPos = menuBtn[i].TransformPoint(menuBtn[i].localPosition);
-                float distance = Vector2.Distance(localPos, transform.InverseTransformPoint(buttonWorldPos));
-                if (distance < closestButtonDistance)
-                {
-                    closestButtonIndex = i;
-                    closestButtonDistance = distance;
-                }
-            }
-            if (closestButtonIndex >= 0 && closestButtonIndex < menuBtn.Length)
-            {
-                indicatorPos = closestButtonIndex;
-            }
+            UpdateIndicatorWithMouse();
         }
 
         if (indicatorPos >= 0 && indicatorPos < menuBtn.Length)
         {
             indicator.localPosition = menuBtn[indicatorPos].localPosition;
+        }
+    }
+
+    // Move the indicator based on keyboard input or mouse input
+    void MoveIndicator(int direction)
+    {
+        if (moveTimer >= moveDelay)
+        {
+            indicatorPos = (indicatorPos + direction + menuBtn.Length) % menuBtn.Length;
+            moveTimer = 0;
+        }
+    }
+
+    // Update the indicator position based on mouse input
+    void UpdateIndicatorWithMouse()
+    {
+        Vector2 mousePos = Input.mousePosition;
+        Vector2 localPos = transform.InverseTransformPoint(mousePos);
+
+        int closestButtonIndex = -1;
+        float closestButtonDistance = float.MaxValue;
+        for (int i = 0; i < menuBtn.Length; i++)
+        {
+            Vector3 buttonWorldPos = menuBtn[i].TransformPoint(menuBtn[i].localPosition);
+            float distance = Vector2.Distance(localPos, transform.InverseTransformPoint(buttonWorldPos));
+            if (distance < closestButtonDistance)
+            {
+                closestButtonIndex = i;
+                closestButtonDistance = distance;
+            }
+        }
+        if (closestButtonIndex >= 0 && closestButtonIndex < menuBtn.Length)
+        {
+            indicatorPos = closestButtonIndex;
         }
     }
 
