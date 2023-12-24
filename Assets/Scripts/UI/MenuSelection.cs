@@ -1,82 +1,51 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class MenuSelection : MonoBehaviour
 {
     [SerializeField] RectTransform[] menuBtn;
     [SerializeField] RectTransform indicator;
-    [SerializeField] float moveDelay;
 
-    int indicatorPos;
-    float moveTimer;
+    [SerializeField] Vector2 indicatorOffset;
 
-    // Update is called once per frame
-    void Update()
+    int lastSelected = -1;
+
+    void Start() {
+        //EventSystem.current.SetSelectedGameObject(menuBtn[0].gameObject);
+        // indicator.position = menuBtn[0].position + (Vector3)indicatorOffset;
+    }
+
+    public void PointerEnter(int b)
     {
-        if (moveTimer < moveDelay)
-        {
-            moveTimer += Time.deltaTime;
-        }
+        //print("enter: " + b);
+        MoveIndicator(b);
+    }
 
-        // Handle keyboard input
-        if (Input.GetKey(KeyCode.DownArrow))
-        {
-            MoveIndicator(1);
-        }
-        else if (Input.GetKey(KeyCode.UpArrow))
-        {
-            MoveIndicator(-1);
-        }
+    public void PointerExit(int b)
+    {
+        //print("exit: " + b);
+        MoveIndicator(lastSelected);
+    }
 
-        // Handle mouse input
-        if (Input.GetMouseButton(0))
-        {
-            UpdateIndicatorWithMouse();
-        }
-
-        if (indicatorPos >= 0 && indicatorPos < menuBtn.Length)
-        {
-            indicator.localPosition = menuBtn[indicatorPos].localPosition;
-        }
+    public void ButtonSelected(int b)
+    {
+        //print("selected: " + b);
+        lastSelected = b;
+        MoveIndicator(b);
     }
 
     // Move the indicator based on keyboard input or mouse input
-    void MoveIndicator(int direction)
+    public void MoveIndicator(int b)
     {
-        if (moveTimer >= moveDelay)
+        if (b < 0 || b >= menuBtn.Length)
         {
-            indicatorPos = (indicatorPos + direction + menuBtn.Length) % menuBtn.Length;
-            moveTimer = 0;
+            // make cursor invisible
+            indicator.gameObject.SetActive(false);
+            return;
         }
-    }
-
-    // Update the indicator position based on mouse input
-    void UpdateIndicatorWithMouse()
-    {
-        Vector2 mousePos = Input.mousePosition;
-        Vector2 localPos = transform.InverseTransformPoint(mousePos);
-
-        int closestButtonIndex = -1;
-        float closestButtonDistance = float.MaxValue;
-        for (int i = 0; i < menuBtn.Length; i++)
-        {
-            Vector3 buttonWorldPos = menuBtn[i].TransformPoint(menuBtn[i].localPosition);
-            float distance = Vector2.Distance(localPos, transform.InverseTransformPoint(buttonWorldPos));
-            if (distance < closestButtonDistance)
-            {
-                closestButtonIndex = i;
-                closestButtonDistance = distance;
-            }
-        }
-        if (closestButtonIndex >= 0 && closestButtonIndex < menuBtn.Length)
-        {
-            indicatorPos = closestButtonIndex;
-        }
-    }
-
-    public void MoveOnButton(int btnPos)
-    {
-        indicatorPos = btnPos;
+        indicator.gameObject.SetActive(true);
+        indicator.position = menuBtn[b].position + (Vector3)indicatorOffset;
     }
 }
