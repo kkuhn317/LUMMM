@@ -15,7 +15,14 @@ public class CameraFollow : MonoBehaviour
     public float topBounds;
     public float bottomBounds;
 
-    private float camWidth, camHeight, levelMinX, levelMaxX, levelMinY, levelMaxY;
+    //private float camWidth, camHeight, levelMinX, levelMaxX, levelMinY, levelMaxY;
+
+    private float camHeight => Camera.main.orthographicSize * 2;
+    private float camWidth => camHeight * Camera.main.aspect;
+    private float levelMinX => leftBounds + (camWidth / 2);
+    private float levelMaxX => rightBounds - (camWidth / 2);
+    private float levelMinY => bottomBounds + (camHeight / 2);
+    private float levelMaxY => topBounds - (camHeight / 2);
     private Vector3 originalPosition;
 
     // Camera Shake variables
@@ -36,15 +43,6 @@ public class CameraFollow : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        camHeight = Camera.main.orthographicSize * 2;
-        camWidth = camHeight * Camera.main.aspect;
-
-        levelMinX = leftBounds + (camWidth / 2);
-        levelMaxX = rightBounds - (camWidth / 2);
-
-        levelMinY = bottomBounds + (camHeight / 2);
-        levelMaxY = topBounds - (camHeight / 2);
-
         originalPosition = transform.position;
         offset = new Vector3(0f, 2f, 0f);
 
