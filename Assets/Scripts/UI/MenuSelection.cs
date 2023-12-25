@@ -57,7 +57,8 @@ public class MenuSelection : MonoBehaviour
             return;
         }
         indicator.gameObject.SetActive(true);
-        indicator.position = menuBtn[b].position + ((Vector3)indicatorOffset * (Screen.width / 1920f));
+        //indicator.position = menuBtn[b].position + ((Vector3)indicatorOffset * (Screen.width / 1920f));
+        indicator.position = menuBtn[b].position + ((Vector3)indicatorOffset * (Screen.height / 1080f));
         print("set pos to " + indicator.position);
     }
 
