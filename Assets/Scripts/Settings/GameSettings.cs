@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using System.Linq;
 
 public class GameSettings : MonoBehaviour
 {
@@ -35,6 +36,12 @@ public class GameSettings : MonoBehaviour
         ConfigureCheckpoints();
     }
 
+    Resolution[] GetResolutions()
+    {
+        Resolution[] resolutions = Screen.resolutions.Select(resolution => new Resolution { width = resolution.width, height = resolution.height }).Distinct().ToArray();
+        return resolutions;
+    }
+
     private void ConfigureResolution()
     {
         // Get current screen resolution from PlayerPrefs or use the current screen resolution
@@ -46,7 +53,7 @@ public class GameSettings : MonoBehaviour
         resolutionText.text = currentResolution.width + "x" + currentResolution.height;
 
         // Get all available resolutions
-        Resolution[] availableResolutions = Screen.resolutions;
+        Resolution[] availableResolutions = GetResolutions();
 
         // Populate resolution dropdown
         resolutionDropdown.ClearOptions();
@@ -64,11 +71,12 @@ public class GameSettings : MonoBehaviour
 
         // Set the selected resolution
         resolutionDropdown.RefreshShownValue();
+        resolutionDropdown.onValueChanged.AddListener(ChangeResolution);
     }
 
     public void ChangeResolution(int index)
     {
-        Resolution[] availableResolutions = Screen.resolutions;
+        Resolution[] availableResolutions = GetResolutions();
 
         if (index >= 0 && index < availableResolutions.Length)
         {
@@ -110,6 +118,7 @@ public class GameSettings : MonoBehaviour
         graphicsQualityDropdown.value = currentQualityIndex;
         graphicsQualityDropdown.RefreshShownValue();
         graphicsQualityText.text = QualitySettings.names[currentQualityIndex];
+        graphicsQualityDropdown.onValueChanged.AddListener(ChangeGraphicsQuality);
     }
 
     public void ChangeGraphicsQuality(int qualityIndex)

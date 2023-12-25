@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UIElements;
 
 public class MenuSelection : MonoBehaviour
 {
@@ -56,7 +57,8 @@ public class MenuSelection : MonoBehaviour
             return;
         }
         indicator.gameObject.SetActive(true);
-        indicator.position = menuBtn[b].position + (Vector3)indicatorOffset;
+        indicator.position = menuBtn[b].position + ((Vector3)indicatorOffset * (Screen.width / 1920f));
+        print("set pos to " + indicator.position);
     }
 
     // Fix for weird issue where the button position is wrong on the first frame
