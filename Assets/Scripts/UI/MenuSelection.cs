@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -12,9 +13,12 @@ public class MenuSelection : MonoBehaviour
 
     int lastSelected = -1;
 
-    void Start() {
-        //EventSystem.current.SetSelectedGameObject(menuBtn[0].gameObject);
-        // indicator.position = menuBtn[0].position + (Vector3)indicatorOffset;
+    bool firstFrame = true;
+
+    void LateUpdate() {
+        if (firstFrame) {
+            firstFrame = false;
+        }
     }
 
     public void PointerEnter(int b)
@@ -39,6 +43,12 @@ public class MenuSelection : MonoBehaviour
     // Move the indicator based on keyboard input or mouse input
     public void MoveIndicator(int b)
     {
+        if (firstFrame) {
+            StartCoroutine(MoveIndicatorLaterCoroutine(b));
+            return;
+        }
+
+        print(menuBtn[b].position);
         if (b < 0 || b >= menuBtn.Length)
         {
             // make cursor invisible
@@ -48,4 +58,12 @@ public class MenuSelection : MonoBehaviour
         indicator.gameObject.SetActive(true);
         indicator.position = menuBtn[b].position + (Vector3)indicatorOffset;
     }
+
+    // Fix for weird issue where the button position is wrong on the first frame
+    IEnumerator MoveIndicatorLaterCoroutine(int b)
+    {
+        yield return null;
+        MoveIndicator(b);
+    }
+
 }
