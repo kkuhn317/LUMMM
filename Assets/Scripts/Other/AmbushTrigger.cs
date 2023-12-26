@@ -77,6 +77,9 @@ public class AmbushTrigger : MonoBehaviour
     {
         yield return new WaitForSeconds(delayBeforeAmbush);
 
+        if (player == null)
+            yield break;
+
         // Set the "isScared" parameter of the player's animator
         Animator playerAnimator = player.GetComponent<Animator>();
         if (playerAnimator != null)
