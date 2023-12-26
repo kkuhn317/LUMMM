@@ -24,14 +24,14 @@ public class MenuSelection : MonoBehaviour
 
     public void PointerEnter(int b)
     {
-        //print("enter: " + b);
-        MoveIndicator(b);
+        // //print("enter: " + b);
+        // MoveIndicator(b);
     }
 
     public void PointerExit(int b)
     {
-        //print("exit: " + b);
-        MoveIndicator(lastSelected);
+        // //print("exit: " + b);
+        // MoveIndicator(lastSelected);
     }
 
     public void ButtonSelected(int b)
