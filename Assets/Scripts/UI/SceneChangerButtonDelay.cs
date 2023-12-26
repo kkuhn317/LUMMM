@@ -8,6 +8,7 @@ public class SceneChangerButtonDelay : MonoBehaviour
     private int currentSceneBuildIndex;
 
     private AudioSource audioSource;
+    private bool buttonPressed = false;
 
     private void Start()
     {
@@ -18,14 +19,14 @@ public class SceneChangerButtonDelay : MonoBehaviour
     private void Update()
     {
         // Check for button press
-        if (Input.GetButtonDown("Pause"))
-        {
+        if (!buttonPressed && Input.GetButtonDown("Pause")) {
             ChangeScene();
         }
     }
 
     private void ChangeScene()
     {
+        buttonPressed = true;
         audioSource.Play();
         FadeInOutScene.Instance.LoadNextSceneWithFade();
     }
@@ -34,7 +35,8 @@ public class SceneChangerButtonDelay : MonoBehaviour
     {
         yield return new WaitForSeconds(delayBeforeSceneChange);
 
-        audioSource.Play();
-        FadeInOutScene.Instance.LoadNextSceneWithFade();
+        if (!buttonPressed) {
+            ChangeScene();
+        }
     }
 }
