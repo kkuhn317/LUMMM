@@ -722,9 +722,15 @@ public class MarioMovement : MonoBehaviour
         newMarioMovement.carryMethod = carryMethod;
         newMarioMovement.playerNumber = playerNumber;
 
-        var myDevices = GetComponent<PlayerInput>().devices;
-        // set new mario's input device to the same as this mario's
-        newMario.GetComponent<PlayerInput>().SwitchCurrentControlScheme(myDevices.ToArray());
+        
+        try {
+            var myDevices = GetComponent<PlayerInput>().devices;
+            // set new mario's input device to the same as this mario's
+            newMario.GetComponent<PlayerInput>().SwitchCurrentControlScheme(myDevices.ToArray());
+        } catch {
+            // this might error if only one controller is connected
+            print("Could not transfer input device to new mario. This is probably fine.");
+        }
         
         if (carrying) {
             // move carried object to new mario
