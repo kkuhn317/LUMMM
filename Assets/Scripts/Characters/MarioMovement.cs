@@ -6,7 +6,7 @@ using UnityEngine.U2D.Animation;
 
 public class MarioMovement : MonoBehaviour
 {
-    [Header("Position")]
+    public int playerNumber = 0;    // 0 = player 1, 1 = player 2, etc.
     private Vector3 originalPosition;
 
     [Header("Horizontal Movement")]
@@ -159,6 +159,7 @@ public class MarioMovement : MonoBehaviour
         relPosObj = transform.GetChild(0).gameObject;
         animator = GetComponent<Animator>();
         animator.SetInteger("grabMethod", (int)carryMethod);
+        GameManager.Instance.SetPlayer(this, playerNumber);
 
         if (powerupState == PowerupState.power) {
             marioAbility = GetComponent<MarioAbility>();
@@ -719,6 +720,11 @@ public class MarioMovement : MonoBehaviour
         newMarioMovement.pressRunToGrab = pressRunToGrab;
         newMarioMovement.crouchToGrab = crouchToGrab;
         newMarioMovement.carryMethod = carryMethod;
+        newMarioMovement.playerNumber = playerNumber;
+
+        var myDevices = GetComponent<PlayerInput>().devices;
+        // set new mario's input device to the same as this mario's
+        newMario.GetComponent<PlayerInput>().SwitchCurrentControlScheme(myDevices.ToArray());
         
         if (carrying) {
             // move carried object to new mario
