@@ -9,7 +9,6 @@ public class LeverController : MonoBehaviour
     public float rotationSpeed = 50f; // Speed at which the object rotates
     public float moveSpeed = 5f; // Speed at which the object moves after rotation
 
-    private bool isPlayerInRange;
     private bool isRotating;
     private bool isMoving;
     private Quaternion initialRotation;
@@ -40,34 +39,34 @@ public class LeverController : MonoBehaviour
         }
     }
 
+    public void Use(MarioMovement player) {
+        player.RemoveLever(this);
+        if (!isRotating && !isMoving && !hasPulledLever)
+        {
+            if (keyActivate != null)
+            {
+                keyActivate.SetActive(false);
+            }
+
+            RotateObject(targetRotation); // The puller rotates
+            hasPulledLever = true; // Set the flag to true after pulling the lever
+        }
+        /*else if (isRotating && !isMoving)
+        {
+            RotateObject(initialRotation.eulerAngles);
+        }*/
+        else if (!isRotating && isMoving)
+        {
+            MoveObject(targetPosition); // The object moves to the target position
+        }
+        /*else if (isRotating && isMoving)
+        {
+            MoveObject(initialPosition);
+        }*/
+    }
+
     private void Update()
     {
-        if (isPlayerInRange && Input.GetKeyDown(KeyCode.Z))
-        {
-            if (!isRotating && !isMoving && !hasPulledLever)
-            {
-                if (keyActivate != null)
-                {
-                    keyActivate.SetActive(false);
-                }
-
-                RotateObject(targetRotation); // The puller rotates
-                hasPulledLever = true; // Set the flag to true after pulling the lever
-            }
-            /*else if (isRotating && !isMoving)
-            {
-                RotateObject(initialRotation.eulerAngles);
-            }*/
-            else if (!isRotating && isMoving)
-            {
-                MoveObject(targetPosition); // The object moves to the target position
-            }
-            /*else if (isRotating && isMoving)
-            {
-                MoveObject(initialPosition);
-            }*/
-        }
-
         if (isRotating) // rotating logic
         {
             // Rotate the object smoothly over time
@@ -126,7 +125,7 @@ public class LeverController : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            isPlayerInRange = true;
+            other.GetComponent<MarioMovement>().AddLever(this);
 
             // Activate the keyActivate when the player enters the trigger zone and haven't pull the level 
             if (keyActivate != null && !hasPulledLever) {
@@ -139,7 +138,7 @@ public class LeverController : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            isPlayerInRange = false;
+            other.GetComponent<MarioMovement>().RemoveLever(this);
 
             // Deactivate the keyActivate when the player exits the trigger zone
             if (keyActivate != null)

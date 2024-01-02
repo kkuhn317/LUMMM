@@ -53,6 +53,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 28eaa5374a88177499ab0bf99563953a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  playerNumber: 0
+  moveInput: {x: 0, y: 0}
+  crouchPressed: 0
   moveSpeed: 20
   runSpeed: 20
   slowDownForce: 5
@@ -85,10 +88,9 @@ MonoBehaviour:
   swimTerminalVelocity: 2.5
   onGround: 0
   groundLength: 0.53
-  cornerHeight: 0.13
-  cornerLength: 1
   onMovingPlatform: 0
   ceilingLength: 0.53
+  cornerCorrection: 0.1
   colliderOffset: {x: 0.35, y: 0, z: 0}
   damageinvinctime: 3
   invincetimeremain: 0
@@ -282,9 +284,37 @@ MonoBehaviour:
     m_ActionId: baef8440-a0d7-46f1-b68f-748bd3bdfc6d
     m_ActionName: UI/Pause[/Keyboard/escape,/Keyboard/p]
   - m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1771483343543010228}
+        m_TargetAssemblyTypeName: MarioMovement, Assembly-CSharp
+        m_MethodName: Spin
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
     m_ActionId: 9fdee28a-7b0d-433e-a32c-e997016cf750
     m_ActionName: Mariomove/Spin[/Keyboard/leftShift]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1771483343543010228}
+        m_TargetAssemblyTypeName: MarioMovement, Assembly-CSharp
+        m_MethodName: Use
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 6af6bceb-cea8-41cb-90a3-0138921f18f4
+    m_ActionName: Mariomove/Use[/Keyboard/z,/XInputControllerWindows/rightShoulder,/XInputControllerWindows/leftShoulder]
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Mariomove

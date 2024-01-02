@@ -5,6 +5,7 @@ using UnityEngine.Events;
 using UnityEngine.U2D.Animation;
 using Unity.Mathematics;
 using Unity.VisualScripting;
+using System.Collections.Generic;
 
 public class MarioMovement : MonoBehaviour
 {
@@ -12,10 +13,12 @@ public class MarioMovement : MonoBehaviour
     private Vector3 originalPosition;
     
     /* Input System */
-    private Vector2 moveInput;
-    private bool crouchPressed = false;
+    // Other scripts can access these variables to get the player's input
+    // Do not use the old input system or raw keyboard input anywhere in the game
+    [HideInInspector] public Vector2 moveInput; // The raw directional input from the player's controller
+    [HideInInspector] public bool crouchPressed = false;
     private bool jumpPressed = false;
-    private bool runPressed = false;
+    bool runPressed = false;
 
 
     [Header("Horizontal Movement")]
@@ -152,6 +155,9 @@ public class MarioMovement : MonoBehaviour
     private float grabRaycastHeight => powerupState == PowerupState.small ? -0.1f : -0.4f;
 
     private bool isLookingUp = false;
+
+    /* Levers */
+    private List<LeverController> levers = new();
 
     // use this in other scripts to check if mario is moving (walking or jumping)
     public bool isMoving {
@@ -977,6 +983,17 @@ public class MarioMovement : MonoBehaviour
         }
     }
 
+    public void Use(InputAction.CallbackContext context)
+    {
+        // use lever
+        if (context.performed) {
+            // for right now, use the NEWEST lever we entered
+            if (levers.Count > 0) {
+                levers[^1].Use(this);
+            }
+        }
+    }
+
     public void Freeze() {
         // pause animations
         animator.enabled = false;
@@ -1075,5 +1092,20 @@ public class MarioMovement : MonoBehaviour
 
     public void resetSpriteLibrary() {
         GetComponent<SpriteLibrary>().spriteLibraryAsset = normalSpriteLibrary;
+    }
+
+    /* Levers */
+    // Levers use these to let Mario know that they are near him
+    // When the Use button is pressed, Mario will activate one of these levers
+    public void AddLever(LeverController lever) {
+        if (!levers.Contains(lever)) {
+            levers.Add(lever);
+        }
+    }
+
+    public void RemoveLever(LeverController lever) {
+        if (levers.Contains(lever)) {
+            levers.Remove(lever);
+        }
     }
 }

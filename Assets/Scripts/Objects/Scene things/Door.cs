@@ -66,7 +66,7 @@ public class Door : MonoBehaviour
         if (xdist < 0.4 && ydist < 0.1 && playerScript.onGround)
         {
             // if pressing up
-            if (Input.GetAxisRaw("Vertical") > 0)
+            if (playerScript.moveInput.y > 0.5)
             {
                 // if the door is locked
                 if (locked)

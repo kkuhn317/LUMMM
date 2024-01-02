@@ -80,6 +80,15 @@ public partial class @Mario: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Use"",
+                    ""type"": ""Button"",
+                    ""id"": ""6af6bceb-cea8-41cb-90a3-0138921f18f4"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -382,12 +391,12 @@ public partial class @Mario: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
-                    ""id"": ""576885b3-b7f3-4224-9c3f-006c7ce871fb"",
-                    ""path"": ""<Gamepad>/leftShoulder"",
+                    ""id"": ""bb42ba49-a53c-476c-a366-49dceb76fe65"",
+                    ""path"": ""<Keyboard>/z"",
                     ""interactions"": """",
                     ""processors"": """",
-                    ""groups"": ""Gamepad"",
-                    ""action"": ""Spin"",
+                    ""groups"": """",
+                    ""action"": ""Use"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -398,7 +407,18 @@ public partial class @Mario: IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": ""Gamepad"",
-                    ""action"": ""Spin"",
+                    ""action"": ""Use"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""c100708d-6671-4776-9cfd-5acffa4b1d93"",
+                    ""path"": ""<Gamepad>/leftShoulder"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Use"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -1034,6 +1054,7 @@ public partial class @Mario: IInputActionCollection2, IDisposable
         m_Mariomove_Jump = m_Mariomove.FindAction("Jump", throwIfNotFound: true);
         m_Mariomove_Crouch = m_Mariomove.FindAction("Crouch", throwIfNotFound: true);
         m_Mariomove_Spin = m_Mariomove.FindAction("Spin", throwIfNotFound: true);
+        m_Mariomove_Use = m_Mariomove.FindAction("Use", throwIfNotFound: true);
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
         m_UI_Navigate = m_UI.FindAction("Navigate", throwIfNotFound: true);
@@ -1114,6 +1135,7 @@ public partial class @Mario: IInputActionCollection2, IDisposable
     private readonly InputAction m_Mariomove_Jump;
     private readonly InputAction m_Mariomove_Crouch;
     private readonly InputAction m_Mariomove_Spin;
+    private readonly InputAction m_Mariomove_Use;
     public struct MariomoveActions
     {
         private @Mario m_Wrapper;
@@ -1124,6 +1146,7 @@ public partial class @Mario: IInputActionCollection2, IDisposable
         public InputAction @Jump => m_Wrapper.m_Mariomove_Jump;
         public InputAction @Crouch => m_Wrapper.m_Mariomove_Crouch;
         public InputAction @Spin => m_Wrapper.m_Mariomove_Spin;
+        public InputAction @Use => m_Wrapper.m_Mariomove_Use;
         public InputActionMap Get() { return m_Wrapper.m_Mariomove; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -1151,6 +1174,9 @@ public partial class @Mario: IInputActionCollection2, IDisposable
             @Spin.started += instance.OnSpin;
             @Spin.performed += instance.OnSpin;
             @Spin.canceled += instance.OnSpin;
+            @Use.started += instance.OnUse;
+            @Use.performed += instance.OnUse;
+            @Use.canceled += instance.OnUse;
         }
 
         private void UnregisterCallbacks(IMariomoveActions instance)
@@ -1173,6 +1199,9 @@ public partial class @Mario: IInputActionCollection2, IDisposable
             @Spin.started -= instance.OnSpin;
             @Spin.performed -= instance.OnSpin;
             @Spin.canceled -= instance.OnSpin;
+            @Use.started -= instance.OnUse;
+            @Use.performed -= instance.OnUse;
+            @Use.canceled -= instance.OnUse;
         }
 
         public void RemoveCallbacks(IMariomoveActions instance)
@@ -1369,6 +1398,7 @@ public partial class @Mario: IInputActionCollection2, IDisposable
         void OnJump(InputAction.CallbackContext context);
         void OnCrouch(InputAction.CallbackContext context);
         void OnSpin(InputAction.CallbackContext context);
+        void OnUse(InputAction.CallbackContext context);
     }
     public interface IUIActions
     {

@@ -24,13 +24,10 @@ public class Pipe : MonoBehaviour
     private void OnTriggerStay2D(Collider2D other)
     {
         if (!isEnteringPipe && connection != null && other.CompareTag("Player"))
-        {
-            KeyCode warpKey1 = GetWarpKeyFromRotationArrowKeys();
-            KeyCode warpKey2 = GetWarpKeyFromRotationWASD();
-            
+        {   
             if (!requireGroundToEnter || (requireGroundToEnter && IsPlayerOnGround(other.gameObject)))
             {
-                if (Input.GetKey(warpKey1) || Input.GetKey(warpKey2))
+                if (CorrectDirectionPressed(other.GetComponent<MarioMovement>()))
                 {
                     StartCoroutine(Enter(other.transform));
                 }
@@ -134,49 +131,29 @@ public class Pipe : MonoBehaviour
         player.localScale = endScale;
     }
 
-    private KeyCode GetWarpKeyFromRotationArrowKeys()
+    private bool CorrectDirectionPressed(MarioMovement playerMovement)
     {
         float angle = transform.eulerAngles.z;
+        Vector2 moveInput = playerMovement.moveInput;
 
         if (angle < 45f || angle >= 315f)
         {
-            return KeyCode.DownArrow; // Facing down
+            return playerMovement.crouchPressed; // Facing down
         }
         else if (angle >= 45f && angle < 135f)
         {
-            return KeyCode.RightArrow; // Facing right
+            return moveInput.x > 0; // Facing right
         }
         else if (angle >= 135f && angle < 225f)
         {
-            return KeyCode.UpArrow; // Facing up
+            return moveInput.y > 0; // Facing up
         }
         else
         {
-            return KeyCode.LeftArrow; // Facing left
+            return moveInput.x < 0; // Facing left
         }
     }
-    //wasd now
-    private KeyCode GetWarpKeyFromRotationWASD()
-    {
-        float angle = transform.eulerAngles.z;
 
-        if (angle < 45f || angle >= 315f)
-        {
-            return KeyCode.S; // Facing down
-        }
-        else if (angle >= 45f && angle < 135f)
-        {
-            return KeyCode.D; // Facing right
-        }
-        else if (angle >= 135f && angle < 225f)
-        {
-            return KeyCode.W; // Facing up
-        }
-        else
-        {
-            return KeyCode.A; // Facing left
-        }
-    }
 
     private void PlayWarpEnterSound()
     {
