@@ -3,19 +3,31 @@ using System.Collections;
 using UnityEngine.InputSystem;
 using UnityEngine.Events;
 using UnityEngine.U2D.Animation;
+using Unity.Mathematics;
+using Unity.VisualScripting;
 
 public class MarioMovement : MonoBehaviour
 {
     public int playerNumber = 0;    // 0 = player 1, 1 = player 2, etc.
     private Vector3 originalPosition;
+    
+    /* Input System */
+    private Vector2 moveInput;
+    private bool crouchPressed = false;
+    private bool jumpPressed = false;
+    private bool runPressed = false;
+
 
     [Header("Horizontal Movement")]
     public float moveSpeed = 10f;
     public float runSpeed = 20f;
     public float slowDownForce = 5f;
+    
     public Vector2 direction;
     public bool facingRight = true;
     private bool inCrouchState = false;
+    private bool isCrawling = false;    // Currently small mario only
+
 
     [Header("Vertical Movement")]
     public float jumpSpeed = 15f;
@@ -23,7 +35,6 @@ public class MarioMovement : MonoBehaviour
     public float terminalvelocity = 10f;
     public float startfallingspeed = 1f;
     private float jumpTimer;
-    private bool jumpPressed = false;
 
     [Header("Components")]
     public Rigidbody2D rb;
@@ -176,7 +187,9 @@ public class MarioMovement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        direction = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
+        direction = moveInput;
+
+        print(direction);
 
         SpriteRenderer sprite = GetComponent<SpriteRenderer>();
 
@@ -194,22 +207,14 @@ public class MarioMovement : MonoBehaviour
             invincetimeremain = 0f;
         }
 
-        bool crouch = (direction.y < -0.5);
-
         // Picking up item
-        if (((pressRunToGrab && Input.GetButtonDown("Fire3")) || (!pressRunToGrab && Input.GetButton("Fire3"))) && (!crouchToGrab || crouch) && !carrying) {
+        if (!pressRunToGrab && runPressed && (!crouchToGrab || crouchPressed) && !carrying) {
             checkForCarry();
         }
 
-        // shoot fireball, etc
-        if (!carrying && Input.GetButtonDown("Fire3") && powerupState == PowerupState.power) {
-            //print("shoot!");
-            marioAbility.shootProjectile();
-        }
-
         // Throwing item
-        if (carrying && !Input.GetButton("Fire3")) {
-            if (crouch) {
+        if (carrying && !runPressed) {
+            if (crouchPressed) {
                 dropCarry();
             } else {
                 throwCarry();
@@ -217,7 +222,7 @@ public class MarioMovement : MonoBehaviour
         }
 
         // Look Up
-        if (!isMoving && Input.GetButton("LookUp")) {
+        if (!isMoving && direction.y > 0.8f) {
             // Set the flag to true to indicate that the player is looking up
             isLookingUp = true;
         } else {
@@ -399,7 +404,8 @@ public class MarioMovement : MonoBehaviour
                 }
             }
 
-            // Ceiling detection
+            // Ceiling detection (CURRENTLY UNUSED, this was used for question block detection long ago but now it's handled in QuestionBlock.cs)
+            // TODO: either remove this or do something with it
             RaycastHit2D ceilLeft = Physics2D.Raycast(transform.position - colliderOffset, Vector2.up, ceilingLength, groundLayer);
             RaycastHit2D ceilMid = Physics2D.Raycast(transform.position, Vector2.up, ceilingLength, groundLayer);
             RaycastHit2D ceilRight = Physics2D.Raycast(transform.position + colliderOffset, Vector2.up, ceilingLength, groundLayer);
@@ -415,18 +421,6 @@ public class MarioMovement : MonoBehaviour
                 } else if (ceilRight) {
                     hitRay = ceilRight;
                 }
-
-
-                //if (hitRay.collider.tag == "QuestionBlock") {
-                //
-                //    hitRay.collider.GetComponent<QuestionBlock>().QuestionBlockBounce();
-                //} else if (hitRay.collider.tag == "BrickBlock") {
-                //    if (powerupState == PowerupState.small) {
-                //        hitRay.collider.GetComponent<QuestionBlock>().QuestionBlockBounce();
-                //    } else {
-                //        hitRay.collider.GetComponent<QuestionBlock>().BrickBlockBreak();
-                //    }
-                //}
             }
         }
 
@@ -435,19 +429,22 @@ public class MarioMovement : MonoBehaviour
     }
 
     void moveCharacter(float horizontal) {
-        bool crouch = (direction.y < -0.5) && canCrouch;
+        bool crouch = crouchPressed && canCrouch;
 
         // Crouching
-        if (crouch && powerupState != PowerupState.small && onGround && !carrying && !swimming) {
+        if (crouch && onGround && !carrying && !swimming) {
 
             // Start Crouch
             animator.SetBool("isCrouching", true);
             inCrouchState = true;
-            GetComponent<BoxCollider2D>().size = new Vector2(GetComponent<BoxCollider2D>().size.x, 1.0f);
-            GetComponent<BoxCollider2D>().offset = new Vector2(GetComponent<BoxCollider2D>().offset.x, -0.5f);
-            ceilingLength = 0.1f;
 
-        } else if ((!crouch && onGround) || (powerupState == PowerupState.small) || carrying) {
+            if (powerupState != PowerupState.small) {
+                GetComponent<BoxCollider2D>().size = new Vector2(GetComponent<BoxCollider2D>().size.x, 1.0f);
+                GetComponent<BoxCollider2D>().offset = new Vector2(GetComponent<BoxCollider2D>().offset.x, -0.5f);
+                ceilingLength = 0.1f;
+            }
+
+        } else if ((!crouch && onGround) || carrying) {
 
             // Stop Crouch
             animator.SetBool("isCrouching", false);
@@ -460,9 +457,16 @@ public class MarioMovement : MonoBehaviour
 
         }
 
-        // Running or Walking
-        if (!inCrouchState || !onGround) {
-            if (Input.GetButton("Fire3") && !swimming) {
+        // Running or Walking or Crawling
+
+        // You can only crawl if you are small mario, on the ground, crouching, and not carrying anything, and not swimming
+        // AND you are pressing left or right pretty hard
+        // AND either you are already crawling or you are stopped
+        isCrawling = inCrouchState && onGround && !carrying && !swimming && powerupState == PowerupState.small && math.abs(horizontal) > 0.5 && (math.abs(rb.velocity.x) < 0.05f || isCrawling);
+        bool regularMoving = !inCrouchState || !onGround;
+
+        if (regularMoving || isCrawling) {
+            if (runPressed && !swimming && !isCrawling) {
                 rb.AddForce(horizontal * runSpeed * Vector2.right);
             } else {
                 if (Mathf.Abs(rb.velocity.x) <= maxSpeed) {
@@ -471,15 +475,6 @@ public class MarioMovement : MonoBehaviour
                     rb.AddForce(Mathf.Sign(rb.velocity.x) * slowDownForce * Vector2.left);
                 }
             }
-        }
-
-        // TODO: merge this with the above
-        // Crouching
-        if (onGround && Input.GetAxisRaw("Vertical") < 0 && canCrouch && !swimming) {
-            inCrouchState = true;
-            
-        } else {
-            inCrouchState = false;  
         }
 
         // Changing Direction
@@ -494,21 +489,21 @@ public class MarioMovement : MonoBehaviour
             }
         }
 
-        if (Input.GetButton("Fire3")) {
+        // Max Speed (Horizontal)
+        if (runPressed) {
             if (Mathf.Abs(rb.velocity.x) > maxRunSpeed) {
                 rb.velocity = new Vector2(Mathf.Sign(rb.velocity.x) * maxRunSpeed, rb.velocity.y);
             }
-        } //else {
-          //  if (Mathf.Abs(rb.velocity.x) > maxSpeed) {
-          //      rb.velocity = new Vector2(Mathf.Sign(rb.velocity.x) * maxSpeed, rb.velocity.y);
-          //  }
-          //}
+        }
 
+        // Max Speed (Vertical)
         float tvel = swimming ? swimTerminalVelocity : terminalvelocity;
 
         if (-rb.velocity.y > tvel) {
             rb.velocity = new Vector2(rb.velocity.x, -tvel);
         }
+
+        // Animation
         animator.SetFloat("Horizontal", Mathf.Abs(rb.velocity.x) * walkAnimatorSpeed);
         if (Mathf.Abs(rb.velocity.x) <= 0.5f) {
             animator.SetBool("isRunning", false);
@@ -525,6 +520,8 @@ public class MarioMovement : MonoBehaviour
             animator.SetBool("isSkidding", false);
             animator.SetBool("onGround", false);
         }
+
+        animator.SetBool("isCrawling", isCrawling);
     }
 
     // for jumping and also stomping enemies
@@ -582,7 +579,7 @@ public class MarioMovement : MonoBehaviour
             if (Mathf.Abs(direction.x) < 0.4f || changingDirections) {
 
                 // if running and holding left or right
-                if (Input.GetButton("Fire3") && (direction.x != 0)) {
+                if (runPressed && (direction.x != 0)) {
                     rb.drag = runlinearDrag;
 
                 // if not holding left or right
@@ -918,12 +915,25 @@ public class MarioMovement : MonoBehaviour
 
     public void Move(InputAction.CallbackContext context)
     {
-
+        moveInput = context.ReadValue<Vector2>();
     }
 
     public void Run(InputAction.CallbackContext context)
     {
+        if (context.performed)
+        {
+            //print("run");
+            runPressed = true;
 
+            if (pressRunToGrab && (!crouchToGrab || crouchPressed) && !carrying) {
+                checkForCarry();
+            }
+        }
+        if (context.canceled)
+        {
+            //print("stop run");
+            runPressed = false;
+        }
     }
 
     public void Jump(InputAction.CallbackContext context)
@@ -941,17 +951,30 @@ public class MarioMovement : MonoBehaviour
 
     public void Crouch(InputAction.CallbackContext context)
     {
-
+        if (context.performed)
+        {
+            print("crouch");
+            crouchPressed = true;
+        }
+        if (context.canceled)
+        {
+            print("stop crouch");
+            crouchPressed = false;
+        }
     }
 
     public void Spin(InputAction.CallbackContext context)
     {
-
+        // TODO: Spin Jump
     }
 
     public void Shoot(InputAction.CallbackContext context)
     {
-
+        // shoot fireball, etc
+        if (!carrying && context.performed && powerupState == PowerupState.power) {
+            print("shoot!");
+            marioAbility.shootProjectile();
+        }
     }
 
     public void Freeze() {
