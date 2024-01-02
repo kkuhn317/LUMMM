@@ -183,6 +183,12 @@ public class MarioMovement : MonoBehaviour
         }
         normalSpriteLibrary = GetComponent<SpriteLibrary>().spriteLibraryAsset;
 
+        if (Application.isMobilePlatform || GlobalVariables.forceMobileMode) {
+            PlayerInput playerInput = GetComponent<PlayerInput>();
+            //playerInput.neverAutoSwitchControlSchemes = true;
+            //playerInput.SwitchCurrentControlScheme("Gamepad");
+        }
+
         // Store player's position at the beginning of the level (respawn)
         originalPosition = transform.position;
         Debug.Log("Player's spawn: " + originalPosition);

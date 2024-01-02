@@ -25,4 +25,10 @@ public static class GlobalVariables
         coinCount = 0;
         checkpoint = -1;
     }
+
+
+    /* Editor Use Only */
+
+    // Set to true to see what it looks like on mobile
+    public static bool forceMobileMode = true;
 }

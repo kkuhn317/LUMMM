@@ -14,8 +14,7 @@ public class GameOverScript : MonoBehaviour
 
     void ChangeScene()
     {
-        Cursor.visible = true;
-        Cursor.lockState = CursorLockMode.None;
+        CursorHelper.ShowCursor();
         SceneManager.LoadScene("SelectLevel");
     }
 

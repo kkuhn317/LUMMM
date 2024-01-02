@@ -272,8 +272,7 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         pauseable = true;
-        Cursor.visible = false;
-        Cursor.lockState = CursorLockMode.Locked;
+        CursorHelper.HideCursor();
 
         if (music) {
             print("Music found");
@@ -858,8 +857,7 @@ public class GameManager : MonoBehaviour
             Destroy(musicObj);
         }
         ResumeGame();
-        Cursor.visible = true;
-        Cursor.lockState = CursorLockMode.None;
+        CursorHelper.ShowCursor();
         pauseable = false;
         FadeInOutScene.Instance.LoadSceneWithFade("SelectLevel");
     }
@@ -958,8 +956,7 @@ public class GameManager : MonoBehaviour
             currentlyPlayingMusic.GetComponent<AudioSource>().volume = originalVolume * 0.25f;
         }
 
-        Cursor.visible = true;
-        Cursor.lockState = CursorLockMode.None;
+        CursorHelper.ShowCursor();
 
         // Activate the pause menu
         pausemenu.SetActive(true);
@@ -979,8 +976,7 @@ public class GameManager : MonoBehaviour
         currentlyPlayingMusic.GetComponent<AudioSource>().volume = originalVolume;
         }
 
-        Cursor.visible = false;
-        Cursor.lockState = CursorLockMode.Locked;
+        CursorHelper.HideCursor();
 
         // Deactivate the pause menu
         if (pausemenu != null)
@@ -1067,8 +1063,7 @@ public class GameManager : MonoBehaviour
         }
         WinScreenGameObject.SetActive(true);
 
-        Cursor.visible = true;
-        Cursor.lockState = CursorLockMode.None;
+        CursorHelper.ShowCursor();
     }
 
     public void SetPlayer(MarioMovement player, int playerIndex)
