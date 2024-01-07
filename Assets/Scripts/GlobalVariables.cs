@@ -30,5 +30,5 @@ public static class GlobalVariables
     /* Editor Use Only */
 
     // Set to true to see what it looks like on mobile
-    public static bool forceMobileMode = true;
+    public static bool forceMobileMode = false;
 }
