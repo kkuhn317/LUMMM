@@ -2,10 +2,12 @@ using UnityEngine;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.InputSystem.Interactions;
 
 public static class GlobalVariables
 {
     public static int lives = 3;
+    public static int score = 0;
     public static int coinCount = 0;
     public static LevelInfo levelInfo;
 
@@ -23,6 +25,7 @@ public static class GlobalVariables
     {
         GlobalVariables.lives = levelInfo.lives;
         coinCount = 0;
+        score = 0;
         checkpoint = -1;
     }
 

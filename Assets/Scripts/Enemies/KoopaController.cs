@@ -52,7 +52,24 @@ public class KoopaController : EnemyAI
     {
         if (other.CompareTag("Enemy") && state == EnemyState.movingShell) {
             other.GetComponent<EnemyAI>().KnockAway(movingLeft);
+            GameManager.Instance.AddScorePoints(100); // Gives a hundred points to the player
             audioSource.PlayOneShot(knockAwaySound);
+        }
+    }
+
+
+    // TODO: Figure out if this ever used or if touchNonPlayer is always used instead
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (state == EnemyState.movingShell)
+        {
+            if (collision.gameObject.CompareTag("Enemy"))
+            {
+                EnemyAI enemy = collision.gameObject.GetComponent<EnemyAI>();
+                enemy.KnockAway(movingLeft);
+                GameManager.Instance.AddScorePoints(100); // Gives a hundred points to the player
+                audioSource.PlayOneShot(knockAwaySound);
+            }
         }
     }
 
@@ -139,18 +156,7 @@ public class KoopaController : EnemyAI
         }  
     }
 
-    private void OnCollisionEnter2D(Collision2D collision)
-    {
-        if (state == EnemyState.movingShell)
-        {
-            if (collision.gameObject.CompareTag("Enemy"))
-            {
-                EnemyAI enemy = collision.gameObject.GetComponent<EnemyAI>();
-                enemy.KnockAway(movingLeft);
-                audioSource.PlayOneShot(knockAwaySound);
-            }
-        }
-    }
+
 
     protected override void onTouchWall(GameObject other)
     {

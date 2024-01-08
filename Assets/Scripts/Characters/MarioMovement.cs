@@ -1059,8 +1059,19 @@ public class MarioMovement : MonoBehaviour
         // get object from mario's object holder
         ObjectPhysics obj = heldObjectPosition.transform.GetChild(0).gameObject.GetComponent<ObjectPhysics>();
         obj.transform.parent = null;
-        obj.transform.position = new Vector3(transform.position.x + (facingRight ? 1 : -1), transform.position.y + (powerupState == PowerupState.small ? 0f : -.5f), transform.position.z);
-        
+
+        //obj.transform.position = new Vector3(transform.position.x + (facingRight ? 1 : -1), transform.position.y + (powerupState == PowerupState.small ? 0f : -.5f), transform.position.z);
+        float halfwidth = obj.width / 2;
+        float offset = powerupState == PowerupState.small ? 0f : -0.5f;
+        Vector2? raycastPoint = ThrowRaycast(offset, 1f + halfwidth, obj.wallMask);
+        if (raycastPoint != null) {
+            obj.transform.position = (Vector2)raycastPoint + new Vector2(facingRight ? -halfwidth : halfwidth, 0);
+            // move mario back (todo: mario might get stuck in a wall if he throws an object in a one block gap)
+            transform.position = new Vector3(facingRight ? (raycastPoint.Value.x - obj.width - 0.5f) : (raycastPoint.Value.x + obj.width + 0.5f), transform.position.y, transform.position.z);
+        } else {
+            obj.transform.position = transform.position + new Vector3(facingRight ? 1 : -1, offset, 0);
+        }
+
         // sound
         if (dropSound != null)
             audioSource.PlayOneShot(dropSound);
@@ -1083,13 +1094,37 @@ public class MarioMovement : MonoBehaviour
         // get object from mario's object holder
         ObjectPhysics obj = heldObjectPosition.transform.GetChild(0).gameObject.GetComponent<ObjectPhysics>();
         obj.transform.parent = null;
-        obj.transform.position = new Vector3(transform.position.x + (facingRight ? 1 : -1), transform.position.y + (powerupState == PowerupState.small ? 0.1f : -.1f), transform.position.z);
-        
+
+        float halfwidth = obj.width / 2;
+        float offset = powerupState == PowerupState.small ? 0.1f : -0.1f;
+        Vector2? raycastPoint = ThrowRaycast(offset, 1f + halfwidth, obj.wallMask);
+        if (raycastPoint != null) {
+            obj.transform.position = (Vector2)raycastPoint + new Vector2(facingRight ? -halfwidth : halfwidth, 0);
+            // move mario back (todo: mario might get stuck in a wall if he throws an object in a one block gap)
+            transform.position = new Vector3(facingRight ? (raycastPoint.Value.x - obj.width - 0.5f) : (raycastPoint.Value.x + obj.width + 0.5f), transform.position.y, transform.position.z);
+        } else {
+            obj.transform.position = transform.position + new Vector3(facingRight ? 1 : -1, offset, 0);
+        }
+
         // sound
         if (throwSound != null)
             audioSource.PlayOneShot(throwSound);
 
         obj.GetThrown(facingRight);
+    }
+
+    // Raycasts from the specified vertical offset and returns the point of contact (if any)
+    // TODO: maybe change it to 2 raycasts (one on top, one on bottom) to make sure that the object wont go inside a wall
+    Vector2? ThrowRaycast(float offset, float distance, int layerMask) {
+        layerMask &= ~(1 << gameObject.layer);  // remove mario's layer from the layermask
+        Vector3 start = transform.position + new Vector3(0, offset, 0);
+        RaycastHit2D hit = Physics2D.Raycast(start, facingRight ? Vector2.right : Vector2.left, distance, layerMask);
+
+        if (hit.collider != null) {
+            return hit.point;
+        } else {
+            return null;
+        }
     }
 
     public void resetSpriteLibrary() {

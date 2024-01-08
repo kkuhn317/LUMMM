@@ -43,6 +43,7 @@ public class ObjectPhysics : MonoBehaviour
 
     // should mostly be true, except for things like moving koopa shells
     public bool checkObjectCollision = true;
+    public bool ceilingDetection = true;
     public bool DontFallOffLedges = false;
 
     // this is possible, but i'd say to just put these in the objects that actually need them
@@ -234,6 +235,10 @@ public class ObjectPhysics : MonoBehaviour
             {
                 pos = CheckGround(pos);
             }
+            if (velocity.y > 0 && ceilingDetection)
+            {
+                pos = CheckCeiling(pos);
+            }
 
             // Check for lava collision
             if (lavaKill)
@@ -346,6 +351,63 @@ public class ObjectPhysics : MonoBehaviour
 
             }
         }
+        return pos;
+    }
+
+    Vector3 CheckCeiling(Vector3 pos)
+    {
+        // combine floor and wall masks
+        int ceilingMask = floorMask | wallMask;
+
+        float halfHeight = height / 2;
+        float halfWidth = width / 2;
+
+        Vector2 originLeft = new Vector2(pos.x - halfWidth + floorRaycastSpacing, pos.y + halfHeight - 0.02f);
+        Vector2 originMiddle = new Vector2(pos.x, pos.y + halfHeight - 0.02f);
+        Vector2 originRight = new Vector2(pos.x + halfWidth - floorRaycastSpacing, pos.y + halfHeight - 0.02f);
+
+        RaycastHit2D[] ceilingLeft = Physics2D.RaycastAll(originLeft, Vector2.up, velocity.y * adjDeltaTime, ceilingMask);
+        RaycastHit2D[] ceilingMiddle = Physics2D.RaycastAll(originMiddle, Vector2.up, velocity.y * adjDeltaTime, ceilingMask);
+        RaycastHit2D[] ceilingRight = Physics2D.RaycastAll(originRight, Vector2.up, velocity.y * adjDeltaTime, ceilingMask);
+
+        RaycastHit2D[][] ceilingCollides = { ceilingLeft, ceilingMiddle, ceilingRight };
+
+        // get shortest distance
+        float shortestDistance = float.MaxValue;
+        RaycastHit2D shortestRay = new RaycastHit2D();
+        Collider2D thisCollider = GetComponent<Collider2D>();
+
+        foreach (RaycastHit2D[] ceilingCols in ceilingCollides)
+        {
+            foreach (RaycastHit2D hitRay in ceilingCols)
+            {
+                if (hitRay.collider != thisCollider)
+                {
+                    if (hitRay.collider.gameObject.GetComponent<ObjectPhysics>())
+                    {
+                        if (!checkifObjectCollideValid(hitRay.collider.gameObject.GetComponent<ObjectPhysics>()))
+                        {
+                            continue;
+                        }
+                    }
+                    if (hitRay.distance < shortestDistance)
+                    {
+                        shortestDistance = hitRay.distance;
+                        shortestRay = hitRay;
+                    }
+                }
+            }
+        }
+
+        if (shortestRay)
+        {
+            // We hit the ceiling
+
+            pos.y = shortestRay.point.y - halfHeight;
+            velocity.y = -velocity.y * 0.5f;    // bounce off the ceiling a little bit
+
+        }
+
         return pos;
     }
 

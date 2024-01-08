@@ -90,7 +90,6 @@ public class GameManager : MonoBehaviour
     [SerializeField] TMP_Text highScoreText;
 
     [Header("Score System")]
-    public int scoreCount;
     public AudioClip extraLife;
     [SerializeField] TMP_Text scoreText;
 
@@ -119,7 +118,6 @@ public class GameManager : MonoBehaviour
     public int scoreForCRank = 5000;
     public int scoreForDRank = 3000;
 
-    public bool considerAllEnemiesKilled = true;
     private PlayerRank highestRank; // The highest rank achieved after the level is completed (saved and loaded from PlayerPrefs)
     private PlayerRank prevRank;  // The previous rank, to see if the rank has changed
     private PlayerRank currentRank; // The current rank
@@ -149,29 +147,27 @@ public class GameManager : MonoBehaviour
 
     private void UpdateRank()
     {
-        bool allEnemiesKilledRequirementMet = !considerAllEnemiesKilled || AllEnemiesKilled();
-
-        if (scoreCount >= scoreForSRank && allEnemiesKilledRequirementMet)
+        if (GlobalVariables.score >= scoreForSRank)
         {
             currentRankImage.texture = rankTypes[4].texture; // S Rank
             currentRank = PlayerRank.S;
         }
-        else if (scoreCount >= scoreForARank && allEnemiesKilledRequirementMet)
+        else if (GlobalVariables.score >= scoreForARank)
         {
             currentRankImage.texture = rankTypes[3].texture; // A Rank
             currentRank = PlayerRank.A;
         }
-        else if (scoreCount >= scoreForBRank)
+        else if (GlobalVariables.score >= scoreForBRank)
         {
             currentRankImage.texture = rankTypes[2].texture; // B Rank
             currentRank = PlayerRank.B;
         }
-        else if (scoreCount >= scoreForCRank)
+        else if (GlobalVariables.score >= scoreForCRank)
         {
             currentRankImage.texture = rankTypes[1].texture; // C Rank
             currentRank = PlayerRank.C;
         }
-        else if (scoreCount >= scoreForDRank)
+        else if (GlobalVariables.score >= scoreForDRank)
         {
             currentRankImage.texture = rankTypes[0].texture; // D Rank
             currentRank = PlayerRank.D;
@@ -307,6 +303,7 @@ public class GameManager : MonoBehaviour
         UpdateHighScoreUI();
         UpdateLivesUI();
         UpdateCoinsUI();
+        UpdateScoreUI();
     }
 
     // So no error when running starting in the level scene
@@ -503,9 +500,9 @@ public class GameManager : MonoBehaviour
     #region updateUI
     private void UpdateHighScore()
     {
-        if (scoreCount > highScore)
+        if (GlobalVariables.score > highScore)
         {
-            highScore = scoreCount;
+            highScore = GlobalVariables.score;
             PlayerPrefs.SetInt("HighScore", highScore);
         }
     }
@@ -518,22 +515,22 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            livesText.text = GlobalVariables.lives.ToString("D2"); // 00
+            livesText.text = "<mspace=0.8em>" + GlobalVariables.lives.ToString("D2"); // 00
         }
     }
 
     private void UpdateCoinsUI()
     {
-        coinText.text = GlobalVariables.coinCount.ToString("D2"); // 00
+        coinText.text = "<mspace=0.8em>" + GlobalVariables.coinCount.ToString("D2"); // 00
     }
     private void UpdateTimerUI()
     {
-        timerText.text = ((int)currentTime).ToString("D3"); // 000
+        timerText.text = "<mspace=0.8em>" + ((int)currentTime).ToString("D3"); // 000
     }
 
     private void UpdateScoreUI()
     {
-        scoreText.text = scoreCount.ToString("D9"); // 000000000
+        scoreText.text = "<mspace=0.8em>" + GlobalVariables.score.ToString("D9"); // 000000000
 
     }
 
@@ -568,7 +565,7 @@ public class GameManager : MonoBehaviour
         audioSource.clip = coinSound;
         audioSource.PlayOneShot(coinSound);
         GlobalVariables.coinCount += coinValue;
-        scoreCount += coinValue * 100;
+        GlobalVariables.score += coinValue * 100;
 
         if (GlobalVariables.coinCount > 99)
         {
@@ -671,7 +668,7 @@ public class GameManager : MonoBehaviour
 
     public void AddScorePoints(int pointsToAdd)
     {
-        scoreCount += pointsToAdd;
+        GlobalVariables.score += pointsToAdd;
         UpdateScoreUI();
     }
 
@@ -993,19 +990,19 @@ public class GameManager : MonoBehaviour
         ShowTotalCoins();
 
         // Time when you get to the end
-        timerFinishText.text = timerText.text;
+        timerFinishText.text = ((int)currentTime).ToString("D3");
 
         // Collected coins
-        collectedCoinsText.text = coinText.text; 
+        collectedCoinsText.text = GlobalVariables.coinCount.ToString("D2");
 
         if (GlobalVariables.coinCount == totalCoins) { // If the amount of coins collected match the total coins on the level
             totalCoinsText.color = Color.yellow; // The total coins text will change to yellow
         }
 
         // Score amount achieved
-        scoreWinScreenText.text = scoreText.text;
+        scoreWinScreenText.text = GlobalVariables.score.ToString("D9");
 
-        if (scoreCount > highScore) { // If the scoreCount is higher than highScore  on the level
+        if (GlobalVariables.score > highScore) { // If the GlobalVariables.score is higher than highScore  on the level
             NewHighScoreText.SetActive(true); // A text saying "New HighScore!" will appear
         } else {
             NewHighScoreText.SetActive(false); // The text won't appear

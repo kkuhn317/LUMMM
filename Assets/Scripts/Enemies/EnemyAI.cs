@@ -70,6 +70,7 @@ public class EnemyAI : ObjectPhysics
 
     protected virtual void hitByStarPower(GameObject player) {
         KnockAway(player.transform.position.x > transform.position.x);
+        GameManager.Instance.AddScorePoints(100); // Gives a hundred points to the player
     }
 
     protected virtual void hitByStomp(GameObject player) {

@@ -102,7 +102,7 @@ public class NormalGoombaBoss : EnemyAI
                 break;
             case 0:
                 transform.localScale = new Vector3(0.025f, 0.025f, 0.025f);
-                transform.position = new Vector3(transform.position.x, transform.position.y + 0.00549f, transform.position.z);
+                transform.position = new Vector3(transform.position.x, transform.position.y + 0.25f, transform.position.z);
                 height = 1f;
 
                 GetComponent<Collider2D>().enabled = false;
