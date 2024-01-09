@@ -582,6 +582,10 @@ public class GameManager : MonoBehaviour
         AddScorePoints(4000);
         audioSource.PlayOneShot(coin);
 
+        // Uncomment this and remove the code in WinScreenStats() if you want to show green coins collected IN THE RUN instead of ALL green coins ever collected
+        // Image uiImageWin = greenCoinUIWin[Array.IndexOf(greenCoins, greenCoin)];
+        // uiImageWin.sprite = collectedSprite;
+
         // Check if the green coin is uncollected
         if (!collectedGreenCoins.Contains(greenCoin))
         {         
@@ -590,9 +594,6 @@ public class GameManager : MonoBehaviour
             Image uiImage = greenCoinUIImages[Array.IndexOf(greenCoins, greenCoin)];
             collectedGreenCoins.Add(greenCoin);
             uiImage.sprite = collectedSprite;
-
-            Image uiImageWin = greenCoinUIWin[Array.IndexOf(greenCoins, greenCoin)];
-            uiImageWin.sprite = collectedSprite;
 
             // Change the alpha of the sprite renderer to indicate it's collected
             SpriteRenderer coinRenderer = greenCoin.GetComponent<SpriteRenderer>();
@@ -995,9 +996,10 @@ public class GameManager : MonoBehaviour
         // Collected coins
         collectedCoinsText.text = GlobalVariables.coinCount.ToString("D2");
 
-        if (GlobalVariables.coinCount == totalCoins) { // If the amount of coins collected match the total coins on the level
-            totalCoinsText.color = Color.yellow; // The total coins text will change to yellow
-        }
+        // Removing this for now since you can get extra coins after dying
+        // if (GlobalVariables.coinCount == totalCoins) { // If the amount of coins collected match the total coins on the level
+        //     totalCoinsText.color = Color.yellow; // The total coins text will change to yellow
+        // }
 
         // Score amount achieved
         scoreWinScreenText.text = GlobalVariables.score.ToString("D9");
@@ -1006,6 +1008,13 @@ public class GameManager : MonoBehaviour
             NewHighScoreText.SetActive(true); // A text saying "New HighScore!" will appear
         } else {
             NewHighScoreText.SetActive(false); // The text won't appear
+        }
+
+        // Green Coins
+        foreach (GameObject greenCoin in collectedGreenCoins)
+        {
+            Image uiImageWin = greenCoinUIWin[Array.IndexOf(greenCoins, greenCoin)];
+            uiImageWin.sprite = collectedSprite;
         }
 
         // Save the highest rank to PlayerPrefs if the current rank is higher than the saved rank
