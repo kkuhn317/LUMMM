@@ -31,6 +31,7 @@ public class WizardGoomba : Goomba
     private AudioSource audioSource;
     private Animator animator;
     public Vector2[] positions;
+     bool isVisible = false;
 
     [Header("Bobbing")]
 
@@ -99,7 +100,7 @@ public class WizardGoomba : Goomba
     }
 
     IEnumerator Shoot() {
-        while (true) {
+        while (true ) {
             yield return new WaitForSeconds(shootRate);
             ShootMagic();
             animator.SetTrigger("magicAttack");
@@ -107,7 +108,7 @@ public class WizardGoomba : Goomba
     }
 
     void ShootMagic() {
-        if (crushed || objectState == ObjectState.knockedAway || !shootingAllowed) return;
+        if (crushed || objectState == ObjectState.knockedAway || !shootingAllowed || !isVisible) return;
         if (player == null) return;
 
         // create magic
@@ -182,5 +183,14 @@ public class WizardGoomba : Goomba
         for (int i = 0; i < positions.Length; i++) {
             Gizmos.DrawSphere(positions[i], 0.02f);
         }
+    }
+     void OnBecameVisible()
+    {
+        isVisible = true;
+    }
+
+    void OnBecameInvisible()
+    {
+        isVisible = false;
     }
 }
