@@ -339,7 +339,7 @@ public partial class @Mario : IInputActionCollection2, IDisposable
                     ""id"": ""4fe8e3c8-aa6c-4bb8-bd09-17b7607fffff"",
                     ""path"": ""<Gamepad>/leftStick/down"",
                     ""interactions"": """",
-                    ""processors"": """",
+                    ""processors"": ""AxisDeadzone(min=0.8)"",
                     ""groups"": ""Gamepad"",
                     ""action"": ""Crouch"",
                     ""isComposite"": false,

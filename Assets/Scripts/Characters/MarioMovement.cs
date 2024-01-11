@@ -745,6 +745,12 @@ public class MarioMovement : MonoBehaviour
             newMarioMovement.carrying = true;
         }
 
+        // transfer pressed buttons (for mobile controls)
+        newMarioMovement.crouchPressed = crouchPressed;
+        newMarioMovement.jumpPressed = jumpPressed;
+        newMarioMovement.runPressed = runPressed;
+        newMarioMovement.moveInput = moveInput;
+
         return newMarioMovement;
     }
 
@@ -921,42 +927,84 @@ public class MarioMovement : MonoBehaviour
         Gizmos.DrawLine(start, start + (facingRight ? Vector3.right : Vector3.left) * 0.6f);
     }
 
+
+    // Input Actions
+
+    // Move
     public void Move(InputAction.CallbackContext context)
     {
         moveInput = context.ReadValue<Vector2>();
     }
+    public void onMobileLeftPressed() {
+        moveInput = new Vector2(-1, moveInput.y);
+    }
+    public void onMobileLeftReleased() {
+        moveInput = new Vector2(0, moveInput.y);
+    }
+    public void onMobileRightPressed() {
+        moveInput = new Vector2(1, moveInput.y);
+    }
+    public void onMobileRightReleased() {
+        moveInput = new Vector2(0, moveInput.y);
+    }
+    public void onMobileUpPressed() {
+        moveInput = new Vector2(moveInput.x, 1);
+    }
+    public void onMobileUpReleased() {
+        moveInput = new Vector2(moveInput.x, 0);
+    }
+    public void onMobileDownPressed() {
+        moveInput = new Vector2(moveInput.x, -1);
+    }
+    public void onMobileDownReleased() {    // might not be needed because of crouch button
+        moveInput = new Vector2(moveInput.x, 0);
+    }
 
+    // Run
     public void Run(InputAction.CallbackContext context)
     {
         if (context.performed)
         {
-            //print("run");
-            runPressed = true;
-
-            if (pressRunToGrab && (!crouchToGrab || crouchPressed) && !carrying) {
-                checkForCarry();
-            }
+            onRunPressed();
         }
         if (context.canceled)
         {
-            //print("stop run");
-            runPressed = false;
+            onRunReleased();
         }
     }
+    public void onRunPressed() {
+        //print("run");
+        runPressed = true;
 
+        if (pressRunToGrab && (!crouchToGrab || crouchPressed) && !carrying) {
+            checkForCarry();
+        }
+    }
+    public void onRunReleased() {
+        runPressed = false;
+    }
+
+    // Jump
     public void Jump(InputAction.CallbackContext context)
     {
         if (context.performed)
         {
-            jumpTimer = Time.time + jumpDelay;
-            jumpPressed = true;
+            onJumpPressed();
         }
         if (context.canceled)
         {
-            jumpPressed = false;
+            onJumpReleased();
         }     
     }
+    public void onJumpPressed() {
+        jumpTimer = Time.time + jumpDelay;
+        jumpPressed = true;
+    }
+    public void onJumpReleased() {
+        jumpPressed = false;
+    }
 
+    // Crouch
     public void Crouch(InputAction.CallbackContext context)
     {
         if (context.performed)
@@ -970,29 +1018,48 @@ public class MarioMovement : MonoBehaviour
             crouchPressed = false;
         }
     }
+    public void onMobileCrouchPressed() {
+        crouchPressed = true;
+    }
+    public void onMobileCrouchReleased() {
+        crouchPressed = false;
+    }
 
+    // Spin
     public void Spin(InputAction.CallbackContext context)
     {
         // TODO: Spin Jump
     }
 
+
+    // Shoot
     public void Shoot(InputAction.CallbackContext context)
     {
+        if (context.performed)
+        {
+            onShootPressed();
+        }
+    }
+    public void onShootPressed() {
         // shoot fireball, etc
-        if (!carrying && context.performed && powerupState == PowerupState.power) {
+        if (!carrying && powerupState == PowerupState.power) {
             print("shoot!");
             marioAbility.shootProjectile();
         }
     }
 
+    // Use
     public void Use(InputAction.CallbackContext context)
     {
         // use lever
         if (context.performed) {
-            // for right now, use the NEWEST lever we entered
-            if (levers.Count > 0) {
-                levers[^1].Use(this);
-            }
+            onUsePressed();
+        }
+    }
+    public void onUsePressed() {
+        // for right now, use the NEWEST lever we entered
+        if (levers.Count > 0) {
+            levers[^1].Use(this);
         }
     }
 

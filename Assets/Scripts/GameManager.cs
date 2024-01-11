@@ -14,7 +14,6 @@ public class GameManager : MonoBehaviour
     //It allows me to access other scripts
     public static GameManager Instance { get; private set; }
     private string levelID;
-    private List<MarioMovement> players = new();  // The players will tell the game manager who they are on start or when the player changes
 
     [HideInInspector]
     public float currentTime;
@@ -50,6 +49,9 @@ public class GameManager : MonoBehaviour
 
     #region GreenCoindata
     private List<GameObject> collectedGreenCoins = new List<GameObject>();
+
+    [Header("Players")]
+    private List<MarioMovement> players = new();  // The players will tell the game manager who they are on start or when the player changes
 
     void SaveCollectedCoins()
     {
@@ -1074,12 +1076,26 @@ public class GameManager : MonoBehaviour
 
     public void SetPlayer(MarioMovement player, int playerIndex)
     {
-        print("Setting player " + playerIndex + " to " + player.name);
+        //print("Setting player " + playerIndex + " to " + player.name);
         while (players.Count <= playerIndex)
         {
             players.Add(null);
         }
         players[playerIndex] = player;
+    }
+
+    public MarioMovement GetPlayer(int playerIndex)
+    {
+        if (playerIndex >= players.Count)
+        {
+            return null;
+        }
+        return players[playerIndex];
+    }
+
+    public MarioMovement[] GetPlayers()
+    {
+        return players.ToArray();
     }
 
 }
