@@ -5,8 +5,10 @@ class SettingsKeys
     public const string GraphicsQualityKey = "GraphicsQuality";
     public const string InfiniteLivesKey = "InfiniteLives";
     public const string CheckpointsKey = "Checkpoints";
+    public const string OnScreenControlsKey = "OnScreenControls";
 
     public const string MasterVolumeKey = "MasterVolume";
     public const string BGMVolumeKey = "BGMVolume";
     public const string SFXVolumeKey = "SFXVolume";
+
 }

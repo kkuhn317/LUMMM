@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System.Linq;
+using System;
 
 public class GameSettings : MonoBehaviour
 {
@@ -9,6 +10,7 @@ public class GameSettings : MonoBehaviour
     public Toggle fullscreenToggle;
     public Toggle InfiniteLivesToggle;
     public Toggle CheckpointsToggle;
+    public Toggle OnScreenControlsToggle;
     public TMP_Dropdown resolutionDropdown;
     public TMP_Text resolutionText;
     public TMP_Dropdown graphicsQualityDropdown;
@@ -34,6 +36,7 @@ public class GameSettings : MonoBehaviour
         ConfigureGraphicsQuality();
         ConfigureInfiniteLives();
         ConfigureCheckpoints();
+        ConfigureOnScreenControls();
     }
 
     Resolution[] GetResolutions()
@@ -160,5 +163,18 @@ public class GameSettings : MonoBehaviour
         PlayerPrefs.SetInt(SettingsKeys.CheckpointsKey, isCheckpointAllowed ? 1 : 0);
 
         GlobalVariables.enableCheckpoints = isCheckpointAllowed;
+    }
+
+    private void ConfigureOnScreenControls()
+    {
+        bool isOnScreenControlsEnabled = PlayerPrefs.GetInt(SettingsKeys.OnScreenControlsKey, Application.isMobilePlatform ? 1 : 0) == 1;
+        OnScreenControlsToggle.isOn = isOnScreenControlsEnabled;
+        OnScreenControlsToggle.onValueChanged.AddListener(OnOnScreenControlsToggleValueChanged);
+    }
+
+    private void OnOnScreenControlsToggleValueChanged(bool isOnScreenControlsEnabled)
+    {
+        OnScreenControlsToggle.isOn = isOnScreenControlsEnabled;
+        PlayerPrefs.SetInt(SettingsKeys.OnScreenControlsKey, isOnScreenControlsEnabled ? 1 : 0);
     }
 }

@@ -18,6 +18,7 @@ public class Door : MonoBehaviour
 
     private bool inUse = false;
 
+    // TODO: get rid of this after adding better camera movement code
     public bool moveCamera = true;
     public float newCameraHeight;
 

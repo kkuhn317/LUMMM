@@ -197,8 +197,6 @@ public class MarioMovement : MonoBehaviour
     {
         direction = moveInput;
 
-        print(direction);
-
         SpriteRenderer sprite = GetComponent<SpriteRenderer>();
 
         // die
@@ -237,7 +235,13 @@ public class MarioMovement : MonoBehaviour
             // Reset the flag to false if the player is not looking up
             isLookingUp = false;
         }
-        animator.SetBool("isLookingUp", isLookingUp);
+
+
+        // TODO: temporary fix until big mario gets looking up animation
+        if (powerupState == PowerupState.small) {
+            animator.SetBool("isLookingUp", isLookingUp);
+        }
+        
 
         if (cameraFollow != null)
         {

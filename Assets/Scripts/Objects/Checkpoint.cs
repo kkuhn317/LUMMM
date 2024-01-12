@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class Checkpoint : MonoBehaviour
@@ -15,6 +16,10 @@ public class Checkpoint : MonoBehaviour
     private SpriteRenderer spriteRenderer;
     private AudioSource audioSource;
     private BoxCollider2D checkpointCollider;
+
+    // TODO: Please get rid of these camera parameters once better camera movement code is implemented
+    public bool setNewCameraHeight = false;
+    public float newCameraHeight = 0f;
 
     public Vector2 spawnOffset = new(0, 0); // 0,0 is the bottom center of the checkpoint
 
@@ -66,6 +71,19 @@ public class Checkpoint : MonoBehaviour
         // Change the sprite to an "active" sprite
         int activeSpriteIndex = 0;
         spriteRenderer.sprite = active[activeSpriteIndex];
+    }
+
+    // TODO: get rid of this after adding better camera movement code
+    public void MoveCamera()
+    {
+        // Change the camera size to a specific value
+        // get main camera
+        if (!setNewCameraHeight)
+        {
+            return;
+        }
+        Camera mainCamera = Camera.main;
+        mainCamera.transform.position = new Vector3(mainCamera.transform.position.x, newCameraHeight, mainCamera.transform.position.z);
     }
 
     public void EnableCheckpoint()

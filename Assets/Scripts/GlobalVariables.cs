@@ -19,6 +19,8 @@ public static class GlobalVariables
 
     public static bool enableCheckpoints = false;
 
+    public static bool OnScreenControls = false;
+
     public static bool enablePlushies = false;
 
     public static void ResetForLevel()
@@ -28,10 +30,4 @@ public static class GlobalVariables
         score = 0;
         checkpoint = -1;
     }
-
-
-    /* Editor Use Only */
-
-    // Set to true to see what it looks like on mobile
-    public static bool forceMobileMode = false;
 }

@@ -812,6 +812,7 @@ public class GameManager : MonoBehaviour
 
         // Set it active
         checkpoint.SetActive();
+        checkpoint.MoveCamera();    // TODO: remove this after improving camera movement code
 
         // Get the player object
         GameObject player = GameObject.FindGameObjectWithTag("Player"); // TODO: Replace when we improve player management

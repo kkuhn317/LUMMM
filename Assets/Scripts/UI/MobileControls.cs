@@ -19,7 +19,8 @@ public class MobileControls : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        gameObject.SetActive(Application.isMobilePlatform || GlobalVariables.forceMobileMode);
+        //print(GlobalVariables.OnScreenControls);
+        gameObject.SetActive(GlobalVariables.OnScreenControls);
     }
 
     // Update is called once per frame
@@ -63,7 +64,6 @@ public class MobileControls : MonoBehaviour
     public void onRunPress()
     {
         getPlayer1().onRunPressed();
-        getPlayer1().onShootPressed();
     }
     public void onRunRelease()
     {
@@ -80,6 +80,7 @@ public class MobileControls : MonoBehaviour
     public void onUsePressed()
     {
         getPlayer1().onUsePressed();
+        getPlayer1().onShootPressed();
     }
 
 

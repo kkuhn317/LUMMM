@@ -17,7 +17,8 @@ public class SettingsApply : MonoBehaviour
         InitResolution();
         InitGraphicsQuality();
         InitInfiniteLives();
-        InitCheckpoints();   
+        InitCheckpoints();
+        InitOnScreenControls();
     }
 
     private void InitMasterVolume()
@@ -67,4 +68,10 @@ public class SettingsApply : MonoBehaviour
         bool areCheckpointsEnabled = PlayerPrefs.GetInt(SettingsKeys.CheckpointsKey, 0) == 1;
         GlobalVariables.enableCheckpoints = areCheckpointsEnabled;
     }  
+
+    private void InitOnScreenControls()
+    {
+        bool areOnScreenControlsEnabled = PlayerPrefs.GetInt(SettingsKeys.OnScreenControlsKey, Application.isMobilePlatform ? 1 : 0) == 1;
+        GlobalVariables.OnScreenControls = areOnScreenControlsEnabled;
+    }
 }

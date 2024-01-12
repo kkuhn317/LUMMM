@@ -6,7 +6,7 @@ public static class CursorHelper
 {
     public static void HideCursor()
     {
-        if (!(Application.isMobilePlatform || GlobalVariables.forceMobileMode)) {
+        if (!GlobalVariables.OnScreenControls) {
             Cursor.visible = false;
             Cursor.lockState = CursorLockMode.Locked;
         }
