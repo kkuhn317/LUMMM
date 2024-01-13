@@ -666,22 +666,25 @@ public class ObjectPhysics : MonoBehaviour
             return;
         }
 
-        // Floor Raycasts
+        float distance;
+        Gizmos.color = Color.red;
+        
         Vector2 pos = transform.position;
         float halfHeight = height / 2;
         float halfWidth = width / 2;
 
-        Vector2 originLeft = new Vector2(pos.x - halfWidth + floorRaycastSpacing, pos.y - halfHeight + 0.02f);
-        Vector2 originMiddle = new Vector2(pos.x, pos.y - halfHeight + 0.02f);
-        Vector2 originRight = new Vector2(pos.x + halfWidth - floorRaycastSpacing, pos.y - halfHeight + 0.02f);
+        // Floor Raycasts
+        if (!Application.isPlaying || velocity.y <= 0) {
+            Vector2 originLeft = new Vector2(pos.x - halfWidth + floorRaycastSpacing, pos.y - halfHeight + 0.02f);
+            Vector2 originMiddle = new Vector2(pos.x, pos.y - halfHeight + 0.02f);
+            Vector2 originRight = new Vector2(pos.x + halfWidth - floorRaycastSpacing, pos.y - halfHeight + 0.02f);
 
-        Gizmos.color = Color.red;
+            distance = Application.isPlaying ? -velocity.y * adjDeltaTime + .04f : 0.2f;
 
-        float distance = Application.isPlaying ? -velocity.y * adjDeltaTime + .04f : 0.2f;
-
-        Gizmos.DrawLine(originLeft, originLeft + new Vector2(0, -distance));
-        Gizmos.DrawLine(originMiddle, originMiddle + new Vector2(0, -distance));
-        Gizmos.DrawLine(originRight, originRight + new Vector2(0, -distance));
+            Gizmos.DrawLine(originLeft, originLeft + new Vector2(0, -distance));
+            Gizmos.DrawLine(originMiddle, originMiddle + new Vector2(0, -distance));
+            Gizmos.DrawLine(originRight, originRight + new Vector2(0, -distance));
+        }
 
         // Wall Raycasts
         float direction = movingLeft ? -1 : 1;
@@ -695,6 +698,20 @@ public class ObjectPhysics : MonoBehaviour
         Gizmos.DrawLine(originTop, originTop + new Vector2(distance * direction, 0));
         Gizmos.DrawLine(originMiddleSide, originMiddleSide + new Vector2(distance * direction, 0));
         Gizmos.DrawLine(originBottom, originBottom + new Vector2(distance * direction, 0));
+
+        // Ceiling Raycasts
+        if (ceilingDetection && (!Application.isPlaying || velocity.y > 0))
+        {
+            Vector2 originLeftCeiling = new Vector2(pos.x - halfWidth + floorRaycastSpacing, pos.y + halfHeight - 0.02f);
+            Vector2 originMiddleCeiling = new Vector2(pos.x, pos.y + halfHeight - 0.02f);
+            Vector2 originRightCeiling = new Vector2(pos.x + halfWidth - floorRaycastSpacing, pos.y + halfHeight - 0.02f);
+
+            distance = Application.isPlaying ? velocity.y * adjDeltaTime + .04f : 0.2f;
+
+            Gizmos.DrawLine(originLeftCeiling, originLeftCeiling + new Vector2(0, distance));
+            Gizmos.DrawLine(originMiddleCeiling, originMiddleCeiling + new Vector2(0, distance));
+            Gizmos.DrawLine(originRightCeiling, originRightCeiling + new Vector2(0, distance));
+        }
     }
 
     // call this after mario picks up the object

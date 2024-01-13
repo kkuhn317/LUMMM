@@ -9,6 +9,8 @@ public class Burner : MonoBehaviour
 
     public Animator anim;
 
+    private bool isVisible = false; // Flag to track if the burner is visible to the camera.
+
 
     // Start is called before the first frame update
     void Start()
@@ -28,7 +30,7 @@ public class Burner : MonoBehaviour
         {
             anim.SetTrigger("On");
         }       
-        if (GetComponent<AudioSource>() != null)
+        if (GetComponent<AudioSource>() != null && isVisible)
         {
             GetComponent<AudioSource>().Play();
         }
@@ -43,4 +45,16 @@ public class Burner : MonoBehaviour
         }
         Invoke("TurnOn", offtime);
     }
+
+        void OnBecameVisible()
+    {
+        isVisible = true;
+    }
+
+    void OnBecameInvisible()
+    {
+        isVisible = false;
+    }
+
+
 }

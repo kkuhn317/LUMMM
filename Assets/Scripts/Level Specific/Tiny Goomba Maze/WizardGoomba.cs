@@ -31,7 +31,6 @@ public class WizardGoomba : Goomba
     private AudioSource audioSource;
     private Animator animator;
     public Vector2[] positions;
-     bool isVisible = false;
 
     [Header("Bobbing")]
 
@@ -183,14 +182,5 @@ public class WizardGoomba : Goomba
         for (int i = 0; i < positions.Length; i++) {
             Gizmos.DrawSphere(positions[i], 0.02f);
         }
-    }
-     void OnBecameVisible()
-    {
-        isVisible = true;
-    }
-
-    void OnBecameInvisible()
-    {
-        isVisible = false;
     }
 }

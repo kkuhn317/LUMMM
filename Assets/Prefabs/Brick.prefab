@@ -126,11 +126,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0666ef16005fc244bab577124d5226c8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isInvisible: 0
   bounceHeight: 0.5
   bounceSpeed: 4
   brickBlock: 1
   noCoinIfNoItem: 0
-  spawnItem: {fileID: 0}
+  spawnableItems: []
   coinMoveSpeed: 8
   coinMoveHeight: 3
   coinFallDistance: 2
@@ -148,10 +149,10 @@ AudioSource:
   m_GameObject: {fileID: 3699390078725392179}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 0}
+  OutputAudioMixerGroup: {fileID: -1032615450488366135, guid: 52d4409ed4d7bb645aad562fcfd87159, type: 2}
   m_audioClip: {fileID: 8300000, guid: af878d0ac7320124ea0aebfd1971fb3b, type: 3}
   m_PlayOnAwake: 0
-  m_Volume: 1
+  m_Volume: 0.7
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -249,3 +250,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   BlockPiece: {fileID: 2156389294837876831, guid: 35b0bb94ac6dbce4297f26f5f4157dd7, type: 3}
   breakSound: {fileID: 8300000, guid: b743956004148db4898997e7f98e2628, type: 3}
+  broken: 0

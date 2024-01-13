@@ -17,7 +17,7 @@ public class EnemyAI : ObjectPhysics
         get { return isVisible; }
     }
 
-    private bool isVisible = false; // Flag to track if the enemy is visible to the camera.
+    protected bool isVisible = false; // Flag to track if the enemy is visible to the camera.
 
     protected override void Start()
     {

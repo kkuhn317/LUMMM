@@ -6,6 +6,7 @@ public class POWBlock : MonoBehaviour
 {
     public bool changeVisibleEnemiesToKnockedAway = false;
     public bool changeAllEnemiesToKnockedAway = false;
+    public bool playKickSounds = true;  // should all the enemies make a kick sound when they are knocked away? (WARNING: can be loud)
     public AudioClip powblockSound;
     private AudioSource audioSource;
 
@@ -63,7 +64,7 @@ public class POWBlock : MonoBehaviour
             float knockDirection = Random.Range(-1f, 1f); // -1 is false, 1 is true on boolean
 
             // Change enemy's state to Knocked Away with the random direction
-            enemy.KnockAway(knockDirection > 0); // Pass true for right direction, false for left direction
+            enemy.KnockAway(knockDirection > 0, sound: playKickSounds); // Pass true for right direction, false for left direction
         }
 
         // Play POW Block effect 

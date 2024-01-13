@@ -79,6 +79,8 @@ public class MarioMovement : MonoBehaviour
     public float groundLength = 0.6f;
     public bool onMovingPlatform = false;
     public float ceilingLength = 0.5f;
+
+    public bool doCornerCorrection = true; // false: disable corner correction, true: enable corner correction
     public float cornerCorrection = 0.1f; // Portion of the player's width that can overlap with the ceiling and still correct the position
     // Example: 0.1f means that if the player's width is 1, the player can overlap with the ceiling by up to 0.1 (10%) and still correct the position
 
@@ -363,7 +365,7 @@ public class MarioMovement : MonoBehaviour
         }
 
         // Corner correction
-        if (rb.velocity.y > 0) {
+        if (rb.velocity.y > 0 && doCornerCorrection) {
 
             // Get the height to start at which will be 1 physics frame ahead of the boxcollider top
             float startHeight = GetComponent<BoxCollider2D>().bounds.size.y / 2 + (rb.velocity.y * Time.fixedDeltaTime) + 0.01f;

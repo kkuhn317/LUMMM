@@ -53,7 +53,6 @@ public class KoopaController : EnemyAI
         if (other.CompareTag("Enemy") && state == EnemyState.movingShell) {
             other.GetComponent<EnemyAI>().KnockAway(movingLeft);
             GameManager.Instance.AddScorePoints(100); // Gives a hundred points to the player
-            audioSource.PlayOneShot(knockAwaySound);
         }
     }
 
@@ -68,7 +67,6 @@ public class KoopaController : EnemyAI
                 EnemyAI enemy = collision.gameObject.GetComponent<EnemyAI>();
                 enemy.KnockAway(movingLeft);
                 GameManager.Instance.AddScorePoints(100); // Gives a hundred points to the player
-                audioSource.PlayOneShot(knockAwaySound);
             }
         }
     }
