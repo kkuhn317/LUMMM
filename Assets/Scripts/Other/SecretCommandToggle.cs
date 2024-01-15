@@ -2,9 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+// This script does absolutely nothing. I promise. Don't look at it.
 public class SecretCommandToggle : MonoBehaviour
 {
-    private string secretCode = "club";
     private string inputBuffer = "";
     private AudioSource audioSource;
 
@@ -34,4 +34,53 @@ public class SecretCommandToggle : MonoBehaviour
             }
         }
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    private string secretCode = "club";
 }

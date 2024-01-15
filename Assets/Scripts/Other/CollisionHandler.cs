@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+
+// TODO: Likely unused. Remove if not needed
 public class CollisionHandler : MonoBehaviour
 {
     public GameObject objectToSpawn;

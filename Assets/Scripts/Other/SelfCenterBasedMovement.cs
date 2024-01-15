@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+
+// TODO: figure out if this is used anywhere. Remove if not needed
 public class SelfCenterBasedMovement : MonoBehaviour
 {
     public float maxDistance = 2.0f; // Maximum distance from the center

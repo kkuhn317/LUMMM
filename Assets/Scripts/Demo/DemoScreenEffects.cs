@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using UnityEngine;
 
+
+// TODO: This is unused as far as I know. Delete the script if we are sure it does not need to be used.
 public class DemoScreenEffects : MonoBehaviour
 {
     //==============================

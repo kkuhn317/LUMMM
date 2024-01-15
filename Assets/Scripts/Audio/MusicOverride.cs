@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+
+// This is used on temporary music like the star music
 public class MusicOverride : MonoBehaviour
 {
 

@@ -3,6 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
+// This script is for all objects that need to move around like enemies, items, etc.
+// It is a custom simplified physics engine that handles collisions and movement
+// Objects move at a constant velocity horizontally and bounce off walls
+// These objects can also be carried by mario
 public class ObjectPhysics : MonoBehaviour
 {
     [Header("Object Physics")]

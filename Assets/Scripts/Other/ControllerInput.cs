@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
 
+// This is used for the NES controller input display in the Options menu
 public class ControllerInput : MonoBehaviour
 {
     [Header("Directional Pad")]

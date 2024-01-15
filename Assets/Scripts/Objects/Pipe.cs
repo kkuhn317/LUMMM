@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+// This script lets Mario enter a pipe
 public class Pipe : MonoBehaviour
 {
     public Transform connection;

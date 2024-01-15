@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+
+// TODO: likely unused. Remove if not needed
 public class ContinuousRotation : MonoBehaviour
 {
     public bool rotateOnX = true;

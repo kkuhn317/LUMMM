@@ -2,6 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+
+// Used to move an object back and forth between two points
+// Example, moving spikes in tiny goomba maze
 public class ObjectMovement : MonoBehaviour
 {
     public float moveDistance = 5f;

@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+// This script is added to objects that need to be paused and resumed
+// For example: When Mario touches an axe, the enemies on the bridge need to be paused
 public class PauseableObject : MonoBehaviour
 {
     [Header("During Pause")]
