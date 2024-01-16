@@ -227,8 +227,8 @@ public class GameManager : MonoBehaviour
     #endregion
 
     [Header("Game Over & Lose Life")]
-    // Name of the Game Over scene
-    public string gameOverSceneName;
+    // Game Over Screen Object
+    public GameObject GameOverScreenGameObject;
     // Name of the Lose Life scene
     public string loseLifeSceneName;
 
@@ -250,6 +250,7 @@ public class GameManager : MonoBehaviour
     public GameObject NewHighScoreText;
     public List<Image> greenCoinUIWin;
     public RawImage ObtainedRank;
+
 
     void Awake()
     {
@@ -436,9 +437,9 @@ public class GameManager : MonoBehaviour
             if (GlobalVariables.lives <= 0)
             {
                 PlayerPrefs.Save();
-                // Load the Game Over scene
-                SceneManager.LoadScene(gameOverSceneName);
-                GlobalVariables.lives = 3;
+                pauseable = false;
+                // Enable the Game Over screen
+                GameOverScreenGameObject.SetActive(true);
             }
             else
             {
