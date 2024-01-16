@@ -9,13 +9,13 @@ public class Pipe : MonoBehaviour
     public Vector3 enterDirection = Vector3.down;
     public Vector3 exitDirection = Vector3.zero;
     public AudioClip warpEnterSound;
-    public bool moveCamera = true;
-    public float newCameraHeight = 2.0f; // Adjust this value as needed
     public bool requireGroundToEnter = true; // New option to require the player to be on the ground
-
     private Vector3 originalScale;
     private AudioSource audioSource;
     private bool isEnteringPipe = false; // Track if the player is already entering the pipe
+
+    public bool snapCameraX = false;
+    public bool snapCameraY = false;
 
     private void Start()
     {
@@ -76,11 +76,17 @@ public class Pipe : MonoBehaviour
 
         PlayWarpEnterSound();
 
-        if (moveCamera)
+        // Move the camera
+        Vector3 camPos = Camera.main.transform.position;
+        if (snapCameraX)
         {
-            Vector3 oldCamPos = Camera.main.transform.position;
-            Camera.main.transform.position = new Vector3(player.transform.position.x, newCameraHeight, oldCamPos.z);
+            camPos.x = connection.position.x;
         }
+        if (snapCameraY)
+        {
+            camPos.y = connection.position.y;
+        }
+        Camera.main.transform.position = camPos;
 
         if (exitDirection != Vector3.zero)
         {

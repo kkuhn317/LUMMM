@@ -5890,9 +5890,9 @@ MonoBehaviour:
   enterDirection: {x: 0, y: -1, z: 0}
   exitDirection: {x: 0, y: 0, z: 0}
   warpEnterSound: {fileID: 8300000, guid: 938d4a3d1a37b284c81c8c25379c86b4, type: 3}
-  moveCamera: 0
-  newCameraHeight: 2
   requireGroundToEnter: 1
+  snapCameraX: 0
+  snapCameraY: 0
 --- !u!82 &392404702
 AudioSource:
   m_ObjectHideFlags: 0
@@ -7871,9 +7871,9 @@ MonoBehaviour:
   enterDirection: {x: 0, y: 0, z: 0}
   exitDirection: {x: 0, y: 0, z: 0}
   warpEnterSound: {fileID: 8300000, guid: 938d4a3d1a37b284c81c8c25379c86b4, type: 3}
-  moveCamera: 0
-  newCameraHeight: 2
   requireGroundToEnter: 1
+  snapCameraX: 0
+  snapCameraY: 0
 --- !u!82 &578687246
 AudioSource:
   m_ObjectHideFlags: 0
@@ -8415,9 +8415,9 @@ MonoBehaviour:
   enterDirection: {x: 0, y: 0.1, z: 0}
   exitDirection: {x: -0.5, y: 0, z: 0}
   warpEnterSound: {fileID: 8300000, guid: 938d4a3d1a37b284c81c8c25379c86b4, type: 3}
-  moveCamera: 0
-  newCameraHeight: 2
   requireGroundToEnter: 0
+  snapCameraX: 0
+  snapCameraY: 0
 --- !u!82 &629034804
 AudioSource:
   m_ObjectHideFlags: 0
@@ -8788,9 +8788,9 @@ MonoBehaviour:
   enterDirection: {x: 0, y: 0.1, z: 0}
   exitDirection: {x: 0.3, y: 0, z: 0}
   warpEnterSound: {fileID: 8300000, guid: 938d4a3d1a37b284c81c8c25379c86b4, type: 3}
-  moveCamera: 0
-  newCameraHeight: 2
   requireGroundToEnter: 0
+  snapCameraX: 0
+  snapCameraY: 0
 --- !u!82 &662486948
 AudioSource:
   m_ObjectHideFlags: 0
@@ -9664,9 +9664,9 @@ MonoBehaviour:
   enterDirection: {x: 0, y: 0, z: 0}
   exitDirection: {x: 0, y: 0, z: 0}
   warpEnterSound: {fileID: 8300000, guid: 938d4a3d1a37b284c81c8c25379c86b4, type: 3}
-  moveCamera: 0
-  newCameraHeight: 2
   requireGroundToEnter: 1
+  snapCameraX: 0
+  snapCameraY: 0
 --- !u!82 &819763941
 AudioSource:
   m_ObjectHideFlags: 0
@@ -11497,9 +11497,9 @@ MonoBehaviour:
   enterDirection: {x: 0, y: 0, z: 0}
   exitDirection: {x: 0, y: 0, z: 0}
   warpEnterSound: {fileID: 8300000, guid: 938d4a3d1a37b284c81c8c25379c86b4, type: 3}
-  moveCamera: 0
-  newCameraHeight: 2
   requireGroundToEnter: 1
+  snapCameraX: 0
+  snapCameraY: 0
 --- !u!82 &864079473
 AudioSource:
   m_ObjectHideFlags: 0
@@ -11805,9 +11805,9 @@ MonoBehaviour:
   enterDirection: {x: 0.1, y: 0, z: 0}
   exitDirection: {x: -0.4, y: 0, z: 0}
   warpEnterSound: {fileID: 8300000, guid: 938d4a3d1a37b284c81c8c25379c86b4, type: 3}
-  moveCamera: 0
-  newCameraHeight: 2
   requireGroundToEnter: 1
+  snapCameraX: 0
+  snapCameraY: 0
 --- !u!82 &883921567
 AudioSource:
   m_ObjectHideFlags: 0
@@ -14004,9 +14004,9 @@ MonoBehaviour:
   enterDirection: {x: 0, y: 0.1, z: 0}
   exitDirection: {x: 0, y: 0.5, z: 0}
   warpEnterSound: {fileID: 8300000, guid: 938d4a3d1a37b284c81c8c25379c86b4, type: 3}
-  moveCamera: 0
-  newCameraHeight: 2
   requireGroundToEnter: 0
+  snapCameraX: 0
+  snapCameraY: 0
 --- !u!82 &1093794904
 AudioSource:
   m_ObjectHideFlags: 0
@@ -16050,9 +16050,9 @@ MonoBehaviour:
   enterDirection: {x: 0, y: -0.1, z: 0}
   exitDirection: {x: -0.5, y: 0, z: 0}
   warpEnterSound: {fileID: 8300000, guid: 938d4a3d1a37b284c81c8c25379c86b4, type: 3}
-  moveCamera: 0
-  newCameraHeight: 2
   requireGroundToEnter: 0
+  snapCameraX: 0
+  snapCameraY: 0
 --- !u!82 &1249881524
 AudioSource:
   m_ObjectHideFlags: 0
@@ -23323,6 +23323,7 @@ GameObject:
   - component: {fileID: 1730604526}
   - component: {fileID: 1730604525}
   - component: {fileID: 1730604528}
+  - component: {fileID: 1730604530}
   - component: {fileID: 1730604529}
   m_Layer: 0
   m_Name: Main Camera
@@ -23409,7 +23410,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7fc2e72a8a3800345a90e9c6cf562913, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerTag: Player
   smoothDampTime: 0.15
   canMoveHorizontally: 1
   leftBounds: -9.08
@@ -23417,6 +23417,7 @@ MonoBehaviour:
   canMoveVertically: 1
   topBounds: 11.38
   bottomBounds: -5.29
+  snapToBounds: 0
   offset: {x: 0, y: 0, z: 0}
 --- !u!95 &1730604529
 Animator:
@@ -23438,6 +23439,23 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
+--- !u!114 &1730604530
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1730604524}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 80c9ed9480f1351438ccb4c7eee81f60, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  topLeft: {x: -9.08, y: 11.38}
+  bottomRight: {x: 9.55, y: -5.29}
+  lockToHorizontal: 0
+  lockToVertical: 0
+  lockOffset: {x: 0, y: 0}
 --- !u!1 &1739160475
 GameObject:
   m_ObjectHideFlags: 0
@@ -25370,9 +25388,9 @@ MonoBehaviour:
   enterDirection: {x: -0.1, y: 0, z: 0}
   exitDirection: {x: 0, y: -0.5, z: 0}
   warpEnterSound: {fileID: 8300000, guid: 938d4a3d1a37b284c81c8c25379c86b4, type: 3}
-  moveCamera: 0
-  newCameraHeight: 2
   requireGroundToEnter: 1
+  snapCameraX: 0
+  snapCameraY: 0
 --- !u!82 &1880079723
 AudioSource:
   m_ObjectHideFlags: 0
@@ -25641,9 +25659,9 @@ MonoBehaviour:
   enterDirection: {x: 0, y: -1, z: 0}
   exitDirection: {x: 0, y: 0, z: 0}
   warpEnterSound: {fileID: 8300000, guid: 938d4a3d1a37b284c81c8c25379c86b4, type: 3}
-  moveCamera: 0
-  newCameraHeight: 2
   requireGroundToEnter: 1
+  snapCameraX: 0
+  snapCameraY: 0
 --- !u!82 &1902560008
 AudioSource:
   m_ObjectHideFlags: 0
@@ -25970,9 +25988,9 @@ MonoBehaviour:
   enterDirection: {x: 0, y: -1, z: 0}
   exitDirection: {x: 0, y: 0, z: 0}
   warpEnterSound: {fileID: 8300000, guid: 938d4a3d1a37b284c81c8c25379c86b4, type: 3}
-  moveCamera: 0
-  newCameraHeight: 2
   requireGroundToEnter: 0
+  snapCameraX: 0
+  snapCameraY: 0
 --- !u!82 &1935950869
 AudioSource:
   m_ObjectHideFlags: 0
@@ -29006,9 +29024,9 @@ MonoBehaviour:
   enterDirection: {x: 0, y: -0.1, z: 0}
   exitDirection: {x: 0, y: -0.5, z: 0}
   warpEnterSound: {fileID: 8300000, guid: 938d4a3d1a37b284c81c8c25379c86b4, type: 3}
-  moveCamera: 0
-  newCameraHeight: 2
   requireGroundToEnter: 1
+  snapCameraX: 0
+  snapCameraY: 0
 --- !u!4 &6546842578748500365 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6546842579594223817, guid: 1f29f202a327c3646b84975b2922be34, type: 3}

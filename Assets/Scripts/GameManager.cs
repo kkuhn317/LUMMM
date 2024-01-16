@@ -812,7 +812,6 @@ public class GameManager : MonoBehaviour
 
         // Set it active
         checkpoint.SetActive();
-        checkpoint.MoveCamera();    // TODO: remove this after improving camera movement code
 
         // Get the player object
         GameObject player = GameObject.FindGameObjectWithTag("Player"); // TODO: Replace when we improve player management
@@ -1085,6 +1084,20 @@ public class GameManager : MonoBehaviour
         players[playerIndex] = player;
     }
 
+    // Gets rid of all the dead players
+    private List<MarioMovement> ExistingPlayers()
+    {
+        List<MarioMovement> existingPlayers = new List<MarioMovement>();
+        foreach (MarioMovement player in players)
+        {
+            if (player != null)
+            {
+                existingPlayers.Add(player);
+            }
+        }
+        return existingPlayers;
+    }
+
     public MarioMovement GetPlayer(int playerIndex)
     {
         if (playerIndex >= players.Count)
@@ -1097,6 +1110,11 @@ public class GameManager : MonoBehaviour
     public MarioMovement[] GetPlayers()
     {
         return players.ToArray();
+    }
+
+    public GameObject[] GetPlayerObjects()
+    {
+        return ExistingPlayers().Select(player => player.gameObject).ToArray();
     }
 
 }

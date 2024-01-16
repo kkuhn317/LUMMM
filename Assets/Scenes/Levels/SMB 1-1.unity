@@ -4711,6 +4711,8 @@ GameObject:
   - component: {fileID: 519420031}
   - component: {fileID: 519420029}
   - component: {fileID: 519420033}
+  - component: {fileID: 519420035}
+  - component: {fileID: 519420034}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -4796,7 +4798,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7fc2e72a8a3800345a90e9c6cf562913, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerTag: Player
   smoothDampTime: 0.15
   canMoveHorizontally: 1
   leftBounds: -22
@@ -4804,7 +4805,42 @@ MonoBehaviour:
   canMoveVertically: 0
   topBounds: 0
   bottomBounds: 0
+  snapToBounds: 1
   offset: {x: 0, y: 0, z: 0}
+--- !u!114 &519420034
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 519420028}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 80c9ed9480f1351438ccb4c7eee81f60, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  topLeft: {x: 18, y: -10}
+  bottomRight: {x: 43, y: -24}
+  lockToHorizontal: 1
+  lockToVertical: 1
+  lockOffset: {x: 0, y: 0}
+--- !u!114 &519420035
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 519420028}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 80c9ed9480f1351438ccb4c7eee81f60, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  topLeft: {x: -22, y: 12}
+  bottomRight: {x: 190, y: -9}
+  lockToHorizontal: 1
+  lockToVertical: 0
+  lockOffset: {x: 0, y: 0}
 --- !u!1001 &548031717
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -15008,9 +15044,9 @@ MonoBehaviour:
   enterDirection: {x: 0, y: -0.5, z: 0}
   exitDirection: {x: 0, y: 0, z: 0}
   warpEnterSound: {fileID: 8300000, guid: 938d4a3d1a37b284c81c8c25379c86b4, type: 3}
-  moveCamera: 1
-  newCameraHeight: -15.6
   requireGroundToEnter: 1
+  snapCameraX: 0
+  snapCameraY: 0
 --- !u!1001 &1590610823
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -16787,6 +16823,10 @@ PrefabInstance:
       propertyPath: connection
       value: 
       objectReference: {fileID: 510513231}
+    - target: {fileID: 5160239314735022517, guid: 725782c4a15758f49ac72c45a769aa77, type: 3}
+      propertyPath: snapCameraX
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5160239314735022517, guid: 725782c4a15758f49ac72c45a769aa77, type: 3}
       propertyPath: exitDirection.y
       value: 0.5

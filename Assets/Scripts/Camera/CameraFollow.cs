@@ -3,26 +3,17 @@ using UnityEngine;
 
 public class CameraFollow : MonoBehaviour
 {
-    public string playerTag = "Player";
+    private GameObject[] players;
     public float smoothDampTime = 0.15f;
     private Vector3 smoothDampVelocity = Vector3.zero;
 
-    public bool canMoveHorizontally = true;
-    public float leftBounds;
-    public float rightBounds;
+    private CameraZone[] zones;
 
-    public bool canMoveVertically = false;
-    public float topBounds;
-    public float bottomBounds;
+    public bool snapToBounds = false; // if true, it will never display anything outside of the bounds
 
-    //private float camWidth, camHeight, levelMinX, levelMaxX, levelMinY, levelMaxY;
+    public float camHeight => Camera.main.orthographicSize * 2;
+    public float camWidth => camHeight * Camera.main.aspect;
 
-    private float camHeight => Camera.main.orthographicSize * 2;
-    private float camWidth => camHeight * Camera.main.aspect;
-    private float levelMinX => leftBounds + (camWidth / 2);
-    private float levelMaxX => rightBounds - (camWidth / 2);
-    private float levelMinY => bottomBounds + (camHeight / 2);
-    private float levelMaxY => topBounds - (camHeight / 2);
     private Vector3 originalPosition;
 
     // Camera Shake variables
@@ -33,7 +24,7 @@ public class CameraFollow : MonoBehaviour
 
     // Camera moving up variables
     private bool isLookingUp = false;
-    public Vector3 offset;
+    public Vector3 offset;  // Vertical offset when looking up
 
     [Header("Change Camera Size")]
     private float originalOrthographicSize;
@@ -51,37 +42,106 @@ public class CameraFollow : MonoBehaviour
 
         // Set the initial target orthographic size to match the original size
         targetOrthographicSize = originalOrthographicSize;
+
+        // Get all the camera zones attached to this camera
+        zones = GetComponents<CameraZone>();
+
+        if (zones.Length == 0)
+        {
+            Debug.LogWarning("No CameraZones found on camera. You should add at least one CameraZone to the camera.");
+        }
     }
 
     // Update is called once per frame
     void Update()
     {
-        GameObject[] Players = GameObject.FindGameObjectsWithTag("Player");
+        // Get all the players in the scene
+        players = GameManager.Instance.GetPlayerObjects();
 
-        if (Players.Length > 0)
+        if (players.Length == 0)
         {
-            GameObject target = Players[0];
-            float targetX = Mathf.Max(levelMinX, Mathf.Min(levelMaxX, target.transform.position.x));
-            float targetY = Mathf.Max(levelMinY, Mathf.Min(levelMaxY, target.transform.position.y));
-
-            if (isLookingUp)
-            {
-                // Calculate desired position with an offset when looking up
-                targetY += offset.y;
-            }
-
-            float x = canMoveHorizontally ? Mathf.SmoothDamp(transform.position.x, targetX, ref smoothDampVelocity.x, smoothDampTime) : transform.position.x;
-            float y = canMoveVertically ? Mathf.SmoothDamp(transform.position.y, targetY, ref smoothDampVelocity.y, smoothDampTime) : transform.position.y;
-            transform.position = new Vector3(x, y, transform.position.z);
+            return;
         }
+
+        // Get middle of all players
+        Vector2 target = Vector2.zero;
+        foreach (var player in players)
+        {
+            target += (Vector2)player.transform.position;
+        }
+        target /= players.Length;
+
+        CameraZone zone = GetCurrentZone(target);
+
+        if (zone == null)
+        {
+            return;
+        }
+
+        float targetX = Mathf.Max(zone.cameraMinX, Mathf.Min(zone.cameraMaxX, target.x));
+        float targetY = Mathf.Max(zone.cameraMinY, Mathf.Min(zone.cameraMaxY, target.y));
+
+        bool tooSmallHorizontal = false;
+        bool tooSmallVertical = false;
+
+        // In case the bounds are too small for the camera, center the camera between the bounds
+        if (zone.bottomRight.x - zone.topLeft.x < camWidth && !zone.lockToVertical)
+        {
+            tooSmallHorizontal = true;
+            targetX = (zone.bottomRight.x + zone.topLeft.x) / 2;
+        }
+        if (zone.topLeft.y - zone.bottomRight.y < camHeight && !zone.lockToHorizontal)
+        {
+            tooSmallVertical = true;
+            targetY = (zone.topLeft.y + zone.bottomRight.y) / 2;
+        }
+
+        if (isLookingUp)
+        {
+            // Calculate desired position with an offset when looking up
+            targetY += offset.y;
+        }
+
+        float x = Mathf.SmoothDamp(transform.position.x, targetX, ref smoothDampVelocity.x, smoothDampTime);
+        float y = Mathf.SmoothDamp(transform.position.y, targetY, ref smoothDampVelocity.y, smoothDampTime);
+        transform.position = new Vector3(x, y, transform.position.z);
 
         // Smoothly change the camera's orthographic size
         Camera.main.orthographicSize = Mathf.SmoothDamp(Camera.main.orthographicSize, targetOrthographicSize, ref smoothDampVelocity.z, zoomSmoothTime);
+
+        // Clamp the camera position to the bounds
+        if (snapToBounds)
+        {
+            Vector2 clampedPos = new Vector2(Mathf.Clamp(transform.position.x, zone.cameraMinX, zone.cameraMaxX), Mathf.Clamp(transform.position.y, zone.cameraMinY, zone.cameraMaxY));
+            if (tooSmallHorizontal)
+            {
+                clampedPos.x = (zone.bottomRight.x + zone.topLeft.x) / 2;
+            }
+            if (tooSmallVertical)
+            {
+                clampedPos.y = (zone.topLeft.y + zone.bottomRight.y) / 2;
+            }
+            transform.position = new Vector3(clampedPos.x, clampedPos.y, transform.position.z);
+        }
 
         if (isShaking)
         {
             ShakeCamera();
         }
+    }
+
+    private CameraZone GetCurrentZone(Vector2 target)
+    {
+        // Check if the middle of the players is within any of the camera zones
+        foreach (var zone in zones)
+        {
+            if (target.x >= zone.topLeft.x && target.x <= zone.bottomRight.x && target.y >= zone.bottomRight.y && target.y <= zone.topLeft.y)
+            {
+                return zone;
+            }
+        }
+
+        return null;
     }
 
     // Change the camera size to a specific value
@@ -153,15 +213,5 @@ public class CameraFollow : MonoBehaviour
             ShakeCamera(duration, intensity, decreaseFactor, axis);
             yield return new WaitForSeconds(delayBetweenShakes);
         }
-    }
-
-    private void OnDrawGizmos ()
-    {
-        // draw a square around the camera bounds
-        Gizmos.color = Color.red;
-        Gizmos.DrawLine(new Vector3(leftBounds, topBounds, 0), new Vector3(rightBounds, topBounds, 0));
-        Gizmos.DrawLine(new Vector3(rightBounds, topBounds, 0), new Vector3(rightBounds, bottomBounds, 0));
-        Gizmos.DrawLine(new Vector3(rightBounds, bottomBounds, 0), new Vector3(leftBounds, bottomBounds, 0));
-        Gizmos.DrawLine(new Vector3(leftBounds, bottomBounds, 0), new Vector3(leftBounds, topBounds, 0));
     }
 }

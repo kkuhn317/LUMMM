@@ -18,10 +18,6 @@ public class Door : MonoBehaviour
 
     private bool inUse = false;
 
-    // TODO: get rid of this after adding better camera movement code
-    public bool moveCamera = true;
-    public float newCameraHeight;
-
     public GameObject blackFade;
     private bool hasPlayedBlockedSound = false;
 
@@ -179,12 +175,6 @@ public class Door : MonoBehaviour
         player.transform.position = destination.transform.position;
         if (player.GetComponent<MarioMovement>().powerupState == MarioMovement.PowerupState.small) {
             player.transform.position -= new Vector3(0, 0.5f, 0);
-        }
-
-        // Move the camera
-        if (moveCamera) {
-            Vector3 oldCamPos = Camera.main.transform.position;
-            Camera.main.transform.position = new Vector3(player.transform.position.x, newCameraHeight, oldCamPos.z);
         }
 
         UnfreezePlayer();
