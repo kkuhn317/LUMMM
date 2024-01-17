@@ -762,7 +762,18 @@ public class ObjectPhysics : MonoBehaviour
                 }
                 GameManager.Instance.AddScorePoints(100);
             }
-        }    
+        }  
+        //if (collision.gameObject.CompareTag("Ground") || collision.gameObject.CompareTag("Enemy") || collision.gameObject.CompareTag("Default"))
+        //{
+            if (hasBeenThrown && objectState == ObjectState.falling)
+            {
+                POWBlock pow = collision.gameObject.GetComponent<POWBlock>();
+                if (pow != null)
+                {
+                    pow.ActivatePOWBlock();
+                }
+            }
+        //}    
     }
 
     public virtual void escapeMario()
