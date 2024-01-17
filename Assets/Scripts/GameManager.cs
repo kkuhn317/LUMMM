@@ -580,6 +580,18 @@ public class GameManager : MonoBehaviour
         UpdateScoreUI();
     }
 
+    public void RemoveCoins(int coins)
+    {
+        GlobalVariables.coinCount -= coins;
+        UpdateCoinsUI();
+    }
+
+    public void SetCoinCount(int coinCount)
+    {
+        GlobalVariables.coinCount = coinCount;
+        UpdateCoinsUI();
+    }
+
     public void CollectGreenCoin(GameObject greenCoin)
     {
         AddScorePoints(4000);
@@ -608,6 +620,7 @@ public class GameManager : MonoBehaviour
 
     #region TotalCoins
     // Get the totalCoins based on coins and block that contains blocks
+    // TODO: Remove this because we are not tracking total coins anymore
     public void GetTotalCoins()
     {
         totalCoins = 0; // Reset totalCoins before counting

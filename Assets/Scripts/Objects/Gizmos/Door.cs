@@ -6,26 +6,25 @@ public class Door : MonoBehaviour
 {
     public GameObject destination;
     public bool locked = false;
-
     public AudioClip unlockSound, openSound, closeSound, blockedSound;
-
-    private GameObject player;
-
-    public GameObject particle;
-
-    private Animator animator;
-    private Door otherDoor;
-
-    private bool inUse = false;
-
+    protected float unlockTime = 0.5f;
+    protected GameObject player;
+    public GameObject particle; // The star particle that spawns when the door is unlocked
+    protected Animator animator;
+    protected Door otherDoor;   // The destination. If null, then the player does not teleport
+    protected bool inUse = false;
     public GameObject blackFade;
     private bool hasPlayedBlockedSound = false;
+    public bool closeAfterOpen = true; // Whether the door should close after opening
 
     // Start is called before the first frame update
-    void Start()
+    protected virtual void Start()
     {
         animator = GetComponent<Animator>();
-        otherDoor = destination.GetComponent<Door>();
+
+        if (destination) {
+            otherDoor = destination.GetComponent<Door>();
+        }
     }
 
     void findPlayer() {
@@ -33,7 +32,7 @@ public class Door : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    protected virtual void Update()
     {
         if (inUse) {
             return;
@@ -50,17 +49,10 @@ public class Door : MonoBehaviour
             return;
         }
 
-        Vector2 playerPos = player.transform.position;
         MarioMovement playerScript = player.GetComponent<MarioMovement>();
-        if (playerScript.powerupState == MarioMovement.PowerupState.small) {
-            playerPos.y += 0.5f;
-        }
-
-        float xdist = Mathf.Abs(playerPos.x - transform.position.x);
-        float ydist = Mathf.Abs(playerPos.y - transform.position.y);
 
         // if player is at the door
-        if (xdist < 0.4 && ydist < 0.1 && playerScript.onGround)
+        if (PlayerAtDoor(playerScript))
         {
             // if pressing up
             if (playerScript.moveInput.y > 0.5)
@@ -69,7 +61,7 @@ public class Door : MonoBehaviour
                 if (locked)
                 {
                     // if player has the key
-                    if (GameManager.Instance.keys.Count > 0)
+                    if (CheckForKey())
                     {
                         inUse = true;
                         Unlock();
@@ -92,6 +84,32 @@ public class Door : MonoBehaviour
                 hasPlayedBlockedSound = false;
             }
         }
+    }
+
+    protected virtual bool PlayerAtDoor(MarioMovement playerScript) {
+        Vector2 playerPos = player.transform.position;
+        if (playerScript.powerupState == MarioMovement.PowerupState.small) {
+            playerPos.y += 0.5f;
+        }
+
+        float xdist = Mathf.Abs(playerPos.x - transform.position.x);
+        float ydist = Mathf.Abs(playerPos.y - transform.position.y);
+
+        // if player is at the door
+        return xdist < 0.4 && ydist < 0.1 && playerScript.onGround;
+    }
+
+    protected virtual bool CheckForKey() {
+        if (GameManager.Instance.keys.Count > 0) {
+            return true;
+        }
+        return false;
+    }
+
+    protected virtual void SpendKey() {
+        GameObject usedKey = GameManager.Instance.keys[0];
+        GameManager.Instance.keys.RemoveAt(0);
+        Destroy(usedKey);
     }
 
     void FreezePlayer() {
@@ -118,14 +136,12 @@ public class Door : MonoBehaviour
 
     void Unlock() {
         locked = false;
-        GameObject usedKey = GameManager.Instance.keys[0];
-        GameManager.Instance.keys.RemoveAt(0);
-        Destroy(usedKey);
+        SpendKey();
         GetComponent<AudioSource>().PlayOneShot(unlockSound);
         FreezePlayer();
         animator.SetTrigger("Unlock");
         spawnParticles();
-        Invoke("Open", 0.5f);
+        Invoke(nameof(Open), unlockTime);
 
         // Unlock other door if needed
         if (otherDoor) {
@@ -148,16 +164,14 @@ public class Door : MonoBehaviour
         newParticle2.GetComponent<StarMoveOutward>().direction = new Vector2(1, 1);
         newParticle1.GetComponent<StarMoveOutward>().speed = 2f;
         newParticle2.GetComponent<StarMoveOutward>().speed = 2f;
-
-
     }
 
     void Open() {
         GetComponent<AudioSource>().PlayOneShot(openSound);
         FreezePlayer();
         animator.SetTrigger("Open");
-        Invoke("Teleport", 0.5f);
-        Invoke("Close", 1);
+        Invoke(nameof(Teleport), 0.5f);
+        Invoke(nameof(Close), 1);
 
         if (blackFade)
             blackFade.GetComponent<Animator>().SetTrigger("Fade");
@@ -166,24 +180,30 @@ public class Door : MonoBehaviour
         if (otherDoor) {
             otherDoor.inUse = true;
             destination.GetComponent<Animator>().SetTrigger("Open");
-            otherDoor.Invoke("Close", 1);
+            otherDoor.Invoke(nameof(Close), 1);
         }
 
     }
 
     void Teleport() {
-        player.transform.position = destination.transform.position;
-        if (player.GetComponent<MarioMovement>().powerupState == MarioMovement.PowerupState.small) {
-            player.transform.position -= new Vector3(0, 0.5f, 0);
+        if (otherDoor) {
+            player.transform.position = destination.transform.position;
+            if (player.GetComponent<MarioMovement>().powerupState == MarioMovement.PowerupState.small) {
+                player.transform.position -= new Vector3(0, 0.5f, 0);
+            }
         }
 
         UnfreezePlayer();
     }
 
-    void Close() {
+    protected virtual void Close() {
+        if (!closeAfterOpen) {
+            return;
+        }
+
         animator.SetTrigger("Close");
         GetComponent<AudioSource>().PlayOneShot(closeSound);
-        Invoke("Ready", 0.5f);
+        Invoke(nameof(Ready), 0.5f);
     }
 
     void Ready() {
