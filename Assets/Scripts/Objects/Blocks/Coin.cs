@@ -25,23 +25,28 @@ public class Coin : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.gameObject.tag == "Player")
+        if (other.gameObject.CompareTag("Player"))
         {
-            int coinValue = GetCoinValue();
+            OnCoinCollected();
+        }
+    }
 
-            if (type != Amount.green)
-            {
-                GameManager.Instance.AddCoin(coinValue);
-                Destroy(gameObject);
-            }
-            else
-            {
-                GameManager.Instance.CollectGreenCoin(gameObject);
-                Collider2D collider = GetComponent<Collider2D>();
-                collider.enabled = false;
-                SpriteRenderer spriteRenderer = GetComponent<SpriteRenderer>();
-                spriteRenderer.enabled = false;
-            }
+    protected virtual void OnCoinCollected()
+    {
+        int coinValue = GetCoinValue();
+
+        if (type != Amount.green)
+        {
+            GameManager.Instance.AddCoin(coinValue);
+            Destroy(gameObject);
+        }
+        else
+        {
+            GameManager.Instance.CollectGreenCoin(gameObject);
+            Collider2D collider = GetComponent<Collider2D>();
+            collider.enabled = false;
+            SpriteRenderer spriteRenderer = GetComponent<SpriteRenderer>();
+            spriteRenderer.enabled = false;
         }
     }
 }

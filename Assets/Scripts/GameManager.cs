@@ -38,6 +38,7 @@ public class GameManager : MonoBehaviour
     public AudioClip bigCoin;
     [SerializeField] TMP_Text coinText;
     private int totalCoins = 0;
+    public bool saveCoinsAfterDeath = true; // set false for coin door levels
 
     [Header("Green coins")]
     public GameObject[] greenCoins; // Array of green coin GameObjects in the scene
@@ -296,10 +297,13 @@ public class GameManager : MonoBehaviour
         if (highestRank != PlayerRank.Default)
             highestRankImage.texture = rankTypes[(int)highestRank - 1].texture;
 
-        GetTotalCoins();
+        if (!saveCoinsAfterDeath)
+        {
+            GlobalVariables.coinCount = 0;
+        }
 
+        GetTotalCoins();    // TODO: remove because we are not tracking total coins anymore
         ResetCurrentRank();
-
         LoadCollectedCoins(); // Load collected coins data from PlayerPrefs
         ToggleCheckpoints();
         SetMarioPosition();
