@@ -10,6 +10,19 @@ public class CoinDoor : Door
 
     private bool playerInRange = false;
 
+    public bool mustBeStanding = true; // If true, player must be standing to open the door
+
+    public GameObject front;
+
+    protected override void Start()
+    {
+        base.Start();
+        if (destination)
+        {
+            animator.SetBool("3DOpen", false);
+        }
+    }
+
     protected override bool CheckForKey() {
         return GlobalVariables.coinCount >= coinsRequired;
     }
@@ -21,7 +34,15 @@ public class CoinDoor : Door
 
     protected override bool PlayerAtDoor(MarioMovement playerScript)
     {
-        return playerInRange;
+        return playerInRange && (!mustBeStanding || playerScript.onGround);
+    }
+
+    protected override void Close()
+    {
+        if (destination)
+        {
+            base.Close();
+        }
     }
 
     protected void OnTriggerEnter2D(Collider2D other) {

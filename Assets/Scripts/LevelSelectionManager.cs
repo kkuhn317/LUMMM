@@ -112,5 +112,7 @@ public class LevelSelectionManager : MonoBehaviour
         GlobalVariables.lives = PlayerPrefs.GetInt("SavedLives", 3);
         GlobalVariables.coinCount = PlayerPrefs.GetInt("SavedCoins", 0);
         GlobalVariables.checkpoint = PlayerPrefs.GetInt("SavedCheckpoint", -1);
+
+        // The saved green coins will be handled by GameManager (where we need to check if it's the saved level)
     }
 }

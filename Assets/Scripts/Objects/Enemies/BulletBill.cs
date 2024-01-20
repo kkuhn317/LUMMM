@@ -5,18 +5,28 @@ using UnityEngine;
 public class BulletBill : EnemyAI
 {
 
+    protected override void Start()
+    {
+        base.Start();
+        RotateToMovement();
+    }
+
     protected override void Update()
     {
         base.Update();
 
         // rotate to movement
         if (objectState != ObjectState.knockedAway) {
-            float angle = Mathf.Atan2(realVelocity.y, realVelocity.x) * Mathf.Rad2Deg;
-            transform.rotation = Quaternion.AngleAxis(angle + 180, Vector3.forward);
-            GetComponent<SpriteRenderer>().flipY = !movingLeft;
+            RotateToMovement();
         }
 
         
+    }
+
+    void RotateToMovement() {
+        float angle = Mathf.Atan2(realVelocity.y, realVelocity.x) * Mathf.Rad2Deg;
+        transform.rotation = Quaternion.AngleAxis(angle + 180, Vector3.forward);
+        GetComponent<SpriteRenderer>().flipY = !movingLeft;
     }
 
     // knock away on stomp

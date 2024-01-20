@@ -15,7 +15,6 @@ public class Door : MonoBehaviour
     protected bool inUse = false;
     public GameObject blackFade;
     private bool hasPlayedBlockedSound = false;
-    public bool closeAfterOpen = true; // Whether the door should close after opening
 
     // Start is called before the first frame update
     protected virtual void Start()
@@ -197,10 +196,6 @@ public class Door : MonoBehaviour
     }
 
     protected virtual void Close() {
-        if (!closeAfterOpen) {
-            return;
-        }
-
         animator.SetTrigger("Close");
         GetComponent<AudioSource>().PlayOneShot(closeSound);
         Invoke(nameof(Ready), 0.5f);

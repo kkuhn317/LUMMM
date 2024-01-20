@@ -158,6 +158,11 @@ public class MarioMovement : MonoBehaviour
 
     private bool isLookingUp = false;
 
+    [Header("Additional Abilities")]
+    public bool canWallJump = false;    // Only small mario has an animation for wall jumping right now, so it will not be transferred after powerup
+    public bool canSpinJump = false;    // not implemented yet
+    private bool wallSliding = false;
+
     /* Levers */
     private List<LeverController> levers = new();
 
@@ -306,14 +311,17 @@ public class MarioMovement : MonoBehaviour
 
         // Movement
         moveCharacter(direction.x);
-        if (jumpTimer > Time.time && (onGround || swimming)) {
+        if (jumpTimer > Time.time && (onGround || swimming || wallSliding)) {
 
-            if (!swimming) {
-                audioSource.Play();
-                Jump();
-            } else {
+            if (swimming) {
                 audioSource.PlayOneShot(swimSound);
                 Swim();
+            } else if (wallSliding) {
+                audioSource.Play();
+                WallJump();
+            } else {
+                audioSource.Play();
+                Jump();
             }
         }
 
@@ -415,25 +423,50 @@ public class MarioMovement : MonoBehaviour
                 }
             }
 
-            // Ceiling detection (CURRENTLY UNUSED, this was used for question block detection long ago but now it's handled in QuestionBlock.cs)
-            // TODO: either remove this or do something with it
-            RaycastHit2D ceilLeft = Physics2D.Raycast(transform.position - colliderOffset, Vector2.up, ceilingLength, groundLayer);
-            RaycastHit2D ceilMid = Physics2D.Raycast(transform.position, Vector2.up, ceilingLength, groundLayer);
-            RaycastHit2D ceilRight = Physics2D.Raycast(transform.position + colliderOffset, Vector2.up, ceilingLength, groundLayer);
+        }
 
-            if (ceilLeft.collider != null || ceilMid.collider != null || ceilRight.collider != null) {
+        // Ceiling detection (CURRENTLY UNUSED, this was used for question block detection long ago but now it's handled in QuestionBlock.cs)
+        // TODO: Use this for hittable blocks (will fix not being able to hit the block you want)
+        RaycastHit2D ceilLeft = Physics2D.Raycast(transform.position - colliderOffset, Vector2.up, ceilingLength, groundLayer);
+        RaycastHit2D ceilMid = Physics2D.Raycast(transform.position, Vector2.up, ceilingLength, groundLayer);
+        RaycastHit2D ceilRight = Physics2D.Raycast(transform.position + colliderOffset, Vector2.up, ceilingLength, groundLayer);
 
-                RaycastHit2D hitRay = ceilMid;
+        if (ceilLeft.collider != null || ceilMid.collider != null || ceilRight.collider != null) {
 
-                if (ceilMid) {
-                    hitRay = ceilMid;
-                } else if (ceilLeft) {
-                    hitRay = ceilLeft;
-                } else if (ceilRight) {
-                    hitRay = ceilRight;
-                }
+            RaycastHit2D hitRay = ceilMid;
+
+            if (ceilMid) {
+                hitRay = ceilMid;
+            } else if (ceilLeft) {
+                hitRay = ceilLeft;
+            } else if (ceilRight) {
+                hitRay = ceilRight;
             }
         }
+
+        // Wall detection (for wall jumping)
+        if (canWallJump && !onGround && !swimming) {
+
+            float raycastlength = GetComponent<BoxCollider2D>().bounds.size.y / 2 + 0.03f;
+
+            // raycast in the direction the stick is pointing
+            RaycastHit2D wallHitLeft = Physics2D.Raycast(transform.position, Vector2.left, raycastlength, groundLayer);
+            RaycastHit2D wallHitRight = Physics2D.Raycast(transform.position, Vector2.right, raycastlength, groundLayer);
+
+            if ((wallHitLeft.collider != null && direction.x < 0) || (wallHitRight.collider != null && direction.x > 0)) {
+                if (!wallSliding) {
+                    // flip mario to face the wall
+                    FlipTo(direction.x > 0);
+                    wallSliding = true;
+                }
+            } else {
+                wallSliding = false;
+            }
+        } else {
+            wallSliding = false;
+        }
+
+        animator.SetBool("isWallSliding", wallSliding);
 
         // Physics
         modifyPhysics();
@@ -510,8 +543,15 @@ public class MarioMovement : MonoBehaviour
         // Max Speed (Vertical)
         float tvel = swimming ? swimTerminalVelocity : terminalvelocity;
 
+        if (wallSliding) {  // slide down wall slower
+            tvel /= 3;
+        }
+
         if (-rb.velocity.y > tvel) {
             rb.velocity = new Vector2(rb.velocity.x, -tvel);
+        }
+        if (rb.velocity.y > (tvel*2) && swimming) { // swimming up speed limit
+            rb.velocity = new Vector2(rb.velocity.x, tvel*2);
         }
 
         // Animation
@@ -536,11 +576,11 @@ public class MarioMovement : MonoBehaviour
     }
 
     // for jumping and also stomping enemies
-    public void Jump() {
+    public void Jump(float jumpMultiplier = 1f) {
         rb.velocity = new Vector2(rb.velocity.x, 0);
-        rb.AddForce(Vector2.up * jumpSpeed * (swimming ? 0.5f : 1f), ForceMode2D.Impulse);
+        rb.AddForce(Vector2.up * jumpSpeed * (swimming ? 0.5f : 1f) * jumpMultiplier, ForceMode2D.Impulse);
         jumpTimer = 0;
-        airtimer = Time.time + airtime;
+        airtimer = Time.time + (airtime * jumpMultiplier);
     }
 
     // for swimming
@@ -562,6 +602,16 @@ public class MarioMovement : MonoBehaviour
         {
             Instantiate(splashWaterPrefab, transform.position, Quaternion.identity);
         }
+    }
+
+    // jumping off a wall
+    public void WallJump() {
+        Jump(0.75f);
+        // add horizontal force in the opposite direction of the wall (where you are facing)
+        int dirToSign = facingRight ? -1 : 1;
+        rb.AddForce(dirToSign * Vector2.right * jumpSpeed, ForceMode2D.Impulse);
+        // flip mario to face away from the wall
+        FlipTo(!facingRight);
     }
 
     void modifyPhysics() {
@@ -657,6 +707,12 @@ public class MarioMovement : MonoBehaviour
         }
 
         relPosObj.transform.localScale = new Vector3(relScaleX, 1, 1);
+    }
+
+    void FlipTo(bool right) {
+        if (facingRight != right) {
+            Flip();
+        }
     }
 
     public bool IsBelowBlock(float blockYPosition)

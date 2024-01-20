@@ -18,23 +18,35 @@ public class Cannon : MonoBehaviour
     public bool isShooting = true;
     bool isVisible = false;
 
+    public float shootOffset = 0f;
+
     private AudioSource audioSource;
 
     // Start is called before the first frame update
     void Start()
     {
         audioSource = GetComponent<AudioSource>();
-        InvokeRepeating(nameof(Fire), initialDelay, rateOfFire);
+        InvokeRepeating(nameof(AutoFire), initialDelay, rateOfFire);
     }
 
-    void Fire()
+    void AutoFire()
     {
-        if (projectilePrefab == null || !isVisible || !isShooting)
+        if (isShooting)
+        {
+            Shoot();
+        }
+    }
+
+    public void Shoot() {
+        if (projectilePrefab == null || !isVisible)
         {
             return;
         }
 
-        GameObject projectile = Instantiate(projectilePrefab, transform.position, Quaternion.identity);
+        // offset the position of the projectile so it looks better
+        Vector3 offset = new Vector3(Mathf.Cos(angle * Mathf.Deg2Rad), Mathf.Sin(angle * Mathf.Deg2Rad)) * shootOffset;
+
+        GameObject projectile = Instantiate(projectilePrefab, transform.position + offset, Quaternion.identity);
 
         // assume it has ObjectPhysics
         ObjectPhysics physics2 = projectile.GetComponent<ObjectPhysics>();

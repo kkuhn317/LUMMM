@@ -49,7 +49,8 @@ public class GameManager : MonoBehaviour
     private Checkpoint[] checkpoints;
 
     #region GreenCoindata
-    private List<GameObject> collectedGreenCoins = new List<GameObject>();
+    private List<GameObject> collectedGreenCoins = new List<GameObject>();  // ALL green coins ever collected
+    private List<GameObject> collectedGreenCoinsInRun = new List<GameObject>(); // Green coins collected in the current run
 
     [Header("Players")]
     private List<MarioMovement> players = new();  // The players will tell the game manager who they are on start or when the player changes
@@ -63,18 +64,22 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    // There are 2 KINDS of collected green coins:
+    // 1. Green coins that you get and then beat the level. These show in the level selection screen. The coins will be partially transparent in the next run.
+    // 2. Green coins that you get and then hit a checkpoint. If you exit the level and come back, these coins will be gone.
+    //    If you lose the saved progress, these coins will go back to not being collected.
     public void LoadCollectedCoins()
     {
-
         for(int i = 0; i < greenCoins.Length; i++)
         {
+            // Collected green coins (the ones you get and then beat the level)
             if (PlayerPrefs.GetInt("CollectedCoin" + i + "_" + levelID, 0) == 1)
             {
                 GameObject coinObject = greenCoins[i];
 
                 collectedGreenCoins.Add(coinObject);
 
-                // Change the alpha of the sprite renderer to indicate it's collected
+                // Change the alpha of the sprite renderer to indicate it's collected in a previous run
                 SpriteRenderer coinRenderer = coinObject.GetComponent<SpriteRenderer>();
                 Color coinColor = coinRenderer.color;
                 coinColor.a = 0.5f;
@@ -84,6 +89,29 @@ public class GameManager : MonoBehaviour
                 Image uiImage = greenCoinUIImages[i];
                 uiImage.sprite = collectedSprite;
             }
+
+            // Saved green coins (the ones you get and then hit a checkpoint)
+            // Check if the level is the saved level
+            // We need to check here because LevelSelectionManager can't load the green coins for the saved level
+            if (levelID != PlayerPrefs.GetString("SavedLevel", "none")) {
+                continue;
+            }
+
+            if (PlayerPrefs.GetInt("SavedGreenCoin" + i, 0) == 1)
+            {
+                GameObject coinObject = greenCoins[i];
+
+                collectedGreenCoins.Add(coinObject);
+                collectedGreenCoinsInRun.Add(coinObject);
+
+                // Destroy the green coin object (to indicate it was collected before hitting a checkpoint)
+                Destroy(coinObject);
+
+                // Update UI for the collected coin
+                Image uiImage = greenCoinUIImages[i];
+                uiImage.sprite = collectedSprite;
+            }
+
         }
     }
     #endregion
@@ -601,6 +629,8 @@ public class GameManager : MonoBehaviour
         AddScorePoints(4000);
         audioSource.PlayOneShot(coin);
 
+        collectedGreenCoinsInRun.Add(greenCoin);    // This assumes you can't collect the same green coin twice in the same run
+
         // Uncomment this and remove the code in WinScreenStats() if you want to show green coins collected IN THE RUN instead of ALL green coins ever collected
         // Image uiImageWin = greenCoinUIWin[Array.IndexOf(greenCoins, greenCoin)];
         // uiImageWin.sprite = collectedSprite;
@@ -850,6 +880,20 @@ public class GameManager : MonoBehaviour
             // Save the current number of coins to PlayerPrefs
             PlayerPrefs.SetInt("SavedCoins", GlobalVariables.coinCount);
 
+            // Save the green coins collected to PlayerPrefs
+            // But in a different way than the other PlayerPrefs so that they aren't permanently saved even if you exit the level
+            for (int i = 0; i < greenCoins.Length; i++)
+            {
+                if (collectedGreenCoinsInRun.Contains(greenCoins[i]))
+                {
+                    PlayerPrefs.SetInt("SavedGreenCoin" + i, 1);
+                }
+                else
+                {
+                    PlayerPrefs.SetInt("SavedGreenCoin" + i, 0);
+                }
+            }
+
             // Save the current checkpoint to PlayerPrefs
             PlayerPrefs.SetInt("SavedCheckpoint", GlobalVariables.checkpoint);
 
@@ -862,6 +906,10 @@ public class GameManager : MonoBehaviour
         PlayerPrefs.DeleteKey("SavedCoins");
         PlayerPrefs.DeleteKey("SavedCheckpoint");
         PlayerPrefs.DeleteKey("SavedLevel");
+        for (int i = 0; i < greenCoins.Length; i++)
+        {
+            PlayerPrefs.DeleteKey("SavedGreenCoin" + i);
+        }
     }
 
     // Quit Level
