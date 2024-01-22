@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 8935569787376133362}
   - component: {fileID: 8935569787376133361}
   - component: {fileID: 8935569787376133360}
+  - component: {fileID: 371689340}
   m_Layer: 7
   m_Name: RedPiranha_Plant
   m_TagString: Enemy
@@ -128,3 +129,57 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 0.62841415, y: 1.498467}
   m_EdgeRadius: 0
+--- !u!114 &371689340
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8935569787376133327}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a9b86655e8e6c5048a626eb12a8a1516, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  movingLeft: 1
+  velocity: {x: 0, y: 0}
+  gravity: 60
+  width: 1
+  height: 1
+  floorRaycastSpacing: 0.2
+  wallRaycastSpacing: 0.2
+  floorMask:
+    serializedVersion: 2
+    m_Bits: 9
+  wallMask:
+    serializedVersion: 2
+    m_Bits: 393
+  checkObjectCollision: 1
+  ceilingDetection: 1
+  DontFallOffLedges: 0
+  flipObject: 1
+  FrequentMovement: 0
+  lavaKill: 1
+  sinkSpeed: 20
+  lavaMask:
+    serializedVersion: 2
+    m_Bits: 0
+  carryable: 0
+  carried: 0
+  throwVelocity: {x: 12, y: 10}
+  knockAwayVelocity: {x: 5, y: 5}
+  overrideKnockAwayGravity: 0
+  knockAwayGravity: 60
+  knockAwayType: 0
+  knockAwayRotationSpeed: 10
+  KnockAwayDissapearTime: -1
+  knockAwaySound: {fileID: 8300000, guid: 62467461e51dddb40931164fd2db1170, type: 3}
+  objectState: 0
+  movement: 0
+  stopAfterLand: 0
+  bounceHeight: 0
+  minHeightToBounce: 1
+  canBeFireballed: 1
+  stompHeight: 0.2
+  heldItem: {fileID: 0}
+  itemSpawnOffset: {x: 0, y: 0, z: 0}

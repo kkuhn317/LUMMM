@@ -18,6 +18,7 @@ public class EnemyAI : ObjectPhysics
     }
 
     protected bool isVisible = false; // Flag to track if the enemy is visible to the camera.
+    protected bool appeared = false; // Flag to track if the enemy has appeared on screen yet.
 
     protected override void Start()
     {
@@ -28,7 +29,11 @@ public class EnemyAI : ObjectPhysics
     private void OnBecameVisible()
     {
         isVisible = true;
-        enabled = true;
+
+        if (!appeared) {
+            enabled = true;
+            appeared = true;
+        }
     }
 
     private void OnBecameInvisible()
@@ -37,6 +42,11 @@ public class EnemyAI : ObjectPhysics
     }
 
     protected virtual void OnTriggerEnter2D(Collider2D other) {
+        // if we are enabled
+        if (enabled == false) {
+            return;
+        }
+        
         // don't do anything if we're already dead
         if (objectState == ObjectState.knockedAway || objectState == ObjectState.onLava) {
             return;

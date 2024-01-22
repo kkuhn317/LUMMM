@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.IO.LowLevel.Unsafe;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -332,6 +334,7 @@ public class ObjectPhysics : MonoBehaviour
                 {
                     // bounce
                     velocity.y = bounceHeight;
+                    OnBounced();
                 }
                 else
                 {
@@ -356,6 +359,11 @@ public class ObjectPhysics : MonoBehaviour
             }
         }
         return pos;
+    }
+
+    protected virtual void OnBounced()
+    {
+        // override me for custom behavior after bouncing
     }
 
     Vector3 CheckCeiling(Vector3 pos)
@@ -752,7 +760,7 @@ public class ObjectPhysics : MonoBehaviour
         hasBeenThrown = true;
     }
     
-    void OnTriggerEnter2D(Collider2D collision)
+   private void OnTriggerEnter2D(Collider2D collision)
     {
         // Check if the enemy has been thrown before handling the collision
         if (collision.gameObject.CompareTag("Enemy"))
