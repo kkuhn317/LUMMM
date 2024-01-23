@@ -575,7 +575,7 @@ public class GameManager : MonoBehaviour
     }
     #endregion
 
-    public void AddCoin(int coinValue)
+    public void AddCoin(int coinValue, bool playSound = true)
     {
         AudioClip coinSound;
         switch (coinValue)
@@ -597,8 +597,11 @@ public class GameManager : MonoBehaviour
                 break;
         }
 
-        audioSource.clip = coinSound;
-        audioSource.PlayOneShot(coinSound);
+        if (playSound)
+        {
+            audioSource.clip = coinSound;
+            audioSource.PlayOneShot(coinSound);
+        }
         GlobalVariables.coinCount += coinValue;
         GlobalVariables.score += coinValue * 100;
 
@@ -610,6 +613,12 @@ public class GameManager : MonoBehaviour
 
         UpdateCoinsUI();
         UpdateScoreUI();
+    }
+
+    public void PlayCoinSound()
+    {
+        audioSource.clip = coin;
+        audioSource.PlayOneShot(coin);
     }
 
     public void RemoveCoins(int coins)
