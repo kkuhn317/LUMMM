@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Playables;
 
@@ -11,20 +12,12 @@ public class QuestionBlock : MonoBehaviour
     [Header("Block Behavior")]
     public float bounceHeight = 0.5f;
     public float bounceSpeed = 4f;
-
     public bool brickBlock;
-
-    public bool noCoinIfNoItem = false;
 
     public GameObject[] spawnableItems; // Array to hold multiple spawnable items
 
-    public float coinMoveSpeed = 8f;
-    public float coinMoveHeight = 3f;
-    public float coinFallDistance = 2f;
-
     public float itemMoveHeight = 1f;
     public float itemMoveSpeed = 1f;
-    public bool activated = false;
     private Vector2 originalPosition;
 
     public Sprite emptyBlockSprite;
@@ -194,67 +187,71 @@ public class QuestionBlock : MonoBehaviour
 
     }
 
-    void PresentCoin()
+    void PresentItems(List<GameObject> items)
     {
+        audioSource.PlayOneShot(itemRiseSound);
 
-        activated = true;
-
-        if (spawnableItems.Length > 0)
+        foreach (GameObject itemPrefab in items)
         {
-            //print("custom item");
-            audioSource.PlayOneShot(itemRiseSound);
-
-            foreach (GameObject itemPrefab in spawnableItems)
+            GameObject spawnedItem = Instantiate(itemPrefab, transform.parent, true);
+            spawnedItem.transform.position = new Vector3(originalPosition.x, originalPosition.y, 0);
+            MonoBehaviour[] scripts = spawnedItem.GetComponents<MonoBehaviour>();
+            foreach (MonoBehaviour script in scripts)
             {
-                GameObject spawnedItem = Instantiate(itemPrefab, transform.parent, true);
-                spawnedItem.transform.position = new Vector3(originalPosition.x, originalPosition.y, 0);
-                MonoBehaviour[] scripts = spawnedItem.GetComponents<MonoBehaviour>();
-                foreach (MonoBehaviour script in scripts)
-                {
-                    script.enabled = false;
-                }
-
-                string ogTag = spawnedItem.tag;
-                int ogLayer = spawnedItem.GetComponent<SpriteRenderer>().sortingLayerID;
-                spawnedItem.tag = "RisingItem";
-                spawnedItem.transform.SetParent(this.transform.parent);
-                spawnedItem.GetComponent<SpriteRenderer>().sortingLayerID = 0;
-                spawnedItem.GetComponent<SpriteRenderer>().sortingOrder = -1;
-                spawnedItem.transform.position = new Vector3(originalPosition.x, originalPosition.y, 0);
-                StartCoroutine(RiseUp(spawnedItem, ogTag, ogLayer, scripts));
+                script.enabled = false;
             }
 
+            string ogTag = spawnedItem.tag;
+            int ogLayer = spawnedItem.GetComponent<SpriteRenderer>().sortingLayerID;
+            spawnedItem.tag = "RisingItem";
+            spawnedItem.transform.SetParent(this.transform.parent);
+            spawnedItem.GetComponent<SpriteRenderer>().sortingLayerID = 0;
+            spawnedItem.GetComponent<SpriteRenderer>().sortingOrder = -1;
+            spawnedItem.transform.position = new Vector3(originalPosition.x, originalPosition.y, 0);
+            StartCoroutine(RiseUp(spawnedItem, ogTag, ogLayer, scripts));
         }
-        else if (!noCoinIfNoItem)
+
+    }
+
+    void PresentCoins(List<GameObject> coins) {
+
+        audioSource.Play();
+
+        float startheight = originalPosition.y + boxCollider.size.y;
+        foreach (GameObject coinPrefab in coins)
         {
-            audioSource.Play();
-            GameObject spinningCoin = (GameObject)Instantiate(Resources.Load("Prefabs/Spinning_Coin", typeof(GameObject)));
-
-            spinningCoin.transform.SetParent(this.transform.parent);
-
-            spinningCoin.transform.position = new Vector2(originalPosition.x, originalPosition.y + 1);
-
-            StartCoroutine(MoveCoin(spinningCoin));
-            GameManager.Instance.AddCoin(1); // The coin counter iterates after the coroutine
+            GameObject spinningCoin = Instantiate(coinPrefab, transform.parent);
+            spinningCoin.transform.position = new Vector2(originalPosition.x, startheight);
+            spinningCoin.GetComponent<Coin>().PopUp();
         }
+        
     }
 
     IEnumerator Bounce()
     {
         //print(spawnItem != null);
 
-        if (spawnableItems.Length > 0 || !brickBlock)
+        // get all the items that are coins and make them pop up immediately
+        // The other items will rise up after the block bounces
+        List<GameObject> coins = new List<GameObject>();
+        List<GameObject> otherItems = new List<GameObject>();
+        if (spawnableItems.Length > 0)
         {
-            ChangeSprite();
+            foreach (GameObject itemPrefab in spawnableItems)
+            {
+                if (itemPrefab.GetComponent<Coin>() != null)
+                {
+                    coins.Add(itemPrefab);
+                } else
+                {
+                    otherItems.Add(itemPrefab);
+                }
+            }
         }
 
-        if (spawnableItems.Length == 0 && !brickBlock)
+        if (coins.Count > 0)
         {
-            PresentCoin();
-        }
-        else if (spawnableItems.Length > 0)
-        {
-            Invoke("PresentCoin", 0.25f);
+            PresentCoins(coins);
         }
 
         while (true)
@@ -282,34 +279,17 @@ public class QuestionBlock : MonoBehaviour
 
             yield return null;
         }
-    }
 
-    IEnumerator MoveCoin(GameObject coin)
-    {
-        while (true)
+        if (otherItems.Count > 0)
         {
-            coin.transform.position = new Vector2(coin.transform.position.x, coin.transform.position.y + coinMoveSpeed * Time.deltaTime);
-
-            if (coin.transform.position.y >= originalPosition.y + coinMoveHeight + 1)
-                break;
-
-            yield return null;
+            PresentItems(otherItems);
         }
 
-        while (true)
+        if (!brickBlock || spawnableItems.Length > 0)
         {
-
-            coin.transform.position = new Vector2(coin.transform.position.x, coin.transform.position.y - coinMoveSpeed * Time.deltaTime);
-
-            if (coin.transform.position.y <= originalPosition.y + coinFallDistance + 1)
-            {
-
-                Destroy(coin.gameObject);
-                break;
-            }
-
-            yield return null;
+            ChangeSprite();
         }
+        
     }
 
     public void StopRiseUp()
