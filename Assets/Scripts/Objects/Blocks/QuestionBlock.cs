@@ -215,7 +215,10 @@ public class QuestionBlock : MonoBehaviour
 
     void PresentCoins(List<GameObject> coins) {
 
-        audioSource.Play();
+        // audioSource.Play();
+        // Right now the Game Manager is playing the coin sound (called from Coin.cs)
+        // However, the pitch/sound will not be changed for a small question block for example
+        // If we need this functionality, we can rework some of the code to allow for it
 
         float startheight = originalPosition.y + boxCollider.size.y;
         foreach (GameObject coinPrefab in coins)
