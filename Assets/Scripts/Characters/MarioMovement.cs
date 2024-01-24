@@ -425,7 +425,7 @@ public class MarioMovement : MonoBehaviour
 
         }
 
-        // Ceiling detection (CURRENTLY UNUSED, this was used for question block detection long ago but now it's handled in QuestionBlock.cs)
+        // Ceiling detection
         // TODO: Use this for hittable blocks (will fix not being able to hit the block you want)
         RaycastHit2D ceilLeft = Physics2D.Raycast(transform.position - colliderOffset, Vector2.up, ceilingLength, groundLayer);
         RaycastHit2D ceilMid = Physics2D.Raycast(transform.position, Vector2.up, ceilingLength, groundLayer);
@@ -721,13 +721,13 @@ public class MarioMovement : MonoBehaviour
         return transform.position.y < blockYPosition - 0.5f; // You can adjust the value (0.5f) as needed
     }
 
-    public void damageMario() {
+    public void damageMario(bool force=false) {
         if (invincetimeremain == 0f) {
-            if (damaged) {
+            if (damaged && !force) {
                 return;
             }
             // are we invincible mario?
-            if (starPower) {
+            if (starPower && !force) {
                 return;
             }
             damaged = true;
