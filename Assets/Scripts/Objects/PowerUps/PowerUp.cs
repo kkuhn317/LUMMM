@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class PowerUp : ObjectPhysics
 {
+    [Header("Power Up")]
     public GameObject newMarioState;
     public int powerLevel = 1;
     public float starTime = -1;
@@ -56,6 +57,8 @@ public class PowerUp : ObjectPhysics
                 GameManager.Instance.AddScorePoints(1000);
                 MarioMovement player = other.GetComponent<MarioMovement>();
                 MarioMovement.PowerupState playerState = player.powerupState;
+                
+
                 if (canGetPowerup(playerState)) 
                     other.GetComponent<MarioMovement>().ChangePowerup(newMarioState);
             }

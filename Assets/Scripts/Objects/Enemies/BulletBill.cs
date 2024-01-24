@@ -4,11 +4,18 @@ using UnityEngine;
 
 public class BulletBill : EnemyAI
 {
+    [Header("Bullet Bill")]
+
+    public bool rotateToMovement = true; // if true, rotate to movement direction (like a bullet bill)
+    // This should be off for cannon balls
 
     protected override void Start()
     {
         base.Start();
-        RotateToMovement();
+
+        if (rotateToMovement) {
+            RotateToMovement();
+        }
     }
 
     protected override void Update()
@@ -16,7 +23,7 @@ public class BulletBill : EnemyAI
         base.Update();
 
         // rotate to movement
-        if (objectState != ObjectState.knockedAway) {
+        if ((objectState != ObjectState.knockedAway) && rotateToMovement) {
             RotateToMovement();
         }
 

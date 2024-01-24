@@ -64,11 +64,13 @@ public class Cannon : MonoBehaviour
 
     void OnBecameVisible()
     {
+        print("i am visible");
         isVisible = true;
     }
 
     void OnBecameInvisible()
     {
+        print("i am invisible");
         isVisible = false;
     }
 }

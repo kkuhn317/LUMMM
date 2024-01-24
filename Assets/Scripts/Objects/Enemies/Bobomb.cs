@@ -22,10 +22,15 @@ public class Bobomb : EnemyAI
 
     public float explodeRadius = 3f;
     public GameObject explosionObject;
+
+    private bool internalCarryable = false; // so you can say whether it's carryable in the editor (but it still gets managed by this script)
     public bool isGrabbing { get; private set; } = false;
 
     void Awake()
     {
+        internalCarryable = carryable;
+        carryable = false;
+
         animator = GetComponent<Animator>();
         audioSource = GetComponent<AudioSource>();
 
@@ -80,7 +85,9 @@ public class Bobomb : EnemyAI
         if (state != EnemyState.primed) {
             state = EnemyState.primed;
             animator.SetTrigger("prime");
-            carryable = true;
+            if (internalCarryable) {
+                carryable = true;
+            }
             stopAfterLand = true;
             Invoke("explode", explodeTime);
         }

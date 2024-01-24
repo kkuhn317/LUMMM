@@ -760,14 +760,18 @@ public class MarioMovement : MonoBehaviour
     }
 
     public void ChangePowerup(GameObject newMarioObject) {
-        GameObject newMario;
-        if (powerupState == PowerupState.small) {
-            // place big mario higher up than small mario
-            newMario = Instantiate(newMarioObject, new Vector3(transform.position.x, transform.position.y + 0.5f, transform.position.z), Quaternion.identity);
-        } else {
-            // no need to change position
-            newMario = Instantiate(newMarioObject, new Vector3(transform.position.x, transform.position.y, transform.position.z), Quaternion.identity);
+        // NOTE: we will assume here that mario can always change powerups. The PowerUP.cs script will determine if mario can change powerups
+
+        PowerupState newPowerupState = newMarioObject.GetComponent<MarioMovement>().powerupState;
+
+        float verticalOffset = 0f;
+        if (newPowerupState == PowerupState.small && powerupState != PowerupState.small) {
+            verticalOffset = -0.5f;
+        } else if (newPowerupState != PowerupState.small && powerupState == PowerupState.small) {
+            verticalOffset = 0.5f;
         }
+
+        GameObject newMario = Instantiate(newMarioObject, new Vector3(transform.position.x, transform.position.y + verticalOffset, transform.position.z), Quaternion.identity);
         
         transferProperties(newMario);
 
