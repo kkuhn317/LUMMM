@@ -51,12 +51,9 @@ public class ObjectPhysics : MonoBehaviour
     public bool checkObjectCollision = true;
     public bool ceilingDetection = true;
     public bool DontFallOffLedges = false;
+    public bool bounceOffWalls = true;  // if false, will stop moving when it hits a wall
 
-    // this is possible, but i'd say to just put these in the objects that actually need them
-    //[SerializeField] UnityEvent onFloorTouch;
-    //[SerializeField] UnityEvent onWallTouch;
-
-    public bool flipObject = true;
+    public bool flipObject = true;  // if true, the object will flip when moving right
     private Vector2 normalScale;
     protected float adjDeltaTime;
 
@@ -293,26 +290,27 @@ public class ObjectPhysics : MonoBehaviour
         // get shortest distance
         float shortestDistance = float.MaxValue;
         RaycastHit2D shortestRay = new RaycastHit2D();
-        Collider2D thisCollider = GetComponent<Collider2D>();
+        Collider2D[] thisColliders = GetComponents<Collider2D>();
 
         foreach (RaycastHit2D[] groundCols in groundCollides)
         {
             foreach (RaycastHit2D hitRay in groundCols)
             {
-                if (hitRay.collider != thisCollider)
+                if (Array.IndexOf(thisColliders, hitRay.collider) != -1)
                 {
-                    if (hitRay.collider.gameObject.GetComponent<ObjectPhysics>())
+                    continue;
+                }
+                if (hitRay.collider.gameObject.GetComponent<ObjectPhysics>())
+                {
+                    if (!checkifObjectCollideValid(hitRay.collider.gameObject.GetComponent<ObjectPhysics>()))
                     {
-                        if (!checkifObjectCollideValid(hitRay.collider.gameObject.GetComponent<ObjectPhysics>()))
-                        {
-                            continue;
-                        }
+                        continue;
                     }
-                    if (hitRay.distance < shortestDistance)
-                    {
-                        shortestDistance = hitRay.distance;
-                        shortestRay = hitRay;
-                    }
+                }
+                if (hitRay.distance < shortestDistance)
+                {
+                    shortestDistance = hitRay.distance;
+                    shortestRay = hitRay;
                 }
             }
         }
@@ -387,26 +385,27 @@ public class ObjectPhysics : MonoBehaviour
         // get shortest distance
         float shortestDistance = float.MaxValue;
         RaycastHit2D shortestRay = new RaycastHit2D();
-        Collider2D thisCollider = GetComponent<Collider2D>();
+        Collider2D[] thisColliders = GetComponents<Collider2D>();
 
         foreach (RaycastHit2D[] ceilingCols in ceilingCollides)
         {
             foreach (RaycastHit2D hitRay in ceilingCols)
             {
-                if (hitRay.collider != thisCollider)
+                if (Array.IndexOf(thisColliders, hitRay.collider) != -1)
                 {
-                    if (hitRay.collider.gameObject.GetComponent<ObjectPhysics>())
+                    continue;
+                }
+                if (hitRay.collider.gameObject.GetComponent<ObjectPhysics>())
+                {
+                    if (!checkifObjectCollideValid(hitRay.collider.gameObject.GetComponent<ObjectPhysics>()))
                     {
-                        if (!checkifObjectCollideValid(hitRay.collider.gameObject.GetComponent<ObjectPhysics>()))
-                        {
-                            continue;
-                        }
+                        continue;
                     }
-                    if (hitRay.distance < shortestDistance)
-                    {
-                        shortestDistance = hitRay.distance;
-                        shortestRay = hitRay;
-                    }
+                }
+                if (hitRay.distance < shortestDistance)
+                {
+                    shortestDistance = hitRay.distance;
+                    shortestRay = hitRay;
                 }
             }
         }
@@ -443,26 +442,27 @@ public class ObjectPhysics : MonoBehaviour
         // get shortest distance
         float shortestDistance = float.MaxValue;
         RaycastHit2D shortestRay = new RaycastHit2D();
-        Collider2D thisCollider = GetComponent<Collider2D>();
+        Collider2D[] thisColliders = GetComponents<Collider2D>();
 
         foreach (RaycastHit2D[] wallCols in wallCollides)
         {
             foreach (RaycastHit2D hitRay in wallCols)
             {
-                if (hitRay.collider != thisCollider)
+                if (Array.IndexOf(thisColliders, hitRay.collider) != -1)
                 {
-                    if (hitRay.collider.gameObject.GetComponent<ObjectPhysics>())
+                    continue;
+                }
+                if (hitRay.collider.gameObject.GetComponent<ObjectPhysics>())
+                {
+                    if (!checkifObjectCollideValid(hitRay.collider.gameObject.GetComponent<ObjectPhysics>()))
                     {
-                        if (!checkifObjectCollideValid(hitRay.collider.gameObject.GetComponent<ObjectPhysics>()))
-                        {
-                            continue;
-                        }
+                        continue;
                     }
-                    if (hitRay.distance < shortestDistance)
-                    {
-                        shortestDistance = hitRay.distance;
-                        shortestRay = hitRay;
-                    }
+                }
+                if (hitRay.distance < shortestDistance)
+                {
+                    shortestDistance = hitRay.distance;
+                    shortestRay = hitRay;
                 }
             }
         }
@@ -568,8 +568,12 @@ public class ObjectPhysics : MonoBehaviour
 
     protected virtual void onTouchWall(GameObject other)
     {
-        // flip direction
-        movingLeft = !movingLeft;
+        if (bounceOffWalls) {
+            // flip direction
+            movingLeft = !movingLeft;
+        } else {
+            velocity.x = 0;
+        }
 
         // override me for custom behavior
     }

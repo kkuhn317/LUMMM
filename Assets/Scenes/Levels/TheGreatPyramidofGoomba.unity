@@ -21061,6 +21061,10 @@ PrefabInstance:
       value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 572095785153829306, guid: d30af585c704a3f41b23ce9cdef44d12, type: 3}
+      propertyPath: objectBounce
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 572095785153829306, guid: d30af585c704a3f41b23ce9cdef44d12, type: 3}
       propertyPath: trampolineJump
       value: 
       objectReference: {fileID: 8300000, guid: 7d90ac6bc28bead41ba190eeff351e31, type: 3}
@@ -21083,6 +21087,10 @@ PrefabInstance:
     - target: {fileID: 572095785153829306, guid: d30af585c704a3f41b23ce9cdef44d12, type: 3}
       propertyPath: jumpAction.m_Name
       value: Jump
+      objectReference: {fileID: 0}
+    - target: {fileID: 572095785153829306, guid: d30af585c704a3f41b23ce9cdef44d12, type: 3}
+      propertyPath: objectBouncePower
+      value: 16
       objectReference: {fileID: 0}
     - target: {fileID: 572095785153829308, guid: d30af585c704a3f41b23ce9cdef44d12, type: 3}
       propertyPath: m_Size.x
@@ -32289,7 +32297,7 @@ Tilemap:
       m_AnimatedSprites:
       - {fileID: 455067675, guid: 9cedcc06b2259a04c9dc16f2cec7812c, type: 3}
       - {fileID: -1000863836, guid: 9cedcc06b2259a04c9dc16f2cec7812c, type: 3}
-      m_AnimationSpeed: 5
+      m_AnimationSpeed: 5.0000005
       m_AnimationTimeOffset: 0
       m_IsLooping: 1
   - first: {x: 9, y: -8, z: 0}
@@ -32425,7 +32433,7 @@ Tilemap:
       m_AnimatedSprites:
       - {fileID: 455067675, guid: 9cedcc06b2259a04c9dc16f2cec7812c, type: 3}
       - {fileID: -1000863836, guid: 9cedcc06b2259a04c9dc16f2cec7812c, type: 3}
-      m_AnimationSpeed: 5.0000005
+      m_AnimationSpeed: 5
       m_AnimationTimeOffset: 0
       m_IsLooping: 1
   - first: {x: 26, y: -8, z: 0}
@@ -32809,7 +32817,7 @@ Tilemap:
       m_AnimatedSprites:
       - {fileID: 455067675, guid: 9cedcc06b2259a04c9dc16f2cec7812c, type: 3}
       - {fileID: -1000863836, guid: 9cedcc06b2259a04c9dc16f2cec7812c, type: 3}
-      m_AnimationSpeed: 5
+      m_AnimationSpeed: 5.0000005
       m_AnimationTimeOffset: 0
       m_IsLooping: 1
   - first: {x: 29, y: -7, z: 0}
@@ -32857,7 +32865,7 @@ Tilemap:
       m_AnimatedSprites:
       - {fileID: 455067675, guid: 9cedcc06b2259a04c9dc16f2cec7812c, type: 3}
       - {fileID: -1000863836, guid: 9cedcc06b2259a04c9dc16f2cec7812c, type: 3}
-      m_AnimationSpeed: 5
+      m_AnimationSpeed: 5.0000005
       m_AnimationTimeOffset: 0
       m_IsLooping: 1
   - first: {x: 35, y: -7, z: 0}
@@ -32913,7 +32921,7 @@ Tilemap:
       m_AnimatedSprites:
       - {fileID: 455067675, guid: 9cedcc06b2259a04c9dc16f2cec7812c, type: 3}
       - {fileID: -1000863836, guid: 9cedcc06b2259a04c9dc16f2cec7812c, type: 3}
-      m_AnimationSpeed: 5
+      m_AnimationSpeed: 5.0000005
       m_AnimationTimeOffset: 0
       m_IsLooping: 1
   - first: {x: -3, y: -6, z: 0}
@@ -80743,6 +80751,10 @@ PrefabInstance:
       value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 572095785153829306, guid: d30af585c704a3f41b23ce9cdef44d12, type: 3}
+      propertyPath: objectBounce
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 572095785153829306, guid: d30af585c704a3f41b23ce9cdef44d12, type: 3}
       propertyPath: trampolineJump
       value: 
       objectReference: {fileID: 8300000, guid: 7d90ac6bc28bead41ba190eeff351e31, type: 3}
@@ -80765,6 +80777,10 @@ PrefabInstance:
     - target: {fileID: 572095785153829306, guid: d30af585c704a3f41b23ce9cdef44d12, type: 3}
       propertyPath: jumpAction.m_Name
       value: Jump
+      objectReference: {fileID: 0}
+    - target: {fileID: 572095785153829306, guid: d30af585c704a3f41b23ce9cdef44d12, type: 3}
+      propertyPath: objectBouncePower
+      value: 16
       objectReference: {fileID: 0}
     - target: {fileID: 572095785153829306, guid: d30af585c704a3f41b23ce9cdef44d12, type: 3}
       propertyPath: jumpAction.m_SingletonActionBindings.Array.size
@@ -81771,7 +81787,7 @@ Tilemap:
     second:
       serializedVersion: 2
       m_TileIndex: 0
-      m_TileSpriteIndex: 4294967295
+      m_TileSpriteIndex: 0
       m_TileMatrixIndex: 0
       m_TileColorIndex: 0
       m_TileObjectToInstantiateIndex: 65535
@@ -81781,7 +81797,7 @@ Tilemap:
     second:
       serializedVersion: 2
       m_TileIndex: 0
-      m_TileSpriteIndex: 4294967295
+      m_TileSpriteIndex: 0
       m_TileMatrixIndex: 0
       m_TileColorIndex: 0
       m_TileObjectToInstantiateIndex: 65535
@@ -81791,7 +81807,7 @@ Tilemap:
     second:
       serializedVersion: 2
       m_TileIndex: 0
-      m_TileSpriteIndex: 4294967295
+      m_TileSpriteIndex: 0
       m_TileMatrixIndex: 0
       m_TileColorIndex: 0
       m_TileObjectToInstantiateIndex: 65535
@@ -81801,7 +81817,7 @@ Tilemap:
     second:
       serializedVersion: 2
       m_TileIndex: 0
-      m_TileSpriteIndex: 4294967295
+      m_TileSpriteIndex: 0
       m_TileMatrixIndex: 0
       m_TileColorIndex: 0
       m_TileObjectToInstantiateIndex: 65535
@@ -81811,7 +81827,7 @@ Tilemap:
     second:
       serializedVersion: 2
       m_TileIndex: 0
-      m_TileSpriteIndex: 4294967295
+      m_TileSpriteIndex: 0
       m_TileMatrixIndex: 0
       m_TileColorIndex: 0
       m_TileObjectToInstantiateIndex: 65535
@@ -81821,7 +81837,7 @@ Tilemap:
     second:
       serializedVersion: 2
       m_TileIndex: 0
-      m_TileSpriteIndex: 4294967295
+      m_TileSpriteIndex: 0
       m_TileMatrixIndex: 0
       m_TileColorIndex: 0
       m_TileObjectToInstantiateIndex: 65535
@@ -81832,8 +81848,8 @@ Tilemap:
   - m_RefCount: 6
     m_Data: {fileID: 11400000, guid: f2bb3304eb257204fb3932f5901771ad, type: 2}
   m_TileSpriteArray:
-  - m_RefCount: 0
-    m_Data: {fileID: 0}
+  - m_RefCount: 6
+    m_Data: {fileID: -192417006, guid: c969912de6832e14baf152772b3b1ea0, type: 3}
   m_TileMatrixArray:
   - m_RefCount: 6
     m_Data:

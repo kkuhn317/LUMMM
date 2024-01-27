@@ -162,6 +162,8 @@ public class MarioMovement : MonoBehaviour
     public bool canWallJump = false;    // Only small mario has an animation for wall jumping right now, so it will not be transferred after powerup
     public bool canSpinJump = false;    // not implemented yet
     private bool wallSliding = false;
+    private bool pushing = false;
+    private float pushingSpeed = 0f;
 
     /* Levers */
     private List<LeverController> levers = new();
@@ -621,6 +623,13 @@ public class MarioMovement : MonoBehaviour
         if (swimming) {
             rb.gravityScale = swimGravity;
             rb.drag = swimDrag;
+            return;
+        }
+
+        // Special pushing physics
+        if (pushing) {
+            int pushDir = facingRight ? 1 : -1;
+            rb.velocity = new Vector2(pushingSpeed * pushDir, rb.velocity.y);
             return;
         }
 
@@ -1274,5 +1283,16 @@ public class MarioMovement : MonoBehaviour
         if (levers.Contains(lever)) {
             levers.Remove(lever);
         }
+    }
+
+    /* Pushing */
+    // Pushable objects use these to let Mario know that he is pushing them
+    public void StartPushing(float speed) {
+        pushing = true;
+        pushingSpeed = speed;
+    }
+
+    public void StopPushing() {
+        pushing = false;
     }
 }

@@ -4,9 +4,9 @@ using UnityEngine;
 
 public class Trampoline : MonoBehaviour
 {
-    public bool enemyBounce = false;
+    public bool objectBounce = false;
     public float playerBouncePower = 10;
-    public float enemyBouncePower = 25;
+    public float objectBouncePower = 25;
 
     private bool isVisible = false; // If the spring is visible to the camera
 
@@ -44,11 +44,18 @@ public class Trampoline : MonoBehaviour
                 Bounce();
             }
         }
+
+        GameObject otherObject = other.gameObject;
+
+        if (objectBounce && other.transform.position.y > transform.position.y && other.transform.position.x > transform.position.x - 1 && other.transform.position.x < transform.position.x + 1 && otherObject.GetComponent<ObjectPhysics>()) {
+            otherObject.GetComponent<ObjectPhysics>().velocity = new Vector2(otherObject.GetComponent<ObjectPhysics>().velocity.x, objectBouncePower);
+            Bounce();
+        }
     }
 
     private void OnTriggerEnter2D(Collider2D other) {
-        if (other.tag == "Enemy" && enemyBounce && other.transform.position.y > transform.position.y && other.transform.position.x > transform.position.x - 1 && other.transform.position.x < transform.position.x + 1) {
-            other.GetComponent<EnemyAI>().velocity = new Vector2(other.GetComponent<EnemyAI>().velocity.x, enemyBouncePower);
+        if (objectBounce && other.transform.position.y > transform.position.y && other.transform.position.x > transform.position.x - 1 && other.transform.position.x < transform.position.x + 1 && other.GetComponent<ObjectPhysics>()) {
+            other.GetComponent<ObjectPhysics>().velocity = new Vector2(other.GetComponent<ObjectPhysics>().velocity.x, objectBouncePower);
             Bounce();
         }
     }
