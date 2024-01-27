@@ -39,30 +39,40 @@ public class LeverController : MonoBehaviour
         }
     }
 
-    public void Use(MarioMovement player) {
+    public void Use(MarioMovement player)
+    {
         player.RemoveLever(this);
-        if (!isRotating && !isMoving && !hasPulledLever)
-        {
-            if (keyActivate != null)
-            {
-                keyActivate.SetActive(false);
-            }
 
-            RotateObject(targetRotation); // The puller rotates
-            hasPulledLever = true; // Set the flag to true after pulling the lever
+        if (!hasPulledLever)
+        {
+            // Pull the lever
+            RotateObject(targetRotation);
+            hasPulledLever = true;
+            if (keyActivate != null)
+                keyActivate.SetActive(false);
         }
-        /*else if (isRotating && !isMoving)
+        else
         {
-            RotateObject(initialRotation.eulerAngles);
-        }*/
-        else if (!isRotating && isMoving)
-        {
-            MoveObject(targetPosition); // The object moves to the target position
+            // Reset the lever and object
+            ResetLeverAndObject();
         }
-        /*else if (isRotating && isMoving)
-        {
-            MoveObject(initialPosition);
-        }*/
+    }
+
+    private void ResetLeverAndObject()
+    {
+        ResetLever(); // Reset the lever rotation and flag
+        ResetObject(); // Reset the object position and rotation
+    }
+
+    private void ResetLever()
+    {
+        RotateObject(initialRotation.eulerAngles); // Reset lever rotation
+        hasPulledLever = false; // Reset puller flag
+    }
+
+    private void ResetObject()
+    {
+        MoveObject(initialPosition); // Reset object position
     }
 
     private void Update()
