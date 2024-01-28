@@ -23,6 +23,8 @@ public class ObjectMovement : MonoBehaviour
     public GameObject[] audioObjects;
     public AudioClip forwardAudioClip;
     public AudioClip backwardAudioClip;
+    public AudioClip topforwardAudioClip;
+    public AudioClip topbackwardAudioClip;
 
     // Enum to represent the movement direction
     public enum MovementDirection
@@ -49,6 +51,7 @@ public class ObjectMovement : MonoBehaviour
     private void Update()
     {
         UpdateTransitionTimer();
+        PlayMaxPositionAudio();
     }
 
     private void UpdateTransitionTimer()
@@ -80,6 +83,17 @@ public class ObjectMovement : MonoBehaviour
         }
 
         transform.position = targetPosition;
+    }
+
+    private void PlayMaxPositionAudio()
+    {
+        // Play audio clip for reaching maximum position
+        AudioClip maxPositionAudioClip = isMovingForward ? topforwardAudioClip : topbackwardAudioClip;
+
+        if (maxPositionAudioClip != null)
+        {
+            AudioSource.PlayClipAtPoint(maxPositionAudioClip, transform.position);
+        }
     }
 
     private System.Collections.IEnumerator MoveObject()
@@ -146,5 +160,46 @@ public class ObjectMovement : MonoBehaviour
             // Reset the transition timer
             transitionTimer = 0f;
         }
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        // Draw a line to represent the movement range
+        Vector3 targetPosition = originalPosition;
+
+        switch (direction)
+        {
+            case MovementDirection.Up:
+                targetPosition += Vector3.up * moveDistance;
+                DrawLabel("Up", targetPosition);
+                break;
+            case MovementDirection.Down:
+                targetPosition += Vector3.down * moveDistance;
+                DrawLabel("Down", targetPosition);
+                break;
+            case MovementDirection.Left:
+                targetPosition += Vector3.left * moveDistance;
+                DrawLabel("Left", targetPosition);
+                break;
+            case MovementDirection.Right:
+                targetPosition += Vector3.right * moveDistance;
+                DrawLabel("Right", targetPosition);
+                break;
+        }
+
+        Gizmos.color = Color.green;
+        Gizmos.DrawLine(originalPosition, targetPosition);
+
+        // Draw spheres at the start and end points
+        Gizmos.color = Color.red;
+        Gizmos.DrawSphere(originalPosition, 0.1f);
+        Gizmos.DrawSphere(targetPosition, 0.1f);
+    }
+
+    private void DrawLabel(string text, Vector3 position)
+    {
+#if UNITY_EDITOR
+        UnityEditor.Handles.Label(position, text);
+#endif
     }
 }
