@@ -88,7 +88,6 @@ public class MarioMovement : MonoBehaviour
     float collideroffsetY;
 
     public Vector3 colliderOffset;
-
     public float damageinvinctime = 3f;
     public float invincetimeremain = 0f;
 
@@ -108,6 +107,9 @@ public class MarioMovement : MonoBehaviour
 
     public bool canSkid = true;
     public bool canCrouch = true;
+    public float crouchColOffset = -0.25f;
+    public float crouchColHeight = 0.5f;
+
     public float walkAnimatorSpeed = 0.125f;
 
     [Header("Powerups")]
@@ -327,12 +329,19 @@ public class MarioMovement : MonoBehaviour
             }
         }
 
+        // Vertical raycast offset (based on crouch state)
+        float raycastHeight = inCrouchState ? -(groundLength / 2) : 0f;
+        float updGroundLength = inCrouchState ? groundLength / 2 : groundLength;
+        float updCeilingLength = inCrouchState ? ceilingLength / 2 : ceilingLength;
+        Vector3 HOffset = new Vector3(0, raycastHeight, 0);
+
+
         // Floor detection
         onMovingPlatform = false;
         transform.parent = null;
 
-        RaycastHit2D groundHit1 = Physics2D.Raycast(transform.position + colliderOffset, Vector2.down, groundLength, groundLayer);
-        RaycastHit2D groundHit2 = Physics2D.Raycast(transform.position - colliderOffset, Vector2.down, groundLength, groundLayer);
+        RaycastHit2D groundHit1 = Physics2D.Raycast(transform.position + colliderOffset + HOffset, Vector2.down, updGroundLength, groundLayer);
+        RaycastHit2D groundHit2 = Physics2D.Raycast(transform.position - colliderOffset + HOffset, Vector2.down, updGroundLength, groundLayer);
 
         onGround = (groundHit1 || groundHit2) && rb.velocity.y <= 0.01f;
 
@@ -429,9 +438,9 @@ public class MarioMovement : MonoBehaviour
 
         // Ceiling detection
         // TODO: Use this for hittable blocks (will fix not being able to hit the block you want)
-        RaycastHit2D ceilLeft = Physics2D.Raycast(transform.position - colliderOffset, Vector2.up, ceilingLength, groundLayer);
-        RaycastHit2D ceilMid = Physics2D.Raycast(transform.position, Vector2.up, ceilingLength, groundLayer);
-        RaycastHit2D ceilRight = Physics2D.Raycast(transform.position + colliderOffset, Vector2.up, ceilingLength, groundLayer);
+        RaycastHit2D ceilLeft = Physics2D.Raycast(transform.position - colliderOffset + HOffset, Vector2.up, updCeilingLength, groundLayer);
+        RaycastHit2D ceilMid = Physics2D.Raycast(transform.position + HOffset, Vector2.up, ceilingLength, groundLayer);
+        RaycastHit2D ceilRight = Physics2D.Raycast(transform.position + colliderOffset + HOffset, Vector2.up, updCeilingLength, groundLayer);
 
         if (ceilLeft.collider != null || ceilMid.collider != null || ceilRight.collider != null) {
 
@@ -484,22 +493,24 @@ public class MarioMovement : MonoBehaviour
             animator.SetBool("isCrouching", true);
             inCrouchState = true;
 
-            if (powerupState != PowerupState.small) {
-                GetComponent<BoxCollider2D>().size = new Vector2(GetComponent<BoxCollider2D>().size.x, 1.0f);
-                GetComponent<BoxCollider2D>().offset = new Vector2(GetComponent<BoxCollider2D>().offset.x, -0.5f);
-                ceilingLength = 0.1f;
-            }
+            // if (powerupState != PowerupState.small) {
+            //     GetComponent<BoxCollider2D>().size = new Vector2(GetComponent<BoxCollider2D>().size.x, 1.0f);
+            //     GetComponent<BoxCollider2D>().offset = new Vector2(GetComponent<BoxCollider2D>().offset.x, -0.5f);
+            // } else {
+            //     print("small crouch");
+            //     GetComponent<BoxCollider2D>().size = new Vector2(GetComponent<BoxCollider2D>().size.x, colliderY / 2);
+            //     GetComponent<BoxCollider2D>().offset = new Vector2(GetComponent<BoxCollider2D>().offset.x, -colliderY/4);
+            // }
+            GetComponent<BoxCollider2D>().size = new Vector2(GetComponent<BoxCollider2D>().size.x, crouchColHeight);
+            GetComponent<BoxCollider2D>().offset = new Vector2(GetComponent<BoxCollider2D>().offset.x, crouchColOffset);
 
         } else if ((!crouch && onGround) || carrying) {
 
             // Stop Crouch
             animator.SetBool("isCrouching", false);
             inCrouchState = false;
-            if (powerupState != PowerupState.small) {
-                GetComponent<BoxCollider2D>().size = new Vector2(GetComponent<BoxCollider2D>().size.x, colliderY);
-                GetComponent<BoxCollider2D>().offset = new Vector2(GetComponent<BoxCollider2D>().offset.x, collideroffsetY);
-                ceilingLength = 1.03f; // NOTE: THIS IS BAD PROGRAMMING BUT WHATEVER
-            }
+            GetComponent<BoxCollider2D>().size = new Vector2(GetComponent<BoxCollider2D>().size.x, colliderY);
+            GetComponent<BoxCollider2D>().offset = new Vector2(GetComponent<BoxCollider2D>().offset.x, collideroffsetY);
 
         }
 
@@ -953,10 +964,19 @@ public class MarioMovement : MonoBehaviour
     }
 
     private void OnDrawGizmos() {
+
+        // Vertical raycast offset (based on crouch state)
+        float raycastHeight = inCrouchState ? -(groundLength / 2) : 0f;
+        float updGroundLength = inCrouchState ? groundLength / 2 : groundLength;
+        float updCeilingLength = inCrouchState ? ceilingLength / 2 : ceilingLength;
+        Vector3 HOffset = new Vector3(0, raycastHeight, 0);
+
         // Ground
         Gizmos.color = Color.red;
-        Gizmos.DrawLine(transform.position + colliderOffset, transform.position + colliderOffset + Vector3.down * groundLength);
-        Gizmos.DrawLine(transform.position - colliderOffset, transform.position - colliderOffset + Vector3.down * groundLength);
+        Vector3 startpos = transform.position + colliderOffset + HOffset;
+        Gizmos.DrawLine(startpos, startpos + Vector3.down * updGroundLength);
+        startpos = transform.position - colliderOffset + HOffset;
+        Gizmos.DrawLine(startpos, startpos + Vector3.down * updGroundLength);
 
         // Corner
         float startHeight = GetComponent<BoxCollider2D>().bounds.size.y / 2 + (rb.velocity.y * Time.fixedDeltaTime) + 0.01f;
@@ -988,9 +1008,19 @@ public class MarioMovement : MonoBehaviour
 
         // Ceiling
         Gizmos.color = Color.yellow;
-        Gizmos.DrawLine(transform.position, transform.position + Vector3.up * ceilingLength);
-        Gizmos.DrawLine(transform.position + colliderOffset, transform.position + colliderOffset + Vector3.up * ceilingLength);
-        Gizmos.DrawLine(transform.position - colliderOffset, transform.position - colliderOffset + Vector3.up * ceilingLength);
+        startpos = transform.position - colliderOffset + HOffset;
+        Gizmos.DrawLine(startpos, startpos + Vector3.up * updCeilingLength);
+        startpos = transform.position + HOffset;
+        Gizmos.DrawLine(startpos, startpos + Vector3.up * ceilingLength);
+        startpos = transform.position + colliderOffset + HOffset;
+        Gizmos.DrawLine(startpos, startpos + Vector3.up * updCeilingLength);
+
+
+        // Wall
+        Gizmos.color = Color.magenta;
+        float raycastlength = GetComponent<BoxCollider2D>().bounds.size.y / 2 + 0.03f;
+        Gizmos.DrawLine(transform.position, transform.position + Vector3.left * raycastlength);
+        Gizmos.DrawLine(transform.position, transform.position + Vector3.right * raycastlength);
 
         // Carry Raycast
         Gizmos.color = Color.blue;

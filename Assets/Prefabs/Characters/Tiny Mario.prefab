@@ -98,6 +98,8 @@ MonoBehaviour:
   groundPos: {x: 0, y: 0}
   canSkid: 1
   canCrouch: 0
+  crouchColOffset: -0.15
+  crouchColHeight: 0.2
   walkAnimatorSpeed: 0.25
   powerupState: 0
   powerDownMario: {fileID: 0}
@@ -530,6 +532,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Library:
+  - m_Name: Crouch
+    m_Hash: 0
+    m_CategoryList:
+    - m_Name: Entry
+      m_Hash: 0
+      m_Sprite: {fileID: -1743142324, guid: c9b448e531d67da4f8acf998a69cc746, type: 3}
   - m_Name: Skid
     m_Hash: 0
     m_CategoryList:
@@ -554,12 +562,6 @@ MonoBehaviour:
     - m_Name: spr_Mario_TGPOG_24
       m_Hash: 0
       m_Sprite: {fileID: 1661216821, guid: c9b448e531d67da4f8acf998a69cc746, type: 3}
-  - m_Name: Up
-    m_Hash: 0
-    m_CategoryList:
-    - m_Name: Entry
-      m_Hash: 0
-      m_Sprite: {fileID: 1651705226, guid: c9b448e531d67da4f8acf998a69cc746, type: 3}
   m_SpriteLibraryAsset: {fileID: 7108339969198208228, guid: df404416786646b40a9e9ef04c0458ee, type: 3}
 --- !u!114 &1563295794450405723
 MonoBehaviour:

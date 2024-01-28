@@ -58,7 +58,7 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: 0, y: -0.25}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -69,7 +69,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 0.25, y: 0.25}
+  m_Size: {x: 0.25, y: 0.05}
   m_EdgeRadius: 0
 --- !u!1 &1771483343543010232
 GameObject:
@@ -170,6 +170,8 @@ MonoBehaviour:
   groundPos: {x: 0, y: 0}
   canSkid: 1
   canCrouch: 1
+  crouchColOffset: -0.15
+  crouchColHeight: 0.5
   walkAnimatorSpeed: 0.125
   powerupState: 0
   powerDownMario: {fileID: 0}
@@ -186,7 +188,7 @@ MonoBehaviour:
   pickupSound: {fileID: 8300000, guid: 22ebcc2300d5fe9439867fabd6330357, type: 3}
   dropSound: {fileID: 8300000, guid: 22ebcc2300d5fe9439867fabd6330357, type: 3}
   throwSound: {fileID: 8300000, guid: 62467461e51dddb40931164fd2db1170, type: 3}
-  canWallJump: 1
+  canWallJump: 0
   canSpinJump: 0
 --- !u!50 &1771483343543010230
 Rigidbody2D:
@@ -411,8 +413,8 @@ BoxCollider2D:
   m_Offset: {x: 0, y: 0}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0.5, y: 0.3125}
-    oldSize: {x: 2, y: 3}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 1, y: 1}
     newSize: {x: 2, y: 3}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
@@ -558,7 +560,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 2
-  m_Sprite: {fileID: 21300000, guid: 4c7c3a57f5ac382478edfa5fa434b15d, type: 3}
+  m_Sprite: {fileID: -910772892, guid: 450050db8ca65e74c9b66d15b83fa38d, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
