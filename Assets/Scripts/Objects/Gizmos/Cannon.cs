@@ -11,6 +11,7 @@ public class Cannon : MonoBehaviour
     public float rateOfFire = 3f;
 
     public GameObject projectilePrefab;
+    public GameObject projectileEffectPrefab;
 
     // movement speed for bullet bills, force for any other objects
     public float projectileSpeed = 10f;
@@ -48,6 +49,10 @@ public class Cannon : MonoBehaviour
 
         GameObject projectile = Instantiate(projectilePrefab, transform.position + offset, Quaternion.identity);
 
+        if (projectileEffectPrefab != null) {
+            GameObject projectileEffect = Instantiate(projectileEffectPrefab, transform.position + offset, Quaternion.identity);
+        }
+
         // assume it has ObjectPhysics
         ObjectPhysics physics2 = projectile.GetComponent<ObjectPhysics>();
 
@@ -56,8 +61,7 @@ public class Cannon : MonoBehaviour
 
         physics2.realVelocity = vel * projectileSpeed;
 
-        if (audioSource != null)
-        {
+        if (audioSource != null) {
             audioSource.Play();
         }
     }
