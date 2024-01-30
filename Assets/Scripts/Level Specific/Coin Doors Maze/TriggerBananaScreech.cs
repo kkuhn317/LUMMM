@@ -24,7 +24,7 @@ public class TriggerBananaScreech : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.gameObject.CompareTag("OnlyCutsceneUse")) // If Luigi collides with an object tagged OnlyCutsceneUse
+        if (collision.gameObject.CompareTag("OnlyCutsceneUse")) // If Banana collides with an object tagged OnlyCutsceneUse
         {
             // Trigger the banana screech animation state
             if (animator != null) {
@@ -32,7 +32,6 @@ public class TriggerBananaScreech : MonoBehaviour
             } else {
                 Debug.LogError("Animator component not found.");
             }
-
             audioSource.PlayOneShot(screech);
         }
     }

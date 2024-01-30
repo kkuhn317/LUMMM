@@ -6,11 +6,13 @@ public class Grrol : EnemyAI
     [SerializeField] private float rotationSpeedMultiplier = 1f; // Multiplier for rotation speed
 
     private Animator animator;
+    private AudioSource audioSource;
 
     protected override void Start()
     {
         base.Start();
         animator = GetComponent<Animator>();
+        audioSource = GetComponent<AudioSource>();
 
         enabled = true;
     }
@@ -19,7 +21,8 @@ public class Grrol : EnemyAI
     {
         base.Update();
 
-        // rotation speed v/r
+        // rotation speed: velocity / radius
+        
         // Calculate linear velocity magnitude
         float linearVelocityMagnitude = Mathf.Sqrt(velocity.x * velocity.x + velocity.y * velocity.y);
 
@@ -46,6 +49,22 @@ public class Grrol : EnemyAI
             {
                 animator.speed = 0f; // Pause the animator
             }
+        }
+    }
+
+    protected override void onTouchWall(GameObject other)
+    {
+        base.onTouchWall(other);
+
+        // Get the CameraFollow component from the camera
+        CameraFollow cameraFollow = Camera.main.GetComponent<CameraFollow>();
+
+        // Trigger camera shake
+        cameraFollow.ShakeCameraRepeatedly(0.25f, 2.0f, 1.0f, new Vector3(0f, 1f, 0f), 3, 0.1f);
+
+        if (audioSource != null)
+        {
+            audioSource.Play();
         }
     }
 }

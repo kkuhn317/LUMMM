@@ -44,7 +44,6 @@ public class Axe : MonoBehaviour
     public CameraFollow cameraFollow;
     public int numberOfShakes = 3; // Number of times the camera will shake up and down
     public float delayBetweenShakes = 0.1f; // Time delay between each shake
-
     public float duration = 0.1f;
     public float intensity = 2.0f;
     public float decreaseFactor = 1.0f;

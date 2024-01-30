@@ -161,6 +161,7 @@ public class MarioMovement : MonoBehaviour
     private bool isLookingUp = false;
 
     [Header("Additional Abilities")]
+    public bool canCrawl = false;       // Only small Mario has an animation for crawling right now, so it will not be transferred after powerup
     public bool canWallJump = false;    // Only small mario has an animation for wall jumping right now, so it will not be transferred after powerup
     public bool canSpinJump = false;    // not implemented yet
     private bool wallSliding = false;
@@ -516,10 +517,10 @@ public class MarioMovement : MonoBehaviour
 
         // Running or Walking or Crawling
 
-        // You can only crawl if you are small mario, on the ground, crouching, and not carrying anything, and not swimming
+        // You can only crawl if you are small mario, on the ground, crouching, and not carrying anything, and not swimming, and if canCrawl is true;
         // AND you are pressing left or right pretty hard
         // AND either you are already crawling or you are stopped
-        isCrawling = inCrouchState && onGround && !carrying && !swimming && powerupState == PowerupState.small && math.abs(horizontal) > 0.5 && (math.abs(rb.velocity.x) < 0.05f || isCrawling);
+        isCrawling = inCrouchState && onGround && !carrying && !swimming && powerupState == PowerupState.small && canCrawl && math.abs(horizontal) > 0.5 && (math.abs(rb.velocity.x) < 0.05f || isCrawling);
         bool regularMoving = !inCrouchState || !onGround;
 
         if (regularMoving || isCrawling) {
