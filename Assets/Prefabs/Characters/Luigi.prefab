@@ -161,6 +161,8 @@ MonoBehaviour:
   groundPos: {x: 0, y: 0}
   canSkid: 1
   canCrouch: 1
+  crouchColOffset: -0.25
+  crouchColHeight: 0.5
   walkAnimatorSpeed: 0.125
   powerupState: 0
   powerDownMario: {fileID: 0}
@@ -177,6 +179,7 @@ MonoBehaviour:
   pickupSound: {fileID: 8300000, guid: 22ebcc2300d5fe9439867fabd6330357, type: 3}
   dropSound: {fileID: 8300000, guid: 22ebcc2300d5fe9439867fabd6330357, type: 3}
   throwSound: {fileID: 8300000, guid: 62467461e51dddb40931164fd2db1170, type: 3}
+  canCrawl: 0
   canWallJump: 1
   canSpinJump: 0
 --- !u!50 &7419182181435639168
@@ -473,6 +476,24 @@ MonoBehaviour:
     - m_Name: Entry
       m_Hash: 0
       m_Sprite: {fileID: 1732128270, guid: 705d681596b7ce04abcbb067cadc0fe6, type: 3}
+  - m_Name: PushIdle
+    m_Hash: 0
+    m_CategoryList:
+    - m_Name: Entry
+      m_Hash: 0
+      m_Sprite: {fileID: 198167956, guid: 705d681596b7ce04abcbb067cadc0fe6, type: 3}
+  - m_Name: Push
+    m_Hash: 0
+    m_CategoryList:
+    - m_Name: Entry
+      m_Hash: 0
+      m_Sprite: {fileID: 1704522503, guid: 705d681596b7ce04abcbb067cadc0fe6, type: 3}
+    - m_Name: Entry_0
+      m_Hash: 0
+      m_Sprite: {fileID: 2117612693, guid: 705d681596b7ce04abcbb067cadc0fe6, type: 3}
+    - m_Name: Entry_1
+      m_Hash: 0
+      m_Sprite: {fileID: 1704522503, guid: 705d681596b7ce04abcbb067cadc0fe6, type: 3}
   m_SpriteLibraryAsset: {fileID: 7108339969198208228, guid: 5711a18325771944cac3a18023d27d96, type: 3}
 --- !u!114 &7419182181435639175
 MonoBehaviour:

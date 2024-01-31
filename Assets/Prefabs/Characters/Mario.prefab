@@ -188,6 +188,7 @@ MonoBehaviour:
   pickupSound: {fileID: 8300000, guid: 22ebcc2300d5fe9439867fabd6330357, type: 3}
   dropSound: {fileID: 8300000, guid: 22ebcc2300d5fe9439867fabd6330357, type: 3}
   throwSound: {fileID: 8300000, guid: 62467461e51dddb40931164fd2db1170, type: 3}
+  canCrawl: 0
   canWallJump: 0
   canSpinJump: 0
 --- !u!50 &1771483343543010230
@@ -560,7 +561,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 2
-  m_Sprite: {fileID: -910772892, guid: 450050db8ca65e74c9b66d15b83fa38d, type: 3}
+  m_Sprite: {fileID: 211395905, guid: 6e3667f9dc3db2a45a148c4bed91e20f, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -603,7 +604,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c29cff538c195c249b69c6f2236de67b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Library: []
+  m_Library:
+  - m_Name: Push
+    m_Hash: 0
+    m_CategoryList:
+    - m_Name: Entry
+      m_Hash: 0
+      m_Sprite: {fileID: 211395905, guid: 6e3667f9dc3db2a45a148c4bed91e20f, type: 3}
+    - m_Name: Entry_0
+      m_Hash: 0
+      m_Sprite: {fileID: 117587464, guid: 6e3667f9dc3db2a45a148c4bed91e20f, type: 3}
+    - m_Name: Entry_1
+      m_Hash: 0
+      m_Sprite: {fileID: 211395905, guid: 6e3667f9dc3db2a45a148c4bed91e20f, type: 3}
   m_SpriteLibraryAsset: {fileID: 7108339969198208228, guid: 6d0980a610e47b441a679220c97d25bc, type: 3}
 --- !u!114 &1563295794450405723
 MonoBehaviour:
