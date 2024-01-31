@@ -26,6 +26,10 @@ public class ObjectMovement : MonoBehaviour
     public AudioClip topforwardAudioClip;
     public AudioClip topbackwardAudioClip;
 
+    private AudioSource audioSource;
+
+    private bool isVisible = false;
+
     // Enum to represent the movement direction
     public enum MovementDirection
     {
@@ -37,6 +41,7 @@ public class ObjectMovement : MonoBehaviour
 
     private void Start()
     {
+        audioSource = GetComponent<AudioSource>();
         originalPosition = transform.position;
 
         // If startFromBackward is true, initialize the object's position at the backward end
@@ -51,7 +56,6 @@ public class ObjectMovement : MonoBehaviour
     private void Update()
     {
         UpdateTransitionTimer();
-        PlayMaxPositionAudio();
     }
 
     private void UpdateTransitionTimer()
@@ -83,17 +87,6 @@ public class ObjectMovement : MonoBehaviour
         }
 
         transform.position = targetPosition;
-    }
-
-    private void PlayMaxPositionAudio()
-    {
-        // Play audio clip for reaching maximum position
-        AudioClip maxPositionAudioClip = isMovingForward ? topforwardAudioClip : topbackwardAudioClip;
-
-        if (maxPositionAudioClip != null)
-        {
-            AudioSource.PlayClipAtPoint(maxPositionAudioClip, transform.position);
-        }
     }
 
     private System.Collections.IEnumerator MoveObject()
@@ -129,12 +122,26 @@ public class ObjectMovement : MonoBehaviour
                 yield return null;
             }
 
+            // Play audio clip for reaching maximum position
+            if (isVisible) {
+                if (isMovingForward && topforwardAudioClip != null)
+                {
+                    audioSource.PlayOneShot(topforwardAudioClip);
+                }
+                else if (!isMovingForward && topbackwardAudioClip != null)
+                {
+                    audioSource.PlayOneShot(topbackwardAudioClip);
+                }
+            }
+
             // Toggle the movement direction and wait for the appropriate duration
             isMovingForward = !isMovingForward;
 
             // Determine the wait duration based on movement direction
             float waitDuration = isMovingForward ? forwardWaitDuration : backwardWaitDuration;
             yield return new WaitForSeconds(waitDuration);
+
+            print("HELLO!!!!");
 
             // Play audio clip based on movement direction
             int audioIndex = isMovingForward ? 0 : 1;
@@ -194,6 +201,18 @@ public class ObjectMovement : MonoBehaviour
         Gizmos.color = Color.red;
         Gizmos.DrawSphere(originalPosition, 0.1f);
         Gizmos.DrawSphere(targetPosition, 0.1f);
+    }
+
+    // is visible
+    void OnBecameVisible()
+    {
+        isVisible = true;
+    }
+
+    // is not visible
+    void OnBecameInvisible()
+    {
+        isVisible = false;
     }
 
     private void DrawLabel(string text, Vector3 position)

@@ -639,11 +639,14 @@ public class MarioMovement : MonoBehaviour
         }
 
         // Special pushing physics
+        animator.SetBool("isPushing", pushing);
         if (pushing) {
             int pushDir = facingRight ? 1 : -1;
             rb.velocity = new Vector2(pushingSpeed * pushDir, rb.velocity.y);
             return;
         }
+        
+        print(pushing);
 
         if (onGround) {
             // no crazy crouch sliding
