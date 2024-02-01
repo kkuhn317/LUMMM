@@ -25,7 +25,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1399727692653736092}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 1, w: 0}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
@@ -34,7 +34,7 @@ Transform:
   - {fileID: 7497016344916374822}
   m_Father: {fileID: 7497016345514218027}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 180}
 --- !u!212 &8142186640857265871
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -112,22 +112,22 @@ PolygonCollider2D:
   m_AutoTiling: 0
   m_Points:
     m_Paths:
-    - - {x: 0.7927014, y: 0.27349257}
-      - {x: 0.92480934, y: 0.8964113}
-      - {x: 0.2778229, y: 0.76731914}
-      - {x: -0.031747665, y: 1.3172029}
+    - - {x: 0.7973706, y: 0.23607755}
+      - {x: 0.8489121, y: 0.83777034}
+      - {x: 0.28966373, y: 0.6968488}
+      - {x: -0.031747665, y: 1.1964716}
       - {x: -0.38275614, y: 0.7149104}
-      - {x: -0.92327875, y: 0.894951}
+      - {x: -0.8646392, y: 0.83631}
       - {x: -0.7911843, y: 0.25922602}
-      - {x: -1.3075936, y: 0.0008136332}
+      - {x: -1.2282631, y: 0.007712513}
       - {x: -0.74186325, y: -0.2758825}
-      - {x: -0.9135743, y: -0.9804745}
+      - {x: -0.85838324, y: -0.84939456}
       - {x: -0.34068882, y: -0.71083087}
-      - {x: -0.032268833, y: -1.328858}
+      - {x: -0.03571732, y: -1.2081267}
       - {x: 0.3100307, y: -0.7328202}
-      - {x: 0.9268799, y: -0.94934255}
+      - {x: 0.8406372, y: -0.8838025}
       - {x: 0.7476762, y: -0.24551971}
-      - {x: 1.3031099, y: -0.011920422}
+      - {x: 1.2030733, y: -0.022268742}
 --- !u!1 &7497016344916374821
 GameObject:
   m_ObjectHideFlags: 0
@@ -225,6 +225,7 @@ GameObject:
   - component: {fileID: 7497016345514218025}
   - component: {fileID: 1737679810673620637}
   - component: {fileID: 7889135041742838741}
+  - component: {fileID: 7497016346700285334}
   m_Layer: 7
   m_Name: Grrol
   m_TagString: Deadly
@@ -261,12 +262,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   movingLeft: 1
-  velocity: {x: 2, y: 0}
+  velocity: {x: 0, y: 0}
   gravity: 60
-  width: 1.6
+  width: 1.55
   height: 2.55
   floorRaycastSpacing: 0.3
-  wallRaycastSpacing: 0.42
+  wallRaycastSpacing: 0.6
   floorMask:
     serializedVersion: 2
     m_Bits: 9
@@ -304,7 +305,7 @@ MonoBehaviour:
   heldItem: {fileID: 0}
   itemSpawnOffset: {x: 0, y: 0, z: 0}
   rotationTarget: {fileID: 513347580218870867}
-  rotationSpeedMultiplier: 75
+  rotationSpeedMultiplier: 58
 --- !u!50 &7497016345514218025
 Rigidbody2D:
   serializedVersion: 4
@@ -356,7 +357,7 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 24300002, guid: 52d4409ed4d7bb645aad562fcfd87159, type: 2}
-  m_audioClip: {fileID: 0}
+  m_audioClip: {fileID: 8300000, guid: 3afd04d01aa2d3e43a29a8e5512ad0df, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1.25
@@ -442,6 +443,20 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &7497016346700285334
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7497016345514218031}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0573533773f705248bcebac502b6d4ab, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  objectToSpawn: {fileID: 6456935476818214770, guid: 19805ad2879c2234da77742f124d510d, type: 3}
+  hit: {fileID: 8300000, guid: 6e12da1d72ac9b4478d3452d77487858, type: 3}
 --- !u!1 &7497016346276061603
 GameObject:
   m_ObjectHideFlags: 0
