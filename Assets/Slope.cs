@@ -5,8 +5,8 @@ using UnityEngine;
 public class Slope : MonoBehaviour
 {
 
-    public float angle; // 0 is _, 45 is /, 90 is |, 135 is \
-    // range is 0<=angle<180
+    public float angle; // -45 = \, 0 = _, 45 = /
+    // range is -90 to 90
 
 
 }

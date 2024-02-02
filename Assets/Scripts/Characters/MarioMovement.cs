@@ -31,7 +31,7 @@ public class MarioMovement : MonoBehaviour
     private bool inCrouchState = false;
     private bool isCrawling = false;    // Currently small mario only
 
-    private float floorAngle = 0f;  // 0 is _, 45 is /, 90 is |, 135 is \ (used for slopes)
+    private float floorAngle = 0f;  // -45 = \, 0 = _, 45 = /
 
 
     [Header("Vertical Movement")]
@@ -554,10 +554,6 @@ public class MarioMovement : MonoBehaviour
         // }
         // use the angle of the slope instead of Vector2.right
         Vector2 moveDir = onGround ? new Vector2(Mathf.Cos(floorAngle * Mathf.Deg2Rad), Mathf.Sin(floorAngle * Mathf.Deg2Rad)) : Vector2.right;
-
-        if (moveDir.x < 0) {
-            moveDir *= -1;
-        }
 
         print(moveDir);
         if (regularMoving || isCrawling) {
