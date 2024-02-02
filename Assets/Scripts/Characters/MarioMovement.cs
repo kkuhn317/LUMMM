@@ -31,6 +31,8 @@ public class MarioMovement : MonoBehaviour
     private bool inCrouchState = false;
     private bool isCrawling = false;    // Currently small mario only
 
+    private float floorAngle = 0f;  // 0 is _, 45 is /, 90 is |, 135 is \ (used for slopes)
+
 
     [Header("Vertical Movement")]
     public float jumpSpeed = 15f;
@@ -344,7 +346,10 @@ public class MarioMovement : MonoBehaviour
         RaycastHit2D groundHit1 = Physics2D.Raycast(transform.position + colliderOffset + HOffset, Vector2.down, updGroundLength, groundLayer);
         RaycastHit2D groundHit2 = Physics2D.Raycast(transform.position - colliderOffset + HOffset, Vector2.down, updGroundLength, groundLayer);
 
+        bool wasInAir = onGround;   // store if mario was in the air last frame
+
         onGround = (groundHit1 || groundHit2) && rb.velocity.y <= 0.01f;
+        onGround = (groundHit1 || groundHit2);  // TODO: Make 100% sure this won't cause any issues (I doubt it)
 
         if (onGround) {
 
@@ -353,16 +358,17 @@ public class MarioMovement : MonoBehaviour
             // print("ground1: " + groundHit1.transform.gameObject.tag);
             // print("ground2: " + groundHit2.transform.gameObject.tag);
 
-            if (groundHit1) {
+            // instead, choose the higher of the two ground hits
+            if (groundHit1 && groundHit2) {
+                hitRay = groundHit1.point.y > groundHit2.point.y ? groundHit1 : groundHit2;
+            } else if (groundHit1) {
                 hitRay = groundHit1;
-                if (groundHit1.transform.gameObject.tag == "MovingPlatform") {
-                    onMovingPlatform = true;
-                }
-            } else {
+            } else if (groundHit2) {
                 hitRay = groundHit2;
-                if (groundHit2.transform.gameObject.tag == "MovingPlatform") {
-                    onMovingPlatform = true;
-                }
+            }
+
+            if (hitRay.transform.gameObject.tag == "MovingPlatform") {
+                onMovingPlatform = true;
             }
 
             groundPos = hitRay.point;
@@ -374,6 +380,27 @@ public class MarioMovement : MonoBehaviour
                 // apparently without this line, the moving platform works better lol
             } else {
                 transform.parent = null;
+            }
+
+            // Slope detection
+            float newAngle;
+            if (hitRay.transform.gameObject.TryGetComponent(out Slope slope)) {
+                newAngle = slope.angle;
+            } else {
+                newAngle = 0f;
+            }
+
+            // if the angle has changed, change mario's velocity to match the slope
+            if (newAngle != floorAngle && !wasInAir) {
+                //rb.velocity = new Vector2(rb.velocity.x, 0);
+                //rb.AddForce(Vector2.down * Mathf.Abs(Physics2D.gravity.y) * Mathf.Sin(floorAngle * Mathf.Deg2Rad) * rb.mass, ForceMode2D.Impulse);  // yeah idk what this does
+            }
+
+            floorAngle = newAngle;
+
+            // Stick to ground
+            if (!onMovingPlatform) {
+                transform.position = new Vector3(transform.position.x, groundPos.y + groundLength - 0.1f, transform.position.z);    // Modified from 0.01f to 0.1f
             }
 
             if (hitRay.transform.gameObject.tag == "Damaging") {
@@ -493,15 +520,6 @@ public class MarioMovement : MonoBehaviour
             // Start Crouch
             animator.SetBool("isCrouching", true);
             inCrouchState = true;
-
-            // if (powerupState != PowerupState.small) {
-            //     GetComponent<BoxCollider2D>().size = new Vector2(GetComponent<BoxCollider2D>().size.x, 1.0f);
-            //     GetComponent<BoxCollider2D>().offset = new Vector2(GetComponent<BoxCollider2D>().offset.x, -0.5f);
-            // } else {
-            //     print("small crouch");
-            //     GetComponent<BoxCollider2D>().size = new Vector2(GetComponent<BoxCollider2D>().size.x, colliderY / 2);
-            //     GetComponent<BoxCollider2D>().offset = new Vector2(GetComponent<BoxCollider2D>().offset.x, -colliderY/4);
-            // }
             GetComponent<BoxCollider2D>().size = new Vector2(GetComponent<BoxCollider2D>().size.x, crouchColHeight);
             GetComponent<BoxCollider2D>().offset = new Vector2(GetComponent<BoxCollider2D>().offset.x, crouchColOffset);
 
@@ -523,12 +541,31 @@ public class MarioMovement : MonoBehaviour
         isCrawling = inCrouchState && onGround && !carrying && !swimming && powerupState == PowerupState.small && canCrawl && math.abs(horizontal) > 0.5 && (math.abs(rb.velocity.x) < 0.05f || isCrawling);
         bool regularMoving = !inCrouchState || !onGround;
 
+        // if (regularMoving || isCrawling) {
+        //     if (runPressed && !swimming && !isCrawling) {
+        //         rb.AddForce(horizontal * runSpeed * Vector2.right);
+        //     } else {
+        //         if (Mathf.Abs(rb.velocity.x) <= maxSpeed) {
+        //             rb.AddForce(horizontal * moveSpeed * Vector2.right);
+        //         } else {
+        //             rb.AddForce(Mathf.Sign(rb.velocity.x) * slowDownForce * Vector2.left);
+        //         }
+        //     }
+        // }
+        // use the angle of the slope instead of Vector2.right
+        Vector2 moveDir = onGround ? new Vector2(Mathf.Cos(floorAngle * Mathf.Deg2Rad), Mathf.Sin(floorAngle * Mathf.Deg2Rad)) : Vector2.right;
+
+        if (moveDir.x < 0) {
+            moveDir *= -1;
+        }
+
+        print(moveDir);
         if (regularMoving || isCrawling) {
             if (runPressed && !swimming && !isCrawling) {
-                rb.AddForce(horizontal * runSpeed * Vector2.right);
+                rb.AddForce(horizontal * runSpeed * moveDir);
             } else {
                 if (Mathf.Abs(rb.velocity.x) <= maxSpeed) {
-                    rb.AddForce(horizontal * moveSpeed * Vector2.right);
+                    rb.AddForce(horizontal * moveSpeed * moveDir);
                 } else {
                     rb.AddForce(Mathf.Sign(rb.velocity.x) * slowDownForce * Vector2.left);
                 }
@@ -694,10 +731,10 @@ public class MarioMovement : MonoBehaviour
                 rb.velocity = new Vector2(rb.velocity.x, 0f);
             }
 
-            // Stick to ground
-            if (!onMovingPlatform) {
-                transform.position = new Vector3(transform.position.x, groundPos.y + groundLength - 0.01f, transform.position.z);
-            }
+            // // Stick to ground
+            // if (!onMovingPlatform) {
+            //     transform.position = new Vector3(transform.position.x, groundPos.y + groundLength - 0.01f, transform.position.z);
+            // }
 
 
         } else {
