@@ -47,6 +47,8 @@ public class ObjectPhysics : MonoBehaviour
     public LayerMask floorMask;
     public LayerMask wallMask;
 
+    private float floorAngle = 0f;  // -45 = \, 0 = _, 45 = /
+
     // should mostly be true, except for things like moving koopa shells
     public bool checkObjectCollision = true;
     public bool ceilingDetection = true;
@@ -322,6 +324,18 @@ public class ObjectPhysics : MonoBehaviour
             pos.y = shortestRay.point.y + halfHeight;
             velocity.y = 0;
 
+            GameObject groundObject = shortestRay.transform.gameObject;
+
+            if (groundObject.CompareTag("Slope") && groundObject.TryGetComponent(out Slope slope))
+            {
+                // Slope
+                floorAngle = slope.angle;
+            }
+            else
+            {
+                floorAngle = 0;
+            }
+
             if (movement == ObjectMovement.sliding)
             {
                 Land();
@@ -452,6 +466,9 @@ public class ObjectPhysics : MonoBehaviour
                 {
                     continue;
                 }
+                if (hitRay.collider.gameObject.CompareTag("Slope")) {
+                    continue;
+                }
                 if (hitRay.collider.gameObject.GetComponent<ObjectPhysics>())
                 {
                     if (!checkifObjectCollideValid(hitRay.collider.gameObject.GetComponent<ObjectPhysics>()))
@@ -471,14 +488,14 @@ public class ObjectPhysics : MonoBehaviour
     }
 
     protected virtual Vector3 HorizontalMovement(Vector3 pos) {
-        if (movingLeft)
+        // move along the slope if we're on one
+        Vector2 slopeVector = new Vector2(1, 0);
+        if (objectState == ObjectState.grounded && floorAngle != 0)
         {
-            pos.x -= velocity.x * adjDeltaTime;
+            slopeVector = new Vector2(Mathf.Cos(floorAngle * Mathf.Deg2Rad), Mathf.Sin(floorAngle * Mathf.Deg2Rad));
         }
-        else
-        {
-            pos.x += velocity.x * adjDeltaTime;
-        }
+        pos += (movingLeft ? -1 : 1) * adjDeltaTime * velocity.x * (Vector3)slopeVector;
+
         return pos;
     }
 

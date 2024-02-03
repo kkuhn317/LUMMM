@@ -6,6 +6,7 @@ using UnityEngine.U2D.Animation;
 using Unity.Mathematics;
 using Unity.VisualScripting;
 using System.Collections.Generic;
+using UnityEngine.AI;
 
 public class MarioMovement : MonoBehaviour
 {
@@ -79,9 +80,9 @@ public class MarioMovement : MonoBehaviour
     [Header("Collision")]
     public bool onGround = false;
     public float groundLength = 0.6f;
+    public float groundSink = 0.1f; // how much the end of the ground raycast sinks into the ground
     public bool onMovingPlatform = false;
     public float ceilingLength = 0.5f;
-
     public bool doCornerCorrection = true; // false: disable corner correction, true: enable corner correction
     public float cornerCorrection = 0.1f; // Portion of the player's width that can overlap with the ceiling and still correct the position
     // Example: 0.1f means that if the player's width is 1, the player can overlap with the ceiling by up to 0.1 (10%) and still correct the position
@@ -346,10 +347,9 @@ public class MarioMovement : MonoBehaviour
         RaycastHit2D groundHit1 = Physics2D.Raycast(transform.position + colliderOffset + HOffset, Vector2.down, updGroundLength, groundLayer);
         RaycastHit2D groundHit2 = Physics2D.Raycast(transform.position - colliderOffset + HOffset, Vector2.down, updGroundLength, groundLayer);
 
-        bool wasInAir = onGround;   // store if mario was in the air last frame
+        bool wasInAir = !onGround;   // store if mario was in the air last frame
 
-        onGround = (groundHit1 || groundHit2) && rb.velocity.y <= 0.01f;
-        onGround = (groundHit1 || groundHit2);  // TODO: Make 100% sure this won't cause any issues (I doubt it)
+        onGround = (groundHit1 || groundHit2) && (rb.velocity.y <= 0.01f || onGround);
 
         if (onGround) {
 
@@ -384,24 +384,34 @@ public class MarioMovement : MonoBehaviour
 
             // Slope detection
             float newAngle;
-            if (hitRay.transform.gameObject.TryGetComponent(out Slope slope)) {
+            GameObject groundObject = hitRay.transform.gameObject;
+            if (groundObject.CompareTag("Slope") && groundObject.TryGetComponent(out Slope slope)) {
                 newAngle = slope.angle;
             } else {
                 newAngle = 0f;
             }
 
+            Vector2 slopeVector = new Vector2(Mathf.Cos(newAngle * Mathf.Deg2Rad), Mathf.Sin(newAngle * Mathf.Deg2Rad)).normalized;
+
             // if the angle has changed, change mario's velocity to match the slope
             if (newAngle != floorAngle && !wasInAir) {
-                //rb.velocity = new Vector2(rb.velocity.x, 0);
-                //rb.AddForce(Vector2.down * Mathf.Abs(Physics2D.gravity.y) * Mathf.Sin(floorAngle * Mathf.Deg2Rad) * rb.mass, ForceMode2D.Impulse);  // yeah idk what this does
+                float moveMag = rb.velocity.magnitude;
+                if (rb.velocity.x < 0) {
+                    moveMag *= -1;
+                }
+                rb.velocity = slopeVector * moveMag;
             }
 
             floorAngle = newAngle;
 
             // Stick to ground
             if (!onMovingPlatform) {
-                transform.position = new Vector3(transform.position.x, groundPos.y + groundLength - 0.1f, transform.position.z);    // Modified from 0.01f to 0.1f
+                transform.position = new Vector3(transform.position.x, groundPos.y + groundLength - groundSink, transform.position.z);    // Modified from 0.01f to 0.1f
             }
+
+            // remove any off-the-ground velocity (accounting for slope)
+            // https://stackoverflow.com/questions/72494915/how-do-you-get-the-component-of-a-vector-in-the-direction-of-a-ray
+            rb.velocity = Vector2.Dot(rb.velocity, slopeVector) * slopeVector;
 
             if (hitRay.transform.gameObject.tag == "Damaging") {
                 damageMario();
@@ -555,7 +565,7 @@ public class MarioMovement : MonoBehaviour
         // use the angle of the slope instead of Vector2.right
         Vector2 moveDir = onGround ? new Vector2(Mathf.Cos(floorAngle * Mathf.Deg2Rad), Mathf.Sin(floorAngle * Mathf.Deg2Rad)) : Vector2.right;
 
-        print(moveDir);
+        print("moving in " + moveDir);
         if (regularMoving || isCrawling) {
             if (runPressed && !swimming && !isCrawling) {
                 rb.AddForce(horizontal * runSpeed * moveDir);
@@ -563,7 +573,7 @@ public class MarioMovement : MonoBehaviour
                 if (Mathf.Abs(rb.velocity.x) <= maxSpeed) {
                     rb.AddForce(horizontal * moveSpeed * moveDir);
                 } else {
-                    rb.AddForce(Mathf.Sign(rb.velocity.x) * slowDownForce * Vector2.left);
+                    rb.AddForce(Mathf.Sign(rb.velocity.x) * slowDownForce * -moveDir);
                 }
             }
         }
@@ -588,17 +598,19 @@ public class MarioMovement : MonoBehaviour
         }
 
         // Max Speed (Vertical)
-        float tvel = swimming ? swimTerminalVelocity : terminalvelocity;
+        if (!onGround) {
+            float tvel = swimming ? swimTerminalVelocity : terminalvelocity;
 
-        if (wallSliding) {  // slide down wall slower
-            tvel /= 3;
-        }
+            if (wallSliding) {  // slide down wall slower
+                tvel /= 3;
+            }
 
-        if (-rb.velocity.y > tvel) {
-            rb.velocity = new Vector2(rb.velocity.x, -tvel);
-        }
-        if (rb.velocity.y > (tvel*2) && swimming) { // swimming up speed limit
-            rb.velocity = new Vector2(rb.velocity.x, tvel*2);
+            if (-rb.velocity.y > tvel) {
+                rb.velocity = new Vector2(rb.velocity.x, -tvel);
+            }
+            if (rb.velocity.y > (tvel*2) && swimming) { // swimming up speed limit
+                rb.velocity = new Vector2(rb.velocity.x, tvel*2);
+            }
         }
 
         // Animation
@@ -626,6 +638,7 @@ public class MarioMovement : MonoBehaviour
     public void Jump(float jumpMultiplier = 1f) {
         rb.velocity = new Vector2(rb.velocity.x, 0);
         rb.AddForce(Vector2.up * jumpSpeed * (swimming ? 0.5f : 1f) * jumpMultiplier, ForceMode2D.Impulse);
+        onGround = false;
         jumpTimer = 0;
         airtimer = Time.time + (airtime * jumpMultiplier);
     }
@@ -721,17 +734,6 @@ public class MarioMovement : MonoBehaviour
 
             // 0 gravity on the ground
             rb.gravityScale = 0;
-
-            // if falling while on the ground, set y velocity to 0
-            if (rb.velocity.y < 0) {
-                rb.velocity = new Vector2(rb.velocity.x, 0f);
-            }
-
-            // // Stick to ground
-            // if (!onMovingPlatform) {
-            //     transform.position = new Vector3(transform.position.x, groundPos.y + groundLength - 0.01f, transform.position.z);
-            // }
-
 
         } else {
             // in the air
