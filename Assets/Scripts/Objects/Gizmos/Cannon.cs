@@ -50,7 +50,7 @@ public class Cannon : MonoBehaviour
         GameObject projectile = Instantiate(projectilePrefab, transform.position + offset, Quaternion.identity);
 
         if (projectileEffectPrefab != null) {
-            GameObject projectileEffect = Instantiate(projectileEffectPrefab, transform.position + offset, Quaternion.identity);
+            Instantiate(projectileEffectPrefab, transform.position + offset, Quaternion.identity);
         }
 
         // assume it has ObjectPhysics
@@ -64,6 +64,11 @@ public class Cannon : MonoBehaviour
         if (audioSource != null) {
             audioSource.Play();
         }
+    }
+
+    public void ChangeprojectileSpeed(float projectilespeed)
+    {
+        projectileSpeed = projectilespeed;
     }
 
     void OnBecameVisible()
