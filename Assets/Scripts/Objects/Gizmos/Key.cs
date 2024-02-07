@@ -118,6 +118,12 @@ public class Key : MonoBehaviour
             GameManager.Instance.keys.Add(gameObject);
             GetComponent<AudioSource>().Play();
             spawnParticles();
+            // if the parent has a WingedObject script, call WingsFall
+            WingedObject parentWingedObject = GetComponentInParent<WingedObject>();
+            if (parentWingedObject != null)
+            {
+                parentWingedObject.WingsFall();
+            }
         }
     }
 

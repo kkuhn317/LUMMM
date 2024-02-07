@@ -1286,8 +1286,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 274339666}
-  - component: {fileID: 274339667}
-  - component: {fileID: 274339668}
+  - component: {fileID: 274339670}
   m_Layer: 14
   m_Name: Winged Coin
   m_TagString: Coin
@@ -1313,7 +1312,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 27
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &274339667
+--- !u!114 &274339670
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1322,43 +1321,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 274339665}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bf8c3b29a43a82e46b18d2645e52e76e, type: 3}
+  m_Script: {fileID: 11500000, guid: 05d3e66e37082c24285abcca35c7c56e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  type: 0
-  bounceTime: 0.5
-  bounceHeight: 2
   wings:
   - {fileID: 136489951}
   - {fileID: 1293008511}
   moveDistance: 0.5
   moveSpeed: 5
---- !u!61 &274339668
-BoxCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 274339665}
-  m_Enabled: 1
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_UsedByEffector: 0
-  m_UsedByComposite: 0
-  m_Offset: {x: -0.04104674, y: -0.050328493}
-  m_SpriteTilingProperty:
-    border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 1, y: 1}
-    newSize: {x: 1, y: 1}
-    adaptiveTilingThreshold: 0.5
-    drawMode: 0
-    adaptiveTiling: 0
-  m_AutoTiling: 0
-  serializedVersion: 2
-  m_Size: {x: 0.9179065, y: 1.0603943}
-  m_EdgeRadius: 0
 --- !u!1001 &281599615
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -76482,6 +76452,8 @@ GameObject:
   - component: {fileID: 4059027574057084411}
   - component: {fileID: 4059027574057084408}
   - component: {fileID: 4059027574057084412}
+  - component: {fileID: 4059027574057084413}
+  - component: {fileID: 4059027574057084414}
   m_Layer: 14
   m_Name: Coin
   m_TagString: Coin
@@ -76576,6 +76548,47 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
+--- !u!114 &4059027574057084413
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4059027574057084406}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 442476ad9259808448f44f304d6a8560, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  type: 0
+  bounceTime: 0.5
+  bounceHeight: 2
+--- !u!61 &4059027574057084414
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4059027574057084406}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: -0.04104674, y: -0.050328493}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 1, y: 1}
+    newSize: {x: 1, y: 1}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  serializedVersion: 2
+  m_Size: {x: 0.9179065, y: 1.0603943}
+  m_EdgeRadius: 0
 --- !u!1001 &4338235300376176082
 PrefabInstance:
   m_ObjectHideFlags: 0

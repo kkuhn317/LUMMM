@@ -1614,8 +1614,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 295431121}
-  - component: {fileID: 295431120}
-  - component: {fileID: 295431119}
+  - component: {fileID: 295431122}
   m_Layer: 14
   m_Name: Winged Key
   m_TagString: Coin
@@ -1623,52 +1622,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!61 &295431119
-BoxCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 295431118}
-  m_Enabled: 1
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_UsedByEffector: 0
-  m_UsedByComposite: 0
-  m_Offset: {x: -0.04104674, y: -0.050328493}
-  m_SpriteTilingProperty:
-    border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 1, y: 1}
-    newSize: {x: 1, y: 1}
-    adaptiveTilingThreshold: 0.5
-    drawMode: 0
-    adaptiveTiling: 0
-  m_AutoTiling: 0
-  serializedVersion: 2
-  m_Size: {x: 0.9179065, y: 1.0603943}
-  m_EdgeRadius: 0
---- !u!114 &295431120
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 295431118}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bf8c3b29a43a82e46b18d2645e52e76e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  type: 0
-  bounceTime: 0.5
-  bounceHeight: 2
-  wings:
-  - {fileID: 978972287}
-  - {fileID: 124905369}
-  moveDistance: 0.5
-  moveSpeed: 5
 --- !u!4 &295431121
 Transform:
   m_ObjectHideFlags: 0
@@ -1677,7 +1630,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 295431118}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 34.15, y: 1.66, z: 0}
+  m_LocalPosition: {x: 26.89, y: -0.55, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1687,6 +1640,23 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &295431122
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 295431118}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 05d3e66e37082c24285abcca35c7c56e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  wings:
+  - {fileID: 978972287}
+  - {fileID: 124905369}
+  moveDistance: 0.5
+  moveSpeed: 3
 --- !u!1001 &297645845
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2116,8 +2086,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 358654653}
-  - component: {fileID: 358654652}
-  - component: {fileID: 358654651}
+  - component: {fileID: 358654654}
   m_Layer: 14
   m_Name: Winged 1UP
   m_TagString: Coin
@@ -2125,52 +2094,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!61 &358654651
-BoxCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 358654650}
-  m_Enabled: 1
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_UsedByEffector: 0
-  m_UsedByComposite: 0
-  m_Offset: {x: -0.04104674, y: -0.050328493}
-  m_SpriteTilingProperty:
-    border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 1, y: 1}
-    newSize: {x: 1, y: 1}
-    adaptiveTilingThreshold: 0.5
-    drawMode: 0
-    adaptiveTiling: 0
-  m_AutoTiling: 0
-  serializedVersion: 2
-  m_Size: {x: 0.9179065, y: 1.0603943}
-  m_EdgeRadius: 0
---- !u!114 &358654652
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 358654650}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bf8c3b29a43a82e46b18d2645e52e76e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  type: 0
-  bounceTime: 0.5
-  bounceHeight: 2
-  wings:
-  - {fileID: 1540988062}
-  - {fileID: 984650663}
-  moveDistance: 0.5
-  moveSpeed: 5
 --- !u!4 &358654653
 Transform:
   m_ObjectHideFlags: 0
@@ -2189,6 +2112,23 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 33
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &358654654
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 358654650}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 05d3e66e37082c24285abcca35c7c56e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  wings:
+  - {fileID: 1540988062}
+  - {fileID: 984650663}
+  moveDistance: 0.5
+  moveSpeed: 2
 --- !u!1 &368989204
 GameObject:
   m_ObjectHideFlags: 0
@@ -19510,6 +19450,10 @@ PrefabInstance:
     - target: {fileID: 5626243128030310968, guid: ad1ba299f9374284b8f209e962286c1f, type: 3}
       propertyPath: m_SortingOrder
       value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 7085229140055992286, guid: ad1ba299f9374284b8f209e962286c1f, type: 3}
+      propertyPath: movement
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7085229140055992286, guid: ad1ba299f9374284b8f209e962286c1f, type: 3}
       propertyPath: velocity.x
