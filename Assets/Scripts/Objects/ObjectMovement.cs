@@ -141,8 +141,6 @@ public class ObjectMovement : MonoBehaviour
             float waitDuration = isMovingForward ? forwardWaitDuration : backwardWaitDuration;
             yield return new WaitForSeconds(waitDuration);
 
-            print("HELLO!!!!");
-
             // Play audio clip based on movement direction
             int audioIndex = isMovingForward ? 0 : 1;
 

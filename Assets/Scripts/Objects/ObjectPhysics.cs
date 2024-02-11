@@ -54,6 +54,7 @@ public class ObjectPhysics : MonoBehaviour
     public bool ceilingDetection = true;
     public bool DontFallOffLedges = false;
     public bool bounceOffWalls = true;  // if false, will stop moving when it hits a wall
+    private bool onMovingPlatform = false;
 
     public bool flipObject = true;  // if true, the object will flip when moving right
     private Vector2 normalScale;
@@ -233,6 +234,7 @@ public class ObjectPhysics : MonoBehaviour
             velocity.y = 0;
         }
 
+        onMovingPlatform = false;   // reset moving platform flag
         if (objectState != ObjectState.knockedAway && objectState != ObjectState.onLava)
         {
 
@@ -357,6 +359,18 @@ public class ObjectPhysics : MonoBehaviour
 
             peakHeight = pos.y;
 
+            // moving platform
+            if (groundObject.CompareTag("MovingPlatform"))
+            {
+                onMovingPlatform = true;
+                transform.parent = groundObject.transform;
+            }
+            else
+            {
+                onMovingPlatform = false;
+                transform.parent = null;
+            }
+
         }
         else
         {
@@ -370,6 +384,7 @@ public class ObjectPhysics : MonoBehaviour
 
             }
         }
+
         return pos;
     }
 
@@ -622,6 +637,9 @@ public class ObjectPhysics : MonoBehaviour
         velocity.y = 0;
 
         objectState = ObjectState.falling;
+
+        onMovingPlatform = false;
+        transform.parent = null;
 
     }
 

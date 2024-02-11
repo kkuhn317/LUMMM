@@ -21,10 +21,13 @@ public class KoopaController : EnemyAI
 
     private AudioSource audioSource;
 
+    private bool dontFallOffLedgesInternal = false;
+
     void Awake()
     {
         animator = GetComponent<Animator>();
         audioSource = GetComponent<AudioSource>();
+        dontFallOffLedgesInternal = DontFallOffLedges;
 
         switch(state) {
             case EnemyState.walking:
@@ -76,6 +79,9 @@ public class KoopaController : EnemyAI
         animator.SetBool("inShell", false);
         velocity = new Vector2(walkingSpeed, velocity.y);
         checkObjectCollision = true;
+        if (dontFallOffLedgesInternal) {
+            DontFallOffLedges = true;
+        }
     }
 
     private void ToInShell() {
@@ -85,6 +91,7 @@ public class KoopaController : EnemyAI
         wallRaycastSpacing = 0.65f;
         floorRaycastSpacing = 0.5f;
         checkObjectCollision = true;
+        DontFallOffLedges = false;
     }
 
     private void ToMovingShell(bool direction) {
@@ -95,6 +102,7 @@ public class KoopaController : EnemyAI
         wallRaycastSpacing = 0.65f;
         floorRaycastSpacing = 0.5f;
         checkObjectCollision = false;
+        DontFallOffLedges = false;
     }
 
     private bool HitCooldownCheck() {

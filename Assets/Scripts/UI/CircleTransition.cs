@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 public class CircleTransition : MonoBehaviour
 {
-    public Transform player;
+    //public Transform player;
 
     private Canvas _canvas;
     private Image _blackScreen;
@@ -49,11 +49,15 @@ public class CircleTransition : MonoBehaviour
     {
         var screenWidth = Screen.width;
         var screenHeight = Screen.height;
+
+        MarioMovement playerscript = GameManager.Instance.GetPlayer(0);
         // Need a target
-        if (player == null)
+        if (playerscript == null)
         {
             return;
         }
+        Transform player = playerscript.transform;
+        
         var playerScreenPos = Camera.main.WorldToScreenPoint(player.position);
 
         // To Draw to Image to Full Screen, we get the Canvas Rect size

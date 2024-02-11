@@ -300,6 +300,7 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         pauseable = true;
+        isPaused = false;
         CursorHelper.HideCursor();
 
         if (music) {
@@ -824,6 +825,7 @@ public class GameManager : MonoBehaviour
     // Function to toggle the game between paused and resumed states.
     public void TogglePauseGame()
     {
+        print("ispaused: " + isPaused + " pauseable: " + pauseable);
         if (!isPaused) {
             PauseGame();
         } else {

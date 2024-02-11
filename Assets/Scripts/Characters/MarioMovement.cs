@@ -367,7 +367,11 @@ public class MarioMovement : MonoBehaviour
                 hitRay = groundHit2;
             }
 
+            bool firstFrameMovingPlatform = false;
             if (hitRay.transform.gameObject.tag == "MovingPlatform") {
+                if (!onMovingPlatform) {
+                    firstFrameMovingPlatform = true;
+                }
                 onMovingPlatform = true;
             }
 
@@ -375,9 +379,6 @@ public class MarioMovement : MonoBehaviour
 
             if (onMovingPlatform) {
                 transform.parent = hitRay.transform;
-                // change y position to be on top of platform
-                //transform.position = new Vector3(transform.position.x, groundPos.y + groundLength - 0.01f, transform.position.z);
-                // apparently without this line, the moving platform works better lol
             } else {
                 transform.parent = null;
             }
@@ -404,8 +405,8 @@ public class MarioMovement : MonoBehaviour
 
             floorAngle = newAngle;
 
-            // Stick to ground
-            if (!onMovingPlatform) {
+            // Stick to ground (but not moving platforms, unless it's the first frame on the platform)
+            if (!onMovingPlatform || firstFrameMovingPlatform) {
                 transform.position = new Vector3(transform.position.x, groundPos.y + groundLength - groundSink, transform.position.z);    // Modified from 0.01f to 0.1f
             }
 
@@ -551,21 +552,10 @@ public class MarioMovement : MonoBehaviour
         isCrawling = inCrouchState && onGround && !carrying && !swimming && powerupState == PowerupState.small && canCrawl && math.abs(horizontal) > 0.5 && (math.abs(rb.velocity.x) < 0.05f || isCrawling);
         bool regularMoving = !inCrouchState || !onGround;
 
-        // if (regularMoving || isCrawling) {
-        //     if (runPressed && !swimming && !isCrawling) {
-        //         rb.AddForce(horizontal * runSpeed * Vector2.right);
-        //     } else {
-        //         if (Mathf.Abs(rb.velocity.x) <= maxSpeed) {
-        //             rb.AddForce(horizontal * moveSpeed * Vector2.right);
-        //         } else {
-        //             rb.AddForce(Mathf.Sign(rb.velocity.x) * slowDownForce * Vector2.left);
-        //         }
-        //     }
-        // }
         // use the angle of the slope instead of Vector2.right
         Vector2 moveDir = onGround ? new Vector2(Mathf.Cos(floorAngle * Mathf.Deg2Rad), Mathf.Sin(floorAngle * Mathf.Deg2Rad)) : Vector2.right;
 
-        print("moving in " + moveDir);
+        //print("moving in " + moveDir);
         if (regularMoving || isCrawling) {
             if (runPressed && !swimming && !isCrawling) {
                 rb.AddForce(horizontal * runSpeed * moveDir);
@@ -686,13 +676,11 @@ public class MarioMovement : MonoBehaviour
 
         // Special pushing physics
         animator.SetBool("isPushing", pushing);
-        if (pushing) {
+        if (pushing && !changingDirections) {
             int pushDir = facingRight ? 1 : -1;
             rb.velocity = new Vector2(pushingSpeed * pushDir, rb.velocity.y);
             return;
         }
-        
-        print(pushing);
 
         if (onGround) {
             // no crazy crouch sliding
