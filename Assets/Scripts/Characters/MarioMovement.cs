@@ -172,7 +172,7 @@ public class MarioMovement : MonoBehaviour
     private float pushingSpeed = 0f;
 
     /* Levers */
-    private List<LeverController> levers = new();
+    private List<UseableObject> useableObjects = new();
 
     // use this in other scripts to check if mario is moving (walking or jumping)
     public bool isMoving {
@@ -1187,8 +1187,8 @@ public class MarioMovement : MonoBehaviour
     }
     public void onUsePressed() {
         // for right now, use the NEWEST lever we entered
-        if (levers.Count > 0) {
-            levers[^1].Use(this);
+        if (useableObjects.Count > 0) {
+            useableObjects[^1].Use(this);
         }
     }
 
@@ -1327,18 +1327,18 @@ public class MarioMovement : MonoBehaviour
         GetComponent<SpriteLibrary>().spriteLibraryAsset = normalSpriteLibrary;
     }
 
-    /* Levers */
-    // Levers use these to let Mario know that they are near him
-    // When the Use button is pressed, Mario will activate one of these levers
-    public void AddLever(LeverController lever) {
-        if (!levers.Contains(lever)) {
-            levers.Add(lever);
+    /* Useable Objects */
+    // Objects like levers use these to let Mario know that they are near him
+    // When the Use button is pressed, Mario will activate one of these objects
+    public void AddUseableObject(UseableObject obj) {
+        if (!useableObjects.Contains(obj)) {
+            useableObjects.Add(obj);
         }
     }
 
-    public void RemoveLever(LeverController lever) {
-        if (levers.Contains(lever)) {
-            levers.Remove(lever);
+    public void RemoveUseableObject(UseableObject obj) {
+        if (useableObjects.Contains(obj)) {
+            useableObjects.Remove(obj);
         }
     }
 

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class LeverController : MonoBehaviour
+public class LeverController : UseableObject
 {
     public Transform objectToRotate; // The GameObject to rotate
     public Vector3 targetRotation; // The target rotation after player interaction
@@ -20,10 +20,6 @@ public class LeverController : MonoBehaviour
     public AudioClip pullerAudioClip; // Audio clip for puller rotation
     public AudioClip barriermoveAudioClip;   // Audio clip for barrier movement
 
-    [Header("Activation key")]
-    public GameObject keyActivate;
-    private bool hasPulledLever = false;
-
     private void Start()
     {
         initialRotation = objectToRotate.rotation;
@@ -39,40 +35,16 @@ public class LeverController : MonoBehaviour
         }
     }
 
-    public void Use(MarioMovement player)
+    protected override void UseObject()
     {
-        player.RemoveLever(this);
-
-        if (!hasPulledLever)
-        {
-            // Pull the lever
-            RotateObject(targetRotation);
-            hasPulledLever = true;
-            if (keyActivate != null)
-                keyActivate.SetActive(false);
-        }
-        else
-        {
-            // Reset the lever and object
-            ResetLeverAndObject();
-        }
+        // Pull the lever
+        RotateObject(targetRotation);
     }
 
-    private void ResetLeverAndObject()
-    {
-        ResetLever(); // Reset the lever rotation and flag
-        ResetObject(); // Reset the object position and rotation
-    }
-
-    private void ResetLever()
+    protected override void ResetObject()
     {
         RotateObject(initialRotation.eulerAngles); // Reset lever rotation
-        hasPulledLever = false; // Reset puller flag
-    }
-
-    private void ResetObject()
-    {
-        MoveObject(initialPosition); // Reset object position
+        MoveObject(initialPosition); // Reset the object position and rotation
     }
 
     private void Update()
@@ -128,33 +100,6 @@ public class LeverController : MonoBehaviour
         if (audioSourceBarrierMove != null && barriermoveAudioClip != null)
         {
             audioSourceBarrierMove.PlayOneShot(barriermoveAudioClip);
-        }
-    }
-
-    private void OnTriggerEnter2D(Collider2D other)
-    {
-        if (other.CompareTag("Player"))
-        {
-            other.GetComponent<MarioMovement>().AddLever(this);
-
-            // Activate the keyActivate when the player enters the trigger zone and haven't pull the level 
-            if (keyActivate != null && !hasPulledLever) {
-                keyActivate.SetActive(true);
-            } 
-        }
-    }
-
-    private void OnTriggerExit2D(Collider2D other)
-    {
-        if (other.CompareTag("Player"))
-        {
-            other.GetComponent<MarioMovement>().RemoveLever(this);
-
-            // Deactivate the keyActivate when the player exits the trigger zone
-            if (keyActivate != null)
-            {
-                keyActivate.SetActive(false);
-            }
         }
     }
 

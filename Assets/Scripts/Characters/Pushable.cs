@@ -4,11 +4,9 @@ using UnityEngine;
 
 public class Pushable : MonoBehaviour
 {
-
     ObjectPhysics physics;
     public float pushSpeed = 10;
-
-    private bool playerTouching = false;
+    private MarioMovement playerScript;
 
     // Start is called before the first frame update
     void Start()
@@ -19,45 +17,39 @@ public class Pushable : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (playerScript == null)
+        {
+            return;
+        }
 
+        GameObject mario = playerScript.gameObject;
+        Rigidbody2D marioRb = mario.GetComponent<Rigidbody2D>();
+
+        if (mario.transform.position.x < transform.position.x && playerScript.moveInput.x > 0 && marioRb.velocity.x >= 0)
+        {
+            physics.movingLeft = false;
+            physics.velocity.x = pushSpeed;
+            playerScript.StartPushing(pushSpeed);
+        }
+        else if (mario.transform.position.x > transform.position.x && playerScript.moveInput.x < 0 && marioRb.velocity.x <= 0)
+        {
+            physics.movingLeft = true;
+            physics.velocity.x = pushSpeed;
+            playerScript.StartPushing(pushSpeed);
+        } else {
+            physics.velocity.x = 0;
+            playerScript.StopPushing();
+        }
     }
 
-    private void OnTriggerStay2D(Collider2D col)
+    public void StopPushing()
     {
-        if (col.gameObject.CompareTag("Player"))
+        // use to stop pushing until mario enters again
+        physics.velocity.x = 0;
+        if (playerScript != null)
         {
-            // Vector2 impulse = Vector2.zero;
-            
-            // int contactCount = col.contactCount;
-            // for(int i = 0; i < contactCount; i++) {
-            //     var contact = col.GetContact(i);
-            //     impulse += contact.normal * contact.normalImpulse;
-            //     impulse.x += contact.tangentImpulse * contact.normal.y;
-            //     impulse.y -= contact.tangentImpulse * contact.normal.x;
-            // }
-
-            playerTouching = true;
-
-            MarioMovement playerScript = col.gameObject.GetComponent<MarioMovement>();
-            GameObject mario = col.gameObject;
-            Rigidbody2D marioRb = mario.GetComponent<Rigidbody2D>();
-
-            if (mario.transform.position.x < transform.position.x && playerScript.moveInput.x > 0 && marioRb.velocity.x >= 0)
-            {
-                physics.movingLeft = false;
-                physics.velocity.x = pushSpeed;
-                playerScript.StartPushing(pushSpeed);
-            }
-            else if (mario.transform.position.x > transform.position.x && playerScript.moveInput.x < 0 && marioRb.velocity.x <= 0)
-            {
-                physics.movingLeft = true;
-                physics.velocity.x = pushSpeed;
-                playerScript.StartPushing(pushSpeed);
-            } else {
-                physics.velocity.x = 0;
-                playerScript.StopPushing();
-            }
-
+            playerScript.StopPushing();
+            playerScript = null;
         }
     }
 
@@ -65,9 +57,20 @@ public class Pushable : MonoBehaviour
     {
         if (col.gameObject.CompareTag("Player"))
         {
-            playerTouching = false;
+            if (playerScript != null)
+            {
+                playerScript.StopPushing();
+                playerScript = null;
+            }
             physics.velocity.x = 0;
-            col.gameObject.GetComponent<MarioMovement>().StopPushing();
+        }
+    }
+
+    private void OnTriggerEnter2D(Collider2D col)
+    {
+        if (col.gameObject.CompareTag("Player"))
+        {
+            playerScript = col.gameObject.GetComponent<MarioMovement>();
         }
     }
 }
