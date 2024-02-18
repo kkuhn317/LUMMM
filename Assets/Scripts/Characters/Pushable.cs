@@ -17,10 +17,13 @@ public class Pushable : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        
         if (playerScript == null)
         {
             return;
         }
+        
+        print("pushing: " + playerScript.moveInput.x);
 
         GameObject mario = playerScript.gameObject;
         Rigidbody2D marioRb = mario.GetComponent<Rigidbody2D>();
@@ -44,6 +47,7 @@ public class Pushable : MonoBehaviour
 
     public void StopPushing()
     {
+        print("stop pushing");
         // use to stop pushing until mario enters again
         physics.velocity.x = 0;
         if (playerScript != null)
@@ -61,15 +65,17 @@ public class Pushable : MonoBehaviour
             {
                 playerScript.StopPushing();
                 playerScript = null;
+                physics.velocity.x = 0;
             }
-            physics.velocity.x = 0;
         }
     }
 
     private void OnTriggerEnter2D(Collider2D col)
     {
+        print("something entered: " + col.gameObject.name);
         if (col.gameObject.CompareTag("Player"))
         {
+            print("Start pushing!");
             playerScript = col.gameObject.GetComponent<MarioMovement>();
         }
     }

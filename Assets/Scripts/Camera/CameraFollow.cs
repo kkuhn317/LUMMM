@@ -9,6 +9,8 @@ public class CameraFollow : MonoBehaviour
 
     private CameraZone[] zones;
 
+    private CameraZone currentZone;
+
     public bool snapToBounds = false; // if true, it will never display anything outside of the bounds
 
     public float camHeight => Camera.main.orthographicSize * 2;
@@ -72,6 +74,7 @@ public class CameraFollow : MonoBehaviour
         target /= players.Length;
 
         CameraZone zone = GetCurrentZone(target);
+        currentZone = zone;
 
         if (zone == null)
         {
@@ -213,5 +216,32 @@ public class CameraFollow : MonoBehaviour
             ShakeCamera(duration, intensity, decreaseFactor, axis);
             yield return new WaitForSeconds(delayBetweenShakes);
         }
+    }
+
+    // Sets the current zone's lock offset
+    public void SetLockOffsetX(float offset)
+    {
+        currentZone.lockOffset.x = offset;
+    }
+    
+    public void SetLockOffsetY(float offset)
+    {
+        currentZone.lockOffset.y = offset;
+    }
+
+    public void SetLockedHorizontal(bool locked)
+    {
+        currentZone.lockToHorizontal = locked;
+    }
+
+    public void SetLockedVertical(bool locked)
+    {
+        currentZone.lockToVertical = locked;
+    }
+
+    // Gets the current zone's lock offset
+    public Vector2 GetLockOffset()
+    {
+        return currentZone.lockOffset;
     }
 }

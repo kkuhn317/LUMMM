@@ -6,6 +6,7 @@ using UnityEngine.Events;
 public class CollisionTriggerEvent : MonoBehaviour
 {
     [SerializeField] UnityEvent onPlayerEnter;
+    [SerializeField] UnityEvent onPlayerExit;
     [SerializeField] bool autoDeactivate = false;
 
     bool active = true;
@@ -14,6 +15,7 @@ public class CollisionTriggerEvent : MonoBehaviour
     void OnTriggerEnter2D(Collider2D other)
     {
         if (!active) return;
+        if (onPlayerEnter == null) return;
 
         if (other.gameObject.tag == "Player")
         {
@@ -26,4 +28,24 @@ public class CollisionTriggerEvent : MonoBehaviour
             }
         }
     }
+
+    // check if player exits the trigger
+    void OnTriggerExit2D(Collider2D other)
+    {
+        if (!active) return;
+        if (onPlayerExit == null) return;
+
+        if (other.gameObject.tag == "Player")
+        {
+            onPlayerExit.Invoke();
+
+            if (autoDeactivate)
+            {
+                // Deactivate the trigger
+                active = false;
+            }
+        }
+    }
+
+
 }
