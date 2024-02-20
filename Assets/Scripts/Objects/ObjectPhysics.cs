@@ -763,16 +763,18 @@ public class ObjectPhysics : MonoBehaviour
                 GameManager.Instance.AddScorePoints(100);
             }
         }  
+
+        // TODO: This was code for throwing a POW block. Move it to the POW block script probably
         //if (collision.gameObject.CompareTag("Ground") || collision.gameObject.CompareTag("Enemy") || collision.gameObject.CompareTag("Default"))
         //{
-            if (hasBeenThrown && objectState == ObjectState.falling)
-            {
-                POWBlock pow = collision.gameObject.GetComponent<POWBlock>();
-                if (pow != null)
-                {
-                    pow.ActivatePOWBlock();
-                }
-            }
+            // if (hasBeenThrown && objectState == ObjectState.falling)
+            // {
+            //     POWBlock pow = collision.gameObject.GetComponent<POWBlock>();
+            //     if (pow != null)
+            //     {
+            //         pow.ActivatePOWBlock();
+            //     }
+            // }
         //}    
     }
 
