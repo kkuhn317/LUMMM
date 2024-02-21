@@ -42,10 +42,10 @@ public class WingedObject : MonoBehaviour
         // move up and down
         transform.position += Vector3.up * Mathf.Cos(Time.time * moveSpeed) * Time.deltaTime * moveDistance;
 
-        foreach (GameObject child in children) {
-            // remove if child is null
-            if (child == null) {
-                children.Remove(child);
+        for (int i = 0; i < children.Count; i++) {
+            if (children[i] == null) {
+                children.RemoveAt(i);
+                i--;
             }
         }
         if (children.Count == 0) {
