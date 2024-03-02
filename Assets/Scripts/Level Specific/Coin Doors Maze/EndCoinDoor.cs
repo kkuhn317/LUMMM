@@ -21,7 +21,7 @@ public class EndCoinDoor : CoinDoor
         return coinTouchedDoor;
     }
 
-    protected override void SpendKey()
+    protected override void SubtractOneCoin()
     {
         Destroy(pushCoin);
     }

@@ -16,10 +16,13 @@ public class Door : MonoBehaviour
     public GameObject blackFade;
     private bool hasPlayedBlockedSound = false;
 
+    protected AudioSource audioSource;
+
     // Start is called before the first frame update
     protected virtual void Start()
     {
         animator = GetComponent<Animator>();
+        audioSource = GetComponent<AudioSource>();
 
         if (destination) {
             otherDoor = destination.GetComponent<Door>();
@@ -67,7 +70,7 @@ public class Door : MonoBehaviour
                     }
                     else if (!hasPlayedBlockedSound)
                     {
-                        GetComponent<AudioSource>().PlayOneShot(blockedSound);
+                        audioSource.PlayOneShot(blockedSound);
                         animator.SetTrigger("Blocked");
                         hasPlayedBlockedSound = true;
                     }
@@ -111,7 +114,7 @@ public class Door : MonoBehaviour
         Destroy(usedKey);
     }
 
-    void FreezePlayer() {
+    protected void FreezePlayer() {
         player.GetComponent<Rigidbody2D>().simulated = false;
         player.GetComponent<Rigidbody2D>().velocity = Vector2.zero;
         Animator playerAnimator = player.GetComponent<Animator>();
@@ -133,10 +136,10 @@ public class Door : MonoBehaviour
         }
     }
 
-    void Unlock() {
+    protected virtual void Unlock() {
         locked = false;
         SpendKey();
-        GetComponent<AudioSource>().PlayOneShot(unlockSound);
+        audioSource.PlayOneShot(unlockSound);
         FreezePlayer();
         animator.SetTrigger("Unlock");
         spawnParticles();
@@ -166,7 +169,7 @@ public class Door : MonoBehaviour
     }
 
     void Open() {
-        GetComponent<AudioSource>().PlayOneShot(openSound);
+        audioSource.PlayOneShot(openSound);
         FreezePlayer();
         animator.SetTrigger("Open");
         Invoke(nameof(Teleport), 0.5f);
@@ -197,7 +200,7 @@ public class Door : MonoBehaviour
 
     protected virtual void Close() {
         animator.SetTrigger("Close");
-        GetComponent<AudioSource>().PlayOneShot(closeSound);
+        audioSource.PlayOneShot(closeSound);
         Invoke(nameof(Ready), 0.5f);
     }
 
