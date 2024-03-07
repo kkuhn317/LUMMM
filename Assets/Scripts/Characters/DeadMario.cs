@@ -7,6 +7,7 @@ public class DeadMario : MonoBehaviour
 {
     public float gravity;
     public Vector2 velocity;
+    public int timeBeforeLoseLife = 1;
 
     public GameObject gameOverScreen;
 
@@ -14,7 +15,7 @@ public class DeadMario : MonoBehaviour
     void Start()
     {
 
-        Invoke("loseLife", 1);
+        Invoke("loseLife", timeBeforeLoseLife);
         
     }
 
@@ -38,6 +39,7 @@ public class DeadMario : MonoBehaviour
         Vector3 scale = transform.localScale;
 
         pos.y += velocity.y * Time.deltaTime;
+        pos.x += velocity.x * Time.deltaTime;
 
         velocity.y -= gravity * Time.deltaTime;
 

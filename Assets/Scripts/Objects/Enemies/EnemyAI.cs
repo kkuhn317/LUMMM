@@ -11,6 +11,9 @@ public class EnemyAI : ObjectPhysics
     public GameObject heldItem;
     public Vector3 itemSpawnOffset = new Vector3(0, 0, 0);
 
+    public bool InstantChange = false;
+    public GameObject customDeath;
+
     // Define a condition for visibility
     public bool IsVisible
     {
@@ -90,8 +93,13 @@ public class EnemyAI : ObjectPhysics
 
     protected virtual void hitOnSide(GameObject player) {
         MarioMovement playerscript = player.GetComponent<MarioMovement>();
-        // usually mario would be damaged here
-        playerscript.damageMario();
+
+        if((playerscript.GetComponent<MarioMovement>().powerupState == MarioMovement.PowerupState.small || !InstantChange) && customDeath != null) {
+            playerscript.GetComponent<MarioMovement>().TransformIntoObject(customDeath);
+        } else {
+            // usually mario would be damaged here
+            playerscript.damageMario();
+        }
     }
 
     protected virtual void touchNonPlayer(GameObject other) {
