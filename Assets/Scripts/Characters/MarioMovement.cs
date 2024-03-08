@@ -739,7 +739,6 @@ public class MarioMovement : MonoBehaviour
     }
     
     void Flip() {
-        print("i am flipping from " + facingRight + " to " + !facingRight);
         facingRight = !facingRight;
         //transform.rotation = Quaternion.Euler(0, facingRight ? 0 : 180, 0);
         if (sprite) {
@@ -850,7 +849,6 @@ public class MarioMovement : MonoBehaviour
         var newMarioMovement = newMario.GetComponent<MarioMovement>();
 
         newMarioMovement.FlipTo(facingRight);
-        print("my facing right: " + facingRight);
 
         newMarioMovement.pressRunToGrab = pressRunToGrab;
         newMarioMovement.crouchToGrab = crouchToGrab;
@@ -1143,12 +1141,10 @@ public class MarioMovement : MonoBehaviour
     {
         if (context.performed)
         {
-            print("jump pressed!");
             onJumpPressed();
         }
         if (context.canceled)
         {
-            print("jump released!");
             onJumpReleased();
         }     
     }
@@ -1165,12 +1161,10 @@ public class MarioMovement : MonoBehaviour
     {
         if (context.performed)
         {
-            print("crouch");
             crouchPressed = true;
         }
         if (context.canceled)
         {
-            print("stop crouch");
             crouchPressed = false;
         }
     }
