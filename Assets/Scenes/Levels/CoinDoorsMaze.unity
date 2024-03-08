@@ -7852,6 +7852,10 @@ PrefabInstance:
       propertyPath: m_SpriteTilingProperty.oldSize.y
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 1563295794450405723, guid: 0ed8634130540ee49afd6a10ccb53bf6, type: 3}
+      propertyPath: m_SpriteKey
+      value: 1.2362407e-29
+      objectReference: {fileID: 0}
     - target: {fileID: 1771483343543010228, guid: 0ed8634130540ee49afd6a10ccb53bf6, type: 3}
       propertyPath: canCrawl
       value: 1
@@ -7916,6 +7920,54 @@ PrefabInstance:
       propertyPath: m_Sprite
       value: 
       objectReference: {fileID: -910772892, guid: 450050db8ca65e74c9b66d15b83fa38d, type: 3}
+    - target: {fileID: 8353199181979657271, guid: 0ed8634130540ee49afd6a10ccb53bf6, type: 3}
+      propertyPath: m_Library.Array.size
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 8353199181979657271, guid: 0ed8634130540ee49afd6a10ccb53bf6, type: 3}
+      propertyPath: m_Library.Array.data[1].m_Name
+      value: FaceUp
+      objectReference: {fileID: 0}
+    - target: {fileID: 8353199181979657271, guid: 0ed8634130540ee49afd6a10ccb53bf6, type: 3}
+      propertyPath: m_Library.Array.data[2].m_Name
+      value: FaceDown
+      objectReference: {fileID: 0}
+    - target: {fileID: 8353199181979657271, guid: 0ed8634130540ee49afd6a10ccb53bf6, type: 3}
+      propertyPath: m_Library.Array.data[3].m_Name
+      value: Fall
+      objectReference: {fileID: 0}
+    - target: {fileID: 8353199181979657271, guid: 0ed8634130540ee49afd6a10ccb53bf6, type: 3}
+      propertyPath: m_Library.Array.data[1].m_CategoryList.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8353199181979657271, guid: 0ed8634130540ee49afd6a10ccb53bf6, type: 3}
+      propertyPath: m_Library.Array.data[2].m_CategoryList.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8353199181979657271, guid: 0ed8634130540ee49afd6a10ccb53bf6, type: 3}
+      propertyPath: m_Library.Array.data[3].m_CategoryList.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8353199181979657271, guid: 0ed8634130540ee49afd6a10ccb53bf6, type: 3}
+      propertyPath: m_Library.Array.data[1].m_CategoryList.Array.data[0].m_Name
+      value: Entry
+      objectReference: {fileID: 0}
+    - target: {fileID: 8353199181979657271, guid: 0ed8634130540ee49afd6a10ccb53bf6, type: 3}
+      propertyPath: m_Library.Array.data[2].m_CategoryList.Array.data[0].m_Name
+      value: Entry
+      objectReference: {fileID: 0}
+    - target: {fileID: 8353199181979657271, guid: 0ed8634130540ee49afd6a10ccb53bf6, type: 3}
+      propertyPath: m_Library.Array.data[1].m_CategoryList.Array.data[0].m_Sprite
+      value: 
+      objectReference: {fileID: 1485851483, guid: 6e3667f9dc3db2a45a148c4bed91e20f, type: 3}
+    - target: {fileID: 8353199181979657271, guid: 0ed8634130540ee49afd6a10ccb53bf6, type: 3}
+      propertyPath: m_Library.Array.data[2].m_CategoryList.Array.data[0].m_Sprite
+      value: 
+      objectReference: {fileID: -306562714, guid: 6e3667f9dc3db2a45a148c4bed91e20f, type: 3}
+    - target: {fileID: 8353199181979657271, guid: 0ed8634130540ee49afd6a10ccb53bf6, type: 3}
+      propertyPath: m_Library.Array.data[3].m_CategoryList.Array.data[0].m_Sprite
+      value: 
+      objectReference: {fileID: -1324930942, guid: 3c8449786869e4c44b304a25bdbf2d87, type: 3}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0ed8634130540ee49afd6a10ccb53bf6, type: 3}
 --- !u!4 &783183690 stripped
@@ -68128,9 +68180,10 @@ GameObject:
   - component: {fileID: 1101440759}
   - component: {fileID: 1101440760}
   - component: {fileID: 1101440761}
+  - component: {fileID: 1101440762}
   m_Layer: 0
   m_Name: Banana
-  m_TagString: OnlyCutsceneUse
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -68258,8 +68311,8 @@ AudioSource:
   SpatializePostEffects: 0
   Priority: 128
   DopplerLevel: 1
-  MinDistance: 7.5
-  MaxDistance: 10.95
+  MinDistance: 6.2496824
+  MaxDistance: 11.167446
   Pan2D: 0
   rolloffMode: 0
   BypassEffects: 0
@@ -68368,6 +68421,21 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 1
   m_Constraints: 0
+--- !u!114 &1101440762
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1101440754}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2881d15d66521684a93ea0aa5b574e90, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  velocity: {x: 2, y: 5}
+  slipRotationSpeed: 100
+  slipForce: 20
 --- !u!1 &1104671883
 GameObject:
   m_ObjectHideFlags: 0
