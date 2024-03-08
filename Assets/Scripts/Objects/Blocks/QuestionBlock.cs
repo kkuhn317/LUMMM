@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Playables;
+using PowerupState = PowerStates.PowerupState;
 
 public class QuestionBlock : MonoBehaviour
 {
@@ -86,7 +87,7 @@ public class QuestionBlock : MonoBehaviour
             else // When it's a brick block
             {
                 MarioMovement playerScript = other.gameObject.GetComponent<MarioMovement>();
-                if (playerScript.powerupState == MarioMovement.PowerupState.small)
+                if (playerScript.powerupState == PowerupState.small)
                 {
                     DefeatEnemy(other.collider);
                     QuestionBlockBounce();

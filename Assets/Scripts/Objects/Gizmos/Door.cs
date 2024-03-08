@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using PowerupState = PowerStates.PowerupState;
 
 public class Door : MonoBehaviour
 {
@@ -90,7 +91,7 @@ public class Door : MonoBehaviour
 
     protected virtual bool PlayerAtDoor(MarioMovement playerScript) {
         Vector2 playerPos = player.transform.position;
-        if (playerScript.powerupState == MarioMovement.PowerupState.small) {
+        if (playerScript.powerupState == PowerupState.small) {
             playerPos.y += 0.5f;
         }
 
@@ -190,7 +191,7 @@ public class Door : MonoBehaviour
     void Teleport() {
         if (otherDoor) {
             player.transform.position = destination.transform.position;
-            if (player.GetComponent<MarioMovement>().powerupState == MarioMovement.PowerupState.small) {
+            if (player.GetComponent<MarioMovement>().powerupState == PowerupState.small) {
                 player.transform.position -= new Vector3(0, 0.5f, 0);
             }
         }

@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using PowerupState = PowerStates.PowerupState;
 
 public class EnemyAI : ObjectPhysics
 {
@@ -71,7 +72,7 @@ public class EnemyAI : ObjectPhysics
 
         Rigidbody2D rb = player.GetComponent<Rigidbody2D>();
 
-        float playerHeightSubtract = player.GetComponent<Collider2D>().bounds.size.y / 2 * (playerscript.powerupState == MarioMovement.PowerupState.small ?  0.4f : 0.7f);
+        float playerHeightSubtract = player.GetComponent<Collider2D>().bounds.size.y / 2 * (playerscript.powerupState == PowerupState.small ?  0.4f : 0.7f);
 
         if (rb.position.y - playerHeightSubtract > transform.position.y + stompHeight) {
             hitByStomp(player);
@@ -94,7 +95,7 @@ public class EnemyAI : ObjectPhysics
     protected virtual void hitOnSide(GameObject player) {
         MarioMovement playerscript = player.GetComponent<MarioMovement>();
 
-        if((playerscript.GetComponent<MarioMovement>().powerupState == MarioMovement.PowerupState.small || !InstantChange) && customDeath != null) {
+        if((playerscript.GetComponent<MarioMovement>().powerupState == PowerupState.small || !InstantChange) && customDeath != null) {
             playerscript.GetComponent<MarioMovement>().TransformIntoObject(customDeath);
         } else {
             // usually mario would be damaged here

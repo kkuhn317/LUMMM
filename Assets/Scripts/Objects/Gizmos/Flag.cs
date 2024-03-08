@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Playables;
 using UnityEngine.U2D.Animation;
+using PowerupState = PowerStates.PowerupState;
 
 public class Flag : MonoBehaviour
 {
@@ -76,7 +77,7 @@ public class Flag : MonoBehaviour
             csMario = cutsceneMario;
 
 
-            if (optCutsceneBigMario != null && other.gameObject.GetComponent<MarioMovement>().powerupState != MarioMovement.PowerupState.small)
+            if (optCutsceneBigMario != null && other.gameObject.GetComponent<MarioMovement>().powerupState != PowerupState.small)
             {
                 csMario = optCutsceneBigMario;
                 csMario.GetComponent<SpriteLibrary>().spriteLibraryAsset = other.gameObject.GetComponent<SpriteLibrary>().spriteLibraryAsset;

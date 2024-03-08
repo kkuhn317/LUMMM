@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using PowerupState = PowerStates.PowerupState;
 
 public class PowerUp : ObjectPhysics
 {
@@ -56,7 +57,7 @@ public class PowerUp : ObjectPhysics
             if (newMarioState) {
                 GameManager.Instance.AddScorePoints(1000);
                 MarioMovement player = other.GetComponent<MarioMovement>();
-                MarioMovement.PowerupState playerState = player.powerupState;
+                PowerupState playerState = player.powerupState;
                 
 
                 if (canGetPowerup(playerState)) 
@@ -69,8 +70,8 @@ public class PowerUp : ObjectPhysics
         }
     }
 
-    private bool canGetPowerup(MarioMovement.PowerupState state) {
-        if (state == MarioMovement.PowerupState.small)
+    private bool canGetPowerup(PowerupState state) {
+        if (state == PowerupState.small)
             return true;
         else {
             if (powerLevel >= 2)

@@ -7,6 +7,7 @@ using Unity.Mathematics;
 using Unity.VisualScripting;
 using System.Collections.Generic;
 using UnityEngine.AI;
+using PowerupState = PowerStates.PowerupState;
 
 public class MarioMovement : MonoBehaviour
 {
@@ -95,12 +96,7 @@ public class MarioMovement : MonoBehaviour
     public float invincetimeremain = 0f;
 
     public Vector2 groundPos;
-    public enum PowerupState {
 
-        small,
-        big,
-        power
-    }
 
     [Header("Animation Events")]
     private bool isYeahAnimationPlaying = false;
@@ -119,8 +115,8 @@ public class MarioMovement : MonoBehaviour
 
     public PowerupState powerupState = PowerupState.small;
 
-    //public GameObject BigMario;
-    public GameObject powerDownMario;
+    public GameObject transformMario;   // The prefab for the transformation animation
+    public GameObject powerDownMario;   // The mario that he will transform into when he gets hit
 
     // so that you can only hurt the player once per frame
     private bool damaged = false;
@@ -743,9 +739,19 @@ public class MarioMovement : MonoBehaviour
     }
     
     void Flip() {
+        print("i am flipping from " + facingRight + " to " + !facingRight);
         facingRight = !facingRight;
         //transform.rotation = Quaternion.Euler(0, facingRight ? 0 : 180, 0);
-        GetComponent<SpriteRenderer>().flipX = !facingRight;
+        if (sprite) {
+            sprite.flipX = !facingRight;
+        } else {
+            // If flip is called before start, it might not be assigned yet
+            // So we assign it here
+            sprite = GetComponent<SpriteRenderer>();
+            if (sprite) {
+                sprite.flipX = !facingRight;
+            }
+        }
         float relScaleX = facingRight ? 1 : -1;
 
         // flip might be called before start, this fixes that
@@ -790,18 +796,26 @@ public class MarioMovement : MonoBehaviour
     }
 
     private void powerDown() {
-        GameObject newMario;
-        if (powerupState == PowerupState.big) {
-            // go down to Small Mario
-            newMario = Instantiate(powerDownMario, new Vector3(transform.position.x, transform.position.y - 0.5f, transform.position.z), transform.rotation);
-        } else {
-            // go down to Big Mario
-            newMario = Instantiate(powerDownMario, new Vector3(transform.position.x, transform.position.y, transform.position.z), transform.rotation);
-        }
+        // GameObject newMario;
+        // if (powerupState == PowerupState.big) {
+        //     // go down to Small Mario
+        //     newMario = Instantiate(powerDownMario, new Vector3(transform.position.x, transform.position.y - 0.5f, transform.position.z), transform.rotation);
+        // } else {
+        //     // go down to Big Mario
+        //     newMario = Instantiate(powerDownMario, new Vector3(transform.position.x, transform.position.y, transform.position.z), transform.rotation);
+        // }
+
+        invincetimeremain = damageinvinctime;
+
+        GameObject newMario = Instantiate(transformMario, transform.position, transform.rotation);
         
         var newMarioMovement = transferProperties(newMario);
-        newMarioMovement.invincetimeremain = damageinvinctime;
+        PlayerTransformation playerTransformation = newMario.GetComponent<PlayerTransformation>();
+        
         newMarioMovement.playDamageSound();
+        playerTransformation.oldPlayer = gameObject;
+        playerTransformation.newPlayer = powerDownMario;
+        playerTransformation.startTransformation();
 
         Destroy(gameObject);
     }
@@ -809,33 +823,40 @@ public class MarioMovement : MonoBehaviour
     public void ChangePowerup(GameObject newMarioObject) {
         // NOTE: we will assume here that mario can always change powerups. The PowerUP.cs script will determine if mario can change powerups
 
-        PowerupState newPowerupState = newMarioObject.GetComponent<MarioMovement>().powerupState;
+        // PowerupState newPowerupState = newMarioObject.GetComponent<MarioMovement>().powerupState;
 
-        float verticalOffset = 0f;
-        if (newPowerupState == PowerupState.small && powerupState != PowerupState.small) {
-            verticalOffset = -0.5f;
-        } else if (newPowerupState != PowerupState.small && powerupState == PowerupState.small) {
-            verticalOffset = 0.5f;
-        }
+        // float verticalOffset = 0f;
+        // if (newPowerupState == PowerupState.small && powerupState != PowerupState.small) {
+        //     verticalOffset = -0.5f;
+        // } else if (newPowerupState != PowerupState.small && powerupState == PowerupState.small) {
+        //     verticalOffset = 0.5f;
+        // }
 
-        GameObject newMario = Instantiate(newMarioObject, new Vector3(transform.position.x, transform.position.y + verticalOffset, transform.position.z), Quaternion.identity);
-        
+        // GameObject newMario = Instantiate(newMarioObject, new Vector3(transform.position.x, transform.position.y + verticalOffset, transform.position.z), Quaternion.identity);
+
+        GameObject newMario = Instantiate(transformMario, transform.position, transform.rotation);
         transferProperties(newMario);
+        var playerTransformation = newMario.GetComponent<PlayerTransformation>();
+
+        playerTransformation.oldPlayer = gameObject;
+        playerTransformation.newPlayer = newMarioObject;
+        playerTransformation.startTransformation();
 
         Destroy(gameObject);
     }
 
-    MarioMovement transferProperties(GameObject newMario) {
+    public MarioMovement transferProperties(GameObject newMario) {
         newMario.GetComponent<Rigidbody2D>().velocity = gameObject.GetComponent<Rigidbody2D>().velocity;
         var newMarioMovement = newMario.GetComponent<MarioMovement>();
 
-        if (!facingRight)
-            newMarioMovement.Flip();
+        newMarioMovement.FlipTo(facingRight);
+        print("my facing right: " + facingRight);
 
         newMarioMovement.pressRunToGrab = pressRunToGrab;
         newMarioMovement.crouchToGrab = crouchToGrab;
         newMarioMovement.carryMethod = carryMethod;
         newMarioMovement.playerNumber = playerNumber;
+        newMarioMovement.invincetimeremain = invincetimeremain;
 
         
         try {
@@ -991,6 +1012,10 @@ public class MarioMovement : MonoBehaviour
     }
 
     private void OnDrawGizmos() {
+        // if this script is disabled, don't draw gizmos
+        if (!enabled) {
+            return;
+        }
 
         // Vertical raycast offset (based on crouch state)
         float raycastHeight = inCrouchState ? -(groundLength / 2) : 0f;
@@ -1118,10 +1143,12 @@ public class MarioMovement : MonoBehaviour
     {
         if (context.performed)
         {
+            print("jump pressed!");
             onJumpPressed();
         }
         if (context.canceled)
         {
+            print("jump released!");
             onJumpReleased();
         }     
     }

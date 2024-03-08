@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using PowerupState = PowerStates.PowerupState;
 
 public class Key : MonoBehaviour
 {
@@ -175,7 +176,7 @@ public class Key : MonoBehaviour
         }
         bool playerDirection = playerScript.facingRight;
         Vector3 offset = new Vector3(playerDirection ? -1 : 1, 0, 0);
-        if (playerScript.powerupState != MarioMovement.PowerupState.small) {
+        if (playerScript.powerupState != PowerupState.small) {
             offset += new Vector3(0, -0.5f, 0);
         }    
 
