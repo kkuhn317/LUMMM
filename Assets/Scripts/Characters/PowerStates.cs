@@ -1,6 +1,6 @@
 public class PowerStates {
     public enum PowerupState {
-
+        tiny,
         small,
         big,
         power
@@ -13,7 +13,7 @@ public class PowerStates {
 
     // Can you die in one hit? Are you at most 1 block tall?
     public static bool IsSmall(PowerupState state) {
-        return state is PowerupState.small;
+        return state is PowerupState.small or PowerupState.tiny;
     }
 
 }

@@ -155,7 +155,7 @@ public class MarioMovement : MonoBehaviour
     public AudioClip dropSound;
     public AudioClip throwSound;
 
-    private float grabRaycastHeight => powerupState == PowerupState.small ? -0.1f : -0.4f;
+    private float grabRaycastHeight => PowerStates.IsSmall(powerupState) ? -0.1f : -0.4f;
 
     private bool isLookingUp = false;
 
@@ -786,7 +786,7 @@ public class MarioMovement : MonoBehaviour
 
             // If you comment this, the tranformIntoPig will work without instantiating the deadMario with the pigMario
             // but the player will not be harmed by the enemies, only the wizard goomba's magic attack
-            if (powerupState == PowerupState.small) {
+            if (PowerStates.IsSmall(powerupState)) {
                 toDead();
             } else {
                 powerDown();
@@ -795,15 +795,6 @@ public class MarioMovement : MonoBehaviour
     }
 
     private void powerDown() {
-        // GameObject newMario;
-        // if (powerupState == PowerupState.big) {
-        //     // go down to Small Mario
-        //     newMario = Instantiate(powerDownMario, new Vector3(transform.position.x, transform.position.y - 0.5f, transform.position.z), transform.rotation);
-        // } else {
-        //     // go down to Big Mario
-        //     newMario = Instantiate(powerDownMario, new Vector3(transform.position.x, transform.position.y, transform.position.z), transform.rotation);
-        // }
-
         invincetimeremain = damageinvinctime;
 
         GameObject newMario = Instantiate(transformMario, transform.position, transform.rotation);
@@ -821,18 +812,6 @@ public class MarioMovement : MonoBehaviour
 
     public void ChangePowerup(GameObject newMarioObject) {
         // NOTE: we will assume here that mario can always change powerups. The PowerUP.cs script will determine if mario can change powerups
-
-        // PowerupState newPowerupState = newMarioObject.GetComponent<MarioMovement>().powerupState;
-
-        // float verticalOffset = 0f;
-        // if (newPowerupState == PowerupState.small && powerupState != PowerupState.small) {
-        //     verticalOffset = -0.5f;
-        // } else if (newPowerupState != PowerupState.small && powerupState == PowerupState.small) {
-        //     verticalOffset = 0.5f;
-        // }
-
-        // GameObject newMario = Instantiate(newMarioObject, new Vector3(transform.position.x, transform.position.y + verticalOffset, transform.position.z), Quaternion.identity);
-
         GameObject newMario = Instantiate(transformMario, transform.position, transform.rotation);
         transferProperties(newMario);
         var playerTransformation = newMario.GetComponent<PlayerTransformation>();

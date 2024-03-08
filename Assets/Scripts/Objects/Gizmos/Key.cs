@@ -176,7 +176,7 @@ public class Key : MonoBehaviour
         }
         bool playerDirection = playerScript.facingRight;
         Vector3 offset = new Vector3(playerDirection ? -1 : 1, 0, 0);
-        if (playerScript.powerupState != PowerupState.small) {
+        if (PowerStates.IsBig(playerScript.powerupState)) {
             offset += new Vector3(0, -0.5f, 0);
         }    
 

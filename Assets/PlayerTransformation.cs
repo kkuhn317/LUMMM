@@ -61,7 +61,9 @@ public class PlayerTransformation : MonoBehaviour
 
         float time = 1f;
 
-        if (wasBig && isSmall) {
+        if (newPowerupState == PowerupState.tiny) {
+            animator.Play("SmallToTiny");
+        } else if (wasBig && isSmall) {
             animator.Play("BigToSmall");
         } else if (wasSmall && isBig) {
             animator.Play("SmallToBig");

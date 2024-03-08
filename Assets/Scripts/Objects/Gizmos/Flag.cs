@@ -76,8 +76,7 @@ public class Flag : MonoBehaviour
 
             csMario = cutsceneMario;
 
-
-            if (optCutsceneBigMario != null && other.gameObject.GetComponent<MarioMovement>().powerupState != PowerupState.small)
+            if (optCutsceneBigMario != null && PowerStates.IsBig(other.gameObject.GetComponent<MarioMovement>().powerupState))
             {
                 csMario = optCutsceneBigMario;
                 csMario.GetComponent<SpriteLibrary>().spriteLibraryAsset = other.gameObject.GetComponent<SpriteLibrary>().spriteLibraryAsset;

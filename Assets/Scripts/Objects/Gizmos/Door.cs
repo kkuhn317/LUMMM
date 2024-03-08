@@ -91,6 +91,7 @@ public class Door : MonoBehaviour
 
     protected virtual bool PlayerAtDoor(MarioMovement playerScript) {
         Vector2 playerPos = player.transform.position;
+        // TODO: base off of player's actual height (this doesn't work for tiny mario)
         if (playerScript.powerupState == PowerupState.small) {
             playerPos.y += 0.5f;
         }
@@ -191,6 +192,7 @@ public class Door : MonoBehaviour
     void Teleport() {
         if (otherDoor) {
             player.transform.position = destination.transform.position;
+            // TODO: base off of player's actual height (this doesn't work for tiny mario)
             if (player.GetComponent<MarioMovement>().powerupState == PowerupState.small) {
                 player.transform.position -= new Vector3(0, 0.5f, 0);
             }

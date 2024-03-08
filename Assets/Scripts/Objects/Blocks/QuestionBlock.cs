@@ -87,14 +87,13 @@ public class QuestionBlock : MonoBehaviour
             else // When it's a brick block
             {
                 MarioMovement playerScript = other.gameObject.GetComponent<MarioMovement>();
-                if (playerScript.powerupState == PowerupState.small)
+                DefeatEnemy(other.collider);
+                if (PowerStates.IsSmall(playerScript.powerupState))
                 {
-                    DefeatEnemy(other.collider);
                     QuestionBlockBounce();
                 }
                 else
                 {
-                    DefeatEnemy(other.collider);
                     BrickBlockBreak();         
                 }
             }

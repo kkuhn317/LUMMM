@@ -71,7 +71,7 @@ public class PowerUp : ObjectPhysics
     }
 
     private bool canGetPowerup(PowerupState state) {
-        if (state == PowerupState.small)
+        if (PowerStates.IsSmall(state))
             return true;
         else {
             if (powerLevel >= 2)
