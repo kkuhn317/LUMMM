@@ -65,6 +65,7 @@ public class AmbushTrigger : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             // Set isScared to false on the Player's animator
+            // TODO: This is not correct because the trigger is disabled quickly after the animation starts
             Animator playerAnimator = other.GetComponent<Animator>();
             if (playerAnimator != null)
             {
@@ -127,6 +128,7 @@ public class AmbushTrigger : MonoBehaviour
         // Disable the collider
         GetComponent<Collider2D>().enabled = false;
         // Disable scared animator
+        // TODO: This is not correct because currently the animation will barely play at all
         if (playerAnimator != null)
         {
             playerAnimator.SetBool("isScared", false);

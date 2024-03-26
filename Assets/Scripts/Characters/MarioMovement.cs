@@ -99,6 +99,9 @@ public class MarioMovement : MonoBehaviour
 
 
     [Header("Animation Events")]
+    public Vector3 animationScale = new Vector3(1, 1, 1);   // animate this instead of the scale directly
+    public Vector3 originalScale;
+    public bool wasScaledNormal = true;
     private bool isYeahAnimationPlaying = false;
     private bool hasEnteredAnimationYeahTrigger = false;
 
@@ -187,6 +190,7 @@ public class MarioMovement : MonoBehaviour
         relPosObj = transform.GetChild(0).gameObject;
         animator = GetComponent<Animator>();
         animator.SetInteger("grabMethod", (int)carryMethod);
+        originalScale = transform.lossyScale;
         GameManager.Instance.SetPlayer(this, playerNumber);
 
         if (powerupState == PowerupState.power) {
@@ -212,6 +216,21 @@ public class MarioMovement : MonoBehaviour
         {
             toDead();
         }
+
+        // set GLOBAL scale
+        Transform myParent = transform.parent;
+        transform.parent = null;
+        if (animationScale != Vector3.one)
+        {
+            if (wasScaledNormal)
+            {
+                originalScale = transform.localScale;
+                wasScaledNormal = false;
+            }
+            // set my scale to the animation scale (relative to the original scale)
+            transform.localScale = Vector3.Scale(originalScale, animationScale);
+        }
+        transform.parent = myParent;
 
         if (invincetimeremain > 0f) {
             sprite.color = new Color(sprite.color.r, sprite.color.g, sprite.color.b, 0.5f);
@@ -375,8 +394,10 @@ public class MarioMovement : MonoBehaviour
 
             if (onMovingPlatform) {
                 transform.parent = hitRay.transform;
+                //transform.SetParent(hitRay.transform, true);
             } else {
                 transform.parent = null;
+                //transform.SetParent(null, true);
             }
 
             // Slope detection
