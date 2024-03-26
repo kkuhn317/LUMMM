@@ -839,5 +839,15 @@ public class ObjectPhysics : MonoBehaviour
         }
         
     }
+
+    public virtual void Flip()
+    {
+        movingLeft = !movingLeft;
+    }
+
+    public virtual void SetDirection(bool direction)
+    {
+        movingLeft = direction;
+    }
 }
 
