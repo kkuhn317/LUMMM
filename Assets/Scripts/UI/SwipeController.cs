@@ -20,6 +20,7 @@ public class SwipeController : MonoBehaviour, IEndDragHandler
         currentPage = 1;
         targetPos = levelPagesRect.localPosition;
         dragThereshould = Screen.width / 15;
+        LeanTween.reset(); // https://github.com/dentedpixel/LeanTween/issues/88
     }
 
     public void Next()

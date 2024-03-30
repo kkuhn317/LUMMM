@@ -991,6 +991,7 @@ GameObject:
   - component: {fileID: 379615667}
   - component: {fileID: 379615666}
   - component: {fileID: 379615668}
+  - component: {fileID: 379615669}
   m_Layer: 5
   m_Name: Nelly icon
   m_TagString: Untagged
@@ -1076,6 +1077,109 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
+--- !u!114 &379615669
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 379615662}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6dc3095666f9f764291a774a5aee2c4b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  marioAnimator: 0
+--- !u!1 &418626368
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 418626369}
+  - component: {fileID: 418626372}
+  - component: {fileID: 418626371}
+  - component: {fileID: 418626373}
+  m_Layer: 5
+  m_Name: A3 icon
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &418626369
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 418626368}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 0.099162005, y: 0.13583836, z: 0.13583836}
+  m_ConstrainProportionsScale: 1
+  m_Children: []
+  m_Father: {fileID: 479383809}
+  m_RootOrder: 5
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: -42.75, y: -36.1}
+  m_SizeDelta: {x: 130, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &418626371
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 418626368}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 21300000, guid: 48fb7311fb4b67644b11ec34b0ed46d8, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &418626372
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 418626368}
+  m_CullTransparentMesh: 1
+--- !u!114 &418626373
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 418626368}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6dc3095666f9f764291a774a5aee2c4b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  marioAnimator: 1
 --- !u!1 &430203485
 GameObject:
   m_ObjectHideFlags: 0
@@ -1246,6 +1350,7 @@ RectTransform:
   - {fileID: 1614867420}
   - {fileID: 2139900957}
   - {fileID: 379615663}
+  - {fileID: 418626369}
   m_Father: {fileID: 198688545}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -4766,6 +4871,14 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 11400000, guid: c2cffc1a17a599b47b216d13d0fe22ac, type: 2}
     - target: {fileID: 7354244240500209460, guid: cec379ef717300f468a803ed4beae14c, type: 3}
+      propertyPath: showLevelUp
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7354244240500209460, guid: cec379ef717300f468a803ed4beae14c, type: 3}
+      propertyPath: marioAnimator
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7354244240500209460, guid: cec379ef717300f468a803ed4beae14c, type: 3}
       propertyPath: GreenCoinsprite.Array.size
       value: 3
       objectReference: {fileID: 0}
@@ -6953,6 +7066,10 @@ PrefabInstance:
       propertyPath: playButton
       value: 
       objectReference: {fileID: 1277713838}
+    - target: {fileID: 5237146368432901205, guid: 7367b1f13aab1b94d86e7444592638ff, type: 3}
+      propertyPath: LevelUpImage
+      value: 
+      objectReference: {fileID: 379615662}
     - target: {fileID: 5237146368432901205, guid: 7367b1f13aab1b94d86e7444592638ff, type: 3}
       propertyPath: levelNameText
       value: 

@@ -1,16 +1,26 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class LevelSelectionManager : MonoBehaviour
 {
+    public enum MarioAnimator
+    {
+        LevelUp,
+        ItsA3,
+    }
+
     public static LevelSelectionManager Instance { get; private set; }
+
+    private List<AnimatorIcon> animatorIcons = new();
 
     public TMP_Text levelNameText;
     public TMP_Text videoYearText;
     public Button videoLinkButton;
+    public GameObject LevelUpImage;
     public TMP_Text levelDescriptionText;
     public Button playButton;
     public Sprite[] GreenCoinsprite; // 0 - uncollected, 1 - collected
@@ -57,6 +67,15 @@ public class LevelSelectionManager : MonoBehaviour
         videoLinkButton.onClick.RemoveAllListeners();
 
         videoLinkButton.onClick.AddListener(OpenVideoLink);
+
+
+        // Enable the correct animator icon
+        print(animatorIcons.Count);
+        foreach (AnimatorIcon animator in animatorIcons)
+        {
+            animator.gameObject.SetActive(animator.marioAnimator == button.marioAnimator);
+        }
+
 
         playButton.gameObject.SetActive(true);
         playButton.onClick.RemoveAllListeners(); // Remove previous listeners if any
@@ -114,5 +133,11 @@ public class LevelSelectionManager : MonoBehaviour
         GlobalVariables.checkpoint = PlayerPrefs.GetInt("SavedCheckpoint", -1);
 
         // The saved green coins will be handled by GameManager (where we need to check if it's the saved level)
+    }
+
+    // Animator Icons
+    public void AddAnimatorIcon(AnimatorIcon animator)
+    {
+        animatorIcons.Add(animator);
     }
 }

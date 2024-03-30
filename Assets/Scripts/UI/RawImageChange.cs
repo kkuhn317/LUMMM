@@ -55,7 +55,7 @@ public class RawImageChange : MonoBehaviour
 
     private void PlayScaleAnimation(GameObject targetObject, Vector3 scaleAnimationRange, float animationDuration)
     {
-        LeanTween.scale(targetObject, scaleAnimationRange, animationDuration)
+        LeanTween.scale(targetObject, scaleAnimationRange, animationDuration) 
             .setEase(LeanTweenType.easeInOutQuad)
             .setLoopPingPong(1); // Play the animation once forward and once backward
     }
