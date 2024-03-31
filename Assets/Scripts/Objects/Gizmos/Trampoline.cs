@@ -7,6 +7,7 @@ public class Trampoline : MonoBehaviour
     public bool objectBounce = false;
     public float playerBouncePower = 10;
     public float objectBouncePower = 25;
+    public bool sideways = false; // If the spring is sideways
 
     private bool isVisible = false; // If the spring is visible to the camera
 
@@ -36,27 +37,55 @@ public class Trampoline : MonoBehaviour
             impulse.y -= contact.tangentImpulse * contact.normal.x;
         }
 
-        if (impulse.y < 0) {
+        if (impulse.y < 0 && !sideways) {
             if (other.gameObject.tag == "Player") {
                 MarioMovement playerScript = other.gameObject.GetComponent<MarioMovement>();
                 playerScript.Jump();
                 other.gameObject.GetComponent<Rigidbody2D>().velocity += new Vector2(0, playerBouncePower);
                 Bounce();
             }
+        } else if (impulse.x < 0 && sideways) {
+            if (other.gameObject.tag == "Player") {
+                MarioMovement playerScript = other.gameObject.GetComponent<MarioMovement>();
+                other.gameObject.GetComponent<Rigidbody2D>().velocity += new Vector2(playerBouncePower, 0);
+                Bounce();
+            }
+        } else if (impulse.x > 0 && sideways) {
+            if (other.gameObject.tag == "Player") {
+                MarioMovement playerScript = other.gameObject.GetComponent<MarioMovement>();
+                other.gameObject.GetComponent<Rigidbody2D>().velocity += new Vector2(-playerBouncePower, 0);
+                Bounce();
+            }
         }
 
         GameObject otherObject = other.gameObject;
 
-        if (objectBounce && other.transform.position.y > transform.position.y && other.transform.position.x > transform.position.x - 1 && other.transform.position.x < transform.position.x + 1 && otherObject.GetComponent<ObjectPhysics>()) {
-            otherObject.GetComponent<ObjectPhysics>().velocity = new Vector2(otherObject.GetComponent<ObjectPhysics>().velocity.x, objectBouncePower);
-            Bounce();
-        }
+        if (objectBounce && otherObject.GetComponent<ObjectPhysics>()) {
+            if (other.transform.position.y > transform.position.y && other.transform.position.x > transform.position.x - 1 && other.transform.position.x < transform.position.x + 1 && !sideways) {
+                otherObject.GetComponent<ObjectPhysics>().velocity = new Vector2(otherObject.GetComponent<ObjectPhysics>().velocity.x, objectBouncePower);
+                Bounce();
+            } else if (other.transform.position.x > transform.position.x && other.transform.position.y > transform.position.y - 1 && other.transform.position.y < transform.position.y + 1 && sideways) {
+                otherObject.GetComponent<ObjectPhysics>().velocity = new Vector2(objectBouncePower, otherObject.GetComponent<ObjectPhysics>().velocity.y);
+                Bounce();
+            } else if (other.transform.position.x < transform.position.x && other.transform.position.y > transform.position.y - 1 && other.transform.position.y < transform.position.y + 1 && sideways) {
+                otherObject.GetComponent<ObjectPhysics>().velocity = new Vector2(-objectBouncePower, otherObject.GetComponent<ObjectPhysics>().velocity.y);
+                Bounce();
+            }
+        } 
     }
 
     private void OnTriggerEnter2D(Collider2D other) {
-        if (objectBounce && other.transform.position.y > transform.position.y && other.transform.position.x > transform.position.x - 1 && other.transform.position.x < transform.position.x + 1 && other.GetComponent<ObjectPhysics>()) {
-            other.GetComponent<ObjectPhysics>().velocity = new Vector2(other.GetComponent<ObjectPhysics>().velocity.x, objectBouncePower);
-            Bounce();
+        if (objectBounce && other.GetComponent<ObjectPhysics>()) {
+            if (other.transform.position.y > transform.position.y && other.transform.position.x > transform.position.x - 1 && other.transform.position.x < transform.position.x + 1 && !sideways) {
+                other.GetComponent<ObjectPhysics>().velocity = new Vector2(other.GetComponent<ObjectPhysics>().velocity.x, objectBouncePower);
+                Bounce();
+            } else if (other.transform.position.x > transform.position.x && other.transform.position.y > transform.position.y - 1 && other.transform.position.y < transform.position.y + 1 && sideways) {
+                other.GetComponent<ObjectPhysics>().velocity = new Vector2(objectBouncePower, other.GetComponent<ObjectPhysics>().velocity.y);
+                Bounce();
+            } else if (other.transform.position.x < transform.position.x && other.transform.position.y > transform.position.y - 1 && other.transform.position.y < transform.position.y + 1 && sideways) {
+                other.GetComponent<ObjectPhysics>().velocity = new Vector2(-objectBouncePower, other.GetComponent<ObjectPhysics>().velocity.y);
+                Bounce();
+            }
         }
     }
 

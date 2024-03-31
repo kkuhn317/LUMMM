@@ -51,6 +51,9 @@ public class Banana : MonoBehaviour
 
         while (isSlipping)
         {
+            if (playerTransform == null)
+                yield break;
+                
             if (playerAnimator != null)
                 playerAnimator.SetTrigger("slip");
 

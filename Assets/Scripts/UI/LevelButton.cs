@@ -14,6 +14,7 @@ public class LevelButton : MonoBehaviour
     public GameObject checkpointFlag;
     public GameObject obtainedRank;
     public List<Image> greenCoinListImages;
+    public LevelSelectionManager.MarioAnimator marioAnimator;
 
     public Sprite[] GreenCoinsprite; // 0 - uncollected, 1 - collected, 2 - unavailable
     public Sprite[] minirankTypes; // 0 - poison, 1 - mushroom, 2 - flower, 3 - 1up, 4 - star

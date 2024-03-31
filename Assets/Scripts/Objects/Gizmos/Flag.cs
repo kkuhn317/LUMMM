@@ -28,8 +28,8 @@ public class Flag : MonoBehaviour
     public float flagMoveSpeed = 50f;
     public float slideTime = 2f; // how long from when mario first touches the flag to when he gets off the pole
     public float cutsceneTime = 10f; // how long the cutscene lasts before the level ends
-
     bool marioAtBottom = false;
+    public bool flagOnRight = false;    // if the flag is on the right side of the pole
 
     enum FlagState
     {
@@ -53,13 +53,15 @@ public class Flag : MonoBehaviour
         if (state == FlagState.Sliding) {
             // flag moves down
             // final position is -0.5, 1.1 relative to the pole
-            flag.transform.localPosition = Vector3.MoveTowards(flag.transform.localPosition, new Vector3(-0.5f, 1.1f, 0), flagMoveSpeed * Time.deltaTime);
+            flag.transform.localPosition = Vector3.MoveTowards(flag.transform.localPosition, new Vector3(flagOnRight ? 0.5f : -0.5f, 1.1f, 0), flagMoveSpeed * Time.deltaTime);
+
+            Vector3 nonLocalEndPos = transform.position + endPos;
 
             // cutsceneMario moves down
             // final position is -0.4, 1.0 relative to the pole
             if (!marioAtBottom) {
-                csMario.transform.localPosition = Vector3.MoveTowards(csMario.transform.localPosition, endPos, marioSlideSpeed * Time.deltaTime);
-                if (csMario.transform.localPosition.y == endPos.y) {
+                csMario.transform.position = Vector3.MoveTowards(csMario.transform.position, nonLocalEndPos, marioSlideSpeed * Time.deltaTime);
+                if (csMario.transform.position.y == nonLocalEndPos.y) {
                     marioAtBottom = true;
                     // stop animating mario
                     csMario.GetComponent<Animator>().SetFloat("climbSpeed", 0f);
@@ -121,7 +123,7 @@ public class Flag : MonoBehaviour
         this.height = height;
         
         // flag
-        flag.transform.localPosition = new Vector3(-0.5f, height - 0.55f, 0);
+        flag.transform.localPosition = new Vector3(flagOnRight ? 0.5f : -0.5f, height - 0.55f, 0);
 
         // pole
         pole.GetComponent<SpriteRenderer>().size = new Vector2(0.5f, height);

@@ -27,6 +27,7 @@ public class SwipeController : MonoBehaviour, IEndDragHandler
         dragThereshould = Screen.width / 15;
         UpdateBar();
         UpdateArrowButton();
+        LeanTween.reset(); // https://github.com/dentedpixel/LeanTween/issues/88
     }
 
     public void Next()
