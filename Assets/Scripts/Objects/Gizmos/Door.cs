@@ -31,7 +31,11 @@ public class Door : MonoBehaviour
     }
 
     void findPlayer() {
-        player = GameObject.FindGameObjectWithTag("Player");
+        MarioMovement playerScript = GameManager.Instance.GetPlayer(0);
+        if (playerScript) {
+            player = playerScript.gameObject;
+        }
+
     }
 
     // Update is called once per frame
@@ -46,10 +50,6 @@ public class Door : MonoBehaviour
             if (player == null) {
                 return;
             }
-        }
-
-        if (!player.GetComponent<MarioMovement>()) {  // dead mario doesn't have this
-            return;
         }
 
         MarioMovement playerScript = player.GetComponent<MarioMovement>();

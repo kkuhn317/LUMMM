@@ -122,8 +122,6 @@ public class ObjectPhysics : MonoBehaviour
 
     private float peakHeight;
 
-    public bool testme = false;
-
     protected virtual void Start()
     {
         normalScale = transform.localScale;
