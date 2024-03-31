@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class SwipeController : MonoBehaviour, IEndDragHandler
 {
@@ -15,11 +16,17 @@ public class SwipeController : MonoBehaviour, IEndDragHandler
     [SerializeField] LeanTweenType tweenType;
     float dragThereshould;
 
+    [SerializeField] Image[] barImage;
+    [SerializeField] Sprite barClosed, barOpen;
+    [SerializeField] Button previousBtn, nextBtn;
+
     private void Awake()
     {
         currentPage = 1;
         targetPos = levelPagesRect.localPosition;
         dragThereshould = Screen.width / 15;
+        UpdateBar();
+        UpdateArrowButton();
     }
 
     public void Next()
@@ -45,6 +52,8 @@ public class SwipeController : MonoBehaviour, IEndDragHandler
     void MovePage()
     {
         levelPagesRect.LeanMoveLocal(targetPos, tweenTime).setEase(tweenType);
+        UpdateBar();
+        UpdateArrowButton();
     }
 
     public void OnEndDrag(PointerEventData eventData)
@@ -55,5 +64,22 @@ public class SwipeController : MonoBehaviour, IEndDragHandler
         } else {
             MovePage();
         }
+    }
+
+    void UpdateBar()
+    {
+        foreach (var item in barImage)
+        {
+            item.sprite = barClosed;
+        }
+        barImage[currentPage - 1].sprite = barOpen;
+    }
+
+    void UpdateArrowButton()
+    {
+        nextBtn.interactable = true;
+        previousBtn.interactable = true;
+        if (currentPage == 1) previousBtn.interactable = false;
+        else if (currentPage == maxPage) nextBtn.interactable = false;
     }
 }
