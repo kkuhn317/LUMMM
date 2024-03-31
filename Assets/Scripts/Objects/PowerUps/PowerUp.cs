@@ -74,10 +74,17 @@ public class PowerUp : ObjectPhysics
         if (PowerStates.IsSmall(state))
             return true;
         else {
-            if (powerLevel >= 2)
-                return true;
-            else
+            // if (powerLevel >= 2)
+            //     return true;
+            // else
+            //     return false;
+
+            // TODO: This is a temporary fix for powerup animations. If you have fire power and get a fire flower, it should not transform you.
+            // This solution will not work if you change between fire and ice for example. Please fix this when you make a level with more than 2 "power" powerups (example: fire, ice, tanooki, etc)
+            if (state == PowerupState.power || powerLevel == 1)
                 return false;
+            else
+                return true;
         }
     }
 

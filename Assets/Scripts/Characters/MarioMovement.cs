@@ -867,7 +867,8 @@ public class MarioMovement : MonoBehaviour
             print("Could not transfer input device to new mario. This is probably fine.");
         }
         
-        if (carrying) {
+        if (carrying && heldObjectPosition.transform.childCount > 0) {
+            // We need to check if it actually exists because it might be a bomb that exploded while we were holding it
             // move carried object to new mario
             GameObject carriedObject = heldObjectPosition.transform.GetChild(0).gameObject;
             carriedObject.transform.parent = newMarioMovement.heldObjectPosition.transform;
