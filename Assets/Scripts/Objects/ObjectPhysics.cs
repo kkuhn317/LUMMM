@@ -55,6 +55,7 @@ public class ObjectPhysics : MonoBehaviour
     public bool DontFallOffLedges = false;
     public bool bounceOffWalls = true;  // if false, will stop moving when it hits a wall
     private bool onMovingPlatform = false;
+    private Transform ogParent;    // for stacks of enemies
 
     public bool flipObject = true;  // if true, the object will flip when moving right
     private Vector2 normalScale;
@@ -121,12 +122,15 @@ public class ObjectPhysics : MonoBehaviour
 
     private float peakHeight;
 
+    public bool testme = false;
+
     protected virtual void Start()
     {
         normalScale = transform.localScale;
         adjDeltaTime = Time.fixedDeltaTime;
         lavaMask = LayerMask.GetMask("Lava");
         peakHeight = transform.position.y;
+        ogParent = transform.parent;
 
         // temporary fix for objects that don't have the sprite renderer in the parent
         // TODO: change this so all sprite renderers are affected by carrying
@@ -201,7 +205,6 @@ public class ObjectPhysics : MonoBehaviour
         }
 
         Vector3 pos = transform.position;
-        Vector3 scale = transform.localScale;
 
         // check walls first
         if (objectState != ObjectState.knockedAway)
@@ -220,12 +223,6 @@ public class ObjectPhysics : MonoBehaviour
 
         // horizontal movement
         pos = HorizontalMovement(pos);
-
-        // flipping object sprite
-        if (flipObject)
-        {
-            scale.x = movingLeft ? normalScale.x : -normalScale.x;
-        }
         
         // fix bug where object has y velocity but walking
         // making it walk in the air
@@ -257,6 +254,14 @@ public class ObjectPhysics : MonoBehaviour
             {
                 CheckLedges(pos);
             }
+        }
+
+        Vector3 scale = transform.localScale;
+
+        // flipping object sprite
+        if (flipObject)
+        {
+            scale.x = movingLeft ? normalScale.x : -normalScale.x;
         }
 
         transform.position = pos;
@@ -368,7 +373,11 @@ public class ObjectPhysics : MonoBehaviour
             else
             {
                 onMovingPlatform = false;
-                transform.parent = null;
+                if (ogParent != null) {
+                    transform.parent = ogParent;
+                } else {
+                    transform.parent = null;
+                }
             }
 
         }
@@ -639,7 +648,12 @@ public class ObjectPhysics : MonoBehaviour
         objectState = ObjectState.falling;
 
         onMovingPlatform = false;
-        transform.parent = null;
+        
+        if (ogParent != null) {
+            transform.parent = ogParent;
+        } else {
+            transform.parent = null;
+        }
 
     }
 

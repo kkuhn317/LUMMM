@@ -652,6 +652,7 @@ public class MarioMovement : MonoBehaviour
 
     // for swimming
     public void Swim() {
+        onGround = false;
         rb.AddForce(Vector2.up * swimForce, ForceMode2D.Impulse);
         animator.SetTrigger("swim");
         jumpTimer = 0;
