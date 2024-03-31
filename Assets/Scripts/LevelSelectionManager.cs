@@ -46,6 +46,11 @@ public class LevelSelectionManager : MonoBehaviour
 
     }
 
+    public static bool IsLevelPlayable(LevelButton button)
+    {
+        return !string.IsNullOrEmpty(button.levelInfo.levelScene) && (!button.levelInfo.beta || GlobalVariables.enableBetaMode);
+    }
+
     public void OnLevelButtonClick(LevelButton button)
     {
         if (selectedLevelButton != null)
@@ -80,7 +85,7 @@ public class LevelSelectionManager : MonoBehaviour
         playButton.gameObject.SetActive(true);
         playButton.onClick.RemoveAllListeners(); // Remove previous listeners if any
 
-        if (string.IsNullOrEmpty(button.levelInfo.levelScene))
+        if (!IsLevelPlayable(button))
         {
             playButton.gameObject.SetActive(false);
             return;
@@ -97,6 +102,10 @@ public class LevelSelectionManager : MonoBehaviour
     public void OnPlayButtonClick()
     {   
         if (selectedLevelButton == null)
+        {
+            return;
+        }
+        if (!IsLevelPlayable(selectedLevelButton))
         {
             return;
         }
@@ -130,7 +139,11 @@ public class LevelSelectionManager : MonoBehaviour
         // Load the saved info
         GlobalVariables.lives = PlayerPrefs.GetInt("SavedLives", 3);
         GlobalVariables.coinCount = PlayerPrefs.GetInt("SavedCoins", 0);
-        GlobalVariables.checkpoint = PlayerPrefs.GetInt("SavedCheckpoint", -1);
+        if (GlobalVariables.enableCheckpoints) {
+            GlobalVariables.checkpoint = PlayerPrefs.GetInt("SavedCheckpoint", -1);
+        } else {
+            GlobalVariables.checkpoint = -1;
+        }
 
         // The saved green coins will be handled by GameManager (where we need to check if it's the saved level)
     }

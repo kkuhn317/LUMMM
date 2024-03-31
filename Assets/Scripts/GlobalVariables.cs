@@ -22,6 +22,7 @@ public static class GlobalVariables
     public static bool OnScreenControls = false;
 
     public static bool enablePlushies = false;
+    public static bool enableBetaMode = false;
 
     public static void ResetForLevel()
     {
