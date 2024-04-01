@@ -9,8 +9,12 @@ public class CrushDetection : MonoBehaviour
     // See coin door maze for an example
     void OnCollisionEnter2D (Collision2D col)
     {
-        // get the mariomovement in the parent object
-        MarioMovement mario = GetComponentInParent<MarioMovement>();
-        mario.damageMario(force: true);
+        if (col.gameObject.CompareTag("Crushing"))
+        {
+            // get the mariomovement in the parent object
+            MarioMovement mario = GetComponentInParent<MarioMovement>();
+            mario.damageMario(force: true);
+        }
+        
     }
 }

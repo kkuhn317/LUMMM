@@ -16,8 +16,23 @@ public class MobileControlButton : MonoBehaviour, IPointerDownHandler, IPointerU
     public Sprite downSprite;
     private Image image;
 
+    public bool isRunButton = false;  // if true, this button will be used to run
+    // TODO: Make this code better lol
+
     void Start() {
         image = GetComponent<Image>();
+
+        if (isRunButton && GlobalVariables.OnScreenControls && GlobalVariables.mobileRunButtonPressed) {
+
+            StartCoroutine(TurnOnAtBeginCoroutine());
+        }
+            
+    }
+
+
+    IEnumerator TurnOnAtBeginCoroutine() {
+        yield return new WaitForEndOfFrame();
+        TurnOn();
     }
     
     void TurnOn(){
@@ -25,12 +40,18 @@ public class MobileControlButton : MonoBehaviour, IPointerDownHandler, IPointerU
             return;
         }
         buttonPressed = true;
+        if (isRunButton) {
+            GlobalVariables.mobileRunButtonPressed = true;
+        }
         onPress.Invoke();
         image.sprite = downSprite;
     }
 
     void TurnOff() {
         buttonPressed = false;
+        if (isRunButton) {
+            GlobalVariables.mobileRunButtonPressed = false;
+        }
         onRelease.Invoke();
         image.sprite = upSprite;
     }
