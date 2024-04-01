@@ -24,10 +24,13 @@ public class GameSettings : MonoBehaviour
     [Header("Gameplay")]
     public Image InfiniteLivesMode;
     public Image CheckpointsAllowed;
+    public Image OnScreenControlsImage;
     public Sprite enableInfiniteLivesMode;
     public Sprite disabledInfiniteLivesMode;
     public Sprite enableCheckpoints;
     public Sprite disabledCheckpoints;
+    public Sprite enabledOnScreenControls;
+    public Sprite disabledOnScreenControls;
 
     private void Start()
     {
@@ -170,11 +173,15 @@ public class GameSettings : MonoBehaviour
         bool isOnScreenControlsEnabled = PlayerPrefs.GetInt(SettingsKeys.OnScreenControlsKey, Application.isMobilePlatform ? 1 : 0) == 1;
         OnScreenControlsToggle.isOn = isOnScreenControlsEnabled;
         OnScreenControlsToggle.onValueChanged.AddListener(OnOnScreenControlsToggleValueChanged);
+        OnScreenControlsImage.sprite = isOnScreenControlsEnabled ? enabledOnScreenControls : disabledOnScreenControls;
     }
 
     private void OnOnScreenControlsToggleValueChanged(bool isOnScreenControlsEnabled)
     {
         OnScreenControlsToggle.isOn = isOnScreenControlsEnabled;
         PlayerPrefs.SetInt(SettingsKeys.OnScreenControlsKey, isOnScreenControlsEnabled ? 1 : 0);
+        OnScreenControlsImage.sprite = isOnScreenControlsEnabled ? enabledOnScreenControls : disabledOnScreenControls;
+
+        GlobalVariables.OnScreenControls = isOnScreenControlsEnabled;
     }
 }
