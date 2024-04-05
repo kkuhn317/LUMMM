@@ -15,10 +15,15 @@ public class SwipeController : MonoBehaviour, IEndDragHandler
     [SerializeField] float tweenTime;
     [SerializeField] LeanTweenType tweenType;
     float dragThereshould;
-
-    [SerializeField] Image[] barImage;
-    [SerializeField] Sprite barClosed, barOpen;
     [SerializeField] Button previousBtn, nextBtn;
+
+    [System.Serializable]
+    public class BarOption
+    {
+        public Image barImage;
+        public Sprite barClosed, barOpen;
+    }
+    [SerializeField] BarOption[] barOptions;
 
     private void Awake()
     {
@@ -69,11 +74,11 @@ public class SwipeController : MonoBehaviour, IEndDragHandler
 
     void UpdateBar()
     {
-        foreach (var item in barImage)
+        foreach (var option in barOptions)
         {
-            item.sprite = barClosed;
+            option.barImage.sprite = option.barClosed;
         }
-        barImage[currentPage - 1].sprite = barOpen;
+        barOptions[currentPage - 1].barImage.sprite = barOptions[currentPage - 1].barOpen;
     }
 
     void UpdateArrowButton()
