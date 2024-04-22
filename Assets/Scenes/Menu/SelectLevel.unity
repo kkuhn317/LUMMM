@@ -328,7 +328,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 1499598104, guid: d17a6868fb3868b4681c1b42e767993e, type: 3}
+  m_Sprite: {fileID: 1659099890, guid: d17a6868fb3868b4681c1b42e767993e, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -2512,6 +2512,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b5c1659d90c9fc94c8af40c2204ec940, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  upScale: {x: 0.27, y: 1.28, z: 1.28}
+  normalScale: {x: 0.21, y: 1, z: 1}
 --- !u!1 &891672918
 GameObject:
   m_ObjectHideFlags: 0
@@ -2674,6 +2676,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b5c1659d90c9fc94c8af40c2204ec940, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  upScale: {x: 0.27, y: 1.28, z: 1.28}
+  normalScale: {x: 0.21, y: 1, z: 1}
 --- !u!1001 &902072756
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -5945,13 +5949,15 @@ MonoBehaviour:
   levelPagesRect: {fileID: 771481176}
   tweenTime: 0.3
   tweenType: 6
-  barImage:
-  - {fileID: 74116885}
-  - {fileID: 139918550}
-  barClosed: {fileID: -1931603470, guid: d17a6868fb3868b4681c1b42e767993e, type: 3}
-  barOpen: {fileID: 1499598104, guid: d17a6868fb3868b4681c1b42e767993e, type: 3}
   previousBtn: {fileID: 891672920}
   nextBtn: {fileID: 779972639}
+  barOptions:
+  - barImage: {fileID: 74116885}
+    barClosed: {fileID: -2004413193, guid: d17a6868fb3868b4681c1b42e767993e, type: 3}
+    barOpen: {fileID: 1659099890, guid: d17a6868fb3868b4681c1b42e767993e, type: 3}
+  - barImage: {fileID: 139918550}
+    barClosed: {fileID: -1931603470, guid: d17a6868fb3868b4681c1b42e767993e, type: 3}
+    barOpen: {fileID: 1499598104, guid: d17a6868fb3868b4681c1b42e767993e, type: 3}
 --- !u!1 &1708363532
 GameObject:
   m_ObjectHideFlags: 0
