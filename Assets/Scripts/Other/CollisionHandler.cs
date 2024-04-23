@@ -14,16 +14,29 @@ public class CollisionHandler : MonoBehaviour
         audioSource = GetComponent<AudioSource>();
     }
 
+    private void onPlayerHit(Vector2 hitPoint)
+    {
+        Instantiate(objectToSpawn, hitPoint, Quaternion.identity);
+
+        if (audioSource != null)
+        {
+            audioSource.PlayOneShot(hit);
+        }
+    }
+
     private void OnCollisionEnter2D(Collision2D collision)
     {
         if (collision.gameObject.CompareTag("Player"))
         {
-            Instantiate(objectToSpawn, collision.transform.position, Quaternion.identity);
+            onPlayerHit(collision.GetContact(0).point);
+        }
+    }
 
-            if (audioSource != null)
-            {
-                audioSource.PlayOneShot(hit);
-            }
+    private void OnTriggerEnter2D(Collider2D collider)
+    {
+        if (collider.gameObject.CompareTag("Player"))
+        {
+            onPlayerHit(collider.ClosestPoint(transform.position));
         }
     }
 }
