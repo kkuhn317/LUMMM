@@ -22,6 +22,8 @@ public static class GlobalVariables
     public static bool OnScreenControls = false;
     public static bool mobileRunButtonPressed = false;
 
+    public static bool TimeLimit = true;
+
     public static bool enablePlushies = false;
     public static bool enableBetaMode = false;
 

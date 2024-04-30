@@ -11,6 +11,7 @@ public class GameSettings : MonoBehaviour
     public Toggle InfiniteLivesToggle;
     public Toggle CheckpointsToggle;
     public Toggle OnScreenControlsToggle;
+    public Toggle TimeLimitToggle;
     public TMP_Dropdown resolutionDropdown;
     public TMP_Text resolutionText;
     public TMP_Dropdown graphicsQualityDropdown;
@@ -22,15 +23,18 @@ public class GameSettings : MonoBehaviour
     public Sprite fullscreenOffSprite;
 
     [Header("Gameplay")]
-    public Image InfiniteLivesMode;
-    public Image CheckpointsAllowed;
+    public Image InfiniteLivesModImage;
+    public Image CheckpointsAllowedImage;
     public Image OnScreenControlsImage;
+    public Image TimeLimitModeImage;
     public Sprite enableInfiniteLivesMode;
     public Sprite disabledInfiniteLivesMode;
     public Sprite enableCheckpoints;
     public Sprite disabledCheckpoints;
     public Sprite enabledOnScreenControls;
     public Sprite disabledOnScreenControls;
+    public Sprite enableTimeLimitMode;
+    public Sprite disableTimeLimitMode;
 
     private void Start()
     {
@@ -40,6 +44,7 @@ public class GameSettings : MonoBehaviour
         ConfigureInfiniteLives();
         ConfigureCheckpoints();
         ConfigureOnScreenControls();
+        ConfigureTimeLimit();
     }
 
     Resolution[] GetResolutions()
@@ -138,14 +143,14 @@ public class GameSettings : MonoBehaviour
     {
         bool isInfiniteLivesMode = PlayerPrefs.GetInt(SettingsKeys.InfiniteLivesKey, 0) == 1;
         InfiniteLivesToggle.isOn = isInfiniteLivesMode;
-        InfiniteLivesMode.sprite = isInfiniteLivesMode ? enableInfiniteLivesMode : disabledInfiniteLivesMode;
+        InfiniteLivesModImage.sprite = isInfiniteLivesMode ? enableInfiniteLivesMode : disabledInfiniteLivesMode;
         InfiniteLivesToggle.onValueChanged.AddListener(OnInfiniteLivesToggleValueChanged);
     }
 
     private void OnInfiniteLivesToggleValueChanged(bool isInfiniteLivesMode)
     {
         InfiniteLivesToggle.isOn = isInfiniteLivesMode;
-        InfiniteLivesMode.sprite = isInfiniteLivesMode ? enableInfiniteLivesMode : disabledInfiniteLivesMode;
+        InfiniteLivesModImage.sprite = isInfiniteLivesMode ? enableInfiniteLivesMode : disabledInfiniteLivesMode;
         PlayerPrefs.SetInt(SettingsKeys.InfiniteLivesKey, isInfiniteLivesMode ? 1 : 0);
 
         GlobalVariables.infiniteLivesMode = isInfiniteLivesMode;
@@ -155,14 +160,14 @@ public class GameSettings : MonoBehaviour
     {
         bool isCheckpointAllowed = PlayerPrefs.GetInt(SettingsKeys.CheckpointsKey, 0) == 1;
         CheckpointsToggle.isOn = isCheckpointAllowed;
-        CheckpointsAllowed.sprite = isCheckpointAllowed ? enableCheckpoints : disabledCheckpoints;
+        CheckpointsAllowedImage.sprite = isCheckpointAllowed ? enableCheckpoints : disabledCheckpoints;
         CheckpointsToggle.onValueChanged.AddListener(OnCheckpointsToggleValueChanged);
     }
 
     private void OnCheckpointsToggleValueChanged(bool isCheckpointAllowed)
     {
         CheckpointsToggle.isOn = isCheckpointAllowed;
-        CheckpointsAllowed.sprite = isCheckpointAllowed ? enableCheckpoints : disabledCheckpoints;
+        CheckpointsAllowedImage.sprite = isCheckpointAllowed ? enableCheckpoints : disabledCheckpoints;
         PlayerPrefs.SetInt(SettingsKeys.CheckpointsKey, isCheckpointAllowed ? 1 : 0);
 
         GlobalVariables.enableCheckpoints = isCheckpointAllowed;
@@ -183,5 +188,22 @@ public class GameSettings : MonoBehaviour
         OnScreenControlsImage.sprite = isOnScreenControlsEnabled ? enabledOnScreenControls : disabledOnScreenControls;
 
         GlobalVariables.OnScreenControls = isOnScreenControlsEnabled;
+    }
+
+    private void ConfigureTimeLimit()
+    {
+        bool isTimeLimitEnabled = PlayerPrefs.GetInt(SettingsKeys.TimeLimitKey, 0) == 1;
+        TimeLimitToggle.isOn = isTimeLimitEnabled;
+        TimeLimitModeImage.sprite = isTimeLimitEnabled ? enableTimeLimitMode : disableTimeLimitMode;
+        TimeLimitToggle.onValueChanged.AddListener(OnTimeLimitValueChanged);
+    }
+
+    private void OnTimeLimitValueChanged(bool isTimeLimitEnabled)
+    {
+        TimeLimitToggle.isOn = isTimeLimitEnabled;
+        PlayerPrefs.SetInt(SettingsKeys.TimeLimitKey, isTimeLimitEnabled ? 1 : 0);
+        TimeLimitModeImage.sprite = isTimeLimitEnabled ? enableTimeLimitMode : disableTimeLimitMode;
+
+        GlobalVariables.TimeLimit = isTimeLimitEnabled;
     }
 }

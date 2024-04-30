@@ -6,6 +6,7 @@ class SettingsKeys
     public const string InfiniteLivesKey = "InfiniteLives";
     public const string CheckpointsKey = "Checkpoints";
     public const string OnScreenControlsKey = "OnScreenControls";
+    public const string TimeLimitKey = "TimeLimit";
 
     public const string MasterVolumeKey = "MasterVolume";
     public const string BGMVolumeKey = "BGMVolume";

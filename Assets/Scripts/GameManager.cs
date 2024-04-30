@@ -381,33 +381,38 @@ public class GameManager : MonoBehaviour
                 DeactivatePlushieObjects();
             }
 
-            if (!isPaused && !stopTimer)
+            if (GlobalVariables.TimeLimit) // If it's true
             {
-                // Timer 
-                currentTime -= 1 * Time.deltaTime;
-                UpdateTimerUI();
+                if (!isPaused && !stopTimer)
+                {
+                    // Timer decrease
+                    currentTime -= 1 * Time.deltaTime;
+                    UpdateTimerUI();
 
-                if (GlobalVariables.lives == maxLives)
-                {
-                    GlobalVariables.lives = 99;
-                }
+                    if (GlobalVariables.lives == maxLives)
+                    {
+                        GlobalVariables.lives = 99;
+                    }
 
-                if (currentTime <= 100 && timesRunning)
-                {
-                    audioSource.clip = timeWarning;
-                    audioSource.PlayOneShot(timeWarning);
-                    timesRunning = false;
+                    if (currentTime <= 100 && timesRunning)
+                    {
+                        audioSource.clip = timeWarning;
+                        audioSource.PlayOneShot(timeWarning);
+                        timesRunning = false;
+                    }
+                    if (currentTime <= 0 && !isTimeUp)
+                    {
+                        currentTime = 0;
+                        isTimeUp = true;
+                        // Debug.Log("Stop music!");
+                        StopAllMusic();
+                        // Debug.Log("The time has run out!");
+                        // DecrementLives();
+                        ResumeMusic(music);
+                    }
                 }
-                if (currentTime <= 0 && !isTimeUp)
-                {
-                    currentTime = 0;
-                    isTimeUp = true;
-                    // Debug.Log("Stop music!");
-                    StopAllMusic();
-                    // Debug.Log("The time has run out!");
-                    // DecrementLives();
-                    ResumeMusic(music);
-                }
+            } else {
+                timerText.text = "INF!";
             }
         }
     }
@@ -715,12 +720,12 @@ public class GameManager : MonoBehaviour
             Debug.Log("All green coins collected");
         }
 
-        if (!GlobalVariables.infiniteLivesMode && !GlobalVariables.enableCheckpoints)
+        if (!GlobalVariables.infiniteLivesMode && !GlobalVariables.enableCheckpoints && GlobalVariables.TimeLimit)
         {
             Debug.Log("You complete the level without advantages, Congrats! You did it! Yay :D!");
         }
 
-        if (collectedGreenCoins.Count == greenCoins.Length && !GlobalVariables.infiniteLivesMode && !GlobalVariables.enableCheckpoints)
+        if (collectedGreenCoins.Count == greenCoins.Length && !GlobalVariables.infiniteLivesMode && !GlobalVariables.enableCheckpoints && GlobalVariables.TimeLimit)
         {
             Debug.Log("Level completed perfect");
             PlayerPrefs.SetInt("LevelPerfect_" + levelID, 1);
