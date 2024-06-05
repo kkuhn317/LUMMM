@@ -91,6 +91,9 @@ public class MarioMovement : MonoBehaviour
     float colliderY;
     float collideroffsetY;
 
+    // Height offset for raycasts
+    Vector3 HOffset => new(0, inCrouchState ? -(groundLength / 2) : 0f, 0);
+
     public Vector3 colliderOffset;
     public float damageinvinctime = 3f;
     public float invincetimeremain = 0f;
@@ -101,6 +104,7 @@ public class MarioMovement : MonoBehaviour
     [Header("Animation Events")]
     public Vector3 animationScale = new Vector3(1, 1, 1);   // animate this instead of the scale directly
     public Vector3 originalScale;
+    public Quaternion animationRotation = Quaternion.identity;  // If not Quaternion.identity, his rotation will be set to this
     public bool wasScaledNormal = true;
     private bool isYeahAnimationPlaying = false;
     private bool hasEnteredAnimationYeahTrigger = false;
@@ -232,6 +236,12 @@ public class MarioMovement : MonoBehaviour
         }
         transform.parent = myParent;
 
+        // set rotation
+        if (animationRotation != Quaternion.identity)
+        {
+            transform.rotation = animationRotation;
+        }
+
         if (invincetimeremain > 0f) {
             sprite.color = new Color(sprite.color.r, sprite.color.g, sprite.color.b, 0.5f);
             invincetimeremain -= Time.deltaTime;
@@ -348,39 +358,13 @@ public class MarioMovement : MonoBehaviour
             }
         }
 
-        // Vertical raycast offset (based on crouch state)
-        float raycastHeight = inCrouchState ? -(groundLength / 2) : 0f;
-        float updGroundLength = inCrouchState ? groundLength / 2 : groundLength;
-        float updCeilingLength = inCrouchState ? ceilingLength / 2 : ceilingLength;
-        Vector3 HOffset = new Vector3(0, raycastHeight, 0);
-
-
-        // Floor detection
-        onMovingPlatform = false;
-        transform.parent = null;
-
-        RaycastHit2D groundHit1 = Physics2D.Raycast(transform.position + colliderOffset + HOffset, Vector2.down, updGroundLength, groundLayer);
-        RaycastHit2D groundHit2 = Physics2D.Raycast(transform.position - colliderOffset + HOffset, Vector2.down, updGroundLength, groundLayer);
-
         bool wasInAir = !onGround;   // store if mario was in the air last frame
 
-        onGround = (groundHit1 || groundHit2) && (rb.velocity.y <= 0.01f || onGround);
+        RaycastHit2D? hitRayMaybe = CheckGround();
 
-        if (onGround) {
+        if (onGround && hitRayMaybe != null) {
 
-            RaycastHit2D hitRay = groundHit1;
-
-            // print("ground1: " + groundHit1.transform.gameObject.tag);
-            // print("ground2: " + groundHit2.transform.gameObject.tag);
-
-            // instead, choose the higher of the two ground hits
-            if (groundHit1 && groundHit2) {
-                hitRay = groundHit1.point.y > groundHit2.point.y ? groundHit1 : groundHit2;
-            } else if (groundHit1) {
-                hitRay = groundHit1;
-            } else if (groundHit2) {
-                hitRay = groundHit2;
-            }
+            RaycastHit2D hitRay = (RaycastHit2D)hitRayMaybe;
 
             bool firstFrameMovingPlatform = false;
             if (hitRay.transform.gameObject.tag == "MovingPlatform") {
@@ -494,6 +478,7 @@ public class MarioMovement : MonoBehaviour
 
         // Ceiling detection
         // TODO: Use this for hittable blocks (will fix not being able to hit the block you want)
+        float updCeilingLength = inCrouchState ? ceilingLength / 2 : ceilingLength;
         RaycastHit2D ceilLeft = Physics2D.Raycast(transform.position - colliderOffset + HOffset, Vector2.up, updCeilingLength, groundLayer);
         RaycastHit2D ceilMid = Physics2D.Raycast(transform.position + HOffset, Vector2.up, ceilingLength, groundLayer);
         RaycastHit2D ceilRight = Physics2D.Raycast(transform.position + colliderOffset + HOffset, Vector2.up, updCeilingLength, groundLayer);
@@ -537,6 +522,38 @@ public class MarioMovement : MonoBehaviour
 
         // Physics
         modifyPhysics();
+    }
+
+    public RaycastHit2D? CheckGround() {
+        // Vertical raycast offset (based on crouch state)
+        float updGroundLength = inCrouchState ? groundLength / 2 : groundLength;
+
+        // Floor detection
+        onMovingPlatform = false;
+        transform.parent = null;
+
+        RaycastHit2D groundHit1 = Physics2D.Raycast(transform.position + colliderOffset + HOffset, Vector2.down, updGroundLength, groundLayer);
+        RaycastHit2D groundHit2 = Physics2D.Raycast(transform.position - colliderOffset + HOffset, Vector2.down, updGroundLength, groundLayer);
+
+        onGround = (groundHit1 || groundHit2) && (rb.velocity.y <= 0.01f || onGround);
+
+        if (onGround) {
+            RaycastHit2D hitRay = groundHit1;
+
+            // print("ground1: " + groundHit1.transform.gameObject.tag);
+            // print("ground2: " + groundHit2.transform.gameObject.tag);
+
+            // instead, choose the higher of the two ground hits
+            if (groundHit1 && groundHit2) {
+                hitRay = groundHit1.point.y > groundHit2.point.y ? groundHit1 : groundHit2;
+            } else if (groundHit1) {
+                hitRay = groundHit1;
+            } else if (groundHit2) {
+                hitRay = groundHit2;
+            }
+            return hitRay;
+        }
+        return null;
     }
 
     void moveCharacter(float horizontal) {
