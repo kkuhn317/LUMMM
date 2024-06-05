@@ -192,7 +192,7 @@ public class GameSettings : MonoBehaviour
 
     private void ConfigureTimeLimit()
     {
-        bool isTimeLimitEnabled = PlayerPrefs.GetInt(SettingsKeys.TimeLimitKey, 0) == 1;
+        bool isTimeLimitEnabled = PlayerPrefs.GetInt(SettingsKeys.TimeLimitKey, 1) == 1;
         TimeLimitToggle.isOn = isTimeLimitEnabled;
         TimeLimitModeImage.sprite = isTimeLimitEnabled ? enableTimeLimitMode : disableTimeLimitMode;
         TimeLimitToggle.onValueChanged.AddListener(OnTimeLimitValueChanged);

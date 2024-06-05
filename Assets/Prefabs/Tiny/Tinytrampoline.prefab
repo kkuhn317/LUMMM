@@ -122,9 +122,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cd4b98eb5afdfe249a3d61bbcba2d113, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enemyBounce: 0
+  objectBounce: 0
   playerBouncePower: 5
-  enemyBouncePower: 15
+  objectBouncePower: 25
+  sideways: 0
 --- !u!61 &194574470165758685
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -164,7 +165,7 @@ AudioSource:
   m_audioClip: {fileID: 8300000, guid: 6db2c81fb3c026d40a90d8d52dc8384b, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 1
-  m_Pitch: 1
+  m_Pitch: 1.25
   Loop: 0
   Mute: 0
   Spatialize: 0
@@ -296,6 +297,7 @@ MonoBehaviour:
   checkObjectCollision: 1
   ceilingDetection: 1
   DontFallOffLedges: 0
+  bounceOffWalls: 1
   flipObject: 0
   FrequentMovement: 0
   lavaKill: 1

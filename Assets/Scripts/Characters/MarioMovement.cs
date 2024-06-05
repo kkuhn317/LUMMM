@@ -783,7 +783,7 @@ public class MarioMovement : MonoBehaviour
         relPosObj.transform.localScale = new Vector3(relScaleX, 1, 1);
     }
 
-    void FlipTo(bool right) {
+    public void FlipTo(bool right) {
         if (facingRight != right) {
             Flip();
         }
