@@ -10,6 +10,8 @@ public class Arrow : BulletBill
     public int stuckOrderInLayer = -2;
     public float stickInOffset = 0.1f;
 
+    public float fadeTime = 0.5f;
+
     protected override void hitByStomp(GameObject player)
     {   
         // Just damage the player from all sides
@@ -24,7 +26,6 @@ public class Arrow : BulletBill
 
     protected override void onTouchWallRaycast(RaycastHit2D hit)
     {
-        print("i got stuck in a wall");
         if (!stuckInWall)
         {
             stuckInWall = true;
@@ -52,9 +53,30 @@ public class Arrow : BulletBill
             // Set order in layer
             GetComponentInChildren<SpriteRenderer>().sortingOrder = stuckOrderInLayer;
 
-            // Destroy after a while
-            Destroy(gameObject, stuckInWallTime);
-
+            // Fade out
+            // wait a bit before fading out
+            Invoke(nameof(StartFadeOut), stuckInWallTime);
         }
+    }
+
+    private void StartFadeOut()
+    {
+        StartCoroutine(FadeOut());
+    }
+
+    protected IEnumerator FadeOut()
+    {
+        // Fade out over time, then destroy
+        float time = 0;
+        while (time < fadeTime)
+        {
+            time += Time.deltaTime;
+            Color color = GetComponentInChildren<SpriteRenderer>().color;
+            color.a = 1 - time / fadeTime;
+            GetComponentInChildren<SpriteRenderer>().color = color;
+            yield return null;
+        }
+
+        Destroy(gameObject);
     }
 }
