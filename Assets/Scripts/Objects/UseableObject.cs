@@ -7,7 +7,7 @@ public class UseableObject : MonoBehaviour
 {
     public bool hasUsed = false;
     public GameObject keyActivate;
-    public bool resettable = true;  // using again reset the object
+    public bool resettable = true;  // using again will reset the object
     public bool reuseable = false;  // "hasUsed" is not set to false after use
     public bool playerInArea = false;
 
@@ -25,6 +25,7 @@ public class UseableObject : MonoBehaviour
 
         if (!hasUsed)
         {
+            // Use
             if (!reuseable)
             {
                 hasUsed = true;
@@ -38,6 +39,7 @@ public class UseableObject : MonoBehaviour
         }
         else if (resettable)
         {
+            // Reset
             hasUsed = false;
             if (keyActivate != null)
             keyActivate.SetActive(true);

@@ -8,7 +8,7 @@ public class Cannon : MonoBehaviour
     public float angle = 0f;
 
     public float initialDelay = 0f;
-    public float rateOfFire = 3f;
+    public float rateOfFire = 3f; // 0 or less means no auto fire
 
     public GameObject projectilePrefab;
     public GameObject projectileEffectPrefab;
@@ -27,7 +27,9 @@ public class Cannon : MonoBehaviour
     void Start()
     {
         audioSource = GetComponent<AudioSource>();
-        InvokeRepeating(nameof(AutoFire), initialDelay, rateOfFire);
+        if (rateOfFire > 0f) {
+            InvokeRepeating(nameof(AutoFire), initialDelay, rateOfFire);
+        }
     }
 
     void AutoFire()

@@ -4,9 +4,6 @@ using UnityEngine.InputSystem;
 
 public class Banana : MonoBehaviour
 {
-    public Vector2 velocity = new Vector2(1, 4);
-    public float slipRotationSpeed = 100f;
-    public float slipForce = 20f;
     private bool isSlipping = false;
 
     private Animator animator;

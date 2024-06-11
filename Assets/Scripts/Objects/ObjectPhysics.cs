@@ -171,7 +171,7 @@ public class ObjectPhysics : MonoBehaviour
 
             // Fade out
             if (KnockAwayDissapearTime > 0) {
-                SpriteRenderer spriteRenderer = GetComponent<SpriteRenderer>();
+                SpriteRenderer spriteRenderer = GetComponentInChildren<SpriteRenderer>();
                 Color color = spriteRenderer.color;
                 color.a -= Time.deltaTime / KnockAwayDissapearTime;
                 spriteRenderer.color = color;
@@ -203,6 +203,7 @@ public class ObjectPhysics : MonoBehaviour
         }
 
         Vector3 pos = transform.position;
+        Vector3 oldPos = pos;
 
         // check walls first
         if (objectState != ObjectState.knockedAway)
@@ -262,8 +263,16 @@ public class ObjectPhysics : MonoBehaviour
             scale.x = movingLeft ? normalScale.x : -normalScale.x;
         }
 
-        transform.position = pos;
-        transform.localScale = scale;
+        if (transform.position != oldPos)
+        {
+            // Something else set the position while we were moving
+            // In this case, we will not move the object
+            // So that the other movement takes precedence
+            // Example: Arrow getting stuck in a wall
+        } else {
+            transform.position = pos;
+            transform.localScale = scale;
+        }
 
         Physics.SyncTransforms();
 
@@ -600,9 +609,16 @@ public class ObjectPhysics : MonoBehaviour
         }
 
         // hit something
-        onTouchWall(hitRay.collider.gameObject);
+        onTouchWallRaycast(hitRay);
         
         return true;
+    }
+
+    // For more detailed wall collision
+    protected virtual void onTouchWallRaycast(RaycastHit2D hitRay)
+    {
+        // override me for custom behavior
+        onTouchWall(hitRay.collider.gameObject);
     }
 
     protected virtual void onTouchWall(GameObject other)

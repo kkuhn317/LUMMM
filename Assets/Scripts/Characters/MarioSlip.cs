@@ -22,7 +22,7 @@ public class MarioSlip : MonoBehaviour
 
         bool movingRight = rb.velocity.x >= 0;
 
-        float horizVel = movingRight ? 10 : -10;
+        float horizVel = movingRight ? 5 : -5;
 
         // Remove constraints
         rb.constraints = RigidbodyConstraints2D.None;
@@ -31,7 +31,7 @@ public class MarioSlip : MonoBehaviour
         rb.AddTorque(movingRight ? 100 : -100);
 
         // Set his vertical velocity
-        rb.velocity = new Vector2(horizVel, 20);
+        rb.velocity = new Vector2(horizVel, 15);
 
         // Set gravity scale to the in air gravity
         rb.gravityScale = marioMovement.fallgravity;

@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Events;
 
 public class LeverController : UseableObject
 {
@@ -14,11 +15,18 @@ public class LeverController : UseableObject
     private Quaternion initialRotation;
     private Vector3 initialPosition;
 
+    private Vector3 currentTargetRot;   // Will be set to either targetRotation or initialRotation
+    private Vector3 currentTargetPos;   // Will be set to either targetPosition or initialPosition
+
     private AudioSource audioSourcePullerRotate;
     public AudioSource audioSourceBarrierMove;
 
     public AudioClip pullerAudioClip; // Audio clip for puller rotation
     public AudioClip barriermoveAudioClip;   // Audio clip for barrier movement
+
+    // Used to do more custom things when the lever is pulled
+    [SerializeField] UnityEvent onLeverPull;
+    [SerializeField] UnityEvent onLeverReset;
 
     private void Start()
     {
@@ -37,14 +45,14 @@ public class LeverController : UseableObject
 
     protected override void UseObject()
     {
-        // Pull the lever
-        RotateObject(targetRotation);
+        RotateHandle(targetRotation);   // Rotate lever handle
+        onLeverPull.Invoke();
     }
 
     protected override void ResetObject()
     {
-        RotateObject(initialRotation.eulerAngles); // Reset lever rotation
-        MoveObject(initialPosition); // Reset the object position and rotation
+        RotateHandle(initialRotation.eulerAngles); // Reset lever rotation
+        onLeverReset.Invoke();
     }
 
     private void Update()
@@ -53,16 +61,21 @@ public class LeverController : UseableObject
         {
             // Rotate the object smoothly over time
             float step = rotationSpeed * Time.deltaTime;
-            objectToRotate.rotation = Quaternion.RotateTowards(objectToRotate.rotation, Quaternion.Euler(targetRotation), step);
+            objectToRotate.rotation = Quaternion.RotateTowards(objectToRotate.rotation, Quaternion.Euler(currentTargetRot), step);
 
-            if (Quaternion.Angle(objectToRotate.rotation, Quaternion.Euler(targetRotation)) < 0.01f)
+            if (Quaternion.Angle(objectToRotate.rotation, Quaternion.Euler(currentTargetRot)) < 0.01f)
             {
-                objectToRotate.rotation = Quaternion.Euler(targetRotation);
+                objectToRotate.rotation = Quaternion.Euler(currentTargetRot);
                 isRotating = false;
 
                 if (!isMoving)
                 {
-                    MoveObject(targetPosition);
+                    if (hasUsed) {
+                        MoveObject(targetPosition);
+                    }
+                    else {
+                        MoveObject(initialPosition);
+                    }
                 }
             }
         }
@@ -71,19 +84,19 @@ public class LeverController : UseableObject
         {
             // Move the object smoothly over time
             float step = moveSpeed * Time.deltaTime;
-            objectToMove.position = Vector3.MoveTowards(objectToMove.position, targetPosition, step);
+            objectToMove.position = Vector3.MoveTowards(objectToMove.position, currentTargetPos, step);
 
-            if (Vector3.Distance(objectToMove.position, targetPosition) < 0.01f)
+            if (Vector3.Distance(objectToMove.position, currentTargetPos) < 0.01f)
             {
-                objectToMove.position = targetPosition;
+                objectToMove.position = currentTargetPos;
                 isMoving = false;
             }
         }
     }
 
-    private void RotateObject(Vector3 targetRot)
+    private void RotateHandle(Vector3 targetRot)
     {
-        targetRotation = targetRot;
+        currentTargetRot = targetRot;
         isRotating = true;
 
         if (audioSourcePullerRotate != null && pullerAudioClip != null)
@@ -94,7 +107,7 @@ public class LeverController : UseableObject
 
     private void MoveObject(Vector3 targetPos)
     {
-        targetPosition = targetPos;
+        currentTargetPos = targetPos;
         isMoving = true;
 
         if (audioSourceBarrierMove != null && barriermoveAudioClip != null)

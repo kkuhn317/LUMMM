@@ -15,7 +15,7 @@ public class PositionTriggerEvent : MonoBehaviour
 
     bool playerInside = false;
 
-    bool active = true;
+    public bool active = true;
 
     private GameObject getPlayer()
     {
@@ -67,9 +67,19 @@ public class PositionTriggerEvent : MonoBehaviour
                 }
             }
         }
-
-
     }
+
+    // For use by unity events
+    public void Activate()
+    {
+        active = true;
+    }
+
+    public void Deactivate()
+    {
+        active = false;
+    }
+
 
     Vector2 topLeft => (Vector2)transform.position + new Vector2(-size.x / 2, size.y / 2);
     Vector2 topRight => (Vector2)transform.position + new Vector2(size.x / 2, size.y / 2);

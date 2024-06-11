@@ -30,10 +30,10 @@ public class BulletBill : EnemyAI
         
     }
 
-    void RotateToMovement() {
+    protected virtual void RotateToMovement() {
         float angle = Mathf.Atan2(realVelocity.y, realVelocity.x) * Mathf.Rad2Deg;
         transform.rotation = Quaternion.AngleAxis(angle + 180, Vector3.forward);
-        GetComponent<SpriteRenderer>().flipY = !movingLeft;
+        GetComponentInChildren<SpriteRenderer>().flipY = !movingLeft;
     }
 
     // knock away on stomp
