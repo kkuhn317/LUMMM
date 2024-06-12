@@ -609,16 +609,9 @@ public class ObjectPhysics : MonoBehaviour
         }
 
         // hit something
-        onTouchWallRaycast(hitRay);
+        onTouchWall(hitRay.collider.gameObject);
         
         return true;
-    }
-
-    // For more detailed wall collision
-    protected virtual void onTouchWallRaycast(RaycastHit2D hitRay)
-    {
-        // override me for custom behavior
-        onTouchWall(hitRay.collider.gameObject);
     }
 
     protected virtual void onTouchWall(GameObject other)

@@ -9,8 +9,8 @@ public class Arrow : BulletBill
     public bool stuckInWall = false;
     public int stuckOrderInLayer = -2;
     public float stickInOffset = 0.1f;
-
     public float fadeTime = 0.5f;
+    private RaycastHit2D hit;
 
     protected override void hitByStomp(GameObject player)
     {   
@@ -24,39 +24,62 @@ public class Arrow : BulletBill
         Destroy(gameObject);
     }
 
-    protected override void onTouchWallRaycast(RaycastHit2D hit)
+    // Don't do regular landing or wall touch. Instead, do our own behavior
+    public override void Land() {}
+    protected override void onTouchWall(GameObject wall){}
+
+    protected override void FixedUpdate()
     {
-        if (!stuckInWall)
+        base.FixedUpdate();
+
+        if (stuckInWall)
+        {
+            return;
+        }
+
+        // Raycast to check if we hit a wall
+        float distance = velocity.magnitude * Time.fixedDeltaTime;
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, velocity.normalized, distance, wallMask);
+        if (hit)
         {
             stuckInWall = true;
-
-            // Go in the wall a bit
-            Vector2 stickOutOffset = realVelocity.normalized * stickInOffset;
-            transform.position = hit.point + stickOutOffset;
-
-            // Stop moving
-            velocity = Vector2.zero;
-            movement = ObjectMovement.still;
-
-            // No hitbox
-            GetComponent<BoxCollider2D>().enabled = false;
-
-            // Stop rotating to movement
-            rotateToMovement = false;
-
-            // Call animation
-            GetComponent<Animator>().SetTrigger("HitWall");
-
-            // Play sound
-            GetComponent<AudioSource>().Play();
+            this.hit = hit;
 
             // Set order in layer
             GetComponentInChildren<SpriteRenderer>().sortingOrder = stuckOrderInLayer;
 
-            // Fade out
-            // wait a bit before fading out
-            Invoke(nameof(StartFadeOut), stuckInWallTime);
+            float timeUntilStuck = (hit.distance + stickInOffset) / velocity.magnitude;
+
+            // wait a bit before sticking in the wall
+            // This amount is probably not perfect, but it'll get fixed in StickInGround
+            Invoke(nameof(StickInGround), timeUntilStuck);
         }
+    }
+
+    private void StickInGround()
+    {
+        // Set position to hit position to correctly stick in wall
+        transform.position = hit.point + velocity.normalized * stickInOffset;
+
+        // Stop moving
+        velocity = Vector2.zero;
+        movement = ObjectMovement.still;
+
+        // No hitbox
+        GetComponent<BoxCollider2D>().enabled = false;
+
+        // Stop rotating to movement
+        rotateToMovement = false;
+
+        // Call animation
+        GetComponent<Animator>().SetTrigger("HitWall");
+
+        // Play sound
+        GetComponent<AudioSource>().Play();
+
+        // Fade out
+        // wait a bit before fading out
+        Invoke(nameof(StartFadeOut), stuckInWallTime);
     }
 
     private void StartFadeOut()
@@ -64,7 +87,7 @@ public class Arrow : BulletBill
         StartCoroutine(FadeOut());
     }
 
-    protected IEnumerator FadeOut()
+    private IEnumerator FadeOut()
     {
         // Fade out over time, then destroy
         float time = 0;
@@ -78,5 +101,16 @@ public class Arrow : BulletBill
         }
 
         Destroy(gameObject);
+    }
+
+
+    protected override void OnDrawGizmosSelected()
+    {
+        base.OnDrawGizmosSelected();
+
+        // Raycast
+        Gizmos.color = Color.yellow;
+        float distance = velocity.magnitude * Time.fixedDeltaTime;
+        Gizmos.DrawRay(transform.position, velocity.normalized * distance);
     }
 }
