@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Localization.Settings;
 using UnityEngine.UI;
 
 public class LevelSelectionManager : MonoBehaviour
@@ -64,9 +65,9 @@ public class LevelSelectionManager : MonoBehaviour
         selectedLevelButton.selectionMark.SetActive(true);
 
         // Update the level info text
-        levelNameText.text = button.levelInfo.levelName;
+        levelNameText.text = LocalizationSettings.StringDatabase.GetLocalizedString("Level_" + button.levelInfo.levelID);
         videoYearText.text = button.levelInfo.videoYear;
-        levelDescriptionText.text = button.levelInfo.levelDescription;
+        levelDescriptionText.text = LocalizationSettings.StringDatabase.GetLocalizedString("Desc_" + button.levelInfo.levelID);
 
         // Remove any existing listeners from the play button's onClick event
         videoLinkButton.onClick.RemoveAllListeners();

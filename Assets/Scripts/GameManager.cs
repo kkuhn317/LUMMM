@@ -346,12 +346,10 @@ public class GameManager : MonoBehaviour
     LevelInfo TestLevelInfo() {
         LevelInfo info = ScriptableObject.CreateInstance<LevelInfo>();
         info.levelID = "test";
-        info.levelName = "Unknown. Run from SelectLevel scene.";
         info.levelScene = SceneManager.GetActiveScene().name;
         info.lives = 3;
         info.videoYear = "Unknown";
         info.videoLink = "Unknown";
-        info.levelDescription = "Unknown. Run from SelectLevel scene.";
         return info;
     }
 
