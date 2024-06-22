@@ -17,6 +17,7 @@ public class GameManager : MonoBehaviour
 
     [HideInInspector]
     public float currentTime;
+    public bool hideCursor = true;
 
     [Header("Timer")]
     public float startingTime;
@@ -301,7 +302,9 @@ public class GameManager : MonoBehaviour
     {
         pauseable = true;
         isPaused = false;
-        CursorHelper.HideCursor();
+        if (hideCursor) {
+            CursorHelper.HideCursor();
+        }
 
         if (music) {
             print("Music found");

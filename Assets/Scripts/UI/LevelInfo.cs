@@ -13,5 +13,4 @@ public class LevelInfo : ScriptableObject
     public int lives;
 
     public bool beta;
-    
 }
