@@ -11,5 +11,4 @@ class SettingsKeys
     public const string MasterVolumeKey = "MasterVolume";
     public const string BGMVolumeKey = "BGMVolume";
     public const string SFXVolumeKey = "SFXVolume";
-
 }

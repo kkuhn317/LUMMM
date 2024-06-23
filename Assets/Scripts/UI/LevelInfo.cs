@@ -9,5 +9,4 @@ public class LevelInfo : ScriptableObject
     public string videoLink;
     public int lives;
     public bool beta;
-    
 }
