@@ -2,8 +2,12 @@ using UnityEngine;
 
 public class Grrol : EnemyAI
 {
+    [Header("Grrol")]
     [SerializeField] private Transform rotationTarget; // The object to which rotation is applied
     [SerializeField] private float rotationSpeedMultiplier = 1f; // Multiplier for rotation speed
+    [SerializeField] private bool enableCameraShake = true; // whether to enable camera shake on touch wall
+    [SerializeField] private bool startMovementWhenTouchGround = true;
+    [SerializeField] private float groundMovementSpeed = 5f;
 
     private Animator animator;
     private AudioSource audioSource;
@@ -22,7 +26,7 @@ public class Grrol : EnemyAI
         base.Update();
 
         // rotation speed: velocity / radius
-        
+
         // Calculate linear velocity magnitude
         float linearVelocityMagnitude = Mathf.Sqrt(velocity.x * velocity.x + velocity.y * velocity.y);
 
@@ -50,17 +54,23 @@ public class Grrol : EnemyAI
                 animator.speed = 0f; // Pause the animator
             }
         }
+
+        if (startMovementWhenTouchGround && objectState == ObjectState.grounded)
+        {
+            velocity.x = groundMovementSpeed;
+        }
     }
 
     protected override void onTouchWall(GameObject other)
     {
         base.onTouchWall(other);
 
-        // Get the CameraFollow component from the camera
-        CameraFollow cameraFollow = Camera.main.GetComponent<CameraFollow>();
-
-        // Trigger camera shake
-        cameraFollow.ShakeCameraRepeatedly(0.25f, 2.0f, 1.0f, new Vector3(0f, 1f, 0f), 3, 0.1f);
+        if (enableCameraShake) {
+            // Get the CameraFollow component from the camera
+            CameraFollow cameraFollow = Camera.main.GetComponent<CameraFollow>();
+            // Trigger camera shake
+            cameraFollow.ShakeCameraRepeatedly(0.25f, 2.0f, 1.0f, new Vector3(0f, 1f, 0f), 3, 0.1f);
+        }
 
         if (audioSource != null)
         {
