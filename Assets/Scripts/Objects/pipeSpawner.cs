@@ -12,7 +12,6 @@ public class pipeSpawner : MonoBehaviour
 
     private List<GameObject> enemies;
 
-
     // Start is called before the first frame update
     void Start()
     {
@@ -23,7 +22,7 @@ public class pipeSpawner : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        // check for dead enemies
+        // Check for dead enemies
         for (int i = 0; i < enemies.Count; i++)
         {
             if (enemies[i] == null)
@@ -44,11 +43,24 @@ public class pipeSpawner : MonoBehaviour
             {
                 script.enabled = false;
             }
-            newEnemy.GetComponent<Collider2D>().enabled = false;
-            int ogLayer = newEnemy.GetComponent<SpriteRenderer>().sortingLayerID;
-            newEnemy.transform.SetParent(this.transform.parent);
-            newEnemy.GetComponent<SpriteRenderer>().sortingLayerID = 0;
-            newEnemy.GetComponent<SpriteRenderer>().sortingOrder = -1;
+
+            Collider2D enemyCollider = newEnemy.GetComponent<Collider2D>();
+            if (enemyCollider != null)
+            {
+                enemyCollider.enabled = false;
+            }
+
+            SpriteRenderer enemyRenderer = newEnemy.GetComponent<SpriteRenderer>();
+            int ogLayer = 0;
+
+            if (enemyRenderer != null)
+            {
+                ogLayer = enemyRenderer.sortingLayerID;
+                newEnemy.transform.SetParent(this.transform.parent);
+                enemyRenderer.sortingLayerID = 0;
+                enemyRenderer.sortingOrder = -1;
+            }
+
             StartCoroutine(MoveOut(newEnemy, ogLayer, scripts));
             enemies.Add(newEnemy);
         }
@@ -65,12 +77,23 @@ public class pipeSpawner : MonoBehaviour
             }
             yield return null;
         }
+
         foreach (MonoBehaviour script in scripts)
         {
             script.enabled = true;
         }
-        enemy.GetComponent<SpriteRenderer>().sortingLayerID = ogLayer;
-        enemy.GetComponent<SpriteRenderer>().sortingOrder = 0;
-        enemy.GetComponent<Collider2D>().enabled = true;
+
+        SpriteRenderer enemyRenderer = enemy.GetComponent<SpriteRenderer>();
+        if (enemyRenderer != null)
+        {
+            enemyRenderer.sortingLayerID = ogLayer;
+            enemyRenderer.sortingOrder = 0;
+        }
+
+        Collider2D enemyCollider = enemy.GetComponent<Collider2D>();
+        if (enemyCollider != null)
+        {
+            enemyCollider.enabled = true;
+        }
     }
 }
