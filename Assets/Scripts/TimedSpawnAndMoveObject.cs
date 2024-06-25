@@ -40,7 +40,6 @@ public class TimedSpawnAndMoveObject : MonoBehaviour
         if (isPlayerInTrigger)
         {
             stayTimer += Time.deltaTime;
-            Debug.Log(stayTimer);
 
             if (stayTimer >= requiredStayTime)
             {

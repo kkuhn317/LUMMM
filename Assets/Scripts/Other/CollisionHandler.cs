@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,12 +7,13 @@ public class CollisionHandler : MonoBehaviour
 {
     public GameObject objectToSpawn;
     public AudioClip hit;
-
     private AudioSource audioSource;
+    private Collider2D collider;
 
     private void Start()
     {
         audioSource = GetComponent<AudioSource>();
+        collider = GetComponent<Collider2D>();
     }
 
     private void onPlayerHit(Vector2 hitPoint)
@@ -32,11 +34,11 @@ public class CollisionHandler : MonoBehaviour
         }
     }
 
-    private void OnTriggerEnter2D(Collider2D collider)
+    private void OnTriggerEnter2D(Collider2D other)
     {
-        if (collider.gameObject.CompareTag("Player"))
+        if (other.gameObject.CompareTag("Player"))
         {
-            onPlayerHit(collider.ClosestPoint(transform.position));
+            onPlayerHit(collider.ClosestPoint(other.transform.position));
         }
     }
 }

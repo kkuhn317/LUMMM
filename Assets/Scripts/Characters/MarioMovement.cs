@@ -978,17 +978,10 @@ public class MarioMovement : MonoBehaviour
 
     void OnTriggerStay2D(Collider2D other)
     {
-        // firebar, flame, etc
-        if (other.gameObject.tag == "Damaging")
-        {
-            damageMario();
-        }
-        // Lava
-        if (other.gameObject.CompareTag("Deadly"))
-        {
-            toDead();
-        }
+        print("trigger stay");
+        DetectDamagingObject(other);
     }
+    
     private void OnTriggerEnter2D(Collider2D other)
     {
         // Check if the trigger collider is the one you want to trigger the "yeah" animation
@@ -1001,6 +994,19 @@ public class MarioMovement : MonoBehaviour
         {
             swimming = true;
             animator.SetTrigger("enterWater");
+        }
+        DetectDamagingObject(other);
+    }
+
+    private void DetectDamagingObject(Collider2D other)
+    {
+        if (other.gameObject.tag == "Damaging")
+        {
+            damageMario();
+        }
+        if (other.gameObject.CompareTag("Deadly"))
+        {
+            toDead();
         }
     }
 
