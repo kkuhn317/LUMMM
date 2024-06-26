@@ -25,22 +25,29 @@ public class Grrol : EnemyAI
     {
         base.Update();
 
+        // THIS IS IF YOU WANT YOUR OBJECT ROTATES FASTER WHEN FALLING
         // rotation speed: velocity / radius
-
         // Calculate linear velocity magnitude
-        float linearVelocityMagnitude = Mathf.Sqrt(velocity.x * velocity.x + velocity.y * velocity.y);
-
+        //float linearVelocityMagnitude = Mathf.Sqrt(velocity.x * velocity.x + velocity.y * velocity.y);
         // Calculate rotation speed based on linear velocity magnitude and multiplier
-        float rotationSpeed = linearVelocityMagnitude * rotationSpeedMultiplier;
+        // float rotationSpeed = linearVelocityMagnitude * rotationSpeedMultiplier;
+        // Determine rotation direction based on whether the object is moving left
+        // float rotationDirection = movingLeft ? 1f : -1f;
+
+        // Calculate rotation speed based on the x component of velocity
+        float rotationSpeed = Mathf.Abs(velocity.x) * rotationSpeedMultiplier;
 
         // Determine rotation direction based on whether the object is moving left
         float rotationDirection = movingLeft ? 1f : -1f;
 
         // Rotate the rotationTarget object around the z-axis
-        rotationTarget.Rotate(0, 0, rotationDirection * rotationSpeed * Time.deltaTime);
+        if (rotationTarget != null)
+            rotationTarget.Rotate(0, 0, rotationDirection * rotationSpeed * Time.deltaTime);
+        else
+            Debug.Log("Rotation target missing. Please add which object you want to rotate");
 
         // Check if the object is moving
-        bool isMoving = linearVelocityMagnitude > 0;
+        bool isMoving = Mathf.Abs(velocity.x) > 0;
 
         // Set animator speed based on whether the object is moving
         if (animator != null)
@@ -64,6 +71,12 @@ public class Grrol : EnemyAI
     protected override void onTouchWall(GameObject other)
     {
         base.onTouchWall(other);
+
+        if (other == null)
+        {
+            Debug.LogError("Collision detected, but 'other' collider is null.");
+            return;
+        }
 
         if (enableCameraShake) {
             // Get the CameraFollow component from the camera
