@@ -13,7 +13,7 @@ public class CollisionHandler : MonoBehaviour
     private void Start()
     {
         audioSource = GetComponent<AudioSource>();
-        collider = GetComponent<Collider2D>();
+        collider = GetComponentInChildren<Collider2D>();
     }
 
     private void onPlayerHit(Vector2 hitPoint)
