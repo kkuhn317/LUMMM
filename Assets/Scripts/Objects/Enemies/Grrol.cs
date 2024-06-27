@@ -68,6 +68,12 @@ public class Grrol : EnemyAI
         }
     }
 
+    protected override void OnBounced() {
+        if (startMovementWhenTouchGround) {
+            velocity.x = groundMovementSpeed;
+        }
+    }
+
     protected override void onTouchWall(GameObject other)
     {
         base.onTouchWall(other);
