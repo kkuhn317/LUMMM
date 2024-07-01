@@ -5,18 +5,24 @@ using UnityEngine;
 public class pipeSpawner : MonoBehaviour
 {
     public GameObject enemy;
-    public Vector2 movement;
+    public Vector2 spawnOffset; // Offset from pipe position to start spawning enemies
+    public Vector2 movement;    // Set to (0,0) to disable animation
     public float spawnRate;
     public int maxEnemies;
     private AudioSource audioSource;
-
     private List<GameObject> enemies;
+    private ObjectPhysics.ObjectMovement objectMovement;
 
     // Start is called before the first frame update
     void Start()
     {
         enemies = new List<GameObject>();
         InvokeRepeating("SpawnEnemy", 0, spawnRate);
+
+        if (enemy.TryGetComponent<ObjectPhysics>(out var physics))
+        {
+            objectMovement = physics.movement;
+        }
     }
 
     // Update is called once per frame
@@ -37,11 +43,17 @@ public class pipeSpawner : MonoBehaviour
     {
         if (enemies.Count < maxEnemies)
         {
-            GameObject newEnemy = Instantiate(enemy, transform.position, Quaternion.identity);
-            MonoBehaviour[] scripts = newEnemy.GetComponents<MonoBehaviour>();
-            foreach (MonoBehaviour script in scripts)
+            GameObject newEnemy = Instantiate(enemy, transform.position + (Vector3)spawnOffset, Quaternion.identity);
+
+            // If no movement, don't do the animation
+            if (movement == Vector2.zero)
             {
-                script.enabled = false;
+                return;
+            }
+
+            if (newEnemy.TryGetComponent<ObjectPhysics>(out var physics))
+            {
+                physics.movement = ObjectPhysics.ObjectMovement.still;
             }
 
             Collider2D enemyCollider = newEnemy.GetComponent<Collider2D>();
@@ -61,26 +73,26 @@ public class pipeSpawner : MonoBehaviour
                 enemyRenderer.sortingOrder = -1;
             }
 
-            StartCoroutine(MoveOut(newEnemy, ogLayer, scripts));
+            StartCoroutine(MoveOut(newEnemy, ogLayer));
             enemies.Add(newEnemy);
         }
     }
 
-    IEnumerator MoveOut(GameObject enemy, int ogLayer, MonoBehaviour[] scripts)
+    IEnumerator MoveOut(GameObject enemy, int ogLayer)
     {
         while (true)
         {
             enemy.transform.position += (Vector3)movement * Time.deltaTime;
-            if (Vector2.Distance(enemy.transform.position, transform.position) > 1)
+            if (Vector2.Distance(enemy.transform.position, transform.position + (Vector3)spawnOffset) > 1)
             {
                 break;
             }
             yield return null;
         }
 
-        foreach (MonoBehaviour script in scripts)
+        if (enemy.TryGetComponent<ObjectPhysics>(out var physics))
         {
-            script.enabled = true;
+            physics.movement = objectMovement;
         }
 
         SpriteRenderer enemyRenderer = enemy.GetComponent<SpriteRenderer>();

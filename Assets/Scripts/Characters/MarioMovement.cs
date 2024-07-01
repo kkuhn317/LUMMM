@@ -20,7 +20,8 @@ public class MarioMovement : MonoBehaviour
     [HideInInspector] public Vector2 moveInput; // The raw directional input from the player's controller
     [HideInInspector] public bool crouchPressed = false;
     private bool jumpPressed = false;
-    bool runPressed = false;
+    private bool runPressed = false;
+    private bool spinPressed = false;
 
 
     [Header("Horizontal Movement")]
@@ -38,7 +39,7 @@ public class MarioMovement : MonoBehaviour
 
     [Header("Vertical Movement")]
     public float jumpSpeed = 15f;
-    public float jumpDelay = 0.25f;
+    public float jumpDelay = 0.25f; // How early you can press jump before landing
     public float terminalvelocity = 10f;
     public float startfallingspeed = 1f;
     private float jumpTimer;
@@ -144,6 +145,7 @@ public class MarioMovement : MonoBehaviour
     public AudioClip damageSound;
     public AudioClip bonkSound;
     public AudioClip swimSound;
+    public AudioClip spinJumpSound;
     public AudioClip yeahAudioClip;
     private AudioSource audioSource;
     private bool frozen = false;
@@ -169,10 +171,12 @@ public class MarioMovement : MonoBehaviour
     [Header("Additional Abilities")]
     public bool canCrawl = false;       // Only small Mario has an animation for crawling right now, so it will not be transferred after powerup
     public bool canWallJump = false;    // Only small mario has an animation for wall jumping right now, so it will not be transferred after powerup
-    public bool canSpinJump = false;    // not implemented yet
+    public bool canSpinJump = false;
     private bool wallSliding = false;
     private bool pushing = false;
     private float pushingSpeed = 0f;
+    public bool spinning = false;
+    private bool spinJumpQueued = false;    // If the next jump should be a spin jump
 
     /* Levers */
     private List<UseableObject> useableObjects = new();
@@ -352,6 +356,8 @@ public class MarioMovement : MonoBehaviour
             } else if (wallSliding) {
                 audioSource.Play();
                 WallJump();
+            } else if (spinJumpQueued) {
+                SpinJump();
             } else {
                 audioSource.Play();
                 Jump();
@@ -418,6 +424,9 @@ public class MarioMovement : MonoBehaviour
             if (hitRay.transform.gameObject.tag == "Damaging") {
                 damageMario();
             }
+
+            // Stop spinning
+            spinning = false;
         }
 
         // Corner correction
@@ -519,6 +528,7 @@ public class MarioMovement : MonoBehaviour
         }
 
         animator.SetBool("isWallSliding", wallSliding);
+        animator.SetBool("isSpinning", spinning);
 
         // Physics
         modifyPhysics();
@@ -699,6 +709,17 @@ public class MarioMovement : MonoBehaviour
         FlipTo(!facingRight);
     }
 
+    // Spin Jump
+    public void SpinJump() {
+        audioSource.PlayOneShot(spinJumpSound);
+        rb.velocity = new Vector2(rb.velocity.x, 0);
+        rb.AddForce(Vector2.up * jumpSpeed * 1.1f, ForceMode2D.Impulse);
+        onGround = false;
+        jumpTimer = 0;
+        airtimer = Time.time + (airtime * 0.3f);
+        spinning = true;
+    }
+
     void modifyPhysics() {
         changingDirections = (direction.x > 0 && rb.velocity.x < 0) || (direction.x < 0 && rb.velocity.x > 0);
 
@@ -768,8 +789,9 @@ public class MarioMovement : MonoBehaviour
             if (airtimer < Time.time || rb.velocity.y < startfallingspeed) {
                 rb.gravityScale = fallgravity;
 
-                // Falling
-            } else if (rb.velocity.y > 0 && !jumpPressed) {
+            // Falling
+            } else if (rb.velocity.y > 0 && !(jumpPressed || (spinPressed && spinning))) {
+                print("stop jump");
                 rb.gravityScale = fallgravity;
                 airtimer = Time.time - 1f;
                 //rb.gravityScale = gravity * fallMultiplier;
@@ -1176,6 +1198,7 @@ public class MarioMovement : MonoBehaviour
     public void onJumpPressed() {
         jumpTimer = Time.time + jumpDelay;
         jumpPressed = true;
+        spinJumpQueued = false;
     }
     public void onJumpReleased() {
         jumpPressed = false;
@@ -1203,9 +1226,28 @@ public class MarioMovement : MonoBehaviour
     // Spin
     public void Spin(InputAction.CallbackContext context)
     {
-        // TODO: Spin Jump
+        if (context.performed)
+        {
+            onSpinPressed();
+        }
+        if (context.canceled)
+        {
+            onSpinReleased();
+        }
     }
 
+    public void onSpinPressed() {
+        if (!canSpinJump) return;
+
+        print("spin!");
+        jumpTimer = Time.time + jumpDelay;
+        spinPressed = true;
+        spinJumpQueued = true;
+    }
+
+    public void onSpinReleased() {
+        spinPressed = false;
+    }
 
     // Shoot
     public void Shoot(InputAction.CallbackContext context)

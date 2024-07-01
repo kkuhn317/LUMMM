@@ -10,8 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 513347580218870867}
   - component: {fileID: 8142186640857265871}
-  - component: {fileID: 2569680055286100129}
-  - component: {fileID: 5231282015799387625}
+  - component: {fileID: 7695895799331735954}
   m_Layer: 7
   m_Name: Grrolsprite
   m_TagString: Deadly
@@ -88,48 +87,7 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!60 &2569680055286100129
-PolygonCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1399727692653736092}
-  m_Enabled: 1
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_UsedByEffector: 0
-  m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
-  m_SpriteTilingProperty:
-    border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 2.625, y: 2.6875}
-    newSize: {x: 2.625, y: 2.6875}
-    adaptiveTilingThreshold: 0.5
-    drawMode: 0
-    adaptiveTiling: 0
-  m_AutoTiling: 0
-  m_Points:
-    m_Paths:
-    - - {x: 0.7973706, y: 0.23607755}
-      - {x: 0.8489121, y: 0.83777034}
-      - {x: 0.28966373, y: 0.6968488}
-      - {x: -0.031747665, y: 1.1964716}
-      - {x: -0.38275614, y: 0.7149104}
-      - {x: -0.8646392, y: 0.83631}
-      - {x: -0.7911843, y: 0.25922602}
-      - {x: -1.2282631, y: 0.007712513}
-      - {x: -0.74186325, y: -0.2758825}
-      - {x: -0.85838324, y: -0.84939456}
-      - {x: -0.34068882, y: -0.71083087}
-      - {x: -0.03571732, y: -1.2081267}
-      - {x: 0.3100307, y: -0.7328202}
-      - {x: 0.8406372, y: -0.8838025}
-      - {x: 0.7476762, y: -0.24551971}
-      - {x: 1.2030733, y: -0.022268742}
---- !u!114 &5231282015799387625
+--- !u!114 &7695895799331735954
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -252,6 +210,7 @@ GameObject:
   - component: {fileID: 1737679810673620637}
   - component: {fileID: 7889135041742838741}
   - component: {fileID: 7497016346700285334}
+  - component: {fileID: 1548387254409313127}
   m_Layer: 7
   m_Name: Grrol
   m_TagString: Damaging
@@ -337,7 +296,6 @@ MonoBehaviour:
   groundMovementSpeed: 5
   startMovementWhenTouchGround: 1
   enableCameraShake: 0
-  bounceForce: 20
 --- !u!50 &7497016345514218025
 Rigidbody2D:
   serializedVersion: 4
@@ -489,6 +447,47 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   objectToSpawn: {fileID: 6456935476818214770, guid: 19805ad2879c2234da77742f124d510d, type: 3}
   hit: {fileID: 8300000, guid: 6e12da1d72ac9b4478d3452d77487858, type: 3}
+--- !u!60 &1548387254409313127
+PolygonCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7497016345514218031}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 2.625, y: 2.6875}
+    newSize: {x: 2.625, y: 2.6875}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Points:
+    m_Paths:
+    - - {x: 0.7973706, y: 0.23607755}
+      - {x: 0.8489121, y: 0.83777034}
+      - {x: 0.28966373, y: 0.6968488}
+      - {x: -0.031747665, y: 1.1964716}
+      - {x: -0.38275614, y: 0.7149104}
+      - {x: -0.8646392, y: 0.83631}
+      - {x: -0.7911843, y: 0.25922602}
+      - {x: -1.2282631, y: 0.007712513}
+      - {x: -0.74186325, y: -0.2758825}
+      - {x: -0.85838324, y: -0.84939456}
+      - {x: -0.34068882, y: -0.71083087}
+      - {x: -0.03571732, y: -1.2081267}
+      - {x: 0.3100307, y: -0.7328202}
+      - {x: 0.8406372, y: -0.8838025}
+      - {x: 0.7476762, y: -0.24551971}
+      - {x: 1.2030733, y: -0.022268742}
 --- !u!1 &7497016346276061603
 GameObject:
   m_ObjectHideFlags: 0
