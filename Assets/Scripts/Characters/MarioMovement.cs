@@ -178,6 +178,11 @@ public class MarioMovement : MonoBehaviour
     public bool spinning = false;
     private bool spinJumpQueued = false;    // If the next jump should be a spin jump
 
+    public AudioClip spinJumpBounceSound;
+    public AudioClip spinJumpPoofSound;
+    public GameObject spinJumpBouncePrefab; // Spikey effect
+    public GameObject spinJumpPoofPrefab;   // Puff of smoke
+
     /* Levers */
     private List<UseableObject> useableObjects = new();
 
@@ -720,6 +725,27 @@ public class MarioMovement : MonoBehaviour
         spinning = true;
     }
 
+    // Called from enemy script when mario spin bounces on an enemy
+    public void SpinJumpBounce(GameObject enemy) {
+        audioSource.PlayOneShot(spinJumpBounceSound);
+        // Instantiate the spin jump bounce effect where they are colliding
+        Vector3 effectSpawnPos = enemy.GetComponentInChildren<Collider2D>().ClosestPoint(transform.position);
+        Instantiate(spinJumpBouncePrefab, effectSpawnPos, Quaternion.identity);
+        Jump(1f);
+    }
+
+    public void SpinJumpPoof(GameObject enemy) {
+        audioSource.PlayOneShot(spinJumpPoofSound);
+        // Instantiate the spin jump poof effect where they are colliding
+        Vector3 effectSpawnPos = enemy.GetComponentInChildren<Collider2D>().ClosestPoint(transform.position);
+        Instantiate(spinJumpPoofPrefab, effectSpawnPos, Quaternion.identity);
+        // Destroy the enemy
+        Destroy(enemy);
+        // If we are not holding the jump or spin button, the bounce height is reduced
+        float jumpMultiplier = jumpPressed || spinPressed ? 1f : 0.3f;
+        Jump(jumpMultiplier);
+    }
+
     void modifyPhysics() {
         changingDirections = (direction.x > 0 && rb.velocity.x < 0) || (direction.x < 0 && rb.velocity.x > 0);
 
@@ -791,7 +817,6 @@ public class MarioMovement : MonoBehaviour
 
             // Falling
             } else if (rb.velocity.y > 0 && !(jumpPressed || (spinPressed && spinning))) {
-                print("stop jump");
                 rb.gravityScale = fallgravity;
                 airtimer = Time.time - 1f;
                 //rb.gravityScale = gravity * fallMultiplier;
