@@ -7207,7 +7207,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 4059027573863544769, guid: db77097db8a20244cb3003fb5c8193c7, type: 3}
       propertyPath: m_RootOrder
-      value: 70
+      value: 72
       objectReference: {fileID: 0}
     - target: {fileID: 4059027573863544769, guid: db77097db8a20244cb3003fb5c8193c7, type: 3}
       propertyPath: m_LocalPosition.x
@@ -17365,7 +17365,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   movingLeft: 1
   velocity: {x: 0, y: 0}
-  gravity: 60
+  gravity: 0
   width: 1
   height: 1
   floorRaycastSpacing: 0.2
@@ -17408,7 +17408,7 @@ MonoBehaviour:
   itemSpawnOffset: {x: 0, y: 0, z: 0}
   InstantChange: 0
   customDeath: {fileID: 0}
-  spinJumpEffect: 0
+  spinJumpEffect: 1
   state: 0
   stompable: 1
   shouldntEnemyMoveWhenDie: 1
@@ -24897,7 +24897,23 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7085229140055992286, guid: ad1ba299f9374284b8f209e962286c1f, type: 3}
+      propertyPath: gravity
+      value: 60
+      objectReference: {fileID: 0}
+    - target: {fileID: 7085229140055992286, guid: ad1ba299f9374284b8f209e962286c1f, type: 3}
       propertyPath: velocity.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7085229140055992286, guid: ad1ba299f9374284b8f209e962286c1f, type: 3}
+      propertyPath: wallMask.m_Bits
+      value: 265
+      objectReference: {fileID: 0}
+    - target: {fileID: 7085229140055992286, guid: ad1ba299f9374284b8f209e962286c1f, type: 3}
+      propertyPath: floorMask.m_Bits
+      value: 137
+      objectReference: {fileID: 0}
+    - target: {fileID: 7085229140055992286, guid: ad1ba299f9374284b8f209e962286c1f, type: 3}
+      propertyPath: checkObjectCollision
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7134128625192028101, guid: ad1ba299f9374284b8f209e962286c1f, type: 3}
@@ -27197,7 +27213,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 4059027573863544769, guid: db77097db8a20244cb3003fb5c8193c7, type: 3}
       propertyPath: m_RootOrder
-      value: 73
+      value: 69
       objectReference: {fileID: 0}
     - target: {fileID: 4059027573863544769, guid: db77097db8a20244cb3003fb5c8193c7, type: 3}
       propertyPath: m_LocalPosition.x
@@ -27921,9 +27937,25 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
+      propertyPath: width
+      value: 5.35
+      objectReference: {fileID: 0}
+    - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
+      propertyPath: height
+      value: 6.7
+      objectReference: {fileID: 0}
+    - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
+      propertyPath: floorMask.m_Bits
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
+      propertyPath: minHeightToBounce
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5261291010361945176, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
       propertyPath: m_RootOrder
-      value: 72
+      value: 73
       objectReference: {fileID: 0}
     - target: {fileID: 5261291010361945176, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
       propertyPath: m_LocalPosition.x
@@ -27968,10 +28000,6 @@ PrefabInstance:
     - target: {fileID: 5261291010361945178, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
       propertyPath: m_Name
       value: GiantThwomp
-      objectReference: {fileID: 0}
-    - target: {fileID: 5261291010361945179, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
-      propertyPath: m_IsTrigger
-      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
@@ -28046,7 +28074,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8857530592480019535, guid: 4df43517d4ac3f945b51d5fc2a7f3d02, type: 3}
       propertyPath: m_RootOrder
-      value: 69
+      value: 70
       objectReference: {fileID: 0}
     - target: {fileID: 8857530592480019535, guid: 4df43517d4ac3f945b51d5fc2a7f3d02, type: 3}
       propertyPath: m_LocalPosition.x
