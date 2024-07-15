@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 using PowerupState = PowerStates.PowerupState;
 
@@ -13,6 +14,7 @@ public class EnemyAI : ObjectPhysics
     public Vector3 itemSpawnOffset = new Vector3(0, 0, 0);
     public bool InstantChange = false;
     public GameObject customDeath;
+    [HideInInspector] public UnityEvent<GameObject> onPlayerDamaged;
 
     public enum SpinJumpEffect {
         bounceOff,
@@ -124,6 +126,7 @@ public class EnemyAI : ObjectPhysics
         } else {
             // usually mario would be damaged here
             playerscript.damageMario();
+            onPlayerDamaged.Invoke(player);
         }
     }
 
