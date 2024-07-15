@@ -11,6 +11,7 @@ public class LevelSelectionManager : MonoBehaviour
     {
         LevelUp,
         ItsA3,
+        None,
     }
 
     public static LevelSelectionManager Instance { get; private set; }
@@ -20,6 +21,9 @@ public class LevelSelectionManager : MonoBehaviour
     public TMP_Text levelNameText;
     public TMP_Text videoYearText;
     public Button videoLinkButton;
+    public TMP_Text videoLinkText;
+    private string originalVideoLinkText;
+
     public GameObject LevelUpImage;
     public TMP_Text levelDescriptionText;
     public Button playButton;
@@ -43,7 +47,7 @@ public class LevelSelectionManager : MonoBehaviour
     void Start()
     {
         playButton.gameObject.SetActive(false); // Deactivate the button if it's initially active
-
+        originalVideoLinkText = videoLinkText.text;
     }
 
     public static bool IsLevelPlayable(LevelButton button)
@@ -71,8 +75,21 @@ public class LevelSelectionManager : MonoBehaviour
         // Remove any existing listeners from the play button's onClick event
         videoLinkButton.onClick.RemoveAllListeners();
 
-        videoLinkButton.onClick.AddListener(OpenVideoLink);
+        if (string.IsNullOrEmpty(button.levelInfo.videoLink))
+        {
+            videoLinkText.text = "";
+        }
+        else
+        {
+            videoLinkText.text = originalVideoLinkText;
+            videoLinkButton.onClick.AddListener(OpenVideoLink);
+        }
 
+        // Set custom video link text if available
+        if (!string.IsNullOrEmpty(button.levelInfo.customVideoLinkText))
+        {
+            videoLinkText.text = button.levelInfo.customVideoLinkText;
+        }
 
         // Enable the correct animator icon
         print(animatorIcons.Count);
@@ -80,7 +97,6 @@ public class LevelSelectionManager : MonoBehaviour
         {
             animator.gameObject.SetActive(animator.marioAnimator == button.marioAnimator);
         }
-
 
         playButton.gameObject.SetActive(true);
         playButton.onClick.RemoveAllListeners(); // Remove previous listeners if any
