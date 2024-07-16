@@ -4,6 +4,7 @@ using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Localization.Settings;
+using UnityEngine.Localization.Tables;
 using UnityEngine.UI;
 
 public class LevelSelectionManager : MonoBehaviour
@@ -30,8 +31,9 @@ public class LevelSelectionManager : MonoBehaviour
     public Button playButton;
     public Sprite[] GreenCoinsprite; // 0 - uncollected, 1 - collected
     public Sprite[] minirankTypes; // 0 - poison, 1 - mushroom, 2 - flower, 3 - 1up, 4 - star
-
     public LevelButton selectedLevelButton;
+
+    private StringTable table;
 
     void Awake()
     {
@@ -49,6 +51,7 @@ public class LevelSelectionManager : MonoBehaviour
     {
         playButton.gameObject.SetActive(false); // Deactivate the button if it's initially active
         originalVideoLinkText = videoLinkText.text;
+        table = LocalizationSettings.StringDatabase.GetTable("Game Text");
     }
 
     public static bool IsLevelPlayable(LevelButton button)
@@ -87,9 +90,11 @@ public class LevelSelectionManager : MonoBehaviour
         }
 
         // Set custom video link text if available
-        if (!string.IsNullOrEmpty(button.levelInfo.customVideoLinkText))
+        var videoLinkTextEntry = table.GetEntry("VideoLinkText_" + button.levelInfo.levelID);
+        string customVideoLinkText = videoLinkTextEntry != null ? videoLinkTextEntry.GetLocalizedString() : null;
+        if (!string.IsNullOrEmpty(customVideoLinkText))
         {
-            videoLinkText.text = button.levelInfo.customVideoLinkText;
+            videoLinkText.text = customVideoLinkText;
         }
 
         // Enable the correct animator icon
