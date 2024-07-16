@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 using PowerupState = PowerStates.PowerupState;
 
@@ -11,9 +12,16 @@ public class EnemyAI : ObjectPhysics
     public float stompHeight = 0.2f;
     public GameObject heldItem;
     public Vector3 itemSpawnOffset = new Vector3(0, 0, 0);
-
     public bool InstantChange = false;
     public GameObject customDeath;
+    [HideInInspector] public UnityEvent<GameObject> onPlayerDamaged;
+
+    public enum SpinJumpEffect {
+        bounceOff,
+        poof,
+        stomp,
+    }
+    public SpinJumpEffect spinJumpEffect = SpinJumpEffect.bounceOff;
 
     // Define a condition for visibility
     public bool IsVisible
@@ -75,7 +83,11 @@ public class EnemyAI : ObjectPhysics
         float playerHeightSubtract = player.GetComponent<Collider2D>().bounds.size.y / 2 * (PowerStates.IsSmall(playerscript.powerupState) ?  0.4f : 0.7f);
 
         if (rb.position.y - playerHeightSubtract > transform.position.y + stompHeight) {
-            hitByStomp(player);
+            if (playerscript.spinning) {
+                hitBySpinJump(playerscript);
+            } else {
+                hitByStomp(player);
+            }
         } else {
             hitOnSide(player);
         }
@@ -92,6 +104,20 @@ public class EnemyAI : ObjectPhysics
         hitOnSide(player);
     }
 
+    protected virtual void hitBySpinJump(MarioMovement player) {
+        switch (spinJumpEffect) {
+            case SpinJumpEffect.bounceOff:
+                player.SpinJumpBounce(gameObject);
+                break;
+            case SpinJumpEffect.poof:
+                player.SpinJumpPoof(gameObject);
+                break;
+            case SpinJumpEffect.stomp:
+                hitByStomp(player.gameObject);
+                break;
+        }
+    }
+
     protected virtual void hitOnSide(GameObject player) {
         MarioMovement playerscript = player.GetComponent<MarioMovement>();
 
@@ -100,6 +126,7 @@ public class EnemyAI : ObjectPhysics
         } else {
             // usually mario would be damaged here
             playerscript.damageMario();
+            onPlayerDamaged.Invoke(player);
         }
     }
 
