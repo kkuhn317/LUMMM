@@ -8,6 +8,7 @@ using TMPro;
 using static LeanTween;
 using System.Linq;
 using System.Globalization;
+using UnityEngine.Localization.Settings;
 
 public class GameManager : MonoBehaviour
 {
@@ -136,6 +137,7 @@ public class GameManager : MonoBehaviour
     public GameObject CheckpointIndicator;
     public GameObject ResetPopUp;
     public GameObject optionsPauseMenu;
+    public TMP_Text levelNameText;
 
     [Header("Rank")]
     public RawImage currentRankImage;
@@ -328,6 +330,9 @@ public class GameManager : MonoBehaviour
         // Set the texture for highestRankImage based on the loaded highest rank
         if (highestRank != PlayerRank.Default)
             highestRankImage.texture = rankTypes[(int)highestRank - 1].texture;
+
+        // Set level name text
+        levelNameText.text = LocalizationSettings.StringDatabase.GetLocalizedString("Level_" + levelID);
 
         if (!saveCoinsAfterDeath)
         {

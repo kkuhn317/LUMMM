@@ -24,7 +24,6 @@ public class LevelSelectionManager : MonoBehaviour
     public TMP_Text videoYearText;
     public Button videoLinkButton;
     public TMP_Text videoLinkText;
-    private string originalVideoLinkText;
 
     public GameObject LevelUpImage;
     public TMP_Text levelDescriptionText;
@@ -32,8 +31,6 @@ public class LevelSelectionManager : MonoBehaviour
     public Sprite[] GreenCoinsprite; // 0 - uncollected, 1 - collected
     public Sprite[] minirankTypes; // 0 - poison, 1 - mushroom, 2 - flower, 3 - 1up, 4 - star
     public LevelButton selectedLevelButton;
-
-    private StringTable table;
 
     void Awake()
     {
@@ -50,8 +47,6 @@ public class LevelSelectionManager : MonoBehaviour
     void Start()
     {
         playButton.gameObject.SetActive(false); // Deactivate the button if it's initially active
-        originalVideoLinkText = videoLinkText.text;
-        table = LocalizationSettings.StringDatabase.GetTable("Game Text");
     }
 
     public static bool IsLevelPlayable(LevelButton button)
@@ -79,13 +74,16 @@ public class LevelSelectionManager : MonoBehaviour
         // Remove any existing listeners from the play button's onClick event
         videoLinkButton.onClick.RemoveAllListeners();
 
+        var table = LocalizationSettings.StringDatabase.GetTable("Game Text");
+
         if (string.IsNullOrEmpty(button.levelInfo.videoLink))
         {
             videoLinkText.text = "";
         }
         else
         {
-            videoLinkText.text = originalVideoLinkText;
+            print(table.GetEntry("WatchVideo").GetLocalizedString());
+            videoLinkText.text = table.GetEntry("WatchVideo").GetLocalizedString();
             videoLinkButton.onClick.AddListener(OpenVideoLink);
         }
 
