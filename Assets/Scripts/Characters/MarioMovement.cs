@@ -1025,7 +1025,6 @@ public class MarioMovement : MonoBehaviour
 
     void OnTriggerStay2D(Collider2D other)
     {
-        print("trigger stay");
         DetectDamagingObject(other);
     }
     
