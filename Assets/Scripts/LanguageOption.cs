@@ -6,10 +6,8 @@ using UnityEngine.UI;
 
 public class LanguageOption : MonoBehaviour
 {
-
     public List<Button> languageButtons;
     public List<string> languageCodes;
-
 
     void Start() {
         // Set click events for each language button

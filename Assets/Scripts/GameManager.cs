@@ -364,7 +364,9 @@ public class GameManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(GlobalVariables.checkpoint != -1) {
+        levelNameText.text = LocalizationSettings.StringDatabase.GetLocalizedString("Level_" + levelID);
+
+        if (GlobalVariables.checkpoint != -1) {
             CheckpointIndicator.SetActive(true);
         } else {
             CheckpointIndicator.SetActive(false);
