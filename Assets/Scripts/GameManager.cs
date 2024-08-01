@@ -8,6 +8,7 @@ using TMPro;
 using static LeanTween;
 using System.Linq;
 using System.Globalization;
+using UnityEngine.Localization.Settings;
 
 public class GameManager : MonoBehaviour
 {
@@ -136,6 +137,7 @@ public class GameManager : MonoBehaviour
     public GameObject CheckpointIndicator;
     public GameObject ResetPopUp;
     public GameObject optionsPauseMenu;
+    public TMP_Text levelNameText;
 
     [Header("Rank")]
     public RawImage currentRankImage;
@@ -329,6 +331,9 @@ public class GameManager : MonoBehaviour
         if (highestRank != PlayerRank.Default)
             highestRankImage.texture = rankTypes[(int)highestRank - 1].texture;
 
+        // Set level name text
+        levelNameText.text = LocalizationSettings.StringDatabase.GetLocalizedString("Level_" + levelID);
+
         if (!saveCoinsAfterDeath)
         {
             GlobalVariables.coinCount = 0;
@@ -349,19 +354,19 @@ public class GameManager : MonoBehaviour
     LevelInfo TestLevelInfo() {
         LevelInfo info = ScriptableObject.CreateInstance<LevelInfo>();
         info.levelID = "test";
-        info.levelName = "Unknown. Run from SelectLevel scene.";
         info.levelScene = SceneManager.GetActiveScene().name;
         info.lives = 3;
         info.videoYear = "Unknown";
         info.videoLink = "Unknown";
-        info.levelDescription = "Unknown. Run from SelectLevel scene.";
         return info;
     }
 
     // Update is called once per frame
     void Update()
     {
-        if(GlobalVariables.checkpoint != -1) {
+        levelNameText.text = LocalizationSettings.StringDatabase.GetLocalizedString("Level_" + levelID);
+
+        if (GlobalVariables.checkpoint != -1) {
             CheckpointIndicator.SetActive(true);
         } else {
             CheckpointIndicator.SetActive(false);

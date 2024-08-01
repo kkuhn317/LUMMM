@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Localization.Settings;
+using UnityEngine.Localization.Tables;
 using UnityEngine.UI;
 
 public class LevelSelectionManager : MonoBehaviour
@@ -22,14 +24,12 @@ public class LevelSelectionManager : MonoBehaviour
     public TMP_Text videoYearText;
     public Button videoLinkButton;
     public TMP_Text videoLinkText;
-    private string originalVideoLinkText;
 
     public GameObject LevelUpImage;
     public TMP_Text levelDescriptionText;
     public Button playButton;
     public Sprite[] GreenCoinsprite; // 0 - uncollected, 1 - collected
     public Sprite[] minirankTypes; // 0 - poison, 1 - mushroom, 2 - flower, 3 - 1up, 4 - star
-
     public LevelButton selectedLevelButton;
 
     void Awake()
@@ -47,7 +47,6 @@ public class LevelSelectionManager : MonoBehaviour
     void Start()
     {
         playButton.gameObject.SetActive(false); // Deactivate the button if it's initially active
-        originalVideoLinkText = videoLinkText.text;
     }
 
     public static bool IsLevelPlayable(LevelButton button)
@@ -68,12 +67,14 @@ public class LevelSelectionManager : MonoBehaviour
         selectedLevelButton.selectionMark.SetActive(true);
 
         // Update the level info text
-        levelNameText.text = button.levelInfo.levelName;
+        levelNameText.text = LocalizationSettings.StringDatabase.GetLocalizedString("Level_" + button.levelInfo.levelID);
         videoYearText.text = button.levelInfo.videoYear;
-        levelDescriptionText.text = button.levelInfo.levelDescription;
+        levelDescriptionText.text = LocalizationSettings.StringDatabase.GetLocalizedString("Desc_" + button.levelInfo.levelID);
 
         // Remove any existing listeners from the play button's onClick event
         videoLinkButton.onClick.RemoveAllListeners();
+
+        var table = LocalizationSettings.StringDatabase.GetTable("Game Text");
 
         if (string.IsNullOrEmpty(button.levelInfo.videoLink))
         {
@@ -81,14 +82,17 @@ public class LevelSelectionManager : MonoBehaviour
         }
         else
         {
-            videoLinkText.text = originalVideoLinkText;
+            print(table.GetEntry("WatchVideo").GetLocalizedString());
+            videoLinkText.text = table.GetEntry("WatchVideo").GetLocalizedString();
             videoLinkButton.onClick.AddListener(OpenVideoLink);
         }
 
         // Set custom video link text if available
-        if (!string.IsNullOrEmpty(button.levelInfo.customVideoLinkText))
+        var videoLinkTextEntry = table.GetEntry("VideoLinkText_" + button.levelInfo.levelID);
+        string customVideoLinkText = videoLinkTextEntry != null ? videoLinkTextEntry.GetLocalizedString() : null;
+        if (!string.IsNullOrEmpty(customVideoLinkText))
         {
-            videoLinkText.text = button.levelInfo.customVideoLinkText;
+            videoLinkText.text = customVideoLinkText;
         }
 
         // Enable the correct animator icon
