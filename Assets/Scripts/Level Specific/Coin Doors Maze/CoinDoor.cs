@@ -16,8 +16,10 @@ public class CoinDoor : Door
     public float moveHeight = 1.0f;
     public float moveDuration = 1.0f;
     public float timeBetweenCoins = 0.25f;
-
+    public int coinsAtOnce = 1; // How many coins to spend at once
+    public float coinSeparation = 0.5f; // How far apart to spawn coins
     public AudioClip useCoinSound;
+    private IEnumerator coinSpendCoroutine;
 
     protected override void Start()
     {
@@ -36,7 +38,8 @@ public class CoinDoor : Door
     {
         // we want to have the door spit out coins until the player uses enough coins to open the door
         FreezePlayer();
-        StartCoroutine(SpawnCoinsUntilOpen());
+        coinSpendCoroutine = SpawnCoinsUntilOpen();
+        StartCoroutine(coinSpendCoroutine);
     }
 
     protected virtual IEnumerator SpawnCoinsUntilOpen()
@@ -44,18 +47,27 @@ public class CoinDoor : Door
         int coinsRemaining = coinsRequired;
         while (coinsRemaining > 0)
         {
-            GameObject coinEffect = Instantiate(coinEffectObject, transform.position + (Vector3)spawnOffset, Quaternion.identity);
-            // for each coin, we want it to move up while fading out
-            // start a coroutine to do that
-            StartCoroutine(MoveUpAndFadeOut(coinEffect));
-            coinsRemaining--;
-            SubtractOneCoin();
+            // Spawn multiple coins at once
+            for (int i = 0; i < coinsAtOnce; i++)
+            {
+                if (coinsRemaining <= 0)
+                    break;
+
+                // Spawn coin effect
+                GameObject coinEffect = Instantiate(coinEffectObject, transform.position + (Vector3)spawnOffset + new Vector3((i * coinSeparation) - (coinSeparation/2f * (coinsAtOnce - 1)), 0, 0), Quaternion.identity);
+                // Start coroutine to move up and fade out
+                
+                StartCoroutine(MoveUpAndFadeOut(coinEffect));
+                coinsRemaining--;
+                SubtractOneCoin();
+            }
+
             audioSource.PlayOneShot(useCoinSound);
             yield return new WaitForSeconds(timeBetweenCoins);
         }
-
         // now that the coins are done, we can open the door by doing base.Unlock()
         base.Unlock();
+        coinSpendCoroutine = null;
     }
 
     protected virtual void SubtractOneCoin()
@@ -108,6 +120,14 @@ public class CoinDoor : Door
     protected virtual void OnTriggerExit2D(Collider2D other) {
         if (other.gameObject.CompareTag("Player")) {
             playerInRange = false;
+        }
+    }
+
+    // Used in big crusher section when the door is crushed while you are spending coins
+    public void StopSpendingCoins() {
+        if (coinSpendCoroutine != null) {
+            StopCoroutine(coinSpendCoroutine);
+            UnfreezePlayer();
         }
     }
 }

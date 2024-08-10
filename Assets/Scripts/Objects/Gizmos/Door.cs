@@ -129,7 +129,7 @@ public class Door : MonoBehaviour
             script.enabled = false;
         }
     }
-    void UnfreezePlayer() {
+    protected void UnfreezePlayer() {
         player.GetComponent<Rigidbody2D>().simulated = true;
         
         // enable all scripts
