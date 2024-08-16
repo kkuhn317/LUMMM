@@ -17,6 +17,10 @@ public class Door : MonoBehaviour
     public GameObject blackFade;
     private bool hasPlayedBlockedSound = false;
 
+    // Used for positioning the particles
+    public float doorWidth = 1.0f;
+    public float doorHeight = 2.0f;
+
     protected AudioSource audioSource;
 
     // Start is called before the first frame update
@@ -159,8 +163,8 @@ public class Door : MonoBehaviour
     void spawnParticles()
     {
         // spawn 2 of them at the top corners of the door
-        GameObject newParticle1 = Instantiate(particle, transform.position + new Vector3(-0.5f, 1, 0), Quaternion.identity);
-        GameObject newParticle2 = Instantiate(particle, transform.position + new Vector3(0.5f, 1, 0), Quaternion.identity);
+        GameObject newParticle1 = Instantiate(particle, transform.position + new Vector3(-0.5f * doorWidth, 0.5f * doorHeight, 0), Quaternion.identity);
+        GameObject newParticle2 = Instantiate(particle, transform.position + new Vector3(0.5f * doorWidth, 0.5f * doorHeight, 0), Quaternion.identity);
 
 
         // make the particles move outwards at constant speed
