@@ -373,6 +373,8 @@ public class MarioMovement : MonoBehaviour
 
         RaycastHit2D? hitRayMaybe = CheckGround();
 
+        bool wasOnMovingPlatform = onMovingPlatform;
+
         if (onGround && hitRayMaybe != null) {
 
             RaycastHit2D hitRay = (RaycastHit2D)hitRayMaybe;
@@ -388,11 +390,16 @@ public class MarioMovement : MonoBehaviour
             groundPos = hitRay.point;
 
             if (onMovingPlatform) {
+                onMovingPlatform = true;
                 transform.parent = hitRay.transform;
                 //transform.SetParent(hitRay.transform, true);
             } else {
+                if (wasOnMovingPlatform) {
+                    // Transfer momentum to mario
+                    TransferMovingPlatformMomentum();
+                }
+                onMovingPlatform = false;
                 transform.parent = null;
-                //transform.SetParent(null, true);
             }
 
             // Slope detection
@@ -432,6 +439,13 @@ public class MarioMovement : MonoBehaviour
 
             // Stop spinning
             spinning = false;
+        } else {
+            if (wasOnMovingPlatform) {
+                // Transfer momentum to mario
+                TransferMovingPlatformMomentum();
+            }
+            onMovingPlatform = false;
+            transform.parent = null;
         }
 
         // Corner correction
@@ -539,14 +553,23 @@ public class MarioMovement : MonoBehaviour
         modifyPhysics();
     }
 
+    private void TransferMovingPlatformMomentum() {
+        if (onMovingPlatform) {
+            // TODO!! Somehow group all kinds of moving platforms together so we don't need to check for each kind
+            // For now, just check for each kind of moving platform
+            if (transform.parent.GetComponent<MovingPlatform>() != null) {
+                rb.velocity += transform.parent.GetComponent<MovingPlatform>().velocity;
+            } else if (transform.parent.GetComponent<ConveyorBelt>() != null) {
+                rb.velocity += transform.parent.GetComponent<ConveyorBelt>().velocity;
+            }
+        }
+    }
+
     public RaycastHit2D? CheckGround() {
         // Vertical raycast offset (based on crouch state)
         float updGroundLength = inCrouchState ? groundLength / 2 : groundLength;
 
         // Floor detection
-        onMovingPlatform = false;
-        transform.parent = null;
-
         RaycastHit2D groundHit1 = Physics2D.Raycast(transform.position + colliderOffset + HOffset, Vector2.down, updGroundLength, groundLayer);
         RaycastHit2D groundHit2 = Physics2D.Raycast(transform.position - colliderOffset + HOffset, Vector2.down, updGroundLength, groundLayer);
 

@@ -32298,7 +32298,7 @@ Tilemap:
       m_AnimatedSprites:
       - {fileID: 455067675, guid: 9cedcc06b2259a04c9dc16f2cec7812c, type: 3}
       - {fileID: -1000863836, guid: 9cedcc06b2259a04c9dc16f2cec7812c, type: 3}
-      m_AnimationSpeed: 5.0000005
+      m_AnimationSpeed: 5
       m_AnimationTimeOffset: 0
       m_IsLooping: 1
   - first: {x: 7, y: -8, z: 0}
@@ -32394,7 +32394,7 @@ Tilemap:
       m_AnimatedSprites:
       - {fileID: 455067675, guid: 9cedcc06b2259a04c9dc16f2cec7812c, type: 3}
       - {fileID: -1000863836, guid: 9cedcc06b2259a04c9dc16f2cec7812c, type: 3}
-      m_AnimationSpeed: 5.0000005
+      m_AnimationSpeed: 5
       m_AnimationTimeOffset: 0
       m_IsLooping: 1
   - first: {x: 19, y: -8, z: 0}
@@ -32634,7 +32634,7 @@ Tilemap:
       m_AnimatedSprites:
       - {fileID: 455067675, guid: 9cedcc06b2259a04c9dc16f2cec7812c, type: 3}
       - {fileID: -1000863836, guid: 9cedcc06b2259a04c9dc16f2cec7812c, type: 3}
-      m_AnimationSpeed: 5
+      m_AnimationSpeed: 5.0000005
       m_AnimationTimeOffset: 0
       m_IsLooping: 1
   - first: {x: 4, y: -7, z: 0}
@@ -32642,7 +32642,7 @@ Tilemap:
       m_AnimatedSprites:
       - {fileID: 455067675, guid: 9cedcc06b2259a04c9dc16f2cec7812c, type: 3}
       - {fileID: -1000863836, guid: 9cedcc06b2259a04c9dc16f2cec7812c, type: 3}
-      m_AnimationSpeed: 5
+      m_AnimationSpeed: 5.0000005
       m_AnimationTimeOffset: 0
       m_IsLooping: 1
   - first: {x: 5, y: -7, z: 0}
@@ -32698,7 +32698,7 @@ Tilemap:
       m_AnimatedSprites:
       - {fileID: 455067675, guid: 9cedcc06b2259a04c9dc16f2cec7812c, type: 3}
       - {fileID: -1000863836, guid: 9cedcc06b2259a04c9dc16f2cec7812c, type: 3}
-      m_AnimationSpeed: 5
+      m_AnimationSpeed: 5.0000005
       m_AnimationTimeOffset: 0
       m_IsLooping: 1
   - first: {x: 12, y: -7, z: 0}
@@ -32762,7 +32762,7 @@ Tilemap:
       m_AnimatedSprites:
       - {fileID: 455067675, guid: 9cedcc06b2259a04c9dc16f2cec7812c, type: 3}
       - {fileID: -1000863836, guid: 9cedcc06b2259a04c9dc16f2cec7812c, type: 3}
-      m_AnimationSpeed: 5.0000005
+      m_AnimationSpeed: 5
       m_AnimationTimeOffset: 0
       m_IsLooping: 1
   - first: {x: 20, y: -7, z: 0}
@@ -33994,6 +33994,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   enemy: {fileID: 6283142151493128363, guid: 9ae7a087c9ad6e94e83a643486781921, type: 3}
+  spawnOffset: {x: 0, y: 0}
   movement: {x: 0, y: -1}
   spawnRate: 2
   maxEnemies: 1
@@ -39859,6 +39860,10 @@ MonoBehaviour:
   itemSpawnOffset: {x: 0, y: 0, z: 0}
   InstantChange: 0
   customDeath: {fileID: 0}
+  onPlayerDamaged:
+    m_PersistentCalls:
+      m_Calls: []
+  spinJumpEffect: 0
   state: 0
   stompable: 0
   shouldntEnemyMoveWhenDie: 1

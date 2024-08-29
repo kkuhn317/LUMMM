@@ -18,14 +18,13 @@ public class ConveyorBelt : MonoBehaviour
     public int length;
     public float speed;
     public ConveyorDirection direction;
-
-    private Rigidbody2D rb;
     private Animator animator;
+
+    public Vector2 velocity => new Vector2(speed * GetDirectionMultiplier(), 0);
 
     private void Start()
     {
         animator = GetComponent<Animator>();
-        rb = GetComponent<Rigidbody2D>();
     }
 
     private void Update()
@@ -47,22 +46,6 @@ public class ConveyorBelt : MonoBehaviour
     private int GetDirectionMultiplier()
     {
         return direction == ConveyorDirection.Right ? 1 : -1;
-    }
-
-    private void OnCollisionEnter2D(Collision2D collision)
-    {
-        if (collision.gameObject.CompareTag("Player"))
-        {
-            collision.transform.parent = transform;
-        }
-    }
-
-    private void OnCollisionExit2D(Collision2D collision)
-    {
-        if (collision.gameObject.CompareTag("Player"))
-        {
-            collision.transform.parent = null;
-        }
     }
 
     public void ChangeLength(int length)

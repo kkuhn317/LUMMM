@@ -12,6 +12,8 @@ public class MovingPlatform : MonoBehaviour
     Vector3 nextPoint; // position of the next point
     bool isWaiting; // indicate if the platform is waiting
 
+    public Vector2 velocity => (nextPoint - transform.position).normalized * speed;
+
     // Start is called before the first frame update
     void Start()
     {
