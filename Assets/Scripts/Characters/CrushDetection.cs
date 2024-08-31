@@ -17,4 +17,14 @@ public class CrushDetection : MonoBehaviour
         }
         
     }
+
+    void OnTriggerEnter2D(Collider2D col)
+    {
+        if (col.gameObject.CompareTag("Crushing"))
+        {
+            // get the mariomovement in the parent object
+            MarioMovement mario = GetComponentInParent<MarioMovement>();
+            mario.damageMario(force: true);
+        }
+    }
 }

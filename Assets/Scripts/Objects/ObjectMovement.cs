@@ -26,6 +26,9 @@ public class ObjectMovement : MonoBehaviour
     public AudioClip topforwardAudioClip;
     public AudioClip topbackwardAudioClip;
 
+    public bool forwardAudioClipLoop = false;
+    public bool backwardAudioClipLoop = false;
+
     private AudioSource audioSource;
 
     private bool isVisible = false;
@@ -122,6 +125,19 @@ public class ObjectMovement : MonoBehaviour
                 yield return null;
             }
 
+            // Stop looping audio clips
+            foreach (GameObject audioObject in audioObjects)
+            {
+                if (audioObject != null)
+                {
+                    AudioSource audioSource = audioObject.GetComponent<AudioSource>();
+                    if (audioSource != null)
+                    {
+                        audioSource.Stop();
+                    }
+                }
+            }
+
             // Play audio clip for reaching maximum position
             if (isVisible) {
                 if (isMovingForward && topforwardAudioClip != null)
@@ -144,7 +160,7 @@ public class ObjectMovement : MonoBehaviour
             // Play audio clip based on movement direction
             int audioIndex = isMovingForward ? 0 : 1;
 
-            if (audioIndex >= 0 && audioIndex < audioObjects.Length)
+            if (audioIndex >= 0 && audioIndex < audioObjects.Length && isVisible)
             {
                 GameObject audioObject = audioObjects[audioIndex];
                 if (audioObject != null)
@@ -153,9 +169,13 @@ public class ObjectMovement : MonoBehaviour
                     if (audioSource != null)
                     {
                         AudioClip audioClip = isMovingForward ? forwardAudioClip : backwardAudioClip;
+                        bool loop = isMovingForward ? forwardAudioClipLoop : backwardAudioClipLoop;
                         if (audioClip != null)
                         {
-                            audioSource.PlayOneShot(audioClip);
+                            //audioSource.PlayOneShot(audioClip);
+                            audioSource.clip = audioClip;
+                            audioSource.loop = loop;
+                            audioSource.Play();
                         }
                     }
                 }
