@@ -422,6 +422,13 @@ public class MarioMovement : MonoBehaviour
                 rb.velocity = slopeVector * moveMag;
             }
 
+            // If landing on a slope, also change mario's velocity so he doesn't slide down the slope immediately
+            // TODO: Make this not slow you down if you jump onto a slope while moving downhill
+            if (newAngle != 0 && wasInAir) {
+                float moveMag = rb.velocity.x;
+                rb.velocity = slopeVector * moveMag;
+            }
+
             floorAngle = newAngle;
 
             // Stick to ground (but not moving platforms, unless it's the first frame on the platform)
@@ -557,6 +564,10 @@ public class MarioMovement : MonoBehaviour
         if (onMovingPlatform) {
             // TODO!! Somehow group all kinds of moving platforms together so we don't need to check for each kind
             // For now, just check for each kind of moving platform
+            if (transform.parent == null) {
+                print("HMM... onMovingPlatform is true but transform.parent is null");
+                return;
+            }
             if (transform.parent.GetComponent<MovingPlatform>() != null) {
                 rb.velocity += transform.parent.GetComponent<MovingPlatform>().velocity;
             } else if (transform.parent.GetComponent<ConveyorBelt>() != null) {

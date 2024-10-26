@@ -23,7 +23,7 @@ public class Pushable : MonoBehaviour
             return;
         }
         
-        print("pushing: " + playerScript.moveInput.x);
+        //print("pushing: " + playerScript.moveInput.x);
 
         GameObject mario = playerScript.gameObject;
         Rigidbody2D marioRb = mario.GetComponent<Rigidbody2D>();
