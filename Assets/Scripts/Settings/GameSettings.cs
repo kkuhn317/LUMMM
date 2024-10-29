@@ -3,6 +3,8 @@ using UnityEngine.UI;
 using TMPro;
 using System.Linq;
 using System;
+using UnityEngine.Localization.Settings;
+using UnityEngine.Localization.Tables;
 
 public class GameSettings : MonoBehaviour
 {
@@ -121,21 +123,22 @@ public class GameSettings : MonoBehaviour
 
         foreach (string qualityLevel in qualityLevels)
         {
-            TMP_Dropdown.OptionData option = new TMP_Dropdown.OptionData(qualityLevel);
+            string translatedQualityLevel = LocalizationSettings.StringDatabase.GetLocalizedString("Quality_" + qualityLevel);
+            TMP_Dropdown.OptionData option = new TMP_Dropdown.OptionData(translatedQualityLevel);
             graphicsQualityDropdown.options.Add(option);
         }
 
         // Set the selected graphics quality
         graphicsQualityDropdown.value = currentQualityIndex;
         graphicsQualityDropdown.RefreshShownValue();
-        graphicsQualityText.text = QualitySettings.names[currentQualityIndex];
+        graphicsQualityText.text = LocalizationSettings.StringDatabase.GetLocalizedString("Quality_" + QualitySettings.names[currentQualityIndex]);
         graphicsQualityDropdown.onValueChanged.AddListener(ChangeGraphicsQuality);
     }
 
     public void ChangeGraphicsQuality(int qualityIndex)
     {
         QualitySettings.SetQualityLevel(qualityIndex);
-        graphicsQualityText.text = QualitySettings.names[qualityIndex];
+        graphicsQualityText.text = LocalizationSettings.StringDatabase.GetLocalizedString("Quality_" + QualitySettings.names[qualityIndex]);
         PlayerPrefs.SetInt(SettingsKeys.GraphicsQualityKey, qualityIndex);
     }
 
