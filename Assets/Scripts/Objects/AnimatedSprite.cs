@@ -7,6 +7,7 @@ public class AnimatedSprite : MonoBehaviour
 {
     public Sprite[] sprites;
     public float framerate = 1f / 6f;
+    public bool loop = true; // Add this flag to control looping behavior
 
     private SpriteRenderer spriteRenderer;
     private int frame;
@@ -36,9 +37,19 @@ public class AnimatedSprite : MonoBehaviour
 
         frame++;
 
+        // Check for looping condition
         if (frame >= sprites.Length)
         {
-            frame = 0;
+            if (loop)
+            {
+                frame = 0;
+            }
+            else
+            {
+                frame = sprites.Length - 1; // Freeze on the last frame
+                CancelInvoke(); // Stop animation if not looping
+                return;
+            }
         }
 
         if (frame >= 0 && frame < sprites.Length)
@@ -46,6 +57,7 @@ public class AnimatedSprite : MonoBehaviour
             spriteRenderer.sprite = sprites[frame];
         }
     }
+
     public void StopAnimation()
     {
         isAnimating = false;
