@@ -3,6 +3,84 @@ using UnityEngine.UI;
 using TMPro;
 using System.Collections.Generic;
 using Unity.VisualScripting;
+using System.Collections;
+
+[System.Serializable]
+public struct LevelImageData
+{
+    public GameObject itemParent;
+    public Texture itemTexture;
+    public RawImage levelImage; // The RawImage to change sprite
+    public Color primaryColor; // Primary color for the primary GameObjects
+    public Color secondaryColor; // Secondary color for secondary GameObjects
+    public GameObject[] primaryObjects; // Array of primary GameObjects
+    public GameObject[] secondaryObjects; // Array of secondary GameObjects
+
+    // Method to update the RawImage texture and colors of GameObjects
+    public void UpdateLevelImageAndColors(float transitionDuration, LevelButton levelButton)
+    {
+        // Change the texture of the RawImage
+        if (levelImage != null)
+        {
+            levelImage.texture = itemTexture;
+        }
+
+        // Start color transition for primary objects
+        foreach (GameObject primaryObject in primaryObjects)
+        {
+            if (primaryObject != null)
+            {
+                RawImage primaryRawImage = primaryObject.GetComponent<RawImage>();
+                if (primaryRawImage != null)
+                {
+                    primaryRawImage.color = primaryRawImage.color; // Reset color if needed
+                    levelButton.StartCoroutine(TransitionColor(primaryRawImage, primaryColor, transitionDuration));
+                }
+            }
+        }
+
+        // Start color transition for secondary objects
+        foreach (GameObject secondaryObject in secondaryObjects)
+        {
+            if (secondaryObject != null)
+            {
+                RawImage secondaryRawImage = secondaryObject.GetComponent<RawImage>();
+                if (secondaryRawImage != null)
+                {
+                    secondaryRawImage.color = secondaryRawImage.color; // Reset color if needed
+                    levelButton.StartCoroutine(TransitionColor(secondaryRawImage, secondaryColor, transitionDuration));
+                }
+            }
+        }
+
+        // Apply the texture to each child of itemParent
+        for (int i = 0; i < itemParent.transform.childCount; i++)
+        {
+            GameObject child = itemParent.transform.GetChild(i).gameObject;
+            RawImage childRawImage = child.GetComponent<RawImage>();
+            if (childRawImage != null)
+            {
+                childRawImage.texture = itemTexture; // Change child's texture
+            }
+        }
+    }
+
+    // Coroutine to smoothly transition the color
+    private IEnumerator TransitionColor(RawImage rawImage, Color targetColor, float duration)
+    {
+        Color initialColor = rawImage.color;
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            rawImage.color = Color.Lerp(initialColor, targetColor, elapsed / duration);
+            elapsed += Time.deltaTime;
+            yield return null; // Wait for the next frame
+        }
+
+        rawImage.color = targetColor; // Ensure the final color is set
+    }
+}
 
 public class LevelButton : MonoBehaviour
 {
@@ -15,6 +93,8 @@ public class LevelButton : MonoBehaviour
     public GameObject obtainedRank;
     public List<Image> greenCoinListImages;
     public LevelSelectionManager.MarioAnimator marioAnimator;
+
+    public LevelImageData levelImageData;
 
     public Sprite[] GreenCoinsprite; // 0 - uncollected, 1 - collected, 2 - unavailable
     public Sprite[] minirankTypes; // 0 - poison, 1 - mushroom, 2 - flower, 3 - 1up, 4 - star
@@ -78,6 +158,7 @@ public class LevelButton : MonoBehaviour
     public void OnClick()
     {
         LevelSelectionManager.Instance.OnLevelButtonClick(this);
+        levelImageData.UpdateLevelImageAndColors(0.5f, this);
     }
 
     public void OnDoubleClick()

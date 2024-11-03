@@ -10,7 +10,7 @@ public class RawImageChange : MonoBehaviour
     private int currentImageIndex = -1;
     private Vector3 originalScale;
 
-    private Dictionary<GameObject, Vector3> originalChildScales = new Dictionary<GameObject, Vector3>();
+    private Dictionary<GameObject, Vector3> originalChildScales = new();
 
     private void Start()
     {
