@@ -11,6 +11,7 @@ public class Flag : MonoBehaviour
     public float height;
 
     public GameObject starParticlePrefab;
+    public AudioClip finishFlag;
 
     public GameObject flag;
     public GameObject pole;

@@ -34,10 +34,35 @@ public class CoinDoor : Door
         return GlobalVariables.coinCount >= coinsRequired;
     }
 
+    protected override void FreezePlayer()
+    {
+        player.GetComponent<Rigidbody2D>().simulated = false;
+        player.GetComponent<Rigidbody2D>().velocity = Vector2.zero;
+        Animator playerAnimator = player.GetComponent<Animator>();
+        if (!mustBeStanding)
+        {
+            playerAnimator.SetTrigger("hold");
+        }
+        else
+        {
+            playerAnimator.SetBool("onGround", true);
+        }
+        
+        playerAnimator.SetBool("isRunning", false);
+        playerAnimator.SetBool("isSkidding", false);
+
+        // disable all scripts
+        foreach (MonoBehaviour script in player.GetComponents<MonoBehaviour>())
+        {
+            script.enabled = false;
+        }
+    }
+
     protected override void Unlock()
     {
         // we want to have the door spit out coins until the player uses enough coins to open the door
         FreezePlayer();
+
         coinSpendCoroutine = SpawnCoinsUntilOpen();
         StartCoroutine(coinSpendCoroutine);
     }
