@@ -7,7 +7,7 @@ public class BulletBill : EnemyAI
     [Header("Bullet Bill")]
 
     public bool rotateToMovement = true; // if true, rotate to movement direction (like a bullet bill)
-    // This should be off for cannon ballsf
+    // This should be off for cannon balls
 
     protected override void Start()
     {
