@@ -9,10 +9,12 @@ public class Flag : MonoBehaviour
 {
     [HideInInspector]
     public float height;
+
+    public GameObject starParticlePrefab;
+
     public GameObject flag;
     public GameObject pole;
     public GameObject cutsceneMario;
-
 
     // if null, it always uses cutsceneMario
     // if not null, use cutsceneMario if mario is small, and use optCutsceneBigMario if mario is big or higher
@@ -88,6 +90,11 @@ public class Flag : MonoBehaviour
             csMario.SetActive(true);
             csMario.transform.position = new Vector2(transform.position.x - 0.4f, other.transform.position.y);
 
+            if (starParticlePrefab != null)
+            {
+                SpawnStarParticles();
+            }
+
             // delete the player
             Destroy(other.gameObject);
 
@@ -138,4 +145,31 @@ public class Flag : MonoBehaviour
     {
         GameManager.Instance.FinishLevel();
     }
+
+    #region particles
+    void SpawnStarParticles()
+    {
+        // Spawn 8 stars around the flag
+        int[] vertdirections = new int[] { -1, 0, 1 };
+        int[] horizdirections = new int[] { -1, 0, 1 };
+        for (int i = 0; i < vertdirections.Length; i++)
+        {
+            for (int j = 0; j < horizdirections.Length; j++)
+            {
+                if (vertdirections[i] == 0 && horizdirections[j] == 0)
+                {
+                    continue;
+                }
+                float distance = (vertdirections[i] != 0 && horizdirections[j] != 0) ? 0.7f : 1f;
+                Vector3 startOffset = new Vector3(horizdirections[i] * distance, vertdirections[j] * distance, 0);
+
+                // Instantiate the star particle
+                GameObject starParticle = Instantiate(starParticlePrefab, csMario.transform.position + startOffset, Quaternion.identity);
+
+                starParticle.GetComponent<StarMoveOutward>().direction = new Vector2(vertdirections[i], horizdirections[j]);
+                starParticle.GetComponent<StarMoveOutward>().speed = 2f;
+            }
+        }
+    }
+    #endregion
 }

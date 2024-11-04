@@ -154,7 +154,6 @@ public class LevelButton : MonoBehaviour
         }
     }
 
-
     public void OnClick()
     {
         LevelSelectionManager.Instance.OnLevelButtonClick(this);
@@ -168,6 +167,4 @@ public class LevelButton : MonoBehaviour
             audioSource.Play();
         }
     }
-
-
 }
