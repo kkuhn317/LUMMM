@@ -154,6 +154,7 @@ MonoBehaviour:
   checkObjectCollision: 1
   ceilingDetection: 1
   DontFallOffLedges: 0
+  bounceOffWalls: 1
   flipObject: 1
   FrequentMovement: 0
   lavaKill: 1
@@ -180,11 +181,17 @@ MonoBehaviour:
   stompHeight: 0.065
   heldItem: {fileID: 0}
   itemSpawnOffset: {x: 0, y: 0, z: 0}
+  InstantChange: 0
+  customDeath: {fileID: 0}
+  onPlayerDamaged:
+    m_PersistentCalls:
+      m_Calls: []
+  spinJumpEffect: 0
   state: 0
   kickForce: {x: 5, y: 10}
   explodeTime: 4
   explodeRadius: 0.25
-  explosionObject: {fileID: 1420006679389223119, guid: ddb2465bfe76ed0468928812d657ab93, type: 3}
+  explosionObject: {fileID: 1420006679389223119, guid: 176ec8a14dae72b44a936da322409a47, type: 3}
 --- !u!82 &6687349407311778599
 AudioSource:
   m_ObjectHideFlags: 0
