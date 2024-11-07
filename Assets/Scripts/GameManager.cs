@@ -283,7 +283,6 @@ public class GameManager : MonoBehaviour
     public List<Image> greenCoinUIWin;
     public RawImage ObtainedRank;
 
-
     void Awake()
     {
         print("GameManager Awake");
@@ -389,7 +388,7 @@ public class GameManager : MonoBehaviour
                 DeactivatePlushieObjects();
             }
 
-            if (GlobalVariables.TimeLimit) // If it's true
+            if (!GlobalVariables.stopTimeLimit) // If it's false
             {
                 if (!isPaused && !stopTimer)
                 {
@@ -728,12 +727,12 @@ public class GameManager : MonoBehaviour
             Debug.Log("All green coins collected");
         }
 
-        if (!GlobalVariables.infiniteLivesMode && !GlobalVariables.enableCheckpoints && GlobalVariables.TimeLimit)
+        if (!GlobalVariables.infiniteLivesMode && !GlobalVariables.enableCheckpoints && GlobalVariables.stopTimeLimit)
         {
             Debug.Log("You complete the level without advantages, Congrats! You did it! Yay :D!");
         }
 
-        if (collectedGreenCoins.Count == greenCoins.Length && !GlobalVariables.infiniteLivesMode && !GlobalVariables.enableCheckpoints && GlobalVariables.TimeLimit)
+        if (collectedGreenCoins.Count == greenCoins.Length && !GlobalVariables.infiniteLivesMode && !GlobalVariables.enableCheckpoints && GlobalVariables.stopTimeLimit)
         {
             Debug.Log("Level completed perfect");
             PlayerPrefs.SetInt("LevelPerfect_" + levelID, 1);

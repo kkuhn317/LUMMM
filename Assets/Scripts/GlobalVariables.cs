@@ -15,14 +15,16 @@ public static class GlobalVariables
     // -1 means no checkpoint
     public static int checkpoint = -1;
 
+    // Modifiers
     public static bool infiniteLivesMode = false;
-
     public static bool enableCheckpoints = false;
+    public static bool stopTimeLimit = false;
+    //
 
     public static bool OnScreenControls = false;
     public static bool mobileRunButtonPressed = false;
 
-    public static bool TimeLimit = true;
+
 
     public static bool enablePlushies = false;
     public static bool enableBetaMode = false;
