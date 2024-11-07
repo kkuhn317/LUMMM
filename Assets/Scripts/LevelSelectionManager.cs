@@ -155,6 +155,7 @@ public class LevelSelectionManager : MonoBehaviour
             return;
         }
 
+        DestroyGameMusic.DestroyGameMusicObjects();
         // Reset global variables for the level
         GlobalVariables.levelInfo = selectedLevelButton.levelInfo;
         GlobalVariables.ResetForLevel();
