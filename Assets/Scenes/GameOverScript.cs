@@ -5,7 +5,7 @@ using UnityEngine.SceneManagement;
 
 public class GameOverScript : MonoBehaviour
 {
-    public float transitionChangeDelay = 3f;
+    public float transitionChangeDelay = 6f;
 
     void Start()
     {
@@ -15,7 +15,7 @@ public class GameOverScript : MonoBehaviour
     void ChangeScene()
     {
         CursorHelper.ShowCursor();
-        SceneManager.LoadScene("SelectLevel");
+        FadeInOutScene.Instance.LoadSceneWithFade("SelectLevel");
     }
 
 }
