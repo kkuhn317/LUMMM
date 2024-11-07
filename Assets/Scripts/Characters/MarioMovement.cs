@@ -1317,7 +1317,7 @@ public class MarioMovement : MonoBehaviour
     }
     public void onShootPressed() {
         // shoot fireball, etc
-        if (!carrying && powerupState == PowerupState.power) {
+        if (marioAbility != null && !carrying && powerupState == PowerupState.power) {
             print("shoot!");
             marioAbility.shootProjectile();
         }
