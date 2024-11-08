@@ -78,6 +78,7 @@ public class ObjectPhysics : MonoBehaviour
 
     [Header("Knock Away")]
 
+    public bool rotateAroundCenter = false;
     public Vector2 knockAwayVelocity = new Vector2(5, 5);
     public bool overrideKnockAwayGravity = false;
     public float knockAwayGravity = 60f;
@@ -164,9 +165,14 @@ public class ObjectPhysics : MonoBehaviour
         if (objectState == ObjectState.knockedAway)
         {
             // rotate knock away
-            if (knockAwayType == KnockAwayType.rotate) {
-                // rotate
-                transform.Rotate(0, 0, knockAwayRotationSpeed * Time.deltaTime * (movingLeft ? 1 : -1));
+            if (rotateAroundCenter)
+            {
+                RotateAroundSpriteCenter();
+            }
+            else
+            {
+                // Rotate around the pivot as usual
+                transform.Rotate(0, 0, knockAwayRotationSpeed * Time.deltaTime);
             }
 
             // Fade out
@@ -183,6 +189,17 @@ public class ObjectPhysics : MonoBehaviour
         }
 
 
+    }
+
+    private void RotateAroundSpriteCenter()
+    {
+        if (GetComponent<SpriteRenderer>() == null) return;
+
+        // Calculate the center of the sprite in world space
+        Vector3 spriteCenter = GetComponent<SpriteRenderer>().bounds.center;
+
+        // Rotate around the sprite's center point
+        transform.RotateAround(spriteCenter, Vector3.forward, knockAwayRotationSpeed * Time.deltaTime);
     }
 
     protected virtual void FixedUpdate()

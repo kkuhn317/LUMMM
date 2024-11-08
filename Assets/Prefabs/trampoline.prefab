@@ -122,9 +122,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cd4b98eb5afdfe249a3d61bbcba2d113, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enemyBounce: 0
+  objectBounce: 1
   playerBouncePower: 10
-  enemyBouncePower: 25
+  objectBouncePower: 16
+  sideways: 0
 --- !u!61 &572095785153829308
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -172,9 +173,9 @@ AudioSource:
   Priority: 128
   DopplerLevel: 1
   MinDistance: 1
-  MaxDistance: 500
+  MaxDistance: 10
   Pan2D: 0
-  rolloffMode: 0
+  rolloffMode: 1
   BypassEffects: 0
   BypassListenerEffects: 0
   BypassReverbZones: 0
@@ -282,7 +283,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   movingLeft: 1
   velocity: {x: 0, y: 0}
-  gravity: 60
+  gravity: 45
   width: 1
   height: 1
   floorRaycastSpacing: 0.2
@@ -296,6 +297,7 @@ MonoBehaviour:
   checkObjectCollision: 1
   ceilingDetection: 1
   DontFallOffLedges: 0
+  bounceOffWalls: 1
   flipObject: 0
   FrequentMovement: 0
   lavaKill: 1
@@ -305,7 +307,7 @@ MonoBehaviour:
     m_Bits: 0
   carryable: 1
   carried: 0
-  throwVelocity: {x: 12, y: 10}
+  throwVelocity: {x: 5, y: 10}
   knockAwayVelocity: {x: 5, y: 5}
   overrideKnockAwayGravity: 0
   knockAwayGravity: 60

@@ -49,23 +49,30 @@ public class GiantThwomp : EnemyAI
 
     private void DetectPlayer() {
         MarioMovement player = GameManager.Instance.GetPlayer(0);
-        // Check if Mario is underneath, to the side, or above the Thwomp
-        if (player.transform.position.y < transform.position.y && Mathf.Abs(player.transform.position.x - transform.position.x) < width / 2 + addDetectionRange)
+
+        if (player != null)
         {
-            fallDirection = FallDirections.Down;
-            ChangeState(ThwompStates.Falling);
-        } else if (checkSides && player.transform.position.x < transform.position.x && Mathf.Abs(player.transform.position.y - transform.position.y) < height / 2 + addDetectionRange)
-        {
-            fallDirection = FallDirections.Left;
-            ChangeState(ThwompStates.Falling);
-        } else if (checkSides && player.transform.position.x > transform.position.x && Mathf.Abs(player.transform.position.y - transform.position.y) < height / 2 + addDetectionRange)
-        {
-            fallDirection = FallDirections.Right;
-            ChangeState(ThwompStates.Falling);
-        } else if (player.transform.position.y > transform.position.y && Mathf.Abs(player.transform.position.x - transform.position.x) < width / 2 + addDetectionRange)
-        {
-            fallDirection = FallDirections.Up;
-            ChangeState(ThwompStates.Falling);
+            // Check if Mario is underneath, to the side, or above the Thwomp
+            if (player.transform.position.y < transform.position.y && Mathf.Abs(player.transform.position.x - transform.position.x) < width / 2 + addDetectionRange)
+            {
+                fallDirection = FallDirections.Down;
+                ChangeState(ThwompStates.Falling);
+            }
+            else if (checkSides && player.transform.position.x < transform.position.x && Mathf.Abs(player.transform.position.y - transform.position.y) < height / 2 + addDetectionRange)
+            {
+                fallDirection = FallDirections.Left;
+                ChangeState(ThwompStates.Falling);
+            }
+            else if (checkSides && player.transform.position.x > transform.position.x && Mathf.Abs(player.transform.position.y - transform.position.y) < height / 2 + addDetectionRange)
+            {
+                fallDirection = FallDirections.Right;
+                ChangeState(ThwompStates.Falling);
+            }
+            else if (player.transform.position.y > transform.position.y && Mathf.Abs(player.transform.position.x - transform.position.x) < width / 2 + addDetectionRange)
+            {
+                fallDirection = FallDirections.Up;
+                ChangeState(ThwompStates.Falling);
+            }
         }
     }
 
