@@ -162,6 +162,7 @@ MonoBehaviour:
   groundPos: {x: 0, y: 0}
   animationScale: {x: 1, y: 1, z: 1}
   originalScale: {x: 0, y: 0, z: 0}
+  animationRotation: {x: 0, y: 0, z: 0, w: 1}
   wasScaledNormal: 1
   canSkid: 1
   canCrouch: 1
@@ -176,6 +177,7 @@ MonoBehaviour:
   damageSound: {fileID: 8300000, guid: 938d4a3d1a37b284c81c8c25379c86b4, type: 3}
   bonkSound: {fileID: 8300000, guid: 6db2c81fb3c026d40a90d8d52dc8384b, type: 3}
   swimSound: {fileID: 8300000, guid: e2bb1aa0b45968f4b898809f1533541a, type: 3}
+  spinJumpSound: {fileID: 0}
   yeahAudioClip: {fileID: 8300000, guid: b4a5b5a191256034ca457e70e758ea5b, type: 3}
   carrying: 0
   pressRunToGrab: 0
@@ -187,6 +189,11 @@ MonoBehaviour:
   canCrawl: 0
   canWallJump: 1
   canSpinJump: 0
+  spinning: 0
+  spinJumpBounceSound: {fileID: 0}
+  spinJumpPoofSound: {fileID: 0}
+  spinJumpBouncePrefab: {fileID: 0}
+  spinJumpPoofPrefab: {fileID: 0}
 --- !u!50 &7419182181435639168
 Rigidbody2D:
   serializedVersion: 4

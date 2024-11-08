@@ -302,6 +302,12 @@ public class QuestionBlock : MonoBehaviour
 
     IEnumerator RiseUp(GameObject item, string ogTag, int ogLayer, MonoBehaviour[] scripts)
     {
+        BoxCollider2D itemCollider = item.GetComponent<BoxCollider2D>();
+        if (itemCollider != null)
+        {
+            itemCollider.enabled = false;
+        }
+
         while (item != null && shouldContinueRiseUp) // Add a null check and the flag check here
         {
             // Rest of the code inside the coroutine
@@ -319,6 +325,11 @@ public class QuestionBlock : MonoBehaviour
                 item.tag = ogTag;
                 item.GetComponent<SpriteRenderer>().sortingLayerID = ogLayer;
                 item.GetComponent<SpriteRenderer>().sortingOrder = 0;
+
+                if (itemCollider != null)
+                {
+                    itemCollider.enabled = true;
+                }
                 break;
             }
             yield return null;

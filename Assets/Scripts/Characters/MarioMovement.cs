@@ -282,12 +282,7 @@ public class MarioMovement : MonoBehaviour
             isLookingUp = false;
         }
 
-
-        // TODO: temporary fix until big mario gets looking up animation
-        if (powerupState == PowerupState.small) {
-            animator.SetBool("isLookingUp", isLookingUp);
-        }
-        
+        animator.SetBool("isLookingUp", isLookingUp);
 
         if (cameraFollow != null)
         {
