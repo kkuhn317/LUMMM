@@ -171,6 +171,7 @@ public class MarioMovement : MonoBehaviour
     [Header("Additional Abilities")]
     public bool canCrawl = false;       // Only small Mario has an animation for crawling right now, so it will not be transferred after powerup
     public bool canWallJump = false;    // Only small mario has an animation for wall jumping right now, so it will not be transferred after powerup
+    public bool canWallJumpWhenHoldingObject = false;
     public bool canSpinJump = false;
     private bool wallSliding = false;
     private bool pushing = false;
@@ -527,7 +528,7 @@ public class MarioMovement : MonoBehaviour
         }
 
         // Wall detection (for wall jumping)
-        if (canWallJump && !onGround && !swimming) {
+        if (canWallJump && !onGround && !swimming && (!carrying || canWallJumpWhenHoldingObject)) {
 
             float raycastlength = GetComponent<BoxCollider2D>().bounds.size.y / 2 + 0.03f;
 
