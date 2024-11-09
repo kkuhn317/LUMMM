@@ -695,6 +695,7 @@ MonoBehaviour:
   - {fileID: -1362825417, guid: c969912de6832e14baf152772b3b1ea0, type: 3}
   - {fileID: 118335345, guid: c969912de6832e14baf152772b3b1ea0, type: 3}
   framerate: 0.16666667
+  loop: 1
 --- !u!61 &340383063
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -6403,6 +6404,79 @@ TilemapCollider2D:
   m_Offset: {x: 0, y: 0}
   m_MaximumTileChangeCount: 1000
   m_ExtrusionFactor: 0.00001
+--- !u!1001 &911727826
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1960658286, guid: d30af585c704a3f41b23ce9cdef44d12, type: 3}
+      propertyPath: throwVelocity.x
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 1960658286, guid: d30af585c704a3f41b23ce9cdef44d12, type: 3}
+      propertyPath: throwVelocity.y
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 572095785153829303, guid: d30af585c704a3f41b23ce9cdef44d12, type: 3}
+      propertyPath: m_Name
+      value: trampoline
+      objectReference: {fileID: 0}
+    - target: {fileID: 572095785153829305, guid: d30af585c704a3f41b23ce9cdef44d12, type: 3}
+      propertyPath: m_RootOrder
+      value: 46
+      objectReference: {fileID: 0}
+    - target: {fileID: 572095785153829305, guid: d30af585c704a3f41b23ce9cdef44d12, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 15.54
+      objectReference: {fileID: 0}
+    - target: {fileID: 572095785153829305, guid: d30af585c704a3f41b23ce9cdef44d12, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -4.07
+      objectReference: {fileID: 0}
+    - target: {fileID: 572095785153829305, guid: d30af585c704a3f41b23ce9cdef44d12, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 572095785153829305, guid: d30af585c704a3f41b23ce9cdef44d12, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 572095785153829305, guid: d30af585c704a3f41b23ce9cdef44d12, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 572095785153829305, guid: d30af585c704a3f41b23ce9cdef44d12, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 572095785153829305, guid: d30af585c704a3f41b23ce9cdef44d12, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 572095785153829305, guid: d30af585c704a3f41b23ce9cdef44d12, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 572095785153829305, guid: d30af585c704a3f41b23ce9cdef44d12, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 572095785153829305, guid: d30af585c704a3f41b23ce9cdef44d12, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 572095785153829306, guid: d30af585c704a3f41b23ce9cdef44d12, type: 3}
+      propertyPath: enemyBounce
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 572095785153829306, guid: d30af585c704a3f41b23ce9cdef44d12, type: 3}
+      propertyPath: objectBounce
+      value: 1
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: d30af585c704a3f41b23ce9cdef44d12, type: 3}
 --- !u!1001 &962450803
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -6902,11 +6976,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1771483343543010229, guid: 0ed8634130540ee49afd6a10ccb53bf6, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 14.08
+      value: 13.86
       objectReference: {fileID: 0}
     - target: {fileID: 1771483343543010229, guid: 0ed8634130540ee49afd6a10ccb53bf6, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 10.11
+      value: -4.19
       objectReference: {fileID: 0}
     - target: {fileID: 1771483343543010229, guid: 0ed8634130540ee49afd6a10ccb53bf6, type: 3}
       propertyPath: m_LocalPosition.z
@@ -7720,6 +7794,7 @@ MonoBehaviour:
   carryable: 0
   carried: 0
   throwVelocity: {x: 12, y: 10}
+  rotateAroundCenter: 0
   knockAwayVelocity: {x: 5, y: 5}
   overrideKnockAwayGravity: 0
   knockAwayGravity: 60
