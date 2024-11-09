@@ -950,7 +950,6 @@ public class MarioMovement : MonoBehaviour
         newMarioMovement.carryMethod = carryMethod;
         newMarioMovement.playerNumber = playerNumber;
         newMarioMovement.invincetimeremain = invincetimeremain;
-
         
         try {
             var myDevices = GetComponent<PlayerInput>().devices;
