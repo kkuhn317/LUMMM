@@ -77,7 +77,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 1
   m_Sprite: {fileID: 1412978495, guid: 9cedcc06b2259a04c9dc16f2cec7812c, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -154,6 +154,7 @@ MonoBehaviour:
   checkObjectCollision: 1
   ceilingDetection: 1
   DontFallOffLedges: 0
+  bounceOffWalls: 1
   flipObject: 1
   FrequentMovement: 0
   lavaKill: 1
@@ -164,6 +165,7 @@ MonoBehaviour:
   carryable: 1
   carried: 0
   throwVelocity: {x: 12, y: 10}
+  rotateAroundCenter: 1
   knockAwayVelocity: {x: 5, y: 5}
   overrideKnockAwayGravity: 0
   knockAwayGravity: 60
@@ -180,6 +182,12 @@ MonoBehaviour:
   stompHeight: 0.2
   heldItem: {fileID: 0}
   itemSpawnOffset: {x: 0, y: 0, z: 0}
+  InstantChange: 0
+  customDeath: {fileID: 0}
+  onPlayerDamaged:
+    m_PersistentCalls:
+      m_Calls: []
+  spinJumpEffect: 0
   state: 0
   kickForce: {x: 5, y: 10}
   explodeTime: 4
