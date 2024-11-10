@@ -628,7 +628,7 @@ public class MarioMovement : MonoBehaviour
         // You can only crawl if you are small mario, on the ground, crouching, and not carrying anything, and not swimming, and if canCrawl is true;
         // AND you are pressing left or right pretty hard
         // AND either you are already crawling or you are stopped
-        isCrawling = inCrouchState && onGround && !carrying && !swimming && powerupState == PowerupState.small && canCrawl && math.abs(horizontal) > 0.5 && (math.abs(rb.velocity.x) < 0.05f || isCrawling);
+        isCrawling = inCrouchState && onGround && !carrying && !swimming && powerupState == PowerupState.small && canCrawl && math.abs(horizontal) > 0.5 && math.abs(rb.velocity.x) < 0.05f;
         bool regularMoving = !inCrouchState || !onGround;
 
         // use the angle of the slope instead of Vector2.right
@@ -974,6 +974,9 @@ public class MarioMovement : MonoBehaviour
         newMarioMovement.jumpPressed = jumpPressed;
         newMarioMovement.runPressed = runPressed;
         newMarioMovement.moveInput = moveInput;
+
+        // Update inCrouchState based on crouchPressed
+        newMarioMovement.inCrouchState = crouchPressed;
 
         return newMarioMovement;
     }
