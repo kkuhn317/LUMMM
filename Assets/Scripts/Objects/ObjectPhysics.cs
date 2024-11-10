@@ -746,6 +746,10 @@ public class ObjectPhysics : MonoBehaviour
     {
         velocity.y = y;
     }
+    public void SetKnockAwayToFlip()
+    {
+        knockAwayType = KnockAwayType.flip;
+    }
 
     protected virtual void OnDrawGizmosSelected()
     {
@@ -888,4 +892,3 @@ public class ObjectPhysics : MonoBehaviour
         movingLeft = direction;
     }
 }
-
