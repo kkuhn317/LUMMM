@@ -123,17 +123,21 @@ public class AmbushTrigger : MonoBehaviour
             yield return new WaitForSeconds(delayBetweenGroups * Time.deltaTime);
         }
 
-        // Disable the collider
-        GetComponent<Collider2D>().enabled = false;
+        StartCoroutine(CompleteAmbush(playerAnimator));   
+    }
 
-        onAmbushEnd.Invoke();
-        
-        // Disable scared animator
-        // TODO: This is not correct because currently the animation will barely play at all
+    private IEnumerator CompleteAmbush(Animator playerAnimator)
+    {
+        // Disable "isScared" animation
         if (playerAnimator != null)
         {
             playerAnimator.SetBool("isScared", false);
         }
+
+        yield return new WaitForSeconds(1.5f);
+
+        // Now invoke the end of the ambush event
+        onAmbushEnd.Invoke();
     }
 
     private IEnumerator BounceEnemy(Goomba enemy)

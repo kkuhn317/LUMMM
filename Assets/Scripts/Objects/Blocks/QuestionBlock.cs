@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Playables;
+using UnityEngine.Events;
 using PowerupState = PowerStates.PowerupState;
 
 public class QuestionBlock : MonoBehaviour
@@ -19,6 +20,9 @@ public class QuestionBlock : MonoBehaviour
 
     public float itemMoveHeight = 1f;
     public float itemMoveSpeed = 1f;
+
+    public UnityEvent onBlockActivated;
+
     private Vector2 originalPosition;
 
     public Sprite emptyBlockSprite;
@@ -28,6 +32,8 @@ public class QuestionBlock : MonoBehaviour
     public AudioClip itemRiseSound;
 
     private AudioSource audioSource;
+
+    public string popUpCoinAnimationName = "";
 
     private int originalLayer = 3; // Layer 3 = ground layer
     private bool shouldContinueRiseUp = true; // Add a flag to control coroutine continuation
@@ -97,6 +103,8 @@ public class QuestionBlock : MonoBehaviour
                     BrickBlockBreak();         
                 }
             }
+
+            onBlockActivated.Invoke();
         }
     }
 
@@ -225,6 +233,7 @@ public class QuestionBlock : MonoBehaviour
         {
             GameObject spinningCoin = Instantiate(coinPrefab, transform.parent);
             spinningCoin.transform.position = new Vector2(originalPosition.x, startheight);
+            spinningCoin.GetComponent<Coin>().popUpAnimationName = popUpCoinAnimationName;
             spinningCoin.GetComponent<Coin>().PopUp();
         }
         
@@ -305,17 +314,28 @@ public class QuestionBlock : MonoBehaviour
         BoxCollider2D itemCollider = item.GetComponent<BoxCollider2D>();
         if (itemCollider != null)
         {
-            itemCollider.enabled = false;
+            itemCollider.enabled = false;  // Initially disable the collider
         }
 
-        while (item != null && shouldContinueRiseUp) // Add a null check and the flag check here
+        float riseStartTime = Time.time;  // Record the time when rise starts
+        bool colliderEnabled = false;     // Track if the collider has been enabled
+
+        while (item != null && shouldContinueRiseUp)
         {
-            // Rest of the code inside the coroutine
-
-            //item.GetComponent<Rigidbody2D>().velocity = Vector3.zero;
-
+            // Move the item up
             item.transform.position = new Vector3(item.transform.position.x, item.transform.position.y + itemMoveSpeed * Time.deltaTime, 0);
-            //print(item.transform.position.y + "vs" + originalPosition.y);
+
+            // Enable the collider after a small delay from the start of the rise
+            if (!colliderEnabled && Time.time >= riseStartTime + 0.25f)
+            {
+                if (itemCollider != null)
+                {
+                    itemCollider.enabled = true;
+                }
+                colliderEnabled = true;  // Mark collider as enabled to avoid re-enabling
+            }
+
+            // Check if the item has reached the target height
             if (item.transform.position.y >= originalPosition.y + itemMoveHeight)
             {
                 foreach (MonoBehaviour script in scripts)
@@ -325,13 +345,9 @@ public class QuestionBlock : MonoBehaviour
                 item.tag = ogTag;
                 item.GetComponent<SpriteRenderer>().sortingLayerID = ogLayer;
                 item.GetComponent<SpriteRenderer>().sortingOrder = 0;
-
-                if (itemCollider != null)
-                {
-                    itemCollider.enabled = true;
-                }
                 break;
             }
+
             yield return null;
         }
 

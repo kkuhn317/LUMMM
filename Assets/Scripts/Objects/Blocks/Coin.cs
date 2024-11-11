@@ -14,6 +14,8 @@ public class Coin : MonoBehaviour
     public float bounceHeight = 2f;
     Vector2 originalPosition;   // Set when the coin is going to bounce
 
+    public string popUpAnimationName = "PopUp";
+
     // Method to get the coin value
     public int GetCoinValue()
     {
@@ -82,7 +84,18 @@ public class Coin : MonoBehaviour
 
         originalPosition = transform.position;
 
-        GetComponent<Animator>().Play("PopUp"); // Play the pop-up animation
+        // Not a big fan of this method but whatever
+        if (!string.IsNullOrEmpty(popUpAnimationName))
+        {
+            GetComponent<Animator>().Play(popUpAnimationName); // Play the specified animation
+            Debug.Log(popUpAnimationName);
+        }
+        else
+        {
+            GetComponent<Animator>().Play("PopUp"); // Default to "PopUp" if no name is provided
+            Debug.Log("PopUp");
+        }
+
         GameManager.Instance.PlayCoinSound();
 
         if (bounceTime > 0)
