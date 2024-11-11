@@ -628,9 +628,10 @@ public class MarioMovement : MonoBehaviour
         // You can only crawl if you are small mario, on the ground, crouching, and not carrying anything, and not swimming, and if canCrawl is true;
         // AND you are pressing left or right pretty hard
         // AND either you are already crawling or you are stopped
+
+        bool wasCrawling = isCrawling;
         isCrawling = inCrouchState && onGround && !carrying && !swimming && powerupState == PowerupState.small && canCrawl
                      && math.abs(horizontal) > 0.5 && (math.abs(rb.velocity.x) < 0.05f || isCrawling);
-        // Debug.Log($"inCrouchState: {inCrouchState}, onGround: {onGround}, carrying: {carrying}, swimming: {swimming}, powerupState: {powerupState}, canCrawl: {canCrawl}, horizontal: {horizontal}, velocityX: {rb.velocity.x}");
         bool regularMoving = !inCrouchState || !onGround;
 
         // use the angle of the slope instead of Vector2.right
@@ -796,11 +797,13 @@ public class MarioMovement : MonoBehaviour
             return;
         }
 
+        Vector2 physicsInput = direction;   // So we can modify it without changing the direction variable
+
         if (onGround) {
-            // no crazy crouch sliding
+            // no crazy crouch sliding (but do allow crawling)
             if (inCrouchState)
             {
-                direction = new Vector2(0, direction.y);
+                physicsInput = new Vector2(0, direction.y);
                 animator.SetBool("isCrouching", true);
             }
             else
@@ -809,14 +812,14 @@ public class MarioMovement : MonoBehaviour
             }             
 
             // if not holding left or right all the way or changing directions
-            if (Mathf.Abs(direction.x) < 0.4f || changingDirections) {
+            if (Mathf.Abs(physicsInput.x) < 0.4f || changingDirections) {
 
                 // if running and holding left or right
-                if (runPressed && (direction.x != 0)) {
+                if (runPressed && (physicsInput.x != 0)) {
                     rb.drag = runlinearDrag;
 
                 // if not holding left or right
-                } else if (direction.x == 0) {
+                } else if (physicsInput.x == 0) {
 
                     if (Mathf.Abs(rb.velocity.x) < 5f) {
                         rb.drag = linearDrag;
