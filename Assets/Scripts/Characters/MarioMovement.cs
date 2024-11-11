@@ -980,6 +980,7 @@ public class MarioMovement : MonoBehaviour
         newMarioMovement.runPressed = runPressed;
         newMarioMovement.moveInput = moveInput;
 
+        // Set crouchPressed to false to ensure new character doesn't start crouching
         newMarioMovement.crouchPressed = false;
 
         return newMarioMovement;

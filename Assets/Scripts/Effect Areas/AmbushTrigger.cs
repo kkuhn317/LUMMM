@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.Playables;
 
 [System.Serializable]
@@ -17,15 +18,18 @@ public class AmbushTrigger : MonoBehaviour
     public float delayBetweenAudio = 0.025f;
     public AudioClip ambushAudioClip;
     public AudioClip Mariowhoaaa;
-    public SpriteSwapArea spriteswaparea;
 
     public List<EnemyGroup> enemyGroups = new List<EnemyGroup>();
     private List<AudioSource> allAudioSources = new List<AudioSource>();
     private bool hasPlayedMariowhoaaa = false;
 
+    public UnityEvent onAmbushBefore;
+    public UnityEvent onAmbushStart;
+    public UnityEvent onAmbushEnd;
+
     private void Start()
     {
-        spriteswaparea.enabled = false;
+        onAmbushBefore.Invoke();
 
         // Collect all AudioSources at the start
         foreach (EnemyGroup group in enemyGroups)
@@ -62,15 +66,10 @@ public class AmbushTrigger : MonoBehaviour
 
     private void OnTriggerExit2D(Collider2D other)
     {
-        if (other.CompareTag("Player"))
+        Animator playerAnimator = other.GetComponent<Animator>();
+        if (playerAnimator != null)
         {
-            // Set isScared to false on the Player's animator
-            // TODO: This is not correct because the trigger is disabled quickly after the animation starts
-            Animator playerAnimator = other.GetComponent<Animator>();
-            if (playerAnimator != null)
-            {
-                playerAnimator.SetBool("isScared", false);
-            }
+            playerAnimator.SetBool("isScared", false);
         }
     }
 
@@ -80,6 +79,8 @@ public class AmbushTrigger : MonoBehaviour
 
         if (player == null)
             yield break;
+
+        onAmbushStart.Invoke();
 
         // Set the "isScared" parameter of the player's animator
         Animator playerAnimator = player.GetComponent<Animator>();
@@ -95,9 +96,6 @@ public class AmbushTrigger : MonoBehaviour
             playerAudioSource.PlayOneShot(Mariowhoaaa);
             hasPlayedMariowhoaaa = true;
         }
-
-        // Enable scared player library
-        spriteswaparea.enabled = true;
 
         StartCoroutine(EnemyAudio());
 
@@ -127,14 +125,15 @@ public class AmbushTrigger : MonoBehaviour
 
         // Disable the collider
         GetComponent<Collider2D>().enabled = false;
+
+        onAmbushEnd.Invoke();
+        
         // Disable scared animator
         // TODO: This is not correct because currently the animation will barely play at all
         if (playerAnimator != null)
         {
             playerAnimator.SetBool("isScared", false);
         }
-        // Return player to normal library
-        spriteswaparea.enabled = false;
     }
 
     private IEnumerator BounceEnemy(Goomba enemy)

@@ -158,6 +158,7 @@ MonoBehaviour:
   checkObjectCollision: 1
   ceilingDetection: 1
   DontFallOffLedges: 1
+  bounceOffWalls: 1
   flipObject: 1
   FrequentMovement: 0
   lavaKill: 1
@@ -168,6 +169,7 @@ MonoBehaviour:
   carryable: 0
   carried: 0
   throwVelocity: {x: 12, y: 10}
+  rotateAroundCenter: 0
   knockAwayVelocity: {x: 5, y: 5}
   overrideKnockAwayGravity: 0
   knockAwayGravity: 60
@@ -184,6 +186,12 @@ MonoBehaviour:
   stompHeight: 0.2
   heldItem: {fileID: 0}
   itemSpawnOffset: {x: 0, y: 0, z: 0}
+  InstantChange: 0
+  customDeath: {fileID: 0}
+  onPlayerDamaged:
+    m_PersistentCalls:
+      m_Calls: []
+  spinJumpEffect: 1
   state: 0
   walkingSpeed: 2
   movingShellSpeed: 5
