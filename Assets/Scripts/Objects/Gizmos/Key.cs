@@ -69,14 +69,18 @@ public class Key : MonoBehaviour
                 if (player.GetComponent<MarioMovement>().isMoving)
                 {
                     notMovingTime = 0f;
+                    shouldPlayAnimationAndAudio = false;  
                 }
-                else
+                else if (shouldPlayAnimationAndAudio)
                 {
+                    // Start or continue counting only if the player is not moving and hasn't moved during this stationary period
                     notMovingTime += Time.deltaTime;
-                    if (notMovingTime >= timeThreshold && shouldPlayAnimationAndAudio) // Check if the player has not moved before triggering audio and animation
+
+                    // Trigger animation and audio if the threshold is reached
+                    if (notMovingTime >= timeThreshold)
                     {
                         PlayAudioAndAnimation();
-                        shouldPlayAnimationAndAudio = false; // Set the flag to false so that the audio and animation are not triggered again
+                        shouldPlayAnimationAndAudio = false; // Prevent further triggering during this stationary period
                     }
                 }
             }
