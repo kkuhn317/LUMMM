@@ -11,7 +11,7 @@ public class Axe : MonoBehaviour
     public AxeRotation Rotation;
     public enum BridgeDestructionType
     {
-        Instant,    // Tiles are destroyed instantly tile per tile.
+        Instant,            // Tiles are destroyed instantly tile per tile.
         FallAndDestroy      // Tiles fall down and then get destroyed one by one.
     }
     public BridgeDestructionType destructionType;

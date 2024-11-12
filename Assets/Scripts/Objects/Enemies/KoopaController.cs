@@ -59,7 +59,6 @@ public class KoopaController : EnemyAI
         }
     }
 
-
     // TODO: Figure out if this ever used or if touchNonPlayer is always used instead
     private void OnCollisionEnter2D(Collision2D collision)
     {
@@ -162,8 +161,6 @@ public class KoopaController : EnemyAI
         }  
     }
 
-
-
     protected override void onTouchWall(GameObject other)
     {
         base.onTouchWall(other);
@@ -174,6 +171,5 @@ public class KoopaController : EnemyAI
                 other.GetComponent<QuestionBlock>().Activate();
             }
         }
-
     }
 }

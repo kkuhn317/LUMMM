@@ -164,15 +164,19 @@ public class ObjectPhysics : MonoBehaviour
         // Knock Away Logic
         if (objectState == ObjectState.knockedAway)
         {
-            // rotate knock away
-            if (rotateAroundCenter)
+            if (knockAwayType == KnockAwayType.rotate)
             {
-                RotateAroundSpriteCenter();
-            }
-            else
-            {
-                // Rotate around the pivot as usual
-                transform.Rotate(0, 0, knockAwayRotationSpeed * Time.deltaTime);
+                // rotate knock away
+                if (rotateAroundCenter)
+                {
+                    RotateAroundSpriteCenter();
+                }
+                else
+                {
+                    // Rotate around the pivot as usual
+                    transform.Rotate(0, 0, knockAwayRotationSpeed * Time.deltaTime);
+                }
+
             }
 
             // Fade out
@@ -184,11 +188,8 @@ public class ObjectPhysics : MonoBehaviour
                 if (color.a <= 0) {
                     Destroy(gameObject);
                 }
-            }
-            
+            }     
         }
-
-
     }
 
     private void RotateAroundSpriteCenter()
@@ -749,6 +750,11 @@ public class ObjectPhysics : MonoBehaviour
     public void SetKnockAwayToFlip()
     {
         knockAwayType = KnockAwayType.flip;
+    }
+
+    public void SetObjectGravity(float newGravity)
+    {
+        gravity = newGravity;
     }
 
     protected virtual void OnDrawGizmosSelected()
