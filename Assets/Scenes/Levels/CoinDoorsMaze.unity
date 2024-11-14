@@ -2476,7 +2476,8 @@ GameObject:
   - component: {fileID: 352585534}
   - component: {fileID: 352585535}
   - component: {fileID: 352585536}
-  m_Layer: 0
+  - component: {fileID: 352585537}
+  m_Layer: 27
   m_Name: Luigi
   m_TagString: OnlyCutsceneUse
   m_Icon: {fileID: 0}
@@ -2765,7 +2766,7 @@ Rigidbody2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 352585526}
-  m_BodyType: 0
+  m_BodyType: 1
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
@@ -2778,6 +2779,18 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 1
   m_Constraints: 4
+--- !u!114 &352585537
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 352585526}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 58a9bc5c88828504eb2419b00e835cd2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &357842647
 GameObject:
   m_ObjectHideFlags: 0
@@ -74316,6 +74329,7 @@ MonoBehaviour:
   carryable: 0
   carried: 0
   throwVelocity: {x: 12, y: 10}
+  rotateAroundCenter: 0
   knockAwayVelocity: {x: 5, y: 5}
   overrideKnockAwayGravity: 0
   knockAwayGravity: 60
@@ -75704,8 +75718,79 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e33e2f7c0340a2a46bba7d955b2004fd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hitEffect: {fileID: 6456935476818214770, guid: 1dac8fe8aa8027947a72d23116138648, type: 3}
-  rotationForce: 10
+  hitEffect: {fileID: 6456935476818214770, guid: 19805ad2879c2234da77742f124d510d, type: 3}
+  onObjectHit:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1854735057}
+        m_TargetAssemblyTypeName: UnityEngine.Renderer, UnityEngine
+        m_MethodName: set_sortingOrder
+        m_Mode: 3
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 1
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+--- !u!212 &1854735057 stripped
+SpriteRenderer:
+  m_CorrespondingSourceObject: {fileID: 4338235300326007647, guid: 8ec36ba699448fc45a857ed03ad4607b, type: 3}
+  m_PrefabInstance: {fileID: 96194251}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1854735058
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 96194252}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5e8931df7dee4174a9adff541f544856, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  movingLeft: 0
+  velocity: {x: 0, y: 0}
+  gravity: 30
+  width: 0
+  height: 0
+  floorRaycastSpacing: 0
+  wallRaycastSpacing: 0
+  floorMask:
+    serializedVersion: 2
+    m_Bits: 0
+  wallMask:
+    serializedVersion: 2
+    m_Bits: 0
+  checkObjectCollision: 1
+  ceilingDetection: 0
+  DontFallOffLedges: 0
+  bounceOffWalls: 0
+  flipObject: 0
+  FrequentMovement: 0
+  lavaKill: 1
+  sinkSpeed: 20
+  lavaMask:
+    serializedVersion: 2
+    m_Bits: 0
+  carryable: 0
+  carried: 0
+  throwVelocity: {x: 12, y: 10}
+  rotateAroundCenter: 0
+  knockAwayVelocity: {x: 3, y: 5}
+  overrideKnockAwayGravity: 0
+  knockAwayGravity: 20
+  knockAwayType: 1
+  knockAwayRotationSpeed: -60
+  KnockAwayDissapearTime: -1
+  knockAwaySound: {fileID: 8300000, guid: fd01c9d6d8b694740a833736eeab5d4f, type: 3}
+  objectState: 0
+  movement: 1
+  stopAfterLand: 0
+  bounceHeight: 0
+  minHeightToBounce: 1
 --- !u!1001 &1863168624
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -78588,6 +78673,7 @@ MonoBehaviour:
   type: 0
   bounceTime: 0.5
   bounceHeight: 2
+  popUpAnimationName: PopUp
 --- !u!61 &4059027574057084414
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -78745,8 +78831,79 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e33e2f7c0340a2a46bba7d955b2004fd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hitEffect: {fileID: 6456935476818214770, guid: 1dac8fe8aa8027947a72d23116138648, type: 3}
-  rotationForce: 10
+  hitEffect: {fileID: 6456935476818214770, guid: 19805ad2879c2234da77742f124d510d, type: 3}
+  onObjectHit:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 4338235300376176093}
+        m_TargetAssemblyTypeName: UnityEngine.Renderer, UnityEngine
+        m_MethodName: set_sortingOrder
+        m_Mode: 3
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 1
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+--- !u!212 &4338235300376176093 stripped
+SpriteRenderer:
+  m_CorrespondingSourceObject: {fileID: 4338235300326007647, guid: 8ec36ba699448fc45a857ed03ad4607b, type: 3}
+  m_PrefabInstance: {fileID: 4338235300376176082}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &4338235300376176094
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4338235300376176083}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5e8931df7dee4174a9adff541f544856, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  movingLeft: 0
+  velocity: {x: 0, y: 0}
+  gravity: 30
+  width: 0
+  height: 0
+  floorRaycastSpacing: 0
+  wallRaycastSpacing: 0
+  floorMask:
+    serializedVersion: 2
+    m_Bits: 0
+  wallMask:
+    serializedVersion: 2
+    m_Bits: 0
+  checkObjectCollision: 1
+  ceilingDetection: 0
+  DontFallOffLedges: 0
+  bounceOffWalls: 0
+  flipObject: 0
+  FrequentMovement: 0
+  lavaKill: 1
+  sinkSpeed: 20
+  lavaMask:
+    serializedVersion: 2
+    m_Bits: 0
+  carryable: 0
+  carried: 0
+  throwVelocity: {x: 12, y: 10}
+  rotateAroundCenter: 0
+  knockAwayVelocity: {x: 3, y: 5}
+  overrideKnockAwayGravity: 0
+  knockAwayGravity: 20
+  knockAwayType: 1
+  knockAwayRotationSpeed: -60
+  KnockAwayDissapearTime: -1
+  knockAwaySound: {fileID: 8300000, guid: fd01c9d6d8b694740a833736eeab5d4f, type: 3}
+  objectState: 0
+  movement: 1
+  stopAfterLand: 0
+  bounceHeight: 0
+  minHeightToBounce: 1
 --- !u!1001 &4403101443168591395
 PrefabInstance:
   m_ObjectHideFlags: 0

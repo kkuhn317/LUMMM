@@ -752,6 +752,11 @@ public class ObjectPhysics : MonoBehaviour
         knockAwayType = KnockAwayType.flip;
     }
 
+    public void SetKnockAwayToRotate()
+    {
+        knockAwayType = KnockAwayType.rotate;
+    }
+
     public void SetObjectGravity(float newGravity)
     {
         gravity = newGravity;

@@ -1,34 +1,37 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class CrusherHit : MonoBehaviour
 {
     public GameObject hitEffect;
-    public float rotationForce = 10f;
+    public UnityEvent onObjectHit;
 
     private Rigidbody2D rb;
+    private ObjectPhysics objectPhysics;
+    private HashSet<Collider2D> triggeredObjects = new HashSet<Collider2D>();
 
     private void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+        objectPhysics = GetComponent<ObjectPhysics>();
+        objectPhysics.enabled = false;
     }
 
     private void OnTriggerEnter2D(Collider2D other)
     {
+
+        // Check if the object has already triggered the effect
+        if (triggeredObjects.Contains(other))
+        {
+            return; // Exit if the effect has already been triggered for this object
+        }
+
         if (other.CompareTag("OnlyCutsceneUse"))
         {
             Debug.Log("Triggered by OnlyCutsceneUse");
-
-            // Deactivate all scripts except for the Rigidbody
-            MonoBehaviour[] scripts = GetComponents<MonoBehaviour>();
-            foreach (MonoBehaviour script in scripts)
-            {
-                if (script != this)
-                {
-                    script.enabled = false;
-                }
-            }
+            onObjectHit.Invoke();
 
             // Instantiate the "Hit" effect at the trigger point
             if (hitEffect)
@@ -36,15 +39,21 @@ public class CrusherHit : MonoBehaviour
                 Instantiate(hitEffect, other.ClosestPoint(transform.position), Quaternion.identity);
             }
 
-            // Change Rigidbody2D to dynamic so gravity affects it
-            rb.bodyType = RigidbodyType2D.Dynamic;
+            objectPhysics.enabled = true;
+            objectPhysics.KnockAway(other.transform.position.x > transform.position.x);
 
-            // Determine the direction of the force to apply for rotation
-            Vector2 hitDirection = (other.transform.position - transform.position).normalized;
+            // Deactivate all scripts except for the Rigidbody
+            MonoBehaviour[] scripts = GetComponents<MonoBehaviour>();
+            foreach (MonoBehaviour script in scripts)
+            {
+                if (script != this && !(script is ObjectPhysics))
+                {
+                    script.enabled = false;
+                }
+            }
 
-            // Apply rotational force based on the direction
-            float torque = hitDirection.x > 0 ? -rotationForce : rotationForce;
-            rb.AddTorque(torque, ForceMode2D.Impulse);
+            // Add the object to the triggered set
+            triggeredObjects.Add(other);
         }
     }
 }
