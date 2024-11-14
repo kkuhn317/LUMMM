@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using UnityEngine.Events;
 
 // Used to move an object back and forth between two points
 // Example, moving spikes in tiny goomba maze
@@ -30,8 +30,13 @@ public class ObjectMovement : MonoBehaviour
     public bool backwardAudioClipLoop = false;
 
     private AudioSource audioSource;
-
     private bool isVisible = false;
+
+    // Unity Events for movement actions
+    public UnityEvent onStartMovingForward;     // Event called when movement forward starts
+    public UnityEvent onStartMovingBackward;    // Event called when movement backward starts
+    public UnityEvent onReachedForwardPosition; // Event called when reaching the forward position
+    public UnityEvent onReachedBackwardPosition; // Event called when reaching the backward position
 
     // Enum to represent the movement direction
     public enum MovementDirection
@@ -52,6 +57,12 @@ public class ObjectMovement : MonoBehaviour
         {
             MoveToBackwardPosition();
         }
+
+        // Trigger event based on the starting position
+        if (isMovingForward)
+            onStartMovingForward.Invoke();
+        else
+            onStartMovingBackward.Invoke();
 
         StartCoroutine(MoveObject());
     }
@@ -138,8 +149,15 @@ public class ObjectMovement : MonoBehaviour
                 }
             }
 
+            // Trigger event when reaching target position
+            if (isMovingForward)
+                onReachedForwardPosition.Invoke();  // Event for reaching forward position
+            else
+                onReachedBackwardPosition.Invoke(); // Event for reaching backward position
+
             // Play audio clip for reaching maximum position
-            if (isVisible) {
+            if (isVisible)
+            {
                 if (isMovingForward && topforwardAudioClip != null)
                 {
                     audioSource.PlayOneShot(topforwardAudioClip);
@@ -152,6 +170,12 @@ public class ObjectMovement : MonoBehaviour
 
             // Toggle the movement direction and wait for the appropriate duration
             isMovingForward = !isMovingForward;
+
+            // Trigger event when switching direction
+            if (isMovingForward)
+                onStartMovingForward.Invoke();    // Event for starting forward movement
+            else
+                onStartMovingBackward.Invoke();   // Event for starting backward movement
 
             // Determine the wait duration based on movement direction
             float waitDuration = isMovingForward ? forwardWaitDuration : backwardWaitDuration;
@@ -172,7 +196,6 @@ public class ObjectMovement : MonoBehaviour
                         bool loop = isMovingForward ? forwardAudioClipLoop : backwardAudioClipLoop;
                         if (audioClip != null)
                         {
-                            //audioSource.PlayOneShot(audioClip);
                             audioSource.clip = audioClip;
                             audioSource.loop = loop;
                             audioSource.Play();
@@ -180,7 +203,6 @@ public class ObjectMovement : MonoBehaviour
                     }
                 }
             }
-
 
             // Reset the transition timer
             transitionTimer = 0f;
