@@ -123,6 +123,7 @@ public class EnemyAI : ObjectPhysics
 
         if((PowerStates.IsSmall(playerscript.powerupState) || !InstantChange) && customDeath != null) {
             playerscript.TransformIntoObject(customDeath);
+            Debug.Log($"Is player small? {PowerStates.IsSmall(playerscript.powerupState)} | Instant Change: {InstantChange} | Custom Death: {customDeath.name}");
         } else {
             // usually mario would be damaged here
             playerscript.damageMario();

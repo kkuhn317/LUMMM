@@ -1010,6 +1010,12 @@ public class MarioMovement : MonoBehaviour
     {
         if (!dead)
         {
+            // Drop the carried object
+            if (carrying)
+            {
+                dropCarry();
+            }
+
             dead = true;
             // Instantiate the pigPrefab at the current position and rotation
             GameObject m = Instantiate(newMario, transform.position, transform.rotation);

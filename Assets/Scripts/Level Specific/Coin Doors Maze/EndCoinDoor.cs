@@ -6,7 +6,6 @@ using UnityEngine;
 
 public class EndCoinDoor : CoinDoor
 {
-
     private bool coinTouchedDoor = false;
 
     public GameObject pushCoin;     // The coin that can be used to open the door

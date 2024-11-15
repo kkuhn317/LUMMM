@@ -4,27 +4,47 @@ using UnityEngine;
 
 public class CrushDetection : MonoBehaviour
 {
+    // Assign a custom crush death GameObject in the Inspector if desired
+    public GameObject customCrushDeath; // Custom object to transform into when crushed
+
     // This is used to detect when the player is crushed by a block
     // It should be placed on a child object of the player, with a small box collider that can normally not be collided with
     // See coin door maze for an example
-    void OnCollisionEnter2D (Collision2D col)
+    void OnCollisionEnter2D(Collision2D col)
     {
         if (col.gameObject.CompareTag("Crushing"))
         {
-            // get the mariomovement in the parent object
+            // Get the MarioMovement component in the parent object
             MarioMovement mario = GetComponentInParent<MarioMovement>();
-            mario.damageMario(force: true);
+
+            // Apply custom crush death if available
+            if (customCrushDeath != null)
+            {
+                mario.TransformIntoObject(customCrushDeath);
+            }
+            else
+            {
+                mario.damageMario(force: true);
+            }
         }
-        
     }
 
     void OnTriggerEnter2D(Collider2D col)
     {
         if (col.gameObject.CompareTag("Crushing"))
         {
-            // get the mariomovement in the parent object
+            // Get the MarioMovement component in the parent object
             MarioMovement mario = GetComponentInParent<MarioMovement>();
-            mario.damageMario(force: true);
+
+            // Apply custom crush death if available
+            if (customCrushDeath != null)
+            {
+                mario.TransformIntoObject(customCrushDeath);
+            }
+            else
+            {
+                mario.damageMario(force: true);
+            }
         }
     }
 }
