@@ -21,55 +21,150 @@ public class ModifiersSettings : MonoBehaviour
     public Sprite enableTimeLimitSprite;
     public Sprite disableTimeLimitSprite;
 
+    [Header("Decision Window")]
+    public GameObject decisionWindow; // Window to confirm deletion of the checkpoint
+    public Button confirmDeleteButton;
+    public Button cancelDeleteButton;
+
+    private string bufferedModifierKey; // The key of the modifier that the player wants to change (while the decision window is open)
+    private bool bufferedModifierValue; // The value of the modifier that the player wants to change (while the decision window is open)
+
     private void Start()
     {
         ConfigureInfiniteLives();
         ConfigureCheckpoints();
         ConfigureTimeLimit();
+
+        // Set up the buttons for the decision window
+        confirmDeleteButton.onClick.AddListener(OnConfirmDeleteCheckpoint);
+        cancelDeleteButton.onClick.AddListener(OnCancelDeleteCheckpoint);
     }
 
+    /* INFINITE LIVES */
     private void ConfigureInfiniteLives()
     {
         bool isInfiniteLivesEnabled = PlayerPrefs.GetInt(SettingsKeys.InfiniteLivesKey, 0) == 1;
         infiniteLivesToggle.isOn = isInfiniteLivesEnabled;
         infiniteLivesImage.sprite = isInfiniteLivesEnabled ? enableInfiniteLivesSprite : disableInfiniteLivesSprite;
-        infiniteLivesToggle.onValueChanged.AddListener(OnInfiniteLivesToggleValueChanged);
+        infiniteLivesToggle.onValueChanged.AddListener(OnInfiniteLivesClick);
     }
 
-    private void OnInfiniteLivesToggleValueChanged(bool isEnabled)
+    private void OnInfiniteLivesClick(bool isEnabled)
+    {
+        if (isSaveGameAvailable())
+        {
+            // If the player has a saved game, ask for confirmation before changing the modifier
+            bufferedModifierKey = SettingsKeys.InfiniteLivesKey;
+            bufferedModifierValue = isEnabled;
+            decisionWindow.SetActive(true);
+        }
+        else
+        {
+            ChangeInfiniteLives(isEnabled);
+        }
+    }
+
+    private void ChangeInfiniteLives(bool isEnabled)
     {
         infiniteLivesImage.sprite = isEnabled ? enableInfiniteLivesSprite : disableInfiniteLivesSprite;
         PlayerPrefs.SetInt(SettingsKeys.InfiniteLivesKey, isEnabled ? 1 : 0);
         GlobalVariables.infiniteLivesMode = isEnabled;
     }
 
+    /* CHECKPOINTS */
     private void ConfigureCheckpoints()
     {
         bool areCheckpointsEnabled = PlayerPrefs.GetInt(SettingsKeys.CheckpointsKey, 0) == 1;
         checkpointsToggle.isOn = areCheckpointsEnabled;
         checkpointsImage.sprite = areCheckpointsEnabled ? enableCheckpointsSprite : disableCheckpointsSprite;
-        checkpointsToggle.onValueChanged.AddListener(OnCheckpointsToggleValueChanged);
+        checkpointsToggle.onValueChanged.AddListener(OnCheckpointsClick);
     }
 
-    private void OnCheckpointsToggleValueChanged(bool isEnabled)
+    private void OnCheckpointsClick(bool isEnabled)
+    {
+        if (isSaveGameAvailable())
+        {
+            // If the player has a saved game, ask for confirmation before changing the modifier
+            bufferedModifierKey = SettingsKeys.CheckpointsKey;
+            bufferedModifierValue = isEnabled;
+            decisionWindow.SetActive(true);
+        }
+        else
+        {
+            ChangeCheckpoints(isEnabled);
+        }
+    }
+
+    private void ChangeCheckpoints(bool isEnabled)
     {
         checkpointsImage.sprite = isEnabled ? enableCheckpointsSprite : disableCheckpointsSprite;
         PlayerPrefs.SetInt(SettingsKeys.CheckpointsKey, isEnabled ? 1 : 0);
         GlobalVariables.enableCheckpoints = isEnabled;
     }
 
+    /* TIME LIMIT */
     private void ConfigureTimeLimit()
     {
         bool isTimeLimitEnabled = PlayerPrefs.GetInt(SettingsKeys.TimeLimitKey, 0) == 1;
         timeLimitToggle.isOn = isTimeLimitEnabled;
         timeLimitImage.sprite = isTimeLimitEnabled ? enableTimeLimitSprite : disableTimeLimitSprite;
-        timeLimitToggle.onValueChanged.AddListener(OnTimeLimitToggleValueChanged);
+        timeLimitToggle.onValueChanged.AddListener(OnTimeLimitClick);
     }
 
-    private void OnTimeLimitToggleValueChanged(bool isEnabled)
+    private void OnTimeLimitClick(bool isEnabled)
+    {
+        if (isSaveGameAvailable())
+        {
+            // If the player has a saved game, ask for confirmation before changing the modifier
+            bufferedModifierKey = SettingsKeys.TimeLimitKey;
+            bufferedModifierValue = isEnabled;
+            decisionWindow.SetActive(true);
+        }
+        else
+        {
+            ChangeTimeLimit(isEnabled);
+        }
+    }
+
+    private void ChangeTimeLimit(bool isEnabled)
     {
         timeLimitImage.sprite = isEnabled ? enableTimeLimitSprite : disableTimeLimitSprite;
         PlayerPrefs.SetInt(SettingsKeys.TimeLimitKey, isEnabled ? 1 : 0);
         GlobalVariables.stopTimeLimit = isEnabled;
+    }
+
+    /* SAVE GAME */
+    private bool isSaveGameAvailable()
+    {
+        return PlayerPrefs.HasKey("SavedLevel");
+    }
+
+    private void OnConfirmDeleteCheckpoint()
+    {
+        // Clear saved checkpoint data
+        PlayerPrefs.DeleteKey("SavedLevel");
+
+        // Close the decision window
+        decisionWindow.SetActive(false);
+
+        // Change the modifier
+        switch (bufferedModifierKey)
+        {
+            case SettingsKeys.InfiniteLivesKey:
+                ChangeInfiniteLives(bufferedModifierValue);
+                break;
+            case SettingsKeys.CheckpointsKey:
+                ChangeCheckpoints(bufferedModifierValue);
+                break;
+            case SettingsKeys.TimeLimitKey:
+                ChangeTimeLimit(bufferedModifierValue);
+                break;
+        }
+    }
+
+    private void OnCancelDeleteCheckpoint()
+    {
+        // Simply close the decision window without deleting the checkpoint
+        decisionWindow.SetActive(false);
     }
 }

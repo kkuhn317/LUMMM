@@ -19,13 +19,14 @@ public static class GlobalVariables
     public static bool infiniteLivesMode = false;
     public static bool enableCheckpoints = false;
     public static bool stopTimeLimit = false;
-    //
 
+    // Settings
     public static bool OnScreenControls = false;
+
+    // Mobile
     public static bool mobileRunButtonPressed = false;
 
-
-
+    // Secret codes
     public static bool enablePlushies = false;
     public static bool enableBetaMode = false;
 

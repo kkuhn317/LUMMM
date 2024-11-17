@@ -31,11 +31,6 @@ public class LevelSelectionManager : MonoBehaviour
     public Sprite[] minirankTypes; // 0 - poison, 1 - mushroom, 2 - flower, 3 - 1up, 4 - star
     public LevelButton selectedLevelButton;
 
-    // New fields for the decision window
-    public GameObject decisionWindow; // Window to confirm deletion of the checkpoint
-    public Button confirmDeleteButton;
-    public Button cancelDeleteButton;
-
     void Awake()
     {
         if (Instance == null)
@@ -51,13 +46,6 @@ public class LevelSelectionManager : MonoBehaviour
     void Start()
     {
         playButton.gameObject.SetActive(false); // Deactivate the button if it's initially active
-        
-        // Set up the buttons for the decision window
-        confirmDeleteButton.onClick.AddListener(OnConfirmDeleteCheckpoint);
-        cancelDeleteButton.onClick.AddListener(OnCancelDeleteCheckpoint);
-
-        // Ensure the decision window is inactive by default
-        decisionWindow.SetActive(false);
     }
 
     public static bool IsLevelPlayable(LevelButton button)
@@ -136,19 +124,24 @@ public class LevelSelectionManager : MonoBehaviour
             return;
         }
 
-        // Check if there's a checkpoint save for the selected level
-        if (selectedLevelButton.levelInfo.levelID == PlayerPrefs.GetString("SavedLevel", "none"))
-        {
-            // Show the decision window if there's a checkpoint save
-            decisionWindow.SetActive(true);
-        }
-        else
-        {
-            StartLevelWithoutCheckpoint();
-        }
+        StartLevel();
     }
 
-    private void StartLevelWithoutCheckpoint()
+    private void LoadSaveGame()
+    {
+        // Load the saved info
+        GlobalVariables.lives = PlayerPrefs.GetInt("SavedLives", 3);
+        GlobalVariables.coinCount = PlayerPrefs.GetInt("SavedCoins", 0);
+        if (GlobalVariables.enableCheckpoints) {
+            GlobalVariables.checkpoint = PlayerPrefs.GetInt("SavedCheckpoint", -1);
+        } else {
+            GlobalVariables.checkpoint = -1;
+        }
+
+        // The saved green coins will be handled by GameManager (where we need to check if it's the saved level)
+    }
+
+    private void StartLevel()
     {
         if (string.IsNullOrEmpty(selectedLevelButton.levelInfo.levelScene))
         {
@@ -160,29 +153,17 @@ public class LevelSelectionManager : MonoBehaviour
         GlobalVariables.levelInfo = selectedLevelButton.levelInfo;
         GlobalVariables.ResetForLevel();
 
-        // Remove any saved level info
-        PlayerPrefs.DeleteKey("SavedLevel");
+        // Check if level is a save game
+        if (selectedLevelButton.levelInfo.levelID == PlayerPrefs.GetString("SavedLevel", "none"))
+        {
+            LoadSaveGame();
+        } else {
+            // Remove saved info if it's not the saved level
+            PlayerPrefs.DeleteKey("SavedLevel");
+        }
 
         // Load the scene
         FadeInOutScene.Instance.LoadSceneWithFade(selectedLevelButton.levelInfo.levelScene);
-    }
-
-    private void OnConfirmDeleteCheckpoint()
-    {
-        // Clear saved checkpoint data
-        PlayerPrefs.DeleteKey("SavedLevel");
-
-        // Close the decision window
-        decisionWindow.SetActive(false);
-
-        // Proceed to start the level
-        StartLevelWithoutCheckpoint();
-    }
-
-    private void OnCancelDeleteCheckpoint()
-    {
-        // Simply close the decision window without deleting the checkpoint
-        decisionWindow.SetActive(false);
     }
 
     // Animator Icons

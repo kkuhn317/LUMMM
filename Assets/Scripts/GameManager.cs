@@ -727,12 +727,12 @@ public class GameManager : MonoBehaviour
             Debug.Log("All green coins collected");
         }
 
-        if (!GlobalVariables.infiniteLivesMode && !GlobalVariables.enableCheckpoints && GlobalVariables.stopTimeLimit)
+        if (!GlobalVariables.infiniteLivesMode && !GlobalVariables.enableCheckpoints && !GlobalVariables.stopTimeLimit)
         {
             Debug.Log("You complete the level without advantages, Congrats! You did it! Yay :D!");
         }
 
-        if (collectedGreenCoins.Count == greenCoins.Length && !GlobalVariables.infiniteLivesMode && !GlobalVariables.enableCheckpoints && GlobalVariables.stopTimeLimit)
+        if (collectedGreenCoins.Count == greenCoins.Length && !GlobalVariables.infiniteLivesMode && !GlobalVariables.enableCheckpoints && !GlobalVariables.stopTimeLimit)
         {
             Debug.Log("Level completed perfect");
             PlayerPrefs.SetInt("LevelPerfect_" + levelID, 1);

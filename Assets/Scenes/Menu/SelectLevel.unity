@@ -1098,19 +1098,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 184520014}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
-        m_MethodName: RestartLevelFromCheckpoint
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &184520014
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1376,6 +1364,9 @@ MonoBehaviour:
   disableCheckpointsSprite: {fileID: 806090010, guid: 3acb3331f1751ae41b4eadef10a21740, type: 3}
   enableTimeLimitSprite: {fileID: 237829033, guid: 3acb3331f1751ae41b4eadef10a21740, type: 3}
   disableTimeLimitSprite: {fileID: 1920761546, guid: 3acb3331f1751ae41b4eadef10a21740, type: 3}
+  decisionWindow: {fileID: 627988645}
+  confirmDeleteButton: {fileID: 1874215077}
+  cancelDeleteButton: {fileID: 184520013}
 --- !u!1 &220173888
 GameObject:
   m_ObjectHideFlags: 0
@@ -3128,11 +3119,10 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: '<color=#FF0000>Warning:</color> Modifying settings will <color=#FFA500>erase
-    your checkpoint save</color> for this level. <color=#00FF00>
+  m_text: '<color=#FF0000>Warning:</color> Changing modifiers will <color=#FFA500>erase
+    your checkpoint save.</color> <color=#00FF00>
 
-    Do you want
-    to proceed?</color>
+    Do you want to proceed?</color>
 
 '
   m_isRightToLeft: 0
@@ -6740,7 +6730,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Enter level anyways
+  m_text: Yes, change the modifier
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 274e0fd8aa091244d8a27594bf25626c, type: 2}
   m_sharedMaterial: {fileID: -7592117540844663800, guid: 274e0fd8aa091244d8a27594bf25626c, type: 2}
@@ -9820,18 +9810,6 @@ MonoBehaviour:
       - m_Target: {fileID: 1874215080}
         m_TargetAssemblyTypeName: UnityEngine.AudioSource, UnityEngine
         m_MethodName: Play
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 2009164742}
-        m_TargetAssemblyTypeName: DestroyGameMusic, Assembly-CSharp
-        m_MethodName: DestroyGameMusicObjects
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
