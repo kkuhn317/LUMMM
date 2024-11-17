@@ -2947,7 +2947,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &627988646
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3072,6 +3072,7 @@ GameObject:
   - component: {fileID: 681286215}
   - component: {fileID: 681286217}
   - component: {fileID: 681286216}
+  - component: {fileID: 681286218}
   m_Layer: 5
   m_Name: Reset Options Text
   m_TagString: Untagged
@@ -3122,9 +3123,7 @@ MonoBehaviour:
   m_text: '<color=#FF0000>Warning:</color> Changing modifiers will <color=#FFA500>erase
     your checkpoint save.</color> <color=#00FF00>
 
-    Do you want to proceed?</color>
-
-'
+    Do you want to proceed?</color>'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 274e0fd8aa091244d8a27594bf25626c, type: 2}
   m_sharedMaterial: {fileID: -7592117540844663800, guid: 274e0fd8aa091244d8a27594bf25626c, type: 2}
@@ -3201,6 +3200,44 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 681286214}
   m_CullTransparentMesh: 1
+--- !u!114 &681286218
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 681286214}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 69beb381e244f92449b8c4cf954630e9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_TrackedObjects:
+  - rid: 7933084534711779328
+  references:
+    version: 2
+    RefIds:
+    - rid: 7933084534711779328
+      type: {class: TrackedUGuiGraphic, ns: UnityEngine.Localization.PropertyVariants.TrackedObjects, asm: Unity.Localization}
+      data:
+        m_Target: {fileID: 681286216}
+        m_TrackedProperties:
+          items:
+          - rid: 7933084534711779329
+        m_UpdateType: 0
+    - rid: 7933084534711779329
+      type: {class: LocalizedStringProperty, ns: UnityEngine.Localization.PropertyVariants.TrackedProperties, asm: Unity.Localization}
+      data:
+        m_Localized:
+          m_TableReference:
+            m_TableCollectionName: GUID:8524f2a42dd87d745b688cd60dd14154
+          m_TableEntryReference:
+            m_KeyId: 55487228821499904
+            m_Key: 
+          m_FallbackState: 0
+          m_WaitForCompletion: 0
+          m_LocalVariables: []
+        m_PropertyPath: m_text
 --- !u!1 &710902203
 GameObject:
   m_ObjectHideFlags: 0
@@ -6683,6 +6720,7 @@ GameObject:
   - component: {fileID: 1345895632}
   - component: {fileID: 1345895634}
   - component: {fileID: 1345895633}
+  - component: {fileID: 1345895635}
   m_Layer: 5
   m_Name: ConfirmDeleteCheckpoint Text
   m_TagString: Untagged
@@ -6807,6 +6845,44 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1345895631}
   m_CullTransparentMesh: 1
+--- !u!114 &1345895635
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1345895631}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 69beb381e244f92449b8c4cf954630e9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_TrackedObjects:
+  - rid: 7933084534711779330
+  references:
+    version: 2
+    RefIds:
+    - rid: 7933084534711779330
+      type: {class: TrackedUGuiGraphic, ns: UnityEngine.Localization.PropertyVariants.TrackedObjects, asm: Unity.Localization}
+      data:
+        m_Target: {fileID: 1345895633}
+        m_TrackedProperties:
+          items:
+          - rid: 7933084534711779331
+        m_UpdateType: 0
+    - rid: 7933084534711779331
+      type: {class: LocalizedStringProperty, ns: UnityEngine.Localization.PropertyVariants.TrackedProperties, asm: Unity.Localization}
+      data:
+        m_Localized:
+          m_TableReference:
+            m_TableCollectionName: GUID:8524f2a42dd87d745b688cd60dd14154
+          m_TableEntryReference:
+            m_KeyId: 55487244151681024
+            m_Key: 
+          m_FallbackState: 0
+          m_WaitForCompletion: 0
+          m_LocalVariables: []
+        m_PropertyPath: m_text
 --- !u!1001 &1346721673
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -8376,6 +8452,7 @@ GameObject:
   - component: {fileID: 1568886063}
   - component: {fileID: 1568886065}
   - component: {fileID: 1568886064}
+  - component: {fileID: 1568886066}
   m_Layer: 5
   m_Name: CancelDeleteCheckpoint Text
   m_TagString: Untagged
@@ -8500,6 +8577,44 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1568886062}
   m_CullTransparentMesh: 1
+--- !u!114 &1568886066
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1568886062}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 69beb381e244f92449b8c4cf954630e9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_TrackedObjects:
+  - rid: 7933084534711779332
+  references:
+    version: 2
+    RefIds:
+    - rid: 7933084534711779332
+      type: {class: TrackedUGuiGraphic, ns: UnityEngine.Localization.PropertyVariants.TrackedObjects, asm: Unity.Localization}
+      data:
+        m_Target: {fileID: 1568886064}
+        m_TrackedProperties:
+          items:
+          - rid: 7933084534711779333
+        m_UpdateType: 0
+    - rid: 7933084534711779333
+      type: {class: LocalizedStringProperty, ns: UnityEngine.Localization.PropertyVariants.TrackedProperties, asm: Unity.Localization}
+      data:
+        m_Localized:
+          m_TableReference:
+            m_TableCollectionName: GUID:8524f2a42dd87d745b688cd60dd14154
+          m_TableEntryReference:
+            m_KeyId: 55487253681139712
+            m_Key: 
+          m_FallbackState: 0
+          m_WaitForCompletion: 0
+          m_LocalVariables: []
+        m_PropertyPath: m_text
 --- !u!1 &1588321026
 GameObject:
   m_ObjectHideFlags: 0
