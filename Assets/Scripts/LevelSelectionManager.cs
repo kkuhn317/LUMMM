@@ -27,6 +27,7 @@ public class LevelSelectionManager : MonoBehaviour
     public GameObject LevelUpImage;
     public TMP_Text levelDescriptionText;
     public Button playButton;
+    public List<LevelButton> levelButtons = new List<LevelButton>();
     public Sprite[] GreenCoinsprite; // 0 - uncollected, 1 - collected
     public Sprite[] minirankTypes; // 0 - poison, 1 - mushroom, 2 - flower, 3 - 1up, 4 - star
     public LevelButton selectedLevelButton;
@@ -170,5 +171,13 @@ public class LevelSelectionManager : MonoBehaviour
     public void AddAnimatorIcon(AnimatorIcon animator)
     {
         animatorIcons.Add(animator);
+    }
+
+    public void RefreshCheckpointFlags()
+    {
+        foreach (var button in levelButtons)
+        {
+            button.UpdateCheckpointFlag();
+        }
     }
 }

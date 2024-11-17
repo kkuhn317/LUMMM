@@ -105,7 +105,9 @@ public class LevelButton : MonoBehaviour
     {
         audioSource = GetComponent<AudioSource>();
 
-        if (levelInfo.levelScene == "") // Unavilable level
+        LevelSelectionManager.Instance.levelButtons.Add(this);
+
+        if (levelInfo.levelScene == "") // Unavailable level
         {
             foreach (Image coin in greenCoinListImages)
             {
@@ -166,5 +168,12 @@ public class LevelButton : MonoBehaviour
         if (LevelSelectionManager.IsLevelPlayable(this)) {
             audioSource.Play();
         }
+    }
+
+    public void UpdateCheckpointFlag()
+    {
+        bool hasCheckpoint = PlayerPrefs.HasKey("SavedCheckpoint") &&
+                             PlayerPrefs.GetString("SavedLevel") == levelInfo.levelID;
+        checkpointFlag.SetActive(hasCheckpoint);
     }
 }

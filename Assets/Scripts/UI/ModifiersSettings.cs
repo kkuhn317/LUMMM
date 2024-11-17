@@ -144,6 +144,8 @@ public class ModifiersSettings : MonoBehaviour
         // Clear saved checkpoint data
         PlayerPrefs.DeleteKey("SavedLevel");
 
+        LevelSelectionManager.Instance.RefreshCheckpointFlags();
+
         // Close the decision window
         decisionWindow.SetActive(false);
 
