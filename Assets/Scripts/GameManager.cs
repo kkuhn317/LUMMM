@@ -21,6 +21,8 @@ public class GameManager : MonoBehaviour
     public float currentTime;
     public bool hideCursor = true;
 
+    public GameObject levelUI;
+
     [Header("Timer")]
     public float startingTime;
     private bool timesRunning = true;
@@ -473,6 +475,7 @@ public class GameManager : MonoBehaviour
                 pauseable = false;
                 // Enable the Game Over screen
                 GameOverScreenGameObject.SetActive(true);
+                levelUI.SetActive(false);
             }
             else
             {
