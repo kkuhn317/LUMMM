@@ -4,7 +4,13 @@ using UnityEngine;
 public class BopAnimation : MonoBehaviour
 {
     public Transform itemParent; // Reference for the parent of items
+    public Vector3 bopAnimationScale = new Vector3(0.6f, 0.6f, 0.7f);
+    // Timer control for animation duration
+    public float animationDuration = 0.25f; // How long the animation will take
     private Dictionary<GameObject, Vector3> originalChildScales = new();
+
+    // Descriptive variable for the child bop animation scale
+    private Vector3 childBopAnimationScale = new Vector3(0.7f, 0.7f, 0.7f); // Child scale used in the bop animation
 
     private void Start()
     {
@@ -37,7 +43,7 @@ public class BopAnimation : MonoBehaviour
             LeanTween.cancel(gameObject);
 
             // Apply the scale animation
-            LeanTween.scale(gameObject, new Vector3(0.6f, 0.6f, 0.7f), 0.25f)
+            LeanTween.scale(gameObject, bopAnimationScale, animationDuration)
                 .setEase(LeanTweenType.easeInOutQuad)
                 .setLoopPingPong(1)
                 .setOnComplete(() => transform.localScale = originalScale); // Reset after animation
@@ -58,7 +64,7 @@ public class BopAnimation : MonoBehaviour
             LeanTween.cancel(child);
 
             // Apply the scale animation to the child
-            LeanTween.scale(child, new Vector3(0.7f, 0.7f, 0.7f), 0.25f)
+            LeanTween.scale(child, childBopAnimationScale, animationDuration)
                 .setEase(LeanTweenType.easeInOutQuad)
                 .setLoopPingPong(1)
                 .setOnComplete(() => child.transform.localScale = childOriginalScale); // Reset after animation

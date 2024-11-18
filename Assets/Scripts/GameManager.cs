@@ -9,6 +9,7 @@ using static LeanTween;
 using System.Linq;
 using System.Globalization;
 using UnityEngine.Localization.Settings;
+using UnityEngine.Events;
 
 public class GameManager : MonoBehaviour
 {
@@ -144,6 +145,7 @@ public class GameManager : MonoBehaviour
     public RawImage highestRankImage;
     public Sprite questionsprite;
     public Sprite[] rankTypes;
+    public UnityEvent onSetCurrentRank;
 
     [Header("Rank conditions")]
     public int scoreForSRank = 10000;
@@ -155,10 +157,6 @@ public class GameManager : MonoBehaviour
     private PlayerRank highestRank; // The highest rank achieved after the level is completed (saved and loaded from PlayerPrefs)
     private PlayerRank prevRank;  // The previous rank, to see if the rank has changed
     private PlayerRank currentRank; // The current rank
-
-    [Header("Rank Change")]
-    public float animationDuration = 1.0f;
-    public float animationDelay = 0.0f;
 
     #region RankSystem
     public enum PlayerRank
@@ -226,9 +224,7 @@ public class GameManager : MonoBehaviour
     private void SetCurrentRank(PlayerRank newRank)
     {
         currentRank = newRank;
-
-        // Trigger the scale animation
-        PlayScaleAnimation(currentRankImage.gameObject);
+        onSetCurrentRank.Invoke(); // Trigger the scale animation
     }
 
     private void SaveHighestRank(PlayerRank rank)
@@ -247,14 +243,6 @@ public class GameManager : MonoBehaviour
     {
         currentRank = PlayerRank.Default;
         currentRankImage.texture = questionsprite.texture; // Set currentRankImage to the default texture
-    }
-
-    private void PlayScaleAnimation(GameObject targetObject)
-    {
-        // Example: Scale from 0.25 to 0.35 and back over 0.25 second
-        LeanTween.scale(targetObject, new Vector3(0.35f, 0.35f, 0.35f), 0.25f)
-            .setEase(LeanTweenType.easeInOutQuad)
-            .setLoopPingPong(1);  // Play the animation once forward and once backward
     }
     #endregion
 

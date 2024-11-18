@@ -3608,13 +3608,26 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 161b4ec1a6907c24198c4bdda8a86116, type: 3}
   - {fileID: 21300000, guid: eb54ba3ce0e8762489cd2a448a178f92, type: 3}
   - {fileID: 21300000, guid: b9899d6f4bf4d2d4ca2a9e5ea100643c, type: 3}
+  onSetCurrentRank:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 6473504628366964309}
+        m_TargetAssemblyTypeName: BopAnimation, Assembly-CSharp
+        m_MethodName: PlayBopAnimation
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   scoreForSRank: 10000
   scoreForARank: 9000
   scoreForBRank: 7000
   scoreForCRank: 5000
   scoreForDRank: 3000
-  animationDuration: 1
-  animationDelay: 0
   GameOverScreenGameObject: {fileID: 1067283785623167774}
   loseLifeSceneName: Lives
   keys: []
@@ -6144,8 +6157,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 4.3, y: 4.350492}
-  m_SizeDelta: {x: 201.4303, y: 53.538}
+  m_AnchoredPosition: {x: 4.3, y: 5.785}
+  m_SizeDelta: {x: 201.4303, y: 50.669}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5879349275527506430
 CanvasRenderer:
@@ -6218,7 +6231,7 @@ MonoBehaviour:
   m_lineSpacingMax: 0
   m_paragraphSpacing: 0
   m_charWidthMaxAdj: 0
-  m_enableWordWrapping: 0
+  m_enableWordWrapping: 1
   m_wordWrappingRatios: 0.4
   m_overflowMode: 0
   m_linkedTextComponent: {fileID: 0}
@@ -14695,7 +14708,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: CURRENT RANK
+  m_text: RANGO ACTUAL
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 274e0fd8aa091244d8a27594bf25626c, type: 2}
   m_sharedMaterial: {fileID: -7592117540844663800, guid: 274e0fd8aa091244d8a27594bf25626c, type: 2}
@@ -15717,6 +15730,7 @@ GameObject:
   - component: {fileID: 5103801115137626365}
   - component: {fileID: 102790682139457471}
   - component: {fileID: 5464201712820850110}
+  - component: {fileID: 6473504628366964309}
   m_Layer: 5
   m_Name: currentRankImage
   m_TagString: Untagged
@@ -15779,6 +15793,21 @@ MonoBehaviour:
     y: 0
     width: 1
     height: 1
+--- !u!114 &6473504628366964309
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7249591782145419049}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7af96a281cf40694d96ca1d62c2dafcf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  itemParent: {fileID: 5103801115137626365}
+  bopAnimationScale: {x: 0.35, y: 0.35, z: 0.35}
+  animationDuration: 0.25
 --- !u!1 &7273644757878481641
 GameObject:
   m_ObjectHideFlags: 0
