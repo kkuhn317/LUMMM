@@ -4,13 +4,13 @@ using UnityEngine;
 public class BopAnimation : MonoBehaviour
 {
     public Transform itemParent; // Reference for the parent of items
-    public Vector3 bopAnimationScale = new Vector3(0.6f, 0.6f, 0.7f);
+    public Vector3 bopAnimationScale = new(0.6f, 0.6f, 0.7f);
     // Timer control for animation duration
     public float animationDuration = 0.25f; // How long the animation will take
     private Dictionary<GameObject, Vector3> originalChildScales = new();
 
     // Descriptive variable for the child bop animation scale
-    private Vector3 childBopAnimationScale = new Vector3(0.7f, 0.7f, 0.7f); // Child scale used in the bop animation
+    private Vector3 childBopAnimationScale = new(0.7f, 0.7f, 0.7f); // Child scale used in the bop animation
 
     private void Start()
     {
