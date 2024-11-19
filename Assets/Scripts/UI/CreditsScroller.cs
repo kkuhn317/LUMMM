@@ -5,30 +5,57 @@ public class CreditsScroller : MonoBehaviour
 {
     public GameObject creditsText; // Reference to the TMP Text component for credits
     public float scrollSpeed = 50f; // Speed at which the credits scroll
-    public Transform creditPositionTracker;
-    public Transform stopDetector; // The object that detects where credits should stop
+    public float scrollUpSpeed = 50f; // Speed at which the credits scroll upwards when up arrow is pressed
+    public float fastScrollSpeed = 100f; // Speed at which the credits scroll when down arrow is pressed
+    private float currentScrollSpeed = 0f;
+    private float startPositionY; // The starting position of the credits
+    public float stopPositionY; // The position at which the credits should stop scrolling
 
-    private bool isScrolling = true; // Flag to determine if credits are scrolling
+    public GameObject middleOfScreen;
+
+    void Start()
+    {
+        currentScrollSpeed = scrollSpeed;
+        startPositionY = creditsText.transform.position.y;
+    }
 
     void Update()
     {
-        if (isScrolling)
-        {
-            // Move the credits upwards based on the scroll speed
-            creditsText.transform.position += Vector3.up * scrollSpeed * Time.deltaTime;
+        // Move the credits upwards based on the scroll speed
+        Vector3 newPos = creditsText.transform.position + Vector3.up * currentScrollSpeed * Time.deltaTime;
+        // Snap the credits between startPositionY and stopPositionY
+        newPos.y = Mathf.Clamp(newPos.y, startPositionY, stopPositionY);
 
-            // Check if the credits have reached the stop detector
-            if (creditPositionTracker.transform.position.y >= stopDetector.position.y)
-            {
-                StopScrolling();
-            }
-        }
+        creditsText.transform.position = newPos;
     }
 
-    // Method to stop the scrolling
-    private void StopScrolling()
+    public void OnUpButtonPress()
     {
-        isScrolling = false; // Stop the scrolling
-        creditPositionTracker.transform.position = stopDetector.position; // Snap credits to stop position
+        currentScrollSpeed = -scrollUpSpeed;
+    }
+    public void OnDownButtonPress()
+    {
+        currentScrollSpeed = fastScrollSpeed;
+    }
+    public void OnButtonRelease()
+    {
+        currentScrollSpeed = scrollSpeed;
+    }
+
+    // Show the stop position in the editor
+    void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.red;
+
+        if (middleOfScreen == null)
+        {
+            return;
+        }
+
+        float drawPosY = creditsText.transform.position.y - stopPositionY + middleOfScreen.transform.position.y;
+
+        Vector3 drawPos = new Vector3(creditsText.transform.position.x, drawPosY, creditsText.transform.position.z);
+
+        Gizmos.DrawSphere(drawPos, 50f);
     }
 }
