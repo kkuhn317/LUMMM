@@ -1039,11 +1039,18 @@ public class MarioMovement : MonoBehaviour
         // Start playing the "yeah" animation
         animator.SetBool("yeah", true);
 
-        // Play the audio clip
-        audioSource.PlayOneShot(yeahAudioClip);
+        if (yeahAudioClip != null)
+        {
+            // Play the audio clip
+            audioSource.PlayOneShot(yeahAudioClip);
 
-        // Wait for the audio clip to finish playing
-        yield return new WaitForSeconds(yeahAudioClip.length + 0.2f);
+            // Wait for the audio clip to finish playing
+            yield return new WaitForSeconds(yeahAudioClip.length + 0.2f);
+        }
+        else
+        {
+            yield return new WaitForSeconds(0.7f);
+        }
 
         // Stop the "yeah" animation and set the parameter to false
         animator.SetBool("yeah", false);
