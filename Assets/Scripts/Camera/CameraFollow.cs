@@ -11,8 +11,6 @@ public class CameraFollow : MonoBehaviour
 
     private CameraZone currentZone;
 
-    public bool snapToBounds = false; // if true, it will never display anything outside of the bounds
-
     public float camHeight => Camera.main.orthographicSize * 2;
     public float camWidth => camHeight * Camera.main.aspect;
 
@@ -113,9 +111,12 @@ public class CameraFollow : MonoBehaviour
         Camera.main.orthographicSize = Mathf.SmoothDamp(Camera.main.orthographicSize, targetOrthographicSize, ref smoothDampVelocity.z, zoomSmoothTime);
 
         // Clamp the camera position to the bounds
-        if (snapToBounds)
+        if (zone.snapToBounds)
         {
-            Vector2 clampedPos = new Vector2(Mathf.Clamp(transform.position.x, zone.cameraMinX, zone.cameraMaxX), Mathf.Clamp(transform.position.y, zone.cameraMinY, zone.cameraMaxY));
+            Vector2 clampedPos = new Vector2(
+                Mathf.Clamp(transform.position.x, zone.cameraMinX, zone.cameraMaxX),
+                Mathf.Clamp(transform.position.y, zone.cameraMinY, zone.cameraMaxY)
+            );
             if (tooSmallHorizontal)
             {
                 clampedPos.x = (zone.bottomRight.x + zone.topLeft.x) / 2;

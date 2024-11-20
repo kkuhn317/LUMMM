@@ -22,6 +22,7 @@ public class AmbushTrigger : MonoBehaviour
     public List<EnemyGroup> enemyGroups = new List<EnemyGroup>();
     private List<AudioSource> allAudioSources = new List<AudioSource>();
     private bool hasPlayedMariowhoaaa = false;
+    private bool hasTriggered = false; // This is to ensure ambush happens only once
 
     public UnityEvent onAmbushBefore;
     public UnityEvent onAmbushStart;
@@ -53,8 +54,11 @@ public class AmbushTrigger : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
+        if (hasTriggered) return; // Prevent multiple triggers
+
         if (other.CompareTag("Player"))
         {
+            hasTriggered = true;
             if (spikeygoombasgodown != null)
             {
                 spikeygoombasgodown.Play();

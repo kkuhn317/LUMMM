@@ -4,12 +4,12 @@ using UnityEngine;
 
 public class CameraZone : MonoBehaviour
 {
-
     public Vector2 topLeft;
     public Vector2 bottomRight;
     public bool lockToHorizontal = false;
     public bool lockToVertical = false;
     public Vector2 lockOffset = Vector2.zero;
+    public bool snapToBounds = false; // if true, it will never display anything outside of the bounds
     private CameraFollow cameraFollow;
 
     float horizontalMiddle => (topLeft.x + bottomRight.x) / 2;
@@ -40,8 +40,6 @@ public class CameraZone : MonoBehaviour
         Gizmos.DrawLine(topLeft, new Vector2(topLeft.x, bottomRight.y));
         Gizmos.DrawLine(bottomRight, new Vector2(bottomRight.x, topLeft.y));
         Gizmos.DrawLine(bottomRight, new Vector2(topLeft.x, bottomRight.y));
-
-
 
         // draw a line to show the horizontal lock position
         if (lockToHorizontal && !lockToVertical)
