@@ -5209,7 +5209,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 552982283}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 130.74, y: 1.07, z: -10}
+  m_LocalPosition: {x: 4.05, y: 1.07, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -5229,7 +5229,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   smoothDampTime: 0.15
-  snapToBounds: 1
   offset: {x: 0, y: 0, z: 0}
 --- !u!114 &552982288
 MonoBehaviour:
@@ -5243,11 +5242,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 80c9ed9480f1351438ccb4c7eee81f60, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  topLeft: {x: -9.85, y: 15}
+  topLeft: {x: -8.49, y: 15}
   bottomRight: {x: 47.5, y: -6}
   lockToHorizontal: 1
   lockToVertical: 0
   lockOffset: {x: 0, y: -3.5}
+  snapToBounds: 0
 --- !u!114 &552982289
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5265,6 +5265,7 @@ MonoBehaviour:
   lockToHorizontal: 0
   lockToVertical: 0
   lockOffset: {x: 0, y: -3.5}
+  snapToBounds: 0
 --- !u!114 &552982290
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5282,6 +5283,7 @@ MonoBehaviour:
   lockToHorizontal: 0
   lockToVertical: 0
   lockOffset: {x: 0, y: 0}
+  snapToBounds: 0
 --- !u!114 &552982291
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5299,6 +5301,7 @@ MonoBehaviour:
   lockToHorizontal: 0
   lockToVertical: 0
   lockOffset: {x: 0, y: 0}
+  snapToBounds: 0
 --- !u!1001 &555133298
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -6547,6 +6550,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   restartOldMusicOnExit: 1
   permanent: 0
+  usePosition: 0
 --- !u!4 &705669571
 Transform:
   m_ObjectHideFlags: 0
@@ -26463,7 +26467,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   targetObject: {fileID: 356166616}
   destination: {fileID: 1809653861}
-  requiredStayTime: 10
+  requiredStayTime: 5
   moveSpeed: 5
 --- !u!61 &1809653863
 BoxCollider2D:

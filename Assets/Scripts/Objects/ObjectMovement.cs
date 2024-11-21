@@ -14,7 +14,7 @@ public class ObjectMovement : MonoBehaviour
     public float backwardWaitDuration = 0.5f;  // New variable for backward wait duration
     public MovementDirection direction = MovementDirection.Right;
 
-    private Vector3 originalPosition;
+    protected Vector3 originalPosition;
     private bool isMovingForward = true;
     [SerializeField]
     private bool startFromBackward = false;
@@ -47,7 +47,7 @@ public class ObjectMovement : MonoBehaviour
         Right
     }
 
-    private void Start()
+    protected virtual void Start()
     {
         audioSource = GetComponent<AudioSource>();
         originalPosition = transform.position;
@@ -67,7 +67,7 @@ public class ObjectMovement : MonoBehaviour
         StartCoroutine(MoveObject());
     }
 
-    private void Update()
+    protected virtual void Update()
     {
         UpdateTransitionTimer();
     }
@@ -171,15 +171,15 @@ public class ObjectMovement : MonoBehaviour
             // Toggle the movement direction and wait for the appropriate duration
             isMovingForward = !isMovingForward;
 
+            // Determine the wait duration based on movement direction
+            float waitDuration = isMovingForward ? forwardWaitDuration : backwardWaitDuration;
+            yield return new WaitForSeconds(waitDuration);
+
             // Trigger event when switching direction
             if (isMovingForward)
                 onStartMovingForward.Invoke();    // Event for starting forward movement
             else
                 onStartMovingBackward.Invoke();   // Event for starting backward movement
-
-            // Determine the wait duration based on movement direction
-            float waitDuration = isMovingForward ? forwardWaitDuration : backwardWaitDuration;
-            yield return new WaitForSeconds(waitDuration);
 
             // Play audio clip based on movement direction
             int audioIndex = isMovingForward ? 0 : 1;

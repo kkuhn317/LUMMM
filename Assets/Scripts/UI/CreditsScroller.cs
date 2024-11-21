@@ -22,9 +22,13 @@ public class CreditsScroller : MonoBehaviour
     void Update()
     {
         // Move the credits upwards based on the scroll speed
-        Vector3 newPos = creditsText.transform.position + Vector3.up * currentScrollSpeed * Time.deltaTime;
-        // Snap the credits between startPositionY and stopPositionY
-        newPos.y = Mathf.Clamp(newPos.y, startPositionY, stopPositionY);
+        Vector3 newPos = creditsText.transform.position + Vector3.up * currentScrollSpeed * Time.deltaTime * Screen.height / 1080;
+
+        // Adjust the stop position based on the screen resolution
+        float adjustedStopPositionY = stopPositionY * Screen.height / 1080;
+
+        // Snap the credits between startPositionY and adjustedStopPositionY
+        newPos.y = Mathf.Clamp(newPos.y, startPositionY, adjustedStopPositionY);
 
         creditsText.transform.position = newPos;
     }
@@ -52,7 +56,9 @@ public class CreditsScroller : MonoBehaviour
             return;
         }
 
-        float drawPosY = creditsText.transform.position.y - stopPositionY + middleOfScreen.transform.position.y;
+        float adjustedStopPositionY = stopPositionY * Camera.main.pixelHeight / 1080;
+        float drawPosY = creditsText.transform.position.y - adjustedStopPositionY + middleOfScreen.transform.position.y;
+        
 
         Vector3 drawPos = new Vector3(creditsText.transform.position.x, drawPosY, creditsText.transform.position.z);
 

@@ -10,9 +10,8 @@ public class CrushDetection : MonoBehaviour
     // This is used to detect when the player is crushed by a block
     // It should be placed on a child object of the player, with a small box collider that can normally not be collided with
     // See coin door maze for an example
-    void OnCollisionEnter2D(Collision2D col)
-    {
-        if (col.gameObject.CompareTag("Crushing"))
+    void CheckCrush(GameObject col) {
+        if (col.CompareTag("Crushing"))
         {
             // Get the MarioMovement component in the parent object
             MarioMovement mario = GetComponentInParent<MarioMovement>();
@@ -27,24 +26,22 @@ public class CrushDetection : MonoBehaviour
                 mario.damageMario(force: true);
             }
         }
+    }
+
+
+    void OnCollisionEnter2D(Collision2D col)
+    {
+        CheckCrush(col.gameObject);
+    }
+
+    void OnCollisionStay2D(Collision2D col)
+    {
+        CheckCrush(col.gameObject);
     }
 
     void OnTriggerEnter2D(Collider2D col)
     {
-        if (col.gameObject.CompareTag("Crushing"))
-        {
-            // Get the MarioMovement component in the parent object
-            MarioMovement mario = GetComponentInParent<MarioMovement>();
-
-            // Apply custom crush death if available
-            if (customCrushDeath != null)
-            {
-                mario.TransformIntoObject(customCrushDeath);
-            }
-            else
-            {
-                mario.damageMario(force: true);
-            }
-        }
+        CheckCrush(col.gameObject);
     }
+
 }
