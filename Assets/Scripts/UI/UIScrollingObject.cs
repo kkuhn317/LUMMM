@@ -6,8 +6,8 @@ public class UIScrollingObject : MonoBehaviour
     public float moveSpeed = 10f; // Movement speed
 
     [Header("Position Reset Settings")]
-    public Vector2 resetPosition = new Vector2(-20f, 0f); // Fixed reset position
-    public Vector2 startPosition = new Vector2(20f, 0f); // Starting position after reset
+    public Vector2 resetPosition = new(-20f, 0f); // Reset position when the loop happens
+    public Vector2 startPosition = new(20f, 0f); // Starting position after reset
 
     private RectTransform rectTransform;
 
@@ -44,7 +44,7 @@ public class UIScrollingObject : MonoBehaviour
 
         // Visualize resetPosition in the Scene view (relative to RectTransform)
         Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.parent.TransformPoint(resetPosition), 10f); // Adjust sphere size as needed
+        Gizmos.DrawWireSphere(transform.parent.TransformPoint(resetPosition), 10f);
 
         // Visualize startPosition
         Gizmos.color = Color.green;

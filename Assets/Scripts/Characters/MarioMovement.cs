@@ -103,7 +103,7 @@ public class MarioMovement : MonoBehaviour
 
 
     [Header("Animation Events")]
-    public Vector3 animationScale = new Vector3(1, 1, 1);   // animate this instead of the scale directly
+    public Vector3 animationScale = new(1, 1, 1);   // animate this instead of the scale directly
     public Vector3 originalScale;
     public Quaternion animationRotation = Quaternion.identity;  // If not Quaternion.identity, his rotation will be set to this
     public bool wasScaledNormal = true;
@@ -120,7 +120,7 @@ public class MarioMovement : MonoBehaviour
     public float walkAnimatorSpeed = 0.125f;
 
     [Header("Powerups")]
-
+    public string currentPowerupType = "";
     public PowerupState powerupState = PowerupState.small;
 
     public GameObject transformMario;   // The prefab for the transformation animation
@@ -935,7 +935,12 @@ public class MarioMovement : MonoBehaviour
         // NOTE: we will assume here that mario can always change powerups. The PowerUP.cs script will determine if mario can change powerups
         GameObject newMario = Instantiate(transformMario, transform.position, transform.rotation);
         transferProperties(newMario);
+
+        var newMarioMovement = newMario.GetComponent<MarioMovement>();
         var playerTransformation = newMario.GetComponent<PlayerTransformation>();
+
+        // Update the current power-up type
+        newMarioMovement.currentPowerupType = newMarioObject.GetComponent<MarioMovement>().currentPowerupType;
 
         playerTransformation.oldPlayer = gameObject;
         playerTransformation.newPlayer = newMarioObject;
@@ -1140,7 +1145,7 @@ public class MarioMovement : MonoBehaviour
         float raycastHeight = inCrouchState ? -(groundLength / 2) : 0f;
         float updGroundLength = inCrouchState ? groundLength / 2 : groundLength;
         float updCeilingLength = inCrouchState ? ceilingLength / 2 : ceilingLength;
-        Vector3 HOffset = new Vector3(0, raycastHeight, 0);
+        Vector3 HOffset = new(0, raycastHeight, 0);
 
         // Ground
         Gizmos.color = Color.red;

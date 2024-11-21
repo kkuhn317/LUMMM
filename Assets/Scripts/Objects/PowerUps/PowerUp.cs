@@ -7,7 +7,6 @@ public class PowerUp : ObjectPhysics
 {
     [Header("Power Up")]
     public GameObject newMarioState;
-    public int powerLevel = 1;
     public float starTime = -1;
     public GameObject starMusicOverride;
 
@@ -58,9 +57,9 @@ public class PowerUp : ObjectPhysics
                 GameManager.Instance.AddScorePoints(1000);
                 MarioMovement player = other.GetComponent<MarioMovement>();
                 PowerupState playerState = player.powerupState;
-                
+                string currentPowerupType = player.currentPowerupType;
 
-                if (canGetPowerup(playerState)) 
+                if (canGetPowerup(playerState, currentPowerupType)) 
                     other.GetComponent<MarioMovement>().ChangePowerup(newMarioState);
             }
             GetComponent<AudioSource>().Play();
@@ -70,11 +69,13 @@ public class PowerUp : ObjectPhysics
         }
     }
 
-    private bool canGetPowerup(PowerupState state) {
+    private bool canGetPowerup(PowerupState currentState, string currentType)
+    {
         var newPowerState = newMarioState.GetComponent<MarioMovement>().powerupState;
+        var newPowerType = newMarioState.GetComponent<MarioMovement>().currentPowerupType;
 
         // Prevent redundant transformations for the same power-up type
-        if (state == newPowerState)
+        if (currentState == newPowerState && currentType == newPowerType)
             return false;
 
         // Allow transformation to tiny regardless of current state
@@ -82,11 +83,10 @@ public class PowerUp : ObjectPhysics
             return true;
 
         // Small states can always take a power-up
-        if (PowerStates.IsSmall(state))
+        if (PowerStates.IsSmall(currentState))
             return true;
 
-        // Allow transformations if the new power-up level is higher
-        return powerLevel >= 2 || state != PowerupState.power;
+        // Allows transformation if the new power-up is a Power state or if the current state is not already Power
+        return newPowerState == PowerupState.power || currentState != PowerupState.power;
     }
-
 }
