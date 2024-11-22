@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Localization.Settings;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
 public class LanguageOption : MonoBehaviour
 {

@@ -136,7 +136,6 @@ GameObject:
   - component: {fileID: 9432004}
   - component: {fileID: 9432003}
   - component: {fileID: 9432008}
-  - component: {fileID: 9432009}
   - component: {fileID: 9432007}
   m_Layer: 5
   m_Name: Menu
@@ -341,25 +340,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 06c867c961f1e2241935b7eb245807cb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &9432009
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9432002}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 63b2b1bc1f9e67449ae3fa194065b89e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  sections:
-  - sectionRoot: {fileID: 819004049}
-    defaultButton: {fileID: 1755613484}
-    deactivateOnSwitch: 0
-  - sectionRoot: {fileID: 1829035963}
-    defaultButton: {fileID: 934408933}
-    deactivateOnSwitch: 0
 --- !u!1 &13709708
 GameObject:
   m_ObjectHideFlags: 0
@@ -414,7 +394,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Navigation:
-    m_Mode: 4
+    m_Mode: 3
     m_WrapAround: 0
     m_SelectOnUp: {fileID: 0}
     m_SelectOnDown: {fileID: 430581160}
@@ -1094,7 +1074,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 43.5, y: 0}
+  m_AnchoredPosition: {x: 49.99998, y: 0}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &357651633
@@ -1207,7 +1187,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Navigation:
-    m_Mode: 4
+    m_Mode: 3
     m_WrapAround: 0
     m_SelectOnUp: {fileID: 13709710}
     m_SelectOnDown: {fileID: 844006699}
@@ -1367,7 +1347,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Navigation:
-    m_Mode: 4
+    m_Mode: 3
     m_WrapAround: 0
     m_SelectOnUp: {fileID: 934408933}
     m_SelectOnDown: {fileID: 844006699}
@@ -2883,6 +2863,7 @@ GameObject:
   - component: {fileID: 819004050}
   - component: {fileID: 819004051}
   - component: {fileID: 819004052}
+  - component: {fileID: 819004053}
   m_Layer: 5
   m_Name: Menu Selection
   m_TagString: Untagged
@@ -2956,9 +2937,20 @@ MonoBehaviour:
   - {fileID: 722241497}
   - {fileID: 1601349774}
   - {fileID: 477609223}
-  - {fileID: 928331734}
   indicator: {fileID: 433706612}
   indicatorOffset: {x: -240, y: 0}
+--- !u!225 &819004053
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 819004049}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &844006697
 GameObject:
   m_ObjectHideFlags: 0
@@ -3012,7 +3004,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Navigation:
-    m_Mode: 4
+    m_Mode: 3
     m_WrapAround: 0
     m_SelectOnUp: {fileID: 1844381857}
     m_SelectOnDown: {fileID: 0}
@@ -3067,17 +3059,29 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 9432009}
-        m_TargetAssemblyTypeName: MenuManager, Assembly-CSharp
-        m_MethodName: GoToPreviousSection
-        m_Mode: 1
+      - m_Target: {fileID: 819004053}
+        m_TargetAssemblyTypeName: UnityEngine.CanvasGroup, UnityEngine
+        m_MethodName: set_interactable
+        m_Mode: 6
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
-          m_BoolArgument: 0
+          m_BoolArgument: 1
+        m_CallState: 2
+      - m_Target: {fileID: 956525935}
+        m_TargetAssemblyTypeName: UnityEngine.EventSystems.EventSystem, UnityEngine.UI
+        m_MethodName: SetSelectedGameObject
+        m_Mode: 2
+        m_Arguments:
+          m_ObjectArgument: {fileID: 928331733}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 1
         m_CallState: 2
 --- !u!114 &844006700
 MonoBehaviour:
@@ -3332,7 +3336,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: 174.75381, y: 47.442924}
+  m_AnchoredPosition: {x: 174.75381, y: 47.442932}
   m_SizeDelta: {x: 123.565, y: 109.387}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &928331735
@@ -3403,17 +3407,17 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 1
         m_CallState: 2
-      - m_Target: {fileID: 9432009}
-        m_TargetAssemblyTypeName: MenuManager, Assembly-CSharp
-        m_MethodName: GoToSection
-        m_Mode: 3
+      - m_Target: {fileID: 819004053}
+        m_TargetAssemblyTypeName: UnityEngine.CanvasGroup, UnityEngine
+        m_MethodName: set_interactable
+        m_Mode: 6
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 1
+          m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
-          m_BoolArgument: 1
+          m_BoolArgument: 0
         m_CallState: 2
 --- !u!114 &928331736
 MonoBehaviour:
@@ -3623,7 +3627,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Navigation:
-    m_Mode: 4
+    m_Mode: 3
     m_WrapAround: 0
     m_SelectOnUp: {fileID: 0}
     m_SelectOnDown: {fileID: 449320172}
@@ -4747,7 +4751,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Navigation:
-    m_Mode: 4
+    m_Mode: 3
     m_WrapAround: 0
     m_SelectOnUp: {fileID: 0}
     m_SelectOnDown: {fileID: 1844381857}
@@ -6354,7 +6358,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Navigation:
-    m_Mode: 4
+    m_Mode: 3
     m_WrapAround: 0
     m_SelectOnUp: {fileID: 1414109102}
     m_SelectOnDown: {fileID: 844006699}
