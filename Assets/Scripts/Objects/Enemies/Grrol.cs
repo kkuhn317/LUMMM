@@ -8,6 +8,14 @@ public class Grrol : EnemyAI
     [SerializeField] private float groundMovementSpeed = 5f;
     [SerializeField] private bool startMovementWhenTouchGround = true;
     [SerializeField] private bool enableCameraShake = true; // whether to enable camera shake on touch wall
+    
+    [Header("Camera Shake Settings")]
+    [SerializeField] private float shakeDuration = 0.25f; // Duration of camera shake
+    [SerializeField] private float shakeIntensity = 2.0f; // Intensity of the shake
+    [SerializeField] private float shakeFrequency = 1.0f; // Frequency of the shake
+    [SerializeField] private Vector3 shakeDirection = new Vector3(0f, 1f, 0f); // Direction of the shake
+    [SerializeField] private int shakeRepetitions = 3; // Number of shake repetitions
+    [SerializeField] private float shakeInterval = 0.1f; // Interval between repetitions
 
     private Animator animator;
     private AudioSource audioSource;
@@ -85,17 +93,24 @@ public class Grrol : EnemyAI
             return;
         }
 
+        if (audioSource != null)
+        {
+            audioSource.Play();
+        }
+
         if (enableCameraShake) 
         {
             // Get the CameraFollow component from the camera
             CameraFollow cameraFollow = Camera.main.GetComponent<CameraFollow>();
             // Trigger camera shake
-            cameraFollow.ShakeCameraRepeatedly(0.25f, 2.0f, 1.0f, new Vector3(0f, 1f, 0f), 3, 0.1f);
-        }
-
-        if (audioSource != null) 
-        {
-            audioSource.Play();
+            cameraFollow.ShakeCameraRepeatedly(
+                shakeDuration,
+                shakeIntensity,
+                shakeFrequency,
+                shakeDirection,
+                shakeRepetitions,
+                shakeInterval
+            );
         }
     }
 }

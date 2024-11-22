@@ -25,6 +25,7 @@ public class CameraFollow : MonoBehaviour
     // Camera moving up variables
     private bool isLookingUp = false;
     public Vector3 offset;  // Vertical offset when looking up
+    private int ongoingShakes = 0;
 
     [Header("Change Camera Size")]
     private float originalOrthographicSize;
@@ -171,36 +172,30 @@ public class CameraFollow : MonoBehaviour
     // Call this method to trigger camera shake on any specified axis
     public void ShakeCamera(float duration = 0.5f, float intensity = 0.1f, float decreaseFactor = 1.0f, Vector3 axis = default)
     {
-        if (!isShaking)
+        if (ongoingShakes == 0)
         {
             originalPosition = transform.position;
         }
-
-        isShaking = true;
-        shakeDuration = duration;
-        shakeIntensity = intensity;
-        shakeDecreaseFactor = decreaseFactor;
-
-        StartCoroutine(ShakeCoroutine(axis));
+        ongoingShakes++;
+        StartCoroutine(ShakeCoroutine(duration, intensity, decreaseFactor, axis));
     }
 
-    // Coroutine to handle the camera shake effect
-    private IEnumerator ShakeCoroutine(Vector3 axis)
+    private IEnumerator ShakeCoroutine(float duration, float intensity, float decreaseFactor, Vector3 axis)
     {
         float elapsed = 0f;
-
-        while (elapsed < shakeDuration)
+        while (elapsed < duration)
         {
-            float shakeOffset = Mathf.PerlinNoise(Time.time * shakeIntensity, 0f) - 0.5f;
-            Vector3 offset = axis * shakeOffset * shakeIntensity;
-            transform.localPosition = originalPosition + offset;
-
+            float shakeOffset = Random.Range(-0.5f, 0.5f);
+            transform.localPosition = originalPosition + axis * shakeOffset * intensity;
             elapsed += Time.deltaTime;
             yield return null;
         }
-
-        isShaking = false;
-        transform.localPosition = originalPosition;
+        ongoingShakes--;
+        if (ongoingShakes == 0)
+        {
+            isShaking = false;
+            transform.localPosition = originalPosition;
+        }
     }
 
     // Call this method to trigger camera shake on any specified axis repeatedly

@@ -109,6 +109,7 @@ MonoBehaviour:
   - {fileID: -1887969540, guid: 1f46365ec1bf62c48a18dbe3f4529ab8, type: 3}
   - {fileID: 486545084, guid: 1f46365ec1bf62c48a18dbe3f4529ab8, type: 3}
   framerate: 0.0666667
+  loop: 1
 --- !u!61 &3744377524272983874
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -169,6 +170,7 @@ MonoBehaviour:
   startFromLastTile: 0
   tilesPerStep: 1
   bridgeDestroyed: 0
+  enableObjectFalling: 1
   fallDistance: 1.5
   tileFallDestroyDelay: 0.05
   grabSound: {fileID: 8300000, guid: 50c654a61c6a42e429c23c583def732d, type: 3}
@@ -176,15 +178,21 @@ MonoBehaviour:
   bridgeBreakSound: {fileID: 8300000, guid: a1091af6cfc79874290c5fac41a696cb, type: 3}
   enemyFallSound: {fileID: 8300000, guid: d11cf02c57053d94cb9b1577b2fbc519, type: 3}
   cameraFollow: {fileID: 0}
-  numberOfShakes: 3
+  numberOfShakes: 2
   delayBetweenShakes: 0.1
   duration: 0.1
-  intensity: 2
+  intensity: 1
   decreaseFactor: 1
   axisUp: {x: 0, y: 1, z: 0}
+  freezePlayerOnHit: 1
   bridgeDestroyDelay: 0.5
   enemyFallDelay: 2
   playerResumeDelay: 3
+  endingScene: {fileID: 0}
+  playerDestroyDelay: 1
+  endingSceneDelay: 0.25
+  timeUntilWinScreen: 10
+  musicStopMode: 0
 --- !u!82 &3744377524272983876
 AudioSource:
   m_ObjectHideFlags: 0
