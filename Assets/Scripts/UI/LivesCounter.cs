@@ -23,7 +23,7 @@ public class LivesCounter : MonoBehaviour
         if (oldNumber) livesNum += 1;
         GetComponent<TextMeshProUGUI>().text = livesNum.ToString();
         if (oldNumber) {
-            Invoke("PlaySound", 0.5f);
+            Invoke(nameof(PlaySound), 0.5f);
 
             PlayableDirector director = playableDirector;
 
@@ -37,9 +37,9 @@ public class LivesCounter : MonoBehaviour
                 double timelineDuration = director.duration + delay;
 
                 // Use the timeline duration as the delay before loading the scene
-                Invoke("GoBackToLevel", (float)timelineDuration);
+                Invoke(nameof(GoBackToLevel), (float)timelineDuration);
             } else {
-                Invoke("GoBackToLevel", 2f);
+                Invoke(nameof(GoBackToLevel), 2f);
             }
         }
     }
@@ -51,4 +51,29 @@ public class LivesCounter : MonoBehaviour
     void PlaySound() {
         GetComponent<AudioSource>().Play();
     }
+
+    public void PauseGameMusic()
+    {
+        foreach (GameObject musicObject in GameObject.FindGameObjectsWithTag("GameMusic"))
+        {
+            AudioSource audioSource = musicObject.GetComponent<AudioSource>();
+            if (audioSource != null && audioSource.isPlaying)
+            {
+                audioSource.Pause();
+            }
+        }
+    }
+
+    public void ResumeGameMusic()
+    {
+        foreach (GameObject musicObject in GameObject.FindGameObjectsWithTag("GameMusic"))
+        {
+            AudioSource audioSource = musicObject.GetComponent<AudioSource>();
+            if (audioSource != null && !audioSource.isPlaying)
+            {
+                audioSource.UnPause();
+            }
+        }
+    }
+
 }

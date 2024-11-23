@@ -131,6 +131,7 @@ public class MarioMovement : MonoBehaviour
 
     [HideInInspector]
     public bool starPower = false;
+    private float starPowerRemainingTime = 0f;
     private readonly Color[] StarColors = { Color.green, Color.yellow, Color.blue, Color.red };
     private int selectedStarColor = 0;
 
@@ -260,6 +261,15 @@ public class MarioMovement : MonoBehaviour
             invincetimeremain = 0f;
         }
 
+        if (starPower && starPowerRemainingTime > 0)
+        {
+            starPowerRemainingTime -= Time.deltaTime;
+            if (starPowerRemainingTime <= 0)
+            {
+                stopStarPower();
+            }
+        }
+
         // Picking up item
         if (!pressRunToGrab && runPressed && (!crouchToGrab || crouchPressed) && !carrying) {
             checkForCarry();
@@ -313,12 +323,18 @@ public class MarioMovement : MonoBehaviour
         }
     }
 
-    private void changeRainbowColor() {
+    private void changeRainbowColor()
+    {
         SpriteRenderer sprite = GetComponent<SpriteRenderer>();
-        sprite.color = StarColors[selectedStarColor];
-        selectedStarColor += 1;
-        if (selectedStarColor == StarColors.Length)
-            selectedStarColor = 0;
+        if (sprite != null)
+        {
+            sprite.color = StarColors[selectedStarColor];
+            selectedStarColor = (selectedStarColor + 1) % StarColors.Length;
+        }
+        else
+        {
+            Debug.LogWarning($"{gameObject.name} is missing a SpriteRenderer. Cannot change rainbow color.");
+        }
     }
 
     public void startStarPower(float time) {
@@ -329,6 +345,7 @@ public class MarioMovement : MonoBehaviour
         // start new star power
         InvokeRepeating(nameof(changeRainbowColor), 0, 0.1f);
         starPower = true;
+        starPowerRemainingTime = time;
         if (time != -1) {
             Invoke(nameof(stopStarPower), time);
         }
@@ -337,8 +354,17 @@ public class MarioMovement : MonoBehaviour
     public void stopStarPower() {
         CancelInvoke(nameof(changeRainbowColor));
         starPower = false;
+        starPowerRemainingTime = 0f; // Reset remaining time
+
         SpriteRenderer sprite = GetComponent<SpriteRenderer>();
-        sprite.color = new Color(1, 1, 1, sprite.color.a);
+        if (sprite != null)
+        {
+            sprite.color = new Color(1, 1, 1, sprite.color.a);
+        }
+        else
+        {
+            Debug.LogWarning("No SpriteRenderer found when stopping star power.");
+        }
     }
 
     private void FixedUpdate() {
@@ -960,8 +986,22 @@ public class MarioMovement : MonoBehaviour
         newMarioMovement.carryMethod = carryMethod;
         newMarioMovement.playerNumber = playerNumber;
         newMarioMovement.invincetimeremain = invincetimeremain;
-        
-        try {
+
+        if (starPower)
+        {
+            newMarioMovement.starPower = true;
+            newMarioMovement.starPowerRemainingTime = starPowerRemainingTime;
+
+            newMarioMovement.InvokeRepeating(nameof(changeRainbowColor), 0, 0.1f);
+
+            if (starPowerRemainingTime > 0)
+            {
+                newMarioMovement.Invoke(nameof(stopStarPower), starPowerRemainingTime);
+            }
+        }
+
+        try
+        {
             var myDevices = GetComponent<PlayerInput>().devices;
             // set new mario's input device to the same as this mario's
             newMario.GetComponent<PlayerInput>().SwitchCurrentControlScheme(myDevices.ToArray());
