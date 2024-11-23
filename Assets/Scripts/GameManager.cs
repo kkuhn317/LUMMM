@@ -141,6 +141,7 @@ public class GameManager : MonoBehaviour
     public GameObject ResetPopUp;
     public GameObject optionsPauseMenu;
     public TMP_Text levelNameText;
+    public Button resumeButton;
 
     [Header("Rank")]
     public RawImage currentRankImage;
@@ -1042,6 +1043,8 @@ public class GameManager : MonoBehaviour
         mainPauseMenu.SetActive(true);
         ResetPopUp.SetActive(false);
         optionsPauseMenu.SetActive(false);
+
+        resumeButton.Select();  // Select the resume button by default
     }
 
     public void ResumeGame()
