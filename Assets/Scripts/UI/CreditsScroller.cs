@@ -101,7 +101,7 @@ public class CreditsScroller : MonoBehaviour
         float adjustedStopPositionY = stopPositionY * Camera.main.pixelHeight / 1080;
         float drawPosY = creditsText.transform.position.y - adjustedStopPositionY + middleOfScreen.transform.position.y;
 
-        Vector3 drawPos = new Vector3(creditsText.transform.position.x, drawPosY, creditsText.transform.position.z);
+        Vector3 drawPos = new(creditsText.transform.position.x, drawPosY, creditsText.transform.position.z);
 
         Gizmos.DrawSphere(drawPos, 50f);
     }

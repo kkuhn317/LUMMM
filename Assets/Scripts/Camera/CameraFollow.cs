@@ -114,7 +114,7 @@ public class CameraFollow : MonoBehaviour
         // Clamp the camera position to the bounds
         if (zone.snapToBounds)
         {
-            Vector2 clampedPos = new Vector2(
+            Vector2 clampedPos = new(
                 Mathf.Clamp(transform.position.x, zone.cameraMinX, zone.cameraMaxX),
                 Mathf.Clamp(transform.position.y, zone.cameraMinY, zone.cameraMaxY)
             );

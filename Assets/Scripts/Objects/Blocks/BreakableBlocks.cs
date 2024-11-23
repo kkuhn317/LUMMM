@@ -1,12 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class BreakableBlocks : MonoBehaviour
 {
-
     public GameObject BlockPiece;
     public AudioClip breakSound;
+    public UnityEvent OnBreak;
 
     [HideInInspector]
     public bool broken = false;
@@ -45,6 +46,7 @@ public class BreakableBlocks : MonoBehaviour
         }
         GetComponent<SpriteRenderer>().enabled = false;
         GetComponent<Collider2D>().enabled = false;
+        OnBreak?.Invoke();
         Destroy(gameObject, 2);
     }
 
@@ -52,5 +54,14 @@ public class BreakableBlocks : MonoBehaviour
     void Update()
     {
         
+    }
+
+    public void TriggerShakeCamera()
+    {
+        CameraFollow cameraFollow = FindObjectOfType<CameraFollow>();
+        if (cameraFollow != null)
+        {
+            cameraFollow.ShakeCamera(0.5f, 0.2f, 1.0f, new Vector3(0, 1, 0));
+        }
     }
 }
