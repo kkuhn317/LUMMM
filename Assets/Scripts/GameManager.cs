@@ -147,6 +147,7 @@ public class GameManager : MonoBehaviour
     public Button restartButton;
     public Button restartFromBeginningButton;
     public Slider masterSlider;
+    public Button restartButtonWinScreen;
 
     [Header("Rank")]
     public RawImage currentRankImage;
@@ -1186,6 +1187,7 @@ public class GameManager : MonoBehaviour
             Destroy(musicObj);
         }
         WinScreenGameObject.SetActive(true);
+        restartButtonWinScreen.Select();
 
         CursorHelper.ShowCursor();
     }
