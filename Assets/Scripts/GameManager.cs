@@ -142,8 +142,11 @@ public class GameManager : MonoBehaviour
     public GameObject optionsPauseMenu;
     public TMP_Text levelNameText;
     public Button resumeButton;
+    // TEMPORARY
     public Button optionsButton;
-    public Slider masterSlider; // TEMPORARY ADD TO HAVE SOMETHING SELECTED WHEN YOU OPEN THE OPTIONS MENU
+    public Button restartButton;
+    public Button restartFromBeginningButton;
+    public Slider masterSlider;
 
     [Header("Rank")]
     public RawImage currentRankImage;
@@ -420,7 +423,7 @@ public class GameManager : MonoBehaviour
     public void Restart()
     {
         if(GlobalVariables.checkpoint != -1) {
-            ResetPopUp.SetActive(true);
+            GoToResetPopUp();
         } else {
             RestartLevelFromBeginning();
         }
@@ -823,6 +826,7 @@ public class GameManager : MonoBehaviour
             currentlyPlayingMusic = null;
         }
     }
+
     public void StopTimer()
     {
         stopTimer = true;
@@ -1084,6 +1088,18 @@ public class GameManager : MonoBehaviour
         optionsPauseMenu.SetActive(true);
 
         masterSlider.Select();
+    }
+
+    public void GoToResetPopUp()
+    {
+        restartFromBeginningButton.Select();
+        ResetPopUp.SetActive(true);
+    }
+
+    public void GoToMainMenufromReset()
+    {
+        restartButton.Select();
+        ResetPopUp.SetActive(false);
     }
 
     public void WinScreenStats()
