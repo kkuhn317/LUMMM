@@ -160,12 +160,14 @@ public class CameraFollow : MonoBehaviour
     // Call this method from the player script when the player looks up
     public void StartCameraMoveUp()
     {
+        if (Time.timeScale == 0) return; // Block looking up when the game is paused
         isLookingUp = true;
     }
 
     // Call this method from the player script when the player stops looking up
     public void StopCameraMoveUp()
     {
+        if (Time.timeScale == 0) return; // Block stopping the look-up when the game is paused
         isLookingUp = false;
     }
 

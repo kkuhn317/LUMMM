@@ -283,26 +283,6 @@ public class MarioMovement : MonoBehaviour
                 throwCarry();
             }
         }
-
-        // Look Up
-        if (!isMoving && direction.y > 0.8f) {
-            // Set the flag to true to indicate that the player is looking up
-            isLookingUp = true;
-        } else {
-            // Reset the flag to false if the player is not looking up
-            isLookingUp = false;
-        }
-
-        animator.SetBool("isLookingUp", isLookingUp);
-
-        if (cameraFollow != null)
-        {
-            if (isLookingUp) {
-                cameraFollow.StartCameraMoveUp();
-            } else {
-                cameraFollow.StopCameraMoveUp();
-            }
-        }
     }
 
     private void OnCollisionEnter2D(Collision2D other) {
@@ -577,6 +557,31 @@ public class MarioMovement : MonoBehaviour
 
         animator.SetBool("isWallSliding", wallSliding);
         animator.SetBool("isSpinning", spinning);
+        animator.SetBool("isLookingUp", isLookingUp);
+
+        // Look Up
+        if (!isMoving && direction.y > 0.8f)
+        {
+            // Set the flag to true to indicate that the player is looking up
+            isLookingUp = true;
+        }
+        else
+        {
+            // Reset the flag to false if the player is not looking up
+            isLookingUp = false;
+        }
+
+        if (cameraFollow != null)
+        {
+            if (isLookingUp)
+            {
+                cameraFollow.StartCameraMoveUp();
+            }
+            else
+            {
+                cameraFollow.StopCameraMoveUp();
+            }
+        }
 
         // Physics
         modifyPhysics();
