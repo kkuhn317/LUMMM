@@ -142,6 +142,8 @@ public class GameManager : MonoBehaviour
     public GameObject optionsPauseMenu;
     public TMP_Text levelNameText;
     public Button resumeButton;
+    public Button optionsButton;
+    public Slider masterSlider; // TEMPORARY ADD TO HAVE SOMETHING SELECTED WHEN YOU OPEN THE OPTIONS MENU
 
     [Header("Rank")]
     public RawImage currentRankImage;
@@ -1068,6 +1070,22 @@ public class GameManager : MonoBehaviour
             optionsPauseMenu.SetActive(false);
     }
 
+    public void GoToMainPauseMenu()
+    {
+        mainPauseMenu.SetActive(true);
+        optionsPauseMenu.SetActive(false);
+
+        optionsButton.Select();
+    }
+
+    public void OpenOptionsMenu()
+    {
+        mainPauseMenu.SetActive(false);
+        optionsPauseMenu.SetActive(true);
+
+        masterSlider.Select();
+    }
+
     public void WinScreenStats()
     {
         // Win screen
@@ -1198,5 +1216,4 @@ public class GameManager : MonoBehaviour
     {
         return ExistingPlayers().Select(player => player.gameObject).ToArray();
     }
-
 }

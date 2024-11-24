@@ -1449,6 +1449,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   BlockPiece: {fileID: 2156389294837876831, guid: 35b0bb94ac6dbce4297f26f5f4157dd7, type: 3}
   breakSound: {fileID: 8300000, guid: b743956004148db4898997e7f98e2628, type: 3}
+  OnBreak:
+    m_PersistentCalls:
+      m_Calls: []
   broken: 0
 --- !u!82 &126782933
 AudioSource:
@@ -4484,6 +4487,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   BlockPiece: {fileID: 2156389294837876831, guid: 35b0bb94ac6dbce4297f26f5f4157dd7, type: 3}
   breakSound: {fileID: 8300000, guid: b743956004148db4898997e7f98e2628, type: 3}
+  OnBreak:
+    m_PersistentCalls:
+      m_Calls: []
   broken: 0
 --- !u!82 &343575197
 AudioSource:
@@ -8465,6 +8471,11 @@ SpriteRenderer:
 Transform:
   m_CorrespondingSourceObject: {fileID: 8403295354037554395, guid: a849c50e134262f49af8f068f561f5fd, type: 3}
   m_PrefabInstance: {fileID: 1616494757}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &750095157 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8563141852979758356, guid: 6c3da054316607e43b17e4af15d611e6, type: 3}
+  m_PrefabInstance: {fileID: 1393336823}
   m_PrefabAsset: {fileID: 0}
 --- !u!4 &760921940 stripped
 Transform:
@@ -16607,6 +16618,74 @@ PrefabInstance:
     - target: {fileID: 4280301364120156141, guid: 6c3da054316607e43b17e4af15d611e6, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4743676269660020054, guid: 6c3da054316607e43b17e4af15d611e6, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4743676269660020054, guid: 6c3da054316607e43b17e4af15d611e6, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Mode
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4743676269660020054, guid: 6c3da054316607e43b17e4af15d611e6, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[2].m_Mode
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4743676269660020054, guid: 6c3da054316607e43b17e4af15d611e6, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Target
+      value: 
+      objectReference: {fileID: 486352587}
+    - target: {fileID: 4743676269660020054, guid: 6c3da054316607e43b17e4af15d611e6, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[2].m_Target
+      value: 
+      objectReference: {fileID: 486352587}
+    - target: {fileID: 4743676269660020054, guid: 6c3da054316607e43b17e4af15d611e6, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4743676269660020054, guid: 6c3da054316607e43b17e4af15d611e6, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[2].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4743676269660020054, guid: 6c3da054316607e43b17e4af15d611e6, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName
+      value: SetSelectedGameObject
+      objectReference: {fileID: 0}
+    - target: {fileID: 4743676269660020054, guid: 6c3da054316607e43b17e4af15d611e6, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[2].m_MethodName
+      value: SetSelectedGameObject
+      objectReference: {fileID: 0}
+    - target: {fileID: 4743676269660020054, guid: 6c3da054316607e43b17e4af15d611e6, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_TargetAssemblyTypeName
+      value: UnityEngine.EventSystems.EventSystem, UnityEngine.UI
+      objectReference: {fileID: 0}
+    - target: {fileID: 4743676269660020054, guid: 6c3da054316607e43b17e4af15d611e6, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[2].m_TargetAssemblyTypeName
+      value: UnityEngine.EventSystems.EventSystem, UnityEngine.UI
+      objectReference: {fileID: 0}
+    - target: {fileID: 4743676269660020054, guid: 6c3da054316607e43b17e4af15d611e6, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Arguments.m_BoolArgument
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4743676269660020054, guid: 6c3da054316607e43b17e4af15d611e6, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[2].m_Arguments.m_BoolArgument
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4743676269660020054, guid: 6c3da054316607e43b17e4af15d611e6, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Arguments.m_ObjectArgument
+      value: 
+      objectReference: {fileID: 750095157}
+    - target: {fileID: 4743676269660020054, guid: 6c3da054316607e43b17e4af15d611e6, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[2].m_Arguments.m_ObjectArgument
+      value: 
+      objectReference: {fileID: 750095157}
+    - target: {fileID: 4743676269660020054, guid: 6c3da054316607e43b17e4af15d611e6, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.GameObject, UnityEngine
+      objectReference: {fileID: 0}
+    - target: {fileID: 4743676269660020054, guid: 6c3da054316607e43b17e4af15d611e6, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[2].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.GameObject, UnityEngine
       objectReference: {fileID: 0}
     - target: {fileID: 5103801115137626365, guid: 6c3da054316607e43b17e4af15d611e6, type: 3}
       propertyPath: m_LocalScale.x
@@ -26147,6 +26226,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   BlockPiece: {fileID: 2156389294837876831, guid: 35b0bb94ac6dbce4297f26f5f4157dd7, type: 3}
   breakSound: {fileID: 8300000, guid: b743956004148db4898997e7f98e2628, type: 3}
+  OnBreak:
+    m_PersistentCalls:
+      m_Calls: []
   broken: 0
 --- !u!82 &2133844185
 AudioSource:
