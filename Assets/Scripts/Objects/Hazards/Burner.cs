@@ -46,7 +46,7 @@ public class Burner : MonoBehaviour
         Invoke("TurnOn", offtime);
     }
 
-        void OnBecameVisible()
+    void OnBecameVisible()
     {
         isVisible = true;
     }

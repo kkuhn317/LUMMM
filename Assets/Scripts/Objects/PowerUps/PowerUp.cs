@@ -19,16 +19,13 @@ public class PowerUp : ObjectPhysics
     protected override void Start()
     {
         base.Start();
-
         enabled = false;
-
     }
 
     void OnBecameVisible() {
         
         enabled = true;
     }
-
 
     private void OnTriggerEnter2D(Collider2D other) {
         if (other.tag == "Player") {

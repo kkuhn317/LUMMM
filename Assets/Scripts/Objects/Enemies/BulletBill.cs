@@ -37,7 +37,6 @@ public class BulletBill : EnemyAI
     }
 
     // knock away on stomp
-    // TODO: make rotating knock away mode
     protected override void hitByStomp(GameObject player)
     {
         MarioMovement playerscript = player.GetComponent<MarioMovement>();

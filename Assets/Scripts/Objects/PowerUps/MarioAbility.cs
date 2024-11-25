@@ -6,7 +6,5 @@ using UnityEngine;
 // override whatever needed
 public class MarioAbility : MonoBehaviour
 {
-
-    public virtual void shootProjectile() {}
-
+    public virtual void shootProjectile() { }
 }

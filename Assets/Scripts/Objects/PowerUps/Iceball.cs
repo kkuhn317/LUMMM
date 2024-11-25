@@ -6,9 +6,9 @@ using UnityEngine;
 
 public class Iceball : Fireball
 {
-    
-    
-    
+
+
+
     public GameObject smallIceBlock;
     public GameObject bigIceBlock;
     public GameObject longIceBlock;
@@ -21,26 +21,25 @@ public class Iceball : Fireball
             GetComponent<AudioSource>().PlayOneShot(hitWallSound);
             Instantiate(wallHitPrefab, transform.position, Quaternion.identity); // Instantiate the prefab at the fireball's position
             deleteFireball();
-            
-
-
         }
     }
-
 
     protected override void OnTriggerEnter2D(Collider2D other)
     {
         if (other.gameObject.GetComponent<EnemyAI>() && !hitEnemy)
         {
-            if (other.gameObject.GetComponent<EnemyAI>().canBeFireballed) {
+            if (other.gameObject.GetComponent<EnemyAI>().canBeFireballed)
+            {
                 OnHitEnemy(other.gameObject);
-            } else {
+            }
+            else
+            {
                 hitWall();
             }
         }
-  
+
     }
-    
+
     protected override void OnHitEnemy(GameObject enemy)
     {
         hitEnemy = true;
@@ -49,10 +48,13 @@ public class Iceball : Fireball
         //freeze enemy by turning off AI
         enemy.GetComponent<EnemyAI>().enabled = false;
         //stop animation
-        if (enemy.GetComponent<Animator>()){
-        enemy.GetComponent<Animator>().enabled = false;
-        }else if (enemy.GetComponent<AnimatedSprite>()){
-        enemy.GetComponent<AnimatedSprite>().enabled = false;
+        if (enemy.GetComponent<Animator>())
+        {
+            enemy.GetComponent<Animator>().enabled = false;
+        }
+        else if (enemy.GetComponent<AnimatedSprite>())
+        {
+            enemy.GetComponent<AnimatedSprite>().enabled = false;
         }
         //make small ice block the parent of the enemy
         //scale the ice block to be bigger if the enemy is bigger using the width of EnemyAI
@@ -76,11 +78,11 @@ public class Iceball : Fireball
         // TODO: make explosion animation
         if (firePowerScript)
             firePowerScript.onFireballDestroyed();
-        
+
         // let sounds play before deleting
         GetComponent<Collider2D>().enabled = false;
 
-        
+
         //GetComponent<SpriteRenderer>().enabled = false;
 
         // turn off all sprite renderers (including children)
@@ -89,7 +91,7 @@ public class Iceball : Fireball
         {
             spriteRenderer.enabled = false;
         }
-        
+
         movement = ObjectMovement.still;
         Destroy(gameObject, 2);
     }
