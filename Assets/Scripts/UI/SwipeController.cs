@@ -25,6 +25,8 @@ public class SwipeController : MonoBehaviour, IEndDragHandler
     }
     [SerializeField] BarOption[] barOptions;
 
+    [SerializeField] List<CanvasGroup> pageCanvasGroups; // Add CanvasGroups for each page
+
     private void Awake()
     {
         currentPage = 1;
@@ -32,6 +34,7 @@ public class SwipeController : MonoBehaviour, IEndDragHandler
         dragThereshould = Screen.width / 15;
         UpdateBar();
         UpdateArrowButton();
+        UpdateCanvasGroups();
         LeanTween.reset(); // https://github.com/dentedpixel/LeanTween/issues/88
     }
 
@@ -60,14 +63,18 @@ public class SwipeController : MonoBehaviour, IEndDragHandler
         levelPagesRect.LeanMoveLocal(targetPos, tweenTime).setEase(tweenType);
         UpdateBar();
         UpdateArrowButton();
+        UpdateCanvasGroups();
     }
 
     public void OnEndDrag(PointerEventData eventData)
     {
-        if (Mathf.Abs(eventData.position.x - eventData.pressPosition.x) > dragThereshould){
+        if (Mathf.Abs(eventData.position.x - eventData.pressPosition.x) > dragThereshould)
+        {
             if (eventData.position.x > eventData.pressPosition.x) Previous();
             else Next();
-        } else {
+        }
+        else
+        {
             MovePage();
         }
     }
@@ -87,5 +94,22 @@ public class SwipeController : MonoBehaviour, IEndDragHandler
         previousBtn.interactable = true;
         if (currentPage == 1) previousBtn.interactable = false;
         else if (currentPage == maxPage) nextBtn.interactable = false;
+    }
+
+    void UpdateCanvasGroups()
+    {
+        for (int i = 0; i < pageCanvasGroups.Count; i++)
+        {
+            if (i == currentPage - 1)
+            {
+                pageCanvasGroups[i].interactable = true;
+                pageCanvasGroups[i].blocksRaycasts = true;
+            }
+            else
+            {
+                pageCanvasGroups[i].interactable = false;
+                pageCanvasGroups[i].blocksRaycasts = false;
+            }
+        }
     }
 }

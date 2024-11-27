@@ -104,11 +104,11 @@ public class Grrol : EnemyAI
             CameraFollow cameraFollow = Camera.main.GetComponent<CameraFollow>();
             // Trigger camera shake
             cameraFollow.ShakeCameraRepeatedly(
-                shakeDuration,
-                shakeIntensity,
-                shakeFrequency,
-                shakeDirection,
-                shakeRepetitions,
+                shakeDuration, 
+                shakeIntensity, 
+                shakeFrequency, 
+                shakeDirection, 
+                shakeRepetitions, 
                 shakeInterval
             );
         }
