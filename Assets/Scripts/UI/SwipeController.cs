@@ -33,8 +33,8 @@ public class SwipeController : MonoBehaviour, IEndDragHandler
         targetPos = levelPagesRect.localPosition;
         dragThereshould = Screen.width / 15;
         UpdateBar();
-        UpdateArrowButton();
         UpdateCanvasGroups();
+        UpdateButtonStates(); // Ensure buttons are updated on initialization
         LeanTween.reset(); // https://github.com/dentedpixel/LeanTween/issues/88
     }
 
@@ -46,6 +46,7 @@ public class SwipeController : MonoBehaviour, IEndDragHandler
             targetPos += pageStep;
             MovePage();
         }
+        UpdateButtonStates(); // Update button states after navigation
     }
 
     public void Previous()
@@ -56,27 +57,31 @@ public class SwipeController : MonoBehaviour, IEndDragHandler
             targetPos -= pageStep;
             MovePage();
         }
+        UpdateButtonStates(); // Update button states after navigation
     }
 
     void MovePage()
     {
         levelPagesRect.LeanMoveLocal(targetPos, tweenTime).setEase(tweenType);
         UpdateBar();
-        UpdateArrowButton();
         UpdateCanvasGroups();
+        UpdateButtonStates(); // Ensure buttons are updated after page change
     }
 
     public void OnEndDrag(PointerEventData eventData)
     {
         if (Mathf.Abs(eventData.position.x - eventData.pressPosition.x) > dragThereshould)
         {
-            if (eventData.position.x > eventData.pressPosition.x) Previous();
-            else Next();
+            if (eventData.position.x > eventData.pressPosition.x)
+                Previous();
+            else
+                Next();
         }
         else
         {
             MovePage();
         }
+        UpdateButtonStates(); // Ensure buttons are updated after dragging
     }
 
     void UpdateBar()
@@ -86,14 +91,6 @@ public class SwipeController : MonoBehaviour, IEndDragHandler
             option.barImage.sprite = option.barClosed;
         }
         barOptions[currentPage - 1].barImage.sprite = barOptions[currentPage - 1].barOpen;
-    }
-
-    void UpdateArrowButton()
-    {
-        nextBtn.interactable = true;
-        previousBtn.interactable = true;
-        if (currentPage == 1) previousBtn.interactable = false;
-        else if (currentPage == maxPage) nextBtn.interactable = false;
     }
 
     void UpdateCanvasGroups()
@@ -111,5 +108,32 @@ public class SwipeController : MonoBehaviour, IEndDragHandler
                 pageCanvasGroups[i].blocksRaycasts = false;
             }
         }
+    }
+
+    void UpdateButtonStates()
+    {
+        // Log for debugging
+        Debug.Log($"Updating button states: currentPage = {currentPage}, maxPage = {maxPage}");
+
+        // Update button interactivity
+        previousBtn.interactable = currentPage > 1;
+        nextBtn.interactable = currentPage < maxPage;
+
+        // Select the appropriate button in the EventSystem
+        if (currentPage == 1)
+        {
+            EventSystem.current.SetSelectedGameObject(nextBtn.gameObject);
+        }
+        else if (currentPage == maxPage)
+        {
+            EventSystem.current.SetSelectedGameObject(previousBtn.gameObject);
+        }
+        else
+        {
+            EventSystem.current.SetSelectedGameObject(nextBtn.gameObject);
+        }
+
+        // Debugging: Log the currently selected GameObject
+        Debug.Log($"Selected Button: {EventSystem.current.currentSelectedGameObject?.name}");
     }
 }

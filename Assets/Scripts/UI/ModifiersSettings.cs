@@ -1,7 +1,7 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
 public class ModifiersSettings : MonoBehaviour
 {
@@ -25,7 +25,10 @@ public class ModifiersSettings : MonoBehaviour
     public GameObject decisionWindow; // Window to confirm deletion of the checkpoint
     public Button confirmDeleteButton;
     public Button cancelDeleteButton;
+    public CanvasGroup mainCanvasGroup; // CanvasGroup for the main UI
+    public CanvasGroup decisionCanvasGroup; // CanvasGroup for the decision window
 
+    private GameObject previouslySelected; // To track the previously selected UI element
     private string bufferedModifierKey; // The key of the modifier that the player wants to change (while the decision window is open)
     private bool bufferedModifierValue; // The value of the modifier that the player wants to change (while the decision window is open)
 
@@ -53,10 +56,9 @@ public class ModifiersSettings : MonoBehaviour
     {
         if (isSaveGameAvailable())
         {
-            // If the player has a saved game, ask for confirmation before changing the modifier
             bufferedModifierKey = SettingsKeys.InfiniteLivesKey;
             bufferedModifierValue = isEnabled;
-            decisionWindow.SetActive(true);
+            ActivateDecisionWindow();
         }
         else
         {
@@ -84,10 +86,9 @@ public class ModifiersSettings : MonoBehaviour
     {
         if (isSaveGameAvailable())
         {
-            // If the player has a saved game, ask for confirmation before changing the modifier
             bufferedModifierKey = SettingsKeys.CheckpointsKey;
             bufferedModifierValue = isEnabled;
-            decisionWindow.SetActive(true);
+            ActivateDecisionWindow();
         }
         else
         {
@@ -115,10 +116,9 @@ public class ModifiersSettings : MonoBehaviour
     {
         if (isSaveGameAvailable())
         {
-            // If the player has a saved game, ask for confirmation before changing the modifier
             bufferedModifierKey = SettingsKeys.TimeLimitKey;
             bufferedModifierValue = isEnabled;
-            decisionWindow.SetActive(true);
+            ActivateDecisionWindow();
         }
         else
         {
@@ -139,17 +139,52 @@ public class ModifiersSettings : MonoBehaviour
         return PlayerPrefs.HasKey("SavedLevel");
     }
 
+    private void ActivateDecisionWindow()
+    {
+        // Track the currently selected UI element
+        previouslySelected = EventSystem.current.currentSelectedGameObject;
+
+        // Disable main UI
+        mainCanvasGroup.interactable = false;
+        mainCanvasGroup.blocksRaycasts = false;
+
+        // Enable decision window
+        decisionCanvasGroup.interactable = true;
+        decisionCanvasGroup.blocksRaycasts = true;
+        decisionWindow.SetActive(true);
+
+        // Select the confirm button
+        EventSystem.current.SetSelectedGameObject(confirmDeleteButton.gameObject);
+    }
+
+    private void DeactivateDecisionWindow()
+    {
+        // Enable main UI
+        mainCanvasGroup.interactable = true;
+        mainCanvasGroup.blocksRaycasts = true;
+
+        // Disable decision window
+        decisionCanvasGroup.interactable = false;
+        decisionCanvasGroup.blocksRaycasts = false;
+        decisionWindow.SetActive(false);
+
+        // Restore focus to the previously selected UI element
+        if (previouslySelected != null)
+        {
+            EventSystem.current.SetSelectedGameObject(previouslySelected);
+        }
+    }
+
     private void OnConfirmDeleteCheckpoint()
     {
         // Clear saved checkpoint data
         PlayerPrefs.DeleteKey("SavedLevel");
-
         LevelSelectionManager.Instance.RefreshCheckpointFlags();
 
         // Close the decision window
-        decisionWindow.SetActive(false);
+        DeactivateDecisionWindow();
 
-        // Change the modifier
+        // Apply the buffered modifier change
         switch (bufferedModifierKey)
         {
             case SettingsKeys.InfiniteLivesKey:
@@ -164,9 +199,9 @@ public class ModifiersSettings : MonoBehaviour
         }
     }
 
-    private void OnCancelDeleteCheckpoint()
+    public void OnCancelDeleteCheckpoint()
     {
-        // Simply close the decision window without deleting the checkpoint
-        decisionWindow.SetActive(false);
+        // Simply close the decision window without applying changes
+        DeactivateDecisionWindow();
     }
 }
