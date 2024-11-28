@@ -171,7 +171,7 @@ public class MarioMovement : MonoBehaviour
 
     [Header("Additional Abilities")]
     public bool canCrawl = false;       // Only small Mario has an animation for crawling right now, so it will not be transferred after powerup
-    public bool canWallJump = false;    // Only small mario has an animation for wall jumping right now, so it will not be transferred after powerup
+    public bool canWallJump = false; 
     public bool canWallJumpWhenHoldingObject = false;
     public bool canSpinJump = false;
     private bool wallSliding = false;
@@ -1032,6 +1032,12 @@ public class MarioMovement : MonoBehaviour
 
         // Set crouchPressed to false to ensure new character doesn't start crouching
         newMarioMovement.crouchPressed = false;
+
+        // Set additional abilities to new Mario
+        newMarioMovement.canCrawl = canCrawl;
+        newMarioMovement.canWallJump = canWallJump;
+        newMarioMovement.canWallJumpWhenHoldingObject = canWallJumpWhenHoldingObject;
+        newMarioMovement.canSpinJump = canSpinJump;
 
         return newMarioMovement;
     }
