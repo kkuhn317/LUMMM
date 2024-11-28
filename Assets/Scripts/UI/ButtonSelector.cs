@@ -13,6 +13,11 @@ public class ButtonSelector : MonoBehaviour
     private GameObject lastSelectedObject;
     private Canvas canvas;
 
+    void OnEnable()
+    {
+        ValidateComponents();
+    }
+
     void Start()
     {
         if (!ValidateComponents()) return;

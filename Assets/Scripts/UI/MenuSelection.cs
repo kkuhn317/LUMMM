@@ -68,5 +68,4 @@ public class MenuSelection : MonoBehaviour
         yield return null;
         MoveIndicator(b);
     }
-
 }
