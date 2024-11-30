@@ -18,13 +18,21 @@ public class UIDropdownScroller : MonoBehaviour, ISelectHandler
         int childIndex = transform.GetSiblingIndex();
 
         childIndex = Mathf.Clamp(childIndex, 0, childCount - 1);
-        
+
         scrollPosition = 1 - ((float)childIndex / childCount);
     }
 
     public void OnSelect(BaseEventData eventData)
     {
-        if(scrollRect)
+        // If this is caused by the mouse, don't scroll
+        // Note: this solution doesnt work... find some other way
+        if (eventData is PointerEventData)
+        {
+            return;
+        }
+
+
+        if (scrollRect)
             scrollRect.verticalScrollbar.value = scrollPosition;
     }
 }
