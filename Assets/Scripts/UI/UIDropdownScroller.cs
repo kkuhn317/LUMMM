@@ -12,9 +12,14 @@ public class UIDropdownScroller : MonoBehaviour, ISelectHandler, IPointerEnterHa
     {
         scrollRect = GetComponentInParent<ScrollRect>(true);
 
-        if (scrollRect == null || scrollRect.content == null)
+        if (scrollRect == null)
         {
-            Debug.LogWarning("ScrollRect or its content not found.");
+            Debug.LogWarning("ScrollRect component not found in parent hierarchy.");
+            return;
+        }
+        if (scrollRect.content == null)
+        {
+            Debug.LogWarning("ScrollRect content is not assigned.");
             return;
         }
 
@@ -44,7 +49,7 @@ public class UIDropdownScroller : MonoBehaviour, ISelectHandler, IPointerEnterHa
         if (scrollRect)
         {
             Canvas.ForceUpdateCanvases(); // Ensure layout updates
-            scrollRect.verticalScrollbar.value = scrollPosition;
+            scrollRect.verticalNormalizedPosition = scrollPosition;
         }
     }
 }
