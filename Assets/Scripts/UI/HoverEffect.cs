@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class HoverEffect : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
+public class HoverEffect : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, ISelectHandler, IDeselectHandler
 {
     public GameObject hoverPanel;
     private bool isHovering = false;
@@ -15,6 +15,20 @@ public class HoverEffect : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
 
     // Called when the pointer exits the UI element or object
     public void OnPointerExit(PointerEventData eventData)
+    {
+        isHovering = false;
+        StopHoverEffect();
+    }
+
+     // Called when the element is selected via keyboard navigation (Tab key)
+    public void OnSelect(BaseEventData eventData)
+    {
+        isHovering = true;
+        StartHoverEffect();
+    }
+
+    // Called when the element is deselected
+    public void OnDeselect(BaseEventData eventData)
     {
         isHovering = false;
         StopHoverEffect();
