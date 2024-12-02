@@ -15,6 +15,7 @@ public class UIDropdownScroller : MonoBehaviour, IPointerEnterHandler, IPointerE
     private ScrollRect m_ScrollRect;
 
     private Vector2 m_NextScrollPosition = Vector2.up;
+
     void OnEnable()
     {
         if (m_ScrollRect)
@@ -28,6 +29,7 @@ public class UIDropdownScroller : MonoBehaviour, IPointerEnterHandler, IPointerE
     }
     void Start()
     {
+        m_ScrollRect = GetComponent<ScrollRect>();
         if (m_ScrollRect)
         {
             m_ScrollRect.content.GetComponentsInChildren(m_Selectables);
@@ -41,7 +43,7 @@ public class UIDropdownScroller : MonoBehaviour, IPointerEnterHandler, IPointerE
         if (!mouseOver)
         {
             // Lerp scrolling code.
-            m_ScrollRect.normalizedPosition = Vector2.Lerp(m_ScrollRect.normalizedPosition, m_NextScrollPosition, scrollSpeed * Time.deltaTime);
+            m_ScrollRect.normalizedPosition = Vector2.Lerp(m_ScrollRect.normalizedPosition, m_NextScrollPosition, scrollSpeed * Time.unscaledDeltaTime);
         }
         else
         {
