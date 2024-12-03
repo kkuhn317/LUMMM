@@ -22,7 +22,10 @@ public class CollisionTriggerEvent : MonoBehaviour
 
         if (other.gameObject.tag == "Player")
         {
-            onPlayerEnter.Invoke();
+            if (onPlayerEnter != null) 
+            {
+                onPlayerEnter.Invoke();
+            }      
 
             if (autoDeactivate)
             {
@@ -51,7 +54,10 @@ public class CollisionTriggerEvent : MonoBehaviour
 
         if (other.gameObject.tag == "Player")
         {
-            onPlayerExit.Invoke();
+            if (onPlayerExit != null) 
+            {
+                onPlayerExit.Invoke();
+            }
 
             if (autoDeactivate)
             {
@@ -62,6 +68,7 @@ public class CollisionTriggerEvent : MonoBehaviour
 
         if (IsInLayerMask(other.gameObject, layersToCheck))
         {
+            Debug.Log("Event happened!");
             onLayerExit.Invoke();
 
             if (autoDeactivate)

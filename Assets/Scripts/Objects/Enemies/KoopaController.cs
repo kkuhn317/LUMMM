@@ -172,4 +172,12 @@ public class KoopaController : EnemyAI
             }
         }
     }
+
+    public void StopShell()
+    {
+        if (state == EnemyState.movingShell)
+        {
+            ToInShell();
+        }
+    }
 }
