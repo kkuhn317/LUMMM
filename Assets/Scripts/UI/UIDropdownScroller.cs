@@ -43,7 +43,7 @@ public class UIDropdownScroller : MonoBehaviour, IPointerEnterHandler, IPointerE
         if (!mouseOver)
         {
             // Lerp scrolling code.
-            m_ScrollRect.normalizedPosition = Vector2.Lerp(m_ScrollRect.normalizedPosition, m_NextScrollPosition, scrollSpeed * Time.unscaledDeltaTime);
+            m_ScrollRect.normalizedPosition = Vector2.Lerp(m_ScrollRect.normalizedPosition, m_NextScrollPosition, scrollSpeed * Time.unscaledDeltaTime); // Time.unscaledDeltaTime is to work even if the game is paused
         }
         else
         {
