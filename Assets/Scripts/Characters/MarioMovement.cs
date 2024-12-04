@@ -1039,6 +1039,9 @@ public class MarioMovement : MonoBehaviour
         newMarioMovement.canWallJumpWhenHoldingObject = canWallJumpWhenHoldingObject;
         newMarioMovement.canSpinJump = canSpinJump;
 
+        // Passing the sound effects
+        newMarioMovement.yeahAudioClip = yeahAudioClip;
+
         return newMarioMovement;
     }
 
