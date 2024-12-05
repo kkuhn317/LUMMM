@@ -3908,8 +3908,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   connection: {fileID: 1465575300}
-  enterDirection: {x: 0, y: 0.5, z: 0}
-  exitDirection: {x: 0, y: -0.5, z: 0}
+  enterDirection: 0
+  exitDirection: 1
+  instantExit: 0
   warpEnterSound: {fileID: 8300000, guid: 938d4a3d1a37b284c81c8c25379c86b4, type: 3}
   requireGroundToEnter: 1
   snapCameraX: 0
@@ -5219,6 +5220,7 @@ MonoBehaviour:
   - {fileID: -1362825417, guid: c969912de6832e14baf152772b3b1ea0, type: 3}
   - {fileID: 118335345, guid: c969912de6832e14baf152772b3b1ea0, type: 3}
   framerate: 0.16666667
+  loop: 1
 --- !u!212 &774515309
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -5942,6 +5944,15 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   autoDeactivate: 1
+  layersToCheck:
+    serializedVersion: 2
+    m_Bits: 0
+  onLayerEnter:
+    m_PersistentCalls:
+      m_Calls: []
+  onLayerExit:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1001 &861785736
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -6609,6 +6620,15 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   autoDeactivate: 1
+  layersToCheck:
+    serializedVersion: 2
+    m_Bits: 0
+  onLayerEnter:
+    m_PersistentCalls:
+      m_Calls: []
+  onLayerExit:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &1105740308
 GameObject:
   m_ObjectHideFlags: 0
@@ -6666,6 +6686,7 @@ MonoBehaviour:
   carryable: 0
   carried: 0
   throwVelocity: {x: 12, y: 10}
+  rotateAroundCenter: 0
   knockAwayVelocity: {x: 5, y: 5}
   overrideKnockAwayGravity: 0
   knockAwayGravity: 60
@@ -7432,7 +7453,7 @@ SpriteRenderer:
   m_Size: {x: 0.4375, y: 0.4375}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!1001 &1465575297
@@ -7510,8 +7531,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   connection: {fileID: 323901599}
-  enterDirection: {x: 0, y: 0.5, z: 0}
-  exitDirection: {x: 0, y: -0.5, z: 0}
+  enterDirection: 1
+  exitDirection: 0
+  instantExit: 0
   warpEnterSound: {fileID: 8300000, guid: 938d4a3d1a37b284c81c8c25379c86b4, type: 3}
   requireGroundToEnter: 1
   snapCameraX: 0
@@ -7923,6 +7945,15 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   autoDeactivate: 1
+  layersToCheck:
+    serializedVersion: 2
+    m_Bits: 0
+  onLayerEnter:
+    m_PersistentCalls:
+      m_Calls: []
+  onLayerExit:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &1643538441
 GameObject:
   m_ObjectHideFlags: 0
@@ -9137,7 +9168,7 @@ SpriteRenderer:
   m_Size: {x: 0.4375, y: 0.4375}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!1001 &4155550690074372121
