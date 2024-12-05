@@ -6,8 +6,17 @@ using UnityEngine;
 public class Pipe : MonoBehaviour
 {
     public Transform connection;
-    public Vector3 enterDirection = Vector3.down;
-    public Vector3 exitDirection = Vector3.zero;
+    public enum Direction { Up, Down, Left, Right }
+    public Direction enterDirection = Direction.Down;
+    public Direction exitDirection = Direction.Up;
+
+    // How far in/out of the pipe the player should be when they enter/exit
+    // Should be smaller for tiny pipes
+    public float enterDistance = 1f;    // How far into the pipe the player should go (relative to the position of the pipe)
+    public float insideExitDistance = 1f;   // How far the player should be inside the pipe when they start to exit (relative to the position of the exit)
+    public float exitDistance = 1f; // How far out of the pipe the player should be when they exit
+
+    public bool instantExit = false; // If true, don't animate the player exiting the pipe (like 1-1 Underground)
     public AudioClip warpEnterSound;
     public bool requireGroundToEnter = true; // New option to require the player to be on the ground
     private Vector3 originalScale;
@@ -25,7 +34,7 @@ public class Pipe : MonoBehaviour
     private void OnTriggerStay2D(Collider2D other)
     {
         if (!isEnteringPipe && connection != null && other.CompareTag("Player"))
-        {   
+        {
             if (!requireGroundToEnter || (requireGroundToEnter && IsPlayerOnGround(other.gameObject)))
             {
                 if (CorrectDirectionPressed(other.GetComponent<MarioMovement>()))
@@ -43,6 +52,8 @@ public class Pipe : MonoBehaviour
 
     private IEnumerator Enter(Transform player)
     {
+        /* ENTERING */
+
         isEnteringPipe = true; // Set the flag to prevent re-entry
 
         PlayWarpEnterSound();
@@ -65,7 +76,9 @@ public class Pipe : MonoBehaviour
         // Disable player's movement
         player.GetComponent<MarioMovement>().enabled = false;
 
-        Vector3 enteredPosition = transform.position + enterDirection; // We get the place where the player will move based on the pipe position and the enter position
+        Vector2 enterDirectionVector = DirectionToVector(enterDirection) * enterDistance; // Get the direction vector based on the enter direction
+
+        Vector3 enteredPosition = transform.position + (Vector3)enterDirectionVector; // We get the place where the player will move based on the pipe position and the enter position
         originalScale = player.localScale; // Store the original scale
         Vector3 enteredScale = Vector3.one * 0.5f; // Reduces the player's scale
 
@@ -73,6 +86,8 @@ public class Pipe : MonoBehaviour
         // Move the camera
 
         yield return new WaitForSeconds(1f);
+
+        /* EXITING */
 
         PlayWarpEnterSound();
 
@@ -88,10 +103,19 @@ public class Pipe : MonoBehaviour
         }
         Camera.main.transform.position = camPos;
 
-        if (exitDirection != Vector3.zero)
+        if (!instantExit)
         {
-            player.position = connection.position - exitDirection;
-            yield return Move(player, connection.position + exitDirection, originalScale);
+            Vector2 exitDirectionVector = DirectionToVector(exitDirection);
+            Vector2 insidePipeOffset = exitDirectionVector * -insideExitDistance; // Get the inside position based on the exit direction
+            Vector2 exitPipeOffset = exitDirectionVector * exitDistance; // Get the exit position based on the exit direction
+            // If Mario is big and moving up or down, we need to move him a little bit more
+            if (PowerStates.IsBig(player.GetComponent<MarioMovement>().powerupState) &&
+                (exitDirection == Direction.Down || exitDirection == Direction.Up))
+            {
+                exitPipeOffset += exitDirectionVector * 0.5f;
+            }
+            player.position = connection.position + (Vector3)insidePipeOffset;   // Move the player to the exit position
+            yield return Move(player, connection.position + (Vector3)exitPipeOffset, originalScale);
         }
         else
         {
@@ -114,6 +138,23 @@ public class Pipe : MonoBehaviour
         player.GetComponent<MarioMovement>().enabled = true;
 
         isEnteringPipe = false; // Reset the flag for the next entry
+    }
+
+    private Vector2 DirectionToVector(Direction direction)
+    {
+        switch (direction)
+        {
+            case Direction.Down:
+                return Vector2.down;
+            case Direction.Right:
+                return Vector2.right;
+            case Direction.Up:
+                return Vector2.up;
+            case Direction.Left:
+                return Vector2.left;
+            default:
+                return Vector2.zero;
+        }
     }
 
     private IEnumerator Move(Transform player, Vector3 endPosition, Vector3 endScale)
@@ -140,24 +181,20 @@ public class Pipe : MonoBehaviour
 
     private bool CorrectDirectionPressed(MarioMovement playerMovement)
     {
-        float angle = transform.eulerAngles.z;
         Vector2 moveInput = playerMovement.moveInput;
 
-        if (angle < 45f || angle >= 315f)
+        switch (enterDirection)
         {
-            return playerMovement.crouchPressed; // Facing down
-        }
-        else if (angle >= 45f && angle < 135f)
-        {
-            return moveInput.x > 0; // Facing right
-        }
-        else if (angle >= 135f && angle < 225f)
-        {
-            return moveInput.y > 0; // Facing up
-        }
-        else
-        {
-            return moveInput.x < 0; // Facing left
+            case Direction.Down:
+                return playerMovement.crouchPressed; // Holding down
+            case Direction.Right:
+                return moveInput.x > 0; // Holding right
+            case Direction.Up:
+                return moveInput.y > 0; // Holding up
+            case Direction.Left:
+                return moveInput.x < 0; // Holding left
+            default:
+                return false;
         }
     }
 
