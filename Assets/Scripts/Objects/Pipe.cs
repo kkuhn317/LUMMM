@@ -7,19 +7,26 @@ public class Pipe : MonoBehaviour
 {
     public Transform connection;
     public enum Direction { Up, Down, Left, Right }
+    public enum AlignType
+    {
+        None,   // Don't align the player at all. He will just move in the direction of the pipe
+        Slow,   // Slowly align the player with the pipe by moving him directly towards the enter position
+        Fast,   // Quickly align the player with the pipe while he is still moving
+        Instant // Instantly teleport the player to be aligned with the pipe
+    }
     public Direction enterDirection = Direction.Down;
     public Direction exitDirection = Direction.Up;
 
     // How far in/out of the pipe the player should be when they enter/exit
     // Should be smaller for tiny pipes
     public float enterDistance = 1f;    // How far into the pipe the player should go (relative to the position of the pipe)
+    public AlignType enterAlignType = AlignType.Slow; // How the player should align when entering the pipe
     public float insideExitDistance = 1f;   // How far the player should be inside the pipe when they start to exit (relative to the position of the exit)
     public float exitDistance = 1f; // How far out of the pipe the player should be when they exit
 
     public bool instantExit = false; // If true, don't animate the player exiting the pipe (like 1-1 Underground)
     public AudioClip warpEnterSound;
     public bool requireGroundToEnter = true; // New option to require the player to be on the ground
-    private Vector3 originalScale;
     private AudioSource audioSource;
     private bool isEnteringPipe = false; // Track if the player is already entering the pipe
 
@@ -73,16 +80,64 @@ public class Pipe : MonoBehaviour
             playerCollider.enabled = false;
         }
 
+        // Set animation
+        Animator playerAnimator = player.GetComponent<Animator>();
+        SpriteRenderer playerSprite = player.GetComponent<SpriteRenderer>();
+        playerAnimator.SetBool("onGround", enterDirection != Direction.Up);
+        playerAnimator.SetBool("isSkidding", false);
+        playerAnimator.SetBool("isCrouching", enterDirection == Direction.Down);
+        playerAnimator.SetBool("isRunning", enterDirection == Direction.Left || enterDirection == Direction.Right);
+        playerAnimator.SetFloat("Horizontal", enterDirection == Direction.Left || enterDirection == Direction.Right ? 1 : 0);
+        if (enterDirection == Direction.Left || enterDirection == Direction.Right)
+        {
+            playerSprite.flipX = enterDirection == Direction.Left;
+        }
+
         // Disable player's movement
         player.GetComponent<MarioMovement>().enabled = false;
 
         Vector2 enterDirectionVector = DirectionToVector(enterDirection) * enterDistance; // Get the direction vector based on the enter direction
 
         Vector3 enteredPosition = transform.position + (Vector3)enterDirectionVector; // We get the place where the player will move based on the pipe position and the enter position
-        originalScale = player.localScale; // Store the original scale
-        Vector3 enteredScale = Vector3.one * 0.5f; // Reduces the player's scale
+        switch (enterAlignType)
+        {
+            case AlignType.None:
+                Vector3 tempPosition = transform.position;
+                switch (enterDirection)
+                {
+                    case Direction.Down:
+                    case Direction.Up:
+                        tempPosition.x = player.position.x;
+                        break;
+                    case Direction.Right:
+                    case Direction.Left:
+                        tempPosition.y = player.position.y;
+                        break;
+                }
+                enteredPosition = tempPosition + (Vector3)enterDirectionVector;  // The end position is based on the player's current position
+                break;
+            case AlignType.Slow:
+                break;
+            case AlignType.Fast:
+                break;
+            case AlignType.Instant:
+                Vector3 tempPosition2 = player.position;
+                switch (enterDirection)
+                {
+                    case Direction.Down:
+                    case Direction.Up:
+                        tempPosition2.x = enteredPosition.x;
+                        break;
+                    case Direction.Right:
+                    case Direction.Left:
+                        tempPosition2.y = enteredPosition.y;
+                        break;
+                }
+                player.position = tempPosition2;
+                break;
+        }
 
-        yield return Move(player, enteredPosition, enteredScale); // To enter the pipe, player moves based on the enteredPosition and starts decreasing it's scale
+        yield return Move(player, enteredPosition, false); // To enter the pipe, player moves based on the enteredPosition
         // Move the camera
 
         yield return new WaitForSeconds(1f);
@@ -105,6 +160,17 @@ public class Pipe : MonoBehaviour
 
         if (!instantExit)
         {
+            // Set animation for exiting
+            playerAnimator.SetBool("onGround", true);
+            playerAnimator.SetBool("isSkidding", false);
+            playerAnimator.SetBool("isCrouching", false);
+            playerAnimator.SetBool("isRunning", exitDirection == Direction.Left || exitDirection == Direction.Right);
+            playerAnimator.SetFloat("Horizontal", exitDirection == Direction.Left || exitDirection == Direction.Right ? 1 : 0);
+            if (exitDirection == Direction.Left || exitDirection == Direction.Right)
+            {
+                playerSprite.flipX = exitDirection == Direction.Left;
+            }
+
             Vector2 exitDirectionVector = DirectionToVector(exitDirection);
             Vector2 insidePipeOffset = exitDirectionVector * -insideExitDistance; // Get the inside position based on the exit direction
             Vector2 exitPipeOffset = exitDirectionVector * exitDistance; // Get the exit position based on the exit direction
@@ -115,12 +181,11 @@ public class Pipe : MonoBehaviour
                 exitPipeOffset += exitDirectionVector * 0.5f;
             }
             player.position = connection.position + (Vector3)insidePipeOffset;   // Move the player to the exit position
-            yield return Move(player, connection.position + (Vector3)exitPipeOffset, originalScale);
+            yield return Move(player, connection.position + (Vector3)exitPipeOffset, true);
         }
         else
         {
             player.position = connection.position;
-            player.localScale = originalScale; // Restore the original scale
         }
 
         // Re-enable the player's movement and gravity
@@ -157,26 +222,40 @@ public class Pipe : MonoBehaviour
         }
     }
 
-    private IEnumerator Move(Transform player, Vector3 endPosition, Vector3 endScale)
+    private IEnumerator Move(Transform player, Vector3 endPosition, bool exiting)
     {
         float elapsed = 0f;
         float duration = 1f;
 
         Vector3 startPosition = player.position;
-        Vector3 startScale = player.localScale;
 
         while (elapsed < duration)
         {
             float t = elapsed / duration;
 
-            player.position = Vector3.Lerp(startPosition, endPosition, t);
-            player.localScale = Vector3.Lerp(startScale, endScale, t);
+            // If fast aligning, align the player's x or y position to the pipe's x or y position in HALF the time
+            if (enterAlignType == AlignType.Fast && !exiting)
+            {
+                bool leftRight = enterDirection == Direction.Left || enterDirection == Direction.Right;
+                Vector3 halfPosition = leftRight ? new Vector3((endPosition.x + startPosition.x) / 2, endPosition.y, startPosition.z) : new Vector3(endPosition.x, (endPosition.y + startPosition.y) / 2, startPosition.z);
+                if (t < 0.5f)
+                {
+                    player.position = Vector3.Lerp(startPosition, halfPosition, t * 2);
+                }
+                else
+                {
+                    player.position = Vector3.Lerp(halfPosition, endPosition, (t - 0.5f) * 2);
+                }
+            }
+            else
+            {
+                player.position = Vector3.Lerp(startPosition, endPosition, t);
+            }
             elapsed += Time.deltaTime;
 
             yield return null;
         }
         player.position = endPosition;
-        player.localScale = endScale;
     }
 
     private bool CorrectDirectionPressed(MarioMovement playerMovement)
