@@ -121,9 +121,9 @@ public class EnemyAI : ObjectPhysics
     protected virtual void hitOnSide(GameObject player) {
         MarioMovement playerscript = player.GetComponent<MarioMovement>();
 
-        if((PowerStates.IsSmall(playerscript.powerupState) || !InstantChange) && customDeath != null) {
+        if(PowerStates.IsSmall(playerscript.powerupState) && customDeath != null) {
             playerscript.TransformIntoObject(customDeath);
-            Debug.Log($"Is player small? {PowerStates.IsSmall(playerscript.powerupState)} | Instant Change: {InstantChange} | Custom Death: {customDeath.name}");
+            Debug.Log($"Is player small? {PowerStates.IsSmall(playerscript.powerupState)} | Custom Death: {customDeath.name}");
         } else {
             // usually mario would be damaged here
             playerscript.damageMario();
