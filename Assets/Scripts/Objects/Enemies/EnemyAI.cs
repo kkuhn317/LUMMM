@@ -12,7 +12,6 @@ public class EnemyAI : ObjectPhysics
     public float stompHeight = 0.2f;
     public GameObject heldItem;
     public Vector3 itemSpawnOffset = new Vector3(0, 0, 0);
-    public bool InstantChange = false;
     public GameObject customDeath;
     [HideInInspector] public UnityEvent<GameObject> onPlayerDamaged;
 
