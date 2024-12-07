@@ -7,7 +7,7 @@ using UnityEngine.Playables;
 [System.Serializable]
 public class EnemyGroup
 {
-    public List<Goomba> enemies; // Assuming Goomba is the correct type, adjust if needed
+    public List<Goomba> enemies;
 }
 
 public class AmbushTrigger : MonoBehaviour

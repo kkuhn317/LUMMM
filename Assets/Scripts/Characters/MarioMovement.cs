@@ -140,6 +140,7 @@ public class MarioMovement : MonoBehaviour
     public GameObject deadMario;
 
     private bool dead = false;
+    public bool Dead => dead;
 
     [Header("Sound Effects")]
 
@@ -1059,10 +1060,16 @@ public class MarioMovement : MonoBehaviour
             }
 
             dead = true;
-            GameObject newMario = Instantiate(deadMario, transform.position, transform.rotation);
-            Destroy(gameObject);
+            StartCoroutine(InvokeDeathEventWithDelay());
             // print("death success");
         }
+    }
+
+    private IEnumerator InvokeDeathEventWithDelay()
+    {
+        yield return null; // Wait until the next frame
+        GameObject newMario = Instantiate(deadMario, transform.position, transform.rotation);
+        Destroy(gameObject);
     }
 
     public void TransformIntoObject(GameObject newMario)
@@ -1076,11 +1083,20 @@ public class MarioMovement : MonoBehaviour
             }
 
             dead = true;
-            // Instantiate the pigPrefab at the current position and rotation
-            GameObject m = Instantiate(newMario, transform.position, transform.rotation);
-            Destroy(gameObject);
+            StartCoroutine(InvokeTransformationWithDelay(newMario));
         }
     }
+
+    private IEnumerator InvokeTransformationWithDelay(GameObject newMario)
+    {
+        yield return null; // Wait for the next frame.
+
+        // Instantiate the new object at the current position and rotation.
+        GameObject m = Instantiate(newMario, transform.position, transform.rotation);
+
+        // Destroy the current GameObject.
+        Destroy(gameObject);
+    } 
 
     public void PlayYeahAnimation()
     {

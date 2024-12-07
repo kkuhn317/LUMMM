@@ -27,6 +27,10 @@ public class Goomba : EnemyAI
     protected override void Update() {
         base.Update();
         CheckCrushed();
+
+        if (objectState == ObjectState.grounded){
+            GetComponent<Animator>().SetTrigger("isHappy");
+        }
     }
 
     protected override void hitByStomp(GameObject player)
