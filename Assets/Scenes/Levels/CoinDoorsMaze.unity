@@ -2769,7 +2769,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 43
+  m_RootOrder: 44
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!61 &337594704
 BoxCollider2D:
@@ -68729,6 +68729,10 @@ MonoBehaviour:
   connection: {fileID: 5323886134261785826}
   enterDirection: 1
   exitDirection: 0
+  enterDistance: 1
+  enterAlignType: 1
+  insideExitDistance: 1
+  exitDistance: 1
   instantExit: 0
   warpEnterSound: {fileID: 8300000, guid: 938d4a3d1a37b284c81c8c25379c86b4, type: 3}
   requireGroundToEnter: 1
@@ -72869,12 +72873,24 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7749827655929639845, guid: 34f05e90bbd64be48a00d8f82c0d1759, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 7749827655929639845, guid: 34f05e90bbd64be48a00d8f82c0d1759, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 7749827655929639845, guid: 34f05e90bbd64be48a00d8f82c0d1759, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 7749827655929639845, guid: 34f05e90bbd64be48a00d8f82c0d1759, type: 3}
       propertyPath: m_LocalPosition.x
       value: 47.718
       objectReference: {fileID: 0}
     - target: {fileID: 7749827655929639845, guid: 34f05e90bbd64be48a00d8f82c0d1759, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.281
+      value: 1.1423
       objectReference: {fileID: 0}
     - target: {fileID: 7749827655929639845, guid: 34f05e90bbd64be48a00d8f82c0d1759, type: 3}
       propertyPath: m_LocalPosition.z
@@ -72907,6 +72923,10 @@ PrefabInstance:
     - target: {fileID: 7749827655929639845, guid: 34f05e90bbd64be48a00d8f82c0d1759, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7749827655929639845, guid: 34f05e90bbd64be48a00d8f82c0d1759, type: 3}
+      propertyPath: m_ConstrainProportionsScale
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7749827655929639851, guid: 34f05e90bbd64be48a00d8f82c0d1759, type: 3}
       propertyPath: m_Name
@@ -82186,6 +82206,10 @@ MonoBehaviour:
   connection: {fileID: 1010478911}
   enterDirection: 3
   exitDirection: 3
+  enterDistance: 1
+  enterAlignType: 1
+  insideExitDistance: 1
+  exitDistance: 1
   instantExit: 0
   warpEnterSound: {fileID: 8300000, guid: 938d4a3d1a37b284c81c8c25379c86b4, type: 3}
   requireGroundToEnter: 1
