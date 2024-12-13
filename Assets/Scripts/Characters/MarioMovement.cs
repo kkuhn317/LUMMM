@@ -1060,12 +1060,12 @@ public class MarioMovement : MonoBehaviour
             }
 
             dead = true;
-            StartCoroutine(InvokeDeathEventWithDelay());
+            StartCoroutine(InvokeDeath());
             // print("death success");
         }
     }
 
-    private IEnumerator InvokeDeathEventWithDelay()
+    private IEnumerator InvokeDeath()
     {
         yield return null; // Wait until the next frame
         GameObject newMario = Instantiate(deadMario, transform.position, transform.rotation);
@@ -1074,6 +1074,13 @@ public class MarioMovement : MonoBehaviour
 
     public void TransformIntoObject(GameObject newMario)
     {
+        // Check for invincibility
+        if (invincetimeremain > 0f || starPower)
+        {
+            Debug.Log("Mario is invincible. Transformation ignored.");
+            return;
+        }
+
         if (!dead)
         {
             // Drop the carried object
