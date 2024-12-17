@@ -1,26 +1,17 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class FirePower : MarioAbility
 {
-
     public GameObject fireballObj;
     public int fireballs = 0;
     public int fireballsMax = 2;
-
     public Vector2 shootOffset;
-
     public AudioClip shootSound;
 
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    public override void shootProjectile() {
+    private void ShootProjectile() {
         if (fireballs < fireballsMax)
             {
                 bool facingRight = GetComponent<MarioMovement>().facingRight;
@@ -47,5 +38,14 @@ public class FirePower : MarioAbility
     public void onFireballDestroyed()
     {
         fireballs--;
+    }
+
+    // Shoot Action
+    public override void onShootPressed()
+    {
+        if (!marioMovement.carrying)
+        {
+            ShootProjectile();
+        }
     }
 }

@@ -134,6 +134,16 @@ public class EnemyAI : ObjectPhysics
         // override this for whatever needed
     }
 
+    // This is called by the cape when it hits the enemy (direction is)
+    public virtual void OnCapeAttack(bool hitFromLeft) {
+        //KnockAway(!hitFromLeft);  // Knock away option
+
+        // Flip the enemy the opposite direction of the hit
+        if (hitFromLeft == movingLeft) {
+            Flip();
+        }
+    }
+
     public override void KnockAway(bool direction, bool sound = true, KnockAwayType? type = null, Vector2? velocity = null)
     {
         base.KnockAway(direction, sound, type, velocity);

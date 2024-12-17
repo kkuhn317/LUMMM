@@ -89,6 +89,15 @@ public partial class @Mario : IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""ExtraAction"",
+                    ""type"": ""Button"",
+                    ""id"": ""6b06232f-07cd-4234-b9ca-514bea360799"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -452,6 +461,28 @@ public partial class @Mario : IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": ""Gamepad"",
                     ""action"": ""Use"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""d2a6c413-1edd-4da7-8635-d67442fc9e9d"",
+                    ""path"": ""<Gamepad>/buttonEast"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Gamepad"",
+                    ""action"": ""ExtraAction"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""7263180c-d4e7-4ad3-8e6f-a1064bef9237"",
+                    ""path"": ""<Keyboard>/x"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Keyboard&Mouse"",
+                    ""action"": ""ExtraAction"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -1088,6 +1119,7 @@ public partial class @Mario : IInputActionCollection2, IDisposable
         m_Mariomove_Crouch = m_Mariomove.FindAction("Crouch", throwIfNotFound: true);
         m_Mariomove_Spin = m_Mariomove.FindAction("Spin", throwIfNotFound: true);
         m_Mariomove_Use = m_Mariomove.FindAction("Use", throwIfNotFound: true);
+        m_Mariomove_ExtraAction = m_Mariomove.FindAction("ExtraAction", throwIfNotFound: true);
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
         m_UI_Navigate = m_UI.FindAction("Navigate", throwIfNotFound: true);
@@ -1167,6 +1199,7 @@ public partial class @Mario : IInputActionCollection2, IDisposable
     private readonly InputAction m_Mariomove_Crouch;
     private readonly InputAction m_Mariomove_Spin;
     private readonly InputAction m_Mariomove_Use;
+    private readonly InputAction m_Mariomove_ExtraAction;
     public struct MariomoveActions
     {
         private @Mario m_Wrapper;
@@ -1178,6 +1211,7 @@ public partial class @Mario : IInputActionCollection2, IDisposable
         public InputAction @Crouch => m_Wrapper.m_Mariomove_Crouch;
         public InputAction @Spin => m_Wrapper.m_Mariomove_Spin;
         public InputAction @Use => m_Wrapper.m_Mariomove_Use;
+        public InputAction @ExtraAction => m_Wrapper.m_Mariomove_ExtraAction;
         public InputActionMap Get() { return m_Wrapper.m_Mariomove; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -1208,6 +1242,9 @@ public partial class @Mario : IInputActionCollection2, IDisposable
                 @Use.started -= m_Wrapper.m_MariomoveActionsCallbackInterface.OnUse;
                 @Use.performed -= m_Wrapper.m_MariomoveActionsCallbackInterface.OnUse;
                 @Use.canceled -= m_Wrapper.m_MariomoveActionsCallbackInterface.OnUse;
+                @ExtraAction.started -= m_Wrapper.m_MariomoveActionsCallbackInterface.OnExtraAction;
+                @ExtraAction.performed -= m_Wrapper.m_MariomoveActionsCallbackInterface.OnExtraAction;
+                @ExtraAction.canceled -= m_Wrapper.m_MariomoveActionsCallbackInterface.OnExtraAction;
             }
             m_Wrapper.m_MariomoveActionsCallbackInterface = instance;
             if (instance != null)
@@ -1233,6 +1270,9 @@ public partial class @Mario : IInputActionCollection2, IDisposable
                 @Use.started += instance.OnUse;
                 @Use.performed += instance.OnUse;
                 @Use.canceled += instance.OnUse;
+                @ExtraAction.started += instance.OnExtraAction;
+                @ExtraAction.performed += instance.OnExtraAction;
+                @ExtraAction.canceled += instance.OnExtraAction;
             }
         }
     }
@@ -1404,6 +1444,7 @@ public partial class @Mario : IInputActionCollection2, IDisposable
         void OnCrouch(InputAction.CallbackContext context);
         void OnSpin(InputAction.CallbackContext context);
         void OnUse(InputAction.CallbackContext context);
+        void OnExtraAction(InputAction.CallbackContext context);
     }
     public interface IUIActions
     {

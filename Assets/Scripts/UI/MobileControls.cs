@@ -1,9 +1,17 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class MobileControls : MonoBehaviour
 {
+    // TODO: Investigate setting input action values in the script (simulating input instead of directly calling the functions)
+    // This would reduce code in MarioMovement.cs and allow MarioAbilities to to handle their own input
+    // https://rene-damm.github.io/HowDoI.html#set-an-actions-value-programmatically
+    // https://discussions.unity.com/t/trigger-set-value-of-inputaction-through-c-code/819388
+
+    // Also something else I found, we might be able to use actionEvents property of the PlayerInput but by messing with it it doesnt seem that promising
+    // https://docs.unity3d.com/Packages/com.unity.inputsystem@1.0/api/UnityEngine.InputSystem.PlayerInput.html
 
     private MarioMovement player1;
 
@@ -81,6 +89,14 @@ public class MobileControls : MonoBehaviour
     {
         getPlayer1().onUsePressed();
         getPlayer1().onShootPressed();
+    }
+    public void onSpinPressed()
+    {
+        getPlayer1().onSpinPressed();
+    }
+    public void onExtraPressed()
+    {
+        getPlayer1().onExtraActionPressed();
     }
 
 

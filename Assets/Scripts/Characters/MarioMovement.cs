@@ -49,7 +49,7 @@ public class MarioMovement : MonoBehaviour
     private SpriteRenderer sprite;
     private Animator animator;
     public LayerMask groundLayer;
-    private MarioAbility marioAbility;
+    private List<MarioAbility> abilities = new List<MarioAbility>();
 
     [Header("Camera")]
     public CameraFollow cameraFollow;
@@ -208,10 +208,7 @@ public class MarioMovement : MonoBehaviour
         animator.SetInteger("grabMethod", (int)carryMethod);
         originalScale = transform.lossyScale;
         GameManager.Instance.SetPlayer(this, playerNumber);
-
-        if (powerupState == PowerupState.power) {
-            marioAbility = GetComponent<MarioAbility>();
-        }
+        abilities.AddRange(GetComponents<MarioAbility>());
         normalSpriteLibrary = GetComponent<SpriteLibrary>().spriteLibraryAsset;
 
         // Store player's position at the beginning of the level (respawn)
@@ -356,7 +353,15 @@ public class MarioMovement : MonoBehaviour
 
         // Movement
         moveCharacter(direction.x);
-        if (jumpTimer > Time.time && (onGround || swimming || wallSliding)) {
+
+        // Jumping/Swimming
+        bool jumpBlocked = false;
+        foreach (MarioAbility ability in abilities) {
+            if (ability.isBlockingJump) {
+                jumpBlocked = true;
+            }
+        }
+        if (Time.time < jumpTimer && (onGround || swimming || wallSliding) && !jumpBlocked) {
 
             if (swimming) {
                 audioSource.PlayOneShot(swimSound);
@@ -660,8 +665,6 @@ public class MarioMovement : MonoBehaviour
         // You can only crawl if you are small mario, on the ground, crouching, and not carrying anything, and not swimming, and if canCrawl is true;
         // AND you are pressing left or right pretty hard
         // AND either you are already crawling or you are stopped
-
-        bool wasCrawling = isCrawling;
         isCrawling = inCrouchState && onGround && !carrying && !swimming && powerupState == PowerupState.small && canCrawl
                      && math.abs(horizontal) > 0.5 && (math.abs(rb.velocity.x) < 0.05f || isCrawling);
         bool regularMoving = !inCrouchState || !onGround;
@@ -672,8 +675,10 @@ public class MarioMovement : MonoBehaviour
         //print("moving in " + moveDir);
         if (regularMoving || isCrawling) {
             if (runPressed && !swimming && !isCrawling) {
+                // Running
                 rb.AddForce(horizontal * runSpeed * moveDir);
             } else {
+                // Walking
                 if (Mathf.Abs(rb.velocity.x) <= maxSpeed) {
                     rb.AddForce(horizontal * moveSpeed * moveDir);
                 } else {
@@ -1405,22 +1410,6 @@ public class MarioMovement : MonoBehaviour
         spinPressed = false;
     }
 
-    // Shoot
-    public void Shoot(InputAction.CallbackContext context)
-    {
-        if (context.performed)
-        {
-            onShootPressed();
-        }
-    }
-    public void onShootPressed() {
-        // shoot fireball, etc
-        if (marioAbility != null && !carrying && powerupState == PowerupState.power) {
-            print("shoot!");
-            marioAbility.shootProjectile();
-        }
-    }
-
     // Use
     public void Use(InputAction.CallbackContext context)
     {
@@ -1433,6 +1422,37 @@ public class MarioMovement : MonoBehaviour
         // for right now, use the NEWEST lever we entered
         if (useableObjects.Count > 0) {
             useableObjects[^1].Use(this);
+        }
+    }
+
+    // MarioAbility Actions
+    // Shoot
+    public void Shoot(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            onShootPressed();
+        }
+    }
+    public void onShootPressed() {
+        foreach (MarioAbility ability in abilities)
+        {
+            ability.onShootPressed();
+        }
+    }
+
+    // ExtraAction
+    public void ExtraAction(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            onExtraActionPressed();
+        }
+    }
+    public void onExtraActionPressed() {
+        foreach (MarioAbility ability in abilities)
+        {
+            ability.onExtraActionPressed();
         }
     }
 

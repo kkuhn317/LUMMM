@@ -115,4 +115,14 @@ public class CircleTransition : MonoBehaviour
             yield return null;
         }
     }
+
+    // In the editor, set the material floats back to default
+    // Because when its changed it actually changes the material in the project
+    private void OnDisable()
+    {
+        var mat = _blackScreen.material;
+        mat.SetFloat(RADIUS, 0.5f);
+        mat.SetFloat(CENTER_X, 0.5f);
+        mat.SetFloat(CENTER_Y, 0.5f);
+    }
 }
