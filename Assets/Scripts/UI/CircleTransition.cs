@@ -121,7 +121,7 @@ public class CircleTransition : MonoBehaviour
     private void OnDisable()
     {
         var mat = _blackScreen.material;
-        mat.SetFloat(RADIUS, 0.5f);
+        mat.SetFloat(RADIUS, 1f);
         mat.SetFloat(CENTER_X, 0.5f);
         mat.SetFloat(CENTER_Y, 0.5f);
     }

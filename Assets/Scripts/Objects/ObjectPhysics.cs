@@ -476,10 +476,8 @@ public class ObjectPhysics : MonoBehaviour
         if (shortestRay)
         {
             // We hit the ceiling
-
             pos.y = shortestRay.point.y - halfHeight;
-            velocity.y = -velocity.y * 0.5f;    // bounce off the ceiling a little bit
-
+            HitCeiling();
         }
 
         return pos;
@@ -689,6 +687,11 @@ public class ObjectPhysics : MonoBehaviour
         {
             velocity.x = 0;
         }
+    }
+
+    protected virtual void HitCeiling()
+    {
+        velocity.y = -velocity.y * 0.5f;    // bounce off the ceiling a little bit
     }
 
     public virtual void KnockAway(bool direction, bool sound = true, KnockAwayType? overrideType = null, Vector2? overrideVelocity = null) {
