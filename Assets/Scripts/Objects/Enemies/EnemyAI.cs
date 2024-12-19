@@ -84,6 +84,8 @@ public class EnemyAI : ObjectPhysics
         if (rb.position.y - playerHeightSubtract > transform.position.y + stompHeight) {
             if (playerscript.spinning) {
                 hitBySpinJump(playerscript);
+            } else if (playerscript.groundPounding) {
+                hitByGroundPound(playerscript);
             } else {
                 hitByStomp(player);
             }
@@ -115,6 +117,12 @@ public class EnemyAI : ObjectPhysics
                 hitByStomp(player.gameObject);
                 break;
         }
+    }
+
+    protected virtual void hitByGroundPound(MarioMovement player) {
+        // Default behavior is to act like a spiny (damage mario)
+        // Override to knock away or stomp like normal
+        hitOnSide(player.gameObject);
     }
 
     protected virtual void hitOnSide(GameObject player) {

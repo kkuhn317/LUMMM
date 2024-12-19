@@ -137,6 +137,11 @@ public class KoopaController : EnemyAI
 
     }
 
+    protected override void hitByGroundPound(MarioMovement player)
+    {
+        KnockAway(false);
+    }
+
     protected override void hitOnSide(GameObject player) {
         if (!HitCooldownCheck()) {
             return;

@@ -33,9 +33,7 @@ public class MarioMovement : MonoBehaviour
     public bool facingRight = true;
     private bool inCrouchState = false;
     private bool isCrawling = false;    // Currently small mario only
-
     private float floorAngle = 0f;  // -45 = \, 0 = _, 45 = /
-
 
     [Header("Vertical Movement")]
     public float jumpSpeed = 15f;
@@ -105,7 +103,7 @@ public class MarioMovement : MonoBehaviour
     [Header("Animation Events")]
     public Vector3 animationScale = new(1, 1, 1);   // animate this instead of the scale directly
     public Vector3 originalScale;
-    public Quaternion animationRotation = Quaternion.identity;  // If not Quaternion.identity, his rotation will be set to this
+    public float animationRotation = 0;  // If not 0, his z rotation will be set to this
     public bool wasScaledNormal = true;
     private bool isYeahAnimationPlaying = false;
     private bool hasEnteredAnimationYeahTrigger = false;
@@ -178,13 +176,21 @@ public class MarioMovement : MonoBehaviour
     private bool wallSliding = false;
     private bool pushing = false;
     private float pushingSpeed = 0f;
-    public bool spinning = false;
+    [HideInInspector] public bool spinning = false;
     private bool spinJumpQueued = false;    // If the next jump should be a spin jump
+    public bool canGroundPound = false;
+    [HideInInspector] public bool groundPounding = false;
+    private bool groundPoundRotating = false;
+
+    // Made private to not clog inspector
+    private float groundPoundSpinTime = 0.5f; // How long the player will be frozen in the air when ground pound starts
 
     public AudioClip spinJumpBounceSound;
     public AudioClip spinJumpPoofSound;
     public GameObject spinJumpBouncePrefab; // Spikey effect
     public GameObject spinJumpPoofPrefab;   // Puff of smoke
+    public AudioClip groundPoundSound;
+    public AudioClip groundPoundLandSound;
 
     /* Levers */
     private List<UseableObject> useableObjects = new();
@@ -244,12 +250,6 @@ public class MarioMovement : MonoBehaviour
             transform.localScale = Vector3.Scale(originalScale, animationScale);
         }
         transform.parent = myParent;
-
-        // set rotation
-        if (animationRotation != Quaternion.identity)
-        {
-            transform.rotation = animationRotation;
-        }
 
         if (invincetimeremain > 0f) {
             sprite.color = new Color(sprite.color.r, sprite.color.g, sprite.color.b, 0.5f);
@@ -351,8 +351,11 @@ public class MarioMovement : MonoBehaviour
             return;
         }
 
+        // set rotation based on animation
+        rb.SetRotation(animationRotation);
+
         // Movement
-        moveCharacter(direction.x);
+        MoveCharacter(direction.x);
 
         // Jumping/Swimming
         bool jumpBlocked = false;
@@ -375,6 +378,11 @@ public class MarioMovement : MonoBehaviour
                 audioSource.Play();
                 Jump();
             }
+        }
+
+        // Ground Pound
+        if (canGroundPound && !onGround && crouchPressed && !groundPounding) {
+            GroundPound();
         }
 
         bool wasInAir = !onGround;   // store if mario was in the air last frame
@@ -452,8 +460,15 @@ public class MarioMovement : MonoBehaviour
                 damageMario();
             }
 
-            // Stop spinning
+            // Stop spinning, stop ground pounding
             spinning = false;
+            if (groundPounding) {
+                groundPounding = false;
+                groundPoundRotating = false;
+                audioSource.PlayOneShot(groundPoundLandSound);
+            }
+            animator.SetBool("isDropping", false);
+
         } else {
             if (wasOnMovingPlatform) {
                 // Transfer momentum to mario
@@ -590,12 +605,13 @@ public class MarioMovement : MonoBehaviour
         }
 
         // Physics
-        modifyPhysics();
+        ModifyPhysics();
     }
 
     private void TransferMovingPlatformMomentum() {
         if (onMovingPlatform) {
             // TODO!! Somehow group all kinds of moving platforms together so we don't need to check for each kind
+            // Using an Interface for all moving platforms seems like a good solution
             // For now, just check for each kind of moving platform
             if (transform.parent == null) {
                 print("HMM... onMovingPlatform is true but transform.parent is null");
@@ -638,7 +654,7 @@ public class MarioMovement : MonoBehaviour
         return null;
     }
 
-    void moveCharacter(float horizontal) {
+    void MoveCharacter(float horizontal) {
         bool crouch = crouchPressed && canCrouch;
 
         // Crouching
@@ -667,13 +683,14 @@ public class MarioMovement : MonoBehaviour
         // AND either you are already crawling or you are stopped
         isCrawling = inCrouchState && onGround && !carrying && !swimming && powerupState == PowerupState.small && canCrawl
                      && math.abs(horizontal) > 0.5 && (math.abs(rb.velocity.x) < 0.05f || isCrawling);
-        bool regularMoving = !inCrouchState || !onGround;
+        bool regularMoving = (!inCrouchState || !onGround) && !groundPounding;
 
         // use the angle of the slope instead of Vector2.right
         Vector2 moveDir = onGround ? new Vector2(Mathf.Cos(floorAngle * Mathf.Deg2Rad), Mathf.Sin(floorAngle * Mathf.Deg2Rad)) : Vector2.right;
 
         //print("moving in " + moveDir);
         if (regularMoving || isCrawling) {
+            print("regular moving");
             if (runPressed && !swimming && !isCrawling) {
                 // Running
                 rb.AddForce(horizontal * runSpeed * moveDir);
@@ -708,10 +725,14 @@ public class MarioMovement : MonoBehaviour
 
         // Max Speed (Vertical)
         if (!onGround) {
+            // Terminal Velocity
             float tvel = swimming ? swimTerminalVelocity : terminalvelocity;
 
             if (wallSliding) {  // slide down wall slower
                 tvel /= 3;
+            }
+            if (groundPounding) {  // fall faster during ground pound
+                tvel *= 1.5f;
             }
 
             if (-rb.velocity.y > tvel) {
@@ -816,7 +837,30 @@ public class MarioMovement : MonoBehaviour
         Jump(jumpMultiplier);
     }
 
-    void modifyPhysics() {
+    private void GroundPound() {
+        spinning = false;   // No longer spinning
+        groundPounding = true;
+        groundPoundRotating = true;
+        // Freeze mario in the air for a bit
+        rb.velocity = new Vector2(0, 0);
+    
+        // Start the ground pound animation
+        animator.SetBool("isDropping", true);
+
+        // Play the ground pound sound
+        audioSource.PlayOneShot(groundPoundSound);
+
+        // Start the ground pound fall after a short delay
+        Invoke(nameof(GroundPoundFall), groundPoundSpinTime);
+    }
+
+    private void GroundPoundFall() {
+        // Start the ground pound fall
+        groundPoundRotating = false;
+        rb.velocity = new Vector2(rb.velocity.x, -jumpSpeed * 1.5f);
+    }
+
+    void ModifyPhysics() {
         changingDirections = (direction.x > 0 && rb.velocity.x < 0) || (direction.x < 0 && rb.velocity.x > 0);
 
         // special swimming physics
@@ -831,6 +875,18 @@ public class MarioMovement : MonoBehaviour
         if (pushing && !changingDirections) {
             int pushDir = facingRight ? 1 : -1;
             rb.velocity = new Vector2(pushingSpeed * pushDir, rb.velocity.y);
+            return;
+        }
+
+        // Special ground pound physics
+        if (groundPounding) {
+            rb.drag = 0;
+            if (groundPoundRotating) {
+                rb.gravityScale = 0;
+                rb.velocity = new Vector2(0, 0);
+            } else {
+                rb.gravityScale = gravity;
+            }
             return;
         }
 

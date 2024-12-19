@@ -36,9 +36,9 @@ public class ObjectPhysics : MonoBehaviour
     }
 
     public float gravity = 60f;
-
     public float width = 1;
     public float height = 1;
+    protected Rigidbody2D rb; // If this exists on the object, then the movement can be interpolated (smoothed out)
 
     // THIS IS DISTANCE AWAY FROM SIDES
     public float floorRaycastSpacing = 0.2f;
@@ -46,7 +46,6 @@ public class ObjectPhysics : MonoBehaviour
 
     public LayerMask floorMask;
     public LayerMask wallMask;
-
     private float floorAngle = 0f;  // -45 = \, 0 = _, 45 = /
 
     // should mostly be true, except for things like moving koopa shells
@@ -61,7 +60,15 @@ public class ObjectPhysics : MonoBehaviour
     private Vector2 normalScale;
     protected float adjDeltaTime;
 
-    public bool FrequentMovement = false; // if true, will update position every frame instead of every physics update
+    public enum UpdateType
+    {
+        EveryPhysicsUpdate, // Updates position every physics update
+        Rigidbody,  // Interpolates movement if a rigidbody is present
+        EveryFrame, // Updates position every frame
+    }
+    [Tooltip("EveryPhysicsUpdate: Updates position every physics update\nRigidbody: Interpolates movement if a rigidbody is present\nEveryFrame: Updates position every frame")]
+    public UpdateType updateType = UpdateType.EveryPhysicsUpdate;
+
     private bool firstframe = true;
     public bool lavaKill = true;
     public float sinkSpeed = 20f;
@@ -120,7 +127,6 @@ public class ObjectPhysics : MonoBehaviour
 
     public float bounceHeight;
     public float minHeightToBounce = 1f;
-
     private float peakHeight;
 
     protected virtual void Start()
@@ -130,6 +136,18 @@ public class ObjectPhysics : MonoBehaviour
         lavaMask = LayerMask.GetMask("Lava");
         peakHeight = transform.position.y;
         ogParent = transform.parent;
+        rb = GetComponent<Rigidbody2D>();
+
+        if (rb == null && updateType == UpdateType.Rigidbody)
+        {
+            Debug.LogWarning("Rigidbody2D is required for UpdateType.Rigidbody. Changing to UpdateType.EveryPhysicsUpdate for " + gameObject.name);
+            updateType = UpdateType.EveryPhysicsUpdate;
+        }
+        if (rb != null && updateType == UpdateType.Rigidbody && rotateAroundCenter)
+        {
+            Debug.LogWarning("Rotate around center is not supported with UpdateType.Rigidbody. Changing to UpdateType.EveryPhysicsUpdate for " + gameObject.name);
+            updateType = UpdateType.EveryPhysicsUpdate;
+        }
 
         // temporary fix for objects that don't have the sprite renderer in the parent
         // TODO: change this so all sprite renderers are affected by carrying
@@ -144,7 +162,7 @@ public class ObjectPhysics : MonoBehaviour
     protected virtual void Update()
     {
         
-        if (FrequentMovement)
+        if (updateType == UpdateType.EveryFrame)
         {
             adjDeltaTime = Time.deltaTime;
 
@@ -174,7 +192,7 @@ public class ObjectPhysics : MonoBehaviour
                 else
                 {
                     // Rotate around the pivot as usual
-                    transform.Rotate(0, 0, knockAwayRotationSpeed * Time.deltaTime);
+                    AddRotation(knockAwayRotationSpeed * Time.deltaTime);
                 }
 
             }
@@ -200,12 +218,13 @@ public class ObjectPhysics : MonoBehaviour
         Vector3 spriteCenter = GetComponent<SpriteRenderer>().bounds.center;
 
         // Rotate around the sprite's center point
+        // TODO: Come up with solution for rigidbody rotation
         transform.RotateAround(spriteCenter, Vector3.forward, knockAwayRotationSpeed * Time.deltaTime);
     }
 
     protected virtual void FixedUpdate()
     {
-        if (!FrequentMovement)
+        if (updateType != UpdateType.EveryFrame)
         {
             if (!(movement == ObjectMovement.still) || objectState == ObjectState.knockedAway)
                 UpdatePosition();
@@ -288,7 +307,7 @@ public class ObjectPhysics : MonoBehaviour
             // So that the other movement takes precedence
             // Example: Arrow getting stuck in a wall
         } else {
-            transform.position = pos;
+            SetPosition(pos);
             transform.localScale = scale;
         }
 
@@ -726,9 +745,8 @@ public class ObjectPhysics : MonoBehaviour
             }
 
             GetComponent<Collider2D>().enabled = false;
-            transform.rotation = Quaternion.identity;
 
-            
+            SetRotation(0);
         }
     }
 
@@ -904,5 +922,41 @@ public class ObjectPhysics : MonoBehaviour
     public virtual void SetDirection(bool direction)
     {
         movingLeft = direction;
+    }
+
+    protected void SetRotation(float angle)
+    {
+        if (updateType == UpdateType.Rigidbody)
+        {
+            rb.MoveRotation(angle);
+        }
+        else
+        {
+            transform.rotation = Quaternion.Euler(0, 0, angle);
+        }
+    }
+
+    protected void AddRotation(float angle)
+    {
+        if (updateType == UpdateType.Rigidbody)
+        {
+            rb.MoveRotation(rb.rotation + angle);
+        }
+        else
+        {
+            transform.Rotate(0, 0, angle);
+        }
+    }
+
+    protected void SetPosition(Vector3 pos)
+    {
+        if (updateType == UpdateType.Rigidbody)
+        {
+            rb.MovePosition(pos);
+        }
+        else
+        {
+            transform.position = pos;
+        }
     }
 }

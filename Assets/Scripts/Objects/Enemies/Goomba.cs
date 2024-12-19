@@ -37,6 +37,11 @@ public class Goomba : EnemyAI
         GameManager.Instance.AddScorePoints(100); // Gives a hundred points to the player
     }
 
+    protected override void hitByGroundPound(MarioMovement player)
+    {
+        KnockAway(false);
+    }
+
     public void Crush () {
         GetComponent<AudioSource>().Play();
         
