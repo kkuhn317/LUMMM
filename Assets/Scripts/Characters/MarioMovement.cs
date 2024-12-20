@@ -251,6 +251,10 @@ public class MarioMovement : MonoBehaviour
         }
         transform.parent = myParent;
 
+        // Set rotation based on animation
+        // NOTE: We are not using rigidbody rotation because it can cause movement to be choppy if it is set frequently
+        transform.rotation = Quaternion.Euler(0, 0, animationRotation);
+
         if (invincetimeremain > 0f) {
             sprite.color = new Color(sprite.color.r, sprite.color.g, sprite.color.b, 0.5f);
             invincetimeremain -= Time.deltaTime;
@@ -350,9 +354,6 @@ public class MarioMovement : MonoBehaviour
         if (frozen) {
             return;
         }
-
-        // set rotation based on animation
-        rb.SetRotation(animationRotation);
 
         // Movement
         MoveCharacter(direction.x);
