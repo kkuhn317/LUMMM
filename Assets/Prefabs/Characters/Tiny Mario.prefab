@@ -87,6 +87,7 @@ MonoBehaviour:
   swimDrag: 3
   swimTerminalVelocity: 2
   onGround: 0
+  wasGrounded: 0
   groundLength: 0.3
   groundSink: 0.1
   onMovingPlatform: 0
@@ -99,7 +100,7 @@ MonoBehaviour:
   groundPos: {x: 0, y: 0}
   animationScale: {x: 1, y: 1, z: 1}
   originalScale: {x: 0, y: 0, z: 0}
-  animationRotation: {x: 0, y: 0, z: 0, w: 1}
+  animationRotation: 0
   wasScaledNormal: 1
   canSkid: 1
   canCrouch: 1
@@ -128,11 +129,23 @@ MonoBehaviour:
   canWallJump: 1
   canWallJumpWhenHoldingObject: 0
   canSpinJump: 1
+  isCapeActive: 0
+  wallSliding: 0
   spinning: 0
+  canGroundPound: 0
+  groundPounding: 0
   spinJumpBounceSound: {fileID: 8300000, guid: 675f20d4f3c17b54b9d7a8701c238a08, type: 3}
   spinJumpPoofSound: {fileID: 8300000, guid: 8ae20015ffccaf9448a05731093ade40, type: 3}
   spinJumpBouncePrefab: {fileID: 6456935476818214770, guid: 3b9fc9f948245fc4484a29f4619e0e93, type: 3}
   spinJumpPoofPrefab: {fileID: 6098009751153003477, guid: 4bffeb562d64dd4489d092ac30f57739, type: 3}
+<<<<<<< Updated upstream
+  groundPoundSound: {fileID: 8300000, guid: c5475d8541a7c38469c1d501e26f02c0, type: 3}
+  groundPoundLandSound: {fileID: 8300000, guid: 72d5926657fc36643afc68851e923cf3, type: 3}
+  capeSound: {fileID: 8300000, guid: 31657360aa7af6642bdf934076b3d65e, type: 3}
+=======
+  groundPoundSound: {fileID: 0}
+  groundPoundLandSound: {fileID: 0}
+>>>>>>> Stashed changes
 --- !u!50 &1771483343543010230
 Rigidbody2D:
   serializedVersion: 4
@@ -335,6 +348,10 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: 6af6bceb-cea8-41cb-90a3-0138921f18f4
     m_ActionName: Mariomove/Use[/Keyboard/z,/XInputControllerWindows/rightShoulder,/XInputControllerWindows/leftShoulder]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 6b06232f-07cd-4234-b9ca-514bea360799
+    m_ActionName: Mariomove/ExtraAction[/Keyboard/x]
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Mariomove
@@ -357,7 +374,7 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 0.6875, y: 0.625}
+    oldSize: {x: 0.625, y: 0.625}
     newSize: {x: 2, y: 3}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
@@ -503,7 +520,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 1
-  m_Sprite: {fileID: -1395578743, guid: 591ee19daef112c49a37a4dae3db4616, type: 3}
+  m_Sprite: {fileID: 1997580843, guid: c9b448e531d67da4f8acf998a69cc746, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -553,6 +570,15 @@ MonoBehaviour:
     - m_Name: Entry
       m_Hash: 0
       m_Sprite: {fileID: -1743142324, guid: c9b448e531d67da4f8acf998a69cc746, type: 3}
+  - m_Name: Climb
+    m_Hash: 0
+    m_CategoryList:
+    - m_Name: Entry
+      m_Hash: 0
+      m_Sprite: {fileID: -1564629824, guid: b9b3dc41858bd6549a09b88974462618, type: 3}
+    - m_Name: Entry_0
+      m_Hash: 0
+      m_Sprite: {fileID: -1938126632, guid: b9b3dc41858bd6549a09b88974462618, type: 3}
   - m_Name: Crouch Move
     m_Hash: 0
     m_CategoryList:
@@ -568,6 +594,21 @@ MonoBehaviour:
     - m_Name: Mario_crouchMove_3
       m_Hash: 0
       m_Sprite: {fileID: -1515493290, guid: c9b448e531d67da4f8acf998a69cc746, type: 3}
+  - m_Name: Ground Pound
+    m_Hash: 0
+    m_CategoryList:
+    - m_Name: Entry
+      m_Hash: 0
+      m_Sprite: {fileID: 21300000, guid: 1f20b615f24f9644d90c1b50a9948bf2, type: 3}
+<<<<<<< Updated upstream
+  - m_Name: Idle Grab
+    m_Hash: 0
+    m_CategoryList:
+    - m_Name: Entry
+      m_Hash: 0
+      m_Sprite: {fileID: 1357359343, guid: e6ef660a2c9ffd8458904fe7cca7fb71, type: 3}
+=======
+>>>>>>> Stashed changes
   - m_Name: Skid
     m_Hash: 0
     m_CategoryList:
@@ -679,12 +720,6 @@ MonoBehaviour:
     - m_Name: Entry_2
       m_Hash: 0
       m_Sprite: {fileID: -814343289, guid: c9b448e531d67da4f8acf998a69cc746, type: 3}
-  - m_Name: Up
-    m_Hash: 0
-    m_CategoryList:
-    - m_Name: Entry
-      m_Hash: 0
-      m_Sprite: {fileID: 132234620, guid: c9b448e531d67da4f8acf998a69cc746, type: 3}
   - m_Name: Shrug
     m_Hash: 0
     m_CategoryList:
@@ -697,6 +732,36 @@ MonoBehaviour:
     - m_Name: Entry_1
       m_Hash: 0
       m_Sprite: {fileID: -1725000677, guid: c9b448e531d67da4f8acf998a69cc746, type: 3}
+  - m_Name: Cape
+    m_Hash: 0
+    m_CategoryList:
+    - m_Name: Entry
+      m_Hash: 0
+      m_Sprite: {fileID: 411032886, guid: 483594bf78b97de45b781d59f140d2d5, type: 3}
+    - m_Name: Entry_0
+      m_Hash: 0
+      m_Sprite: {fileID: 1870688372, guid: 483594bf78b97de45b781d59f140d2d5, type: 3}
+    - m_Name: Entry_1
+      m_Hash: 0
+      m_Sprite: {fileID: -127204449, guid: 483594bf78b97de45b781d59f140d2d5, type: 3}
+    - m_Name: Entry_2
+      m_Hash: 0
+      m_Sprite: {fileID: -644966045, guid: 483594bf78b97de45b781d59f140d2d5, type: 3}
+    - m_Name: Entry_3
+      m_Hash: 0
+      m_Sprite: {fileID: 1870688372, guid: 483594bf78b97de45b781d59f140d2d5, type: 3}
+    - m_Name: Entry_4
+      m_Hash: 0
+      m_Sprite: {fileID: 861728398, guid: 483594bf78b97de45b781d59f140d2d5, type: 3}
+    - m_Name: Entry_5
+      m_Hash: 0
+      m_Sprite: {fileID: 1296477495, guid: 483594bf78b97de45b781d59f140d2d5, type: 3}
+    - m_Name: Entry_6
+      m_Hash: 0
+      m_Sprite: {fileID: -240876788, guid: 483594bf78b97de45b781d59f140d2d5, type: 3}
+    - m_Name: Entry_7
+      m_Hash: 0
+      m_Sprite: {fileID: 1230842588, guid: 483594bf78b97de45b781d59f140d2d5, type: 3}
   m_SpriteLibraryAsset: {fileID: 7108339969198208228, guid: df404416786646b40a9e9ef04c0458ee, type: 3}
 --- !u!114 &1563295794450405723
 MonoBehaviour:

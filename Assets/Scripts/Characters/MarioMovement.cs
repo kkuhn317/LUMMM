@@ -79,6 +79,7 @@ public class MarioMovement : MonoBehaviour
 
     [Header("Collision")]
     public bool onGround = false;
+    public bool wasGrounded = false;
     public float groundLength = 0.6f;
     public float groundSink = 0.1f; // how much the end of the ground raycast sinks into the ground
     public bool onMovingPlatform = false;
@@ -173,7 +174,8 @@ public class MarioMovement : MonoBehaviour
     public bool canWallJump = false; 
     public bool canWallJumpWhenHoldingObject = false;
     public bool canSpinJump = false;
-    private bool wallSliding = false;
+    [HideInInspector] public bool isCapeActive = false;
+    [HideInInspector] public bool wallSliding = false;
     private bool pushing = false;
     private float pushingSpeed = 0f;
     [HideInInspector] public bool spinning = false;
@@ -191,6 +193,7 @@ public class MarioMovement : MonoBehaviour
     public GameObject spinJumpPoofPrefab;   // Puff of smoke
     public AudioClip groundPoundSound;
     public AudioClip groundPoundLandSound;
+    public AudioClip capeSound;
 
     /* Levers */
     private List<UseableObject> useableObjects = new();
@@ -253,6 +256,7 @@ public class MarioMovement : MonoBehaviour
 
         // Set rotation based on animation
         // NOTE: We are not using rigidbody rotation because it can cause movement to be choppy if it is set frequently
+        animationRotation = facingRight ? -Mathf.Abs(animationRotation) : Mathf.Abs(animationRotation); // Update rotation based on where the player is facing
         transform.rotation = Quaternion.Euler(0, 0, animationRotation);
 
         if (invincetimeremain > 0f) {
@@ -349,11 +353,14 @@ public class MarioMovement : MonoBehaviour
         }
     }
 
-    private void FixedUpdate() {
-
+    private void FixedUpdate() 
+    {
         if (frozen) {
             return;
         }
+
+        // set rotation based on animation
+        rb.SetRotation(animationRotation);
 
         // Movement
         MoveCharacter(direction.x);
@@ -382,7 +389,7 @@ public class MarioMovement : MonoBehaviour
         }
 
         // Ground Pound
-        if (canGroundPound && !onGround && crouchPressed && !groundPounding) {
+        if (canGroundPound && !onGround && crouchPressed && !groundPounding && !wallSliding) {
             GroundPound();
         }
 
@@ -705,17 +712,24 @@ public class MarioMovement : MonoBehaviour
             }
         }
 
-        // Changing Direction
-        if (onGround || swimming) {
-            if ((horizontal > 0 && !facingRight) || (horizontal < 0 && facingRight)) {
-                Flip();
-            }
-            if (horizontal == 0) {
-                if ((rb.velocity.x > 0 && !facingRight) || (rb.velocity.x < 0 && facingRight)) {
+        // Prevent flipping during cape attack
+        if (!isCapeActive)
+        {
+            if (onGround || swimming)
+            {
+                if ((horizontal > 0 && !facingRight) || (horizontal < 0 && facingRight))
+                {
                     Flip();
                 }
+                if (horizontal == 0) 
+                {
+                    if ((rb.velocity.x > 0 && !facingRight) || (rb.velocity.x < 0 && facingRight))
+                    {
+                        Flip();
+                    }
+                }
             }
-        }
+        }      
 
         // Max Speed (Horizontal)
         if (runPressed) {
@@ -842,6 +856,7 @@ public class MarioMovement : MonoBehaviour
         spinning = false;   // No longer spinning
         groundPounding = true;
         groundPoundRotating = true;
+
         // Freeze mario in the air for a bit
         rb.velocity = new Vector2(0, 0);
     
@@ -1101,6 +1116,7 @@ public class MarioMovement : MonoBehaviour
         newMarioMovement.canWallJump = canWallJump;
         newMarioMovement.canWallJumpWhenHoldingObject = canWallJumpWhenHoldingObject;
         newMarioMovement.canSpinJump = canSpinJump;
+        newMarioMovement.canGroundPound = canGroundPound;
 
         // Passing the sound effects
         newMarioMovement.yeahAudioClip = yeahAudioClip;
@@ -1199,6 +1215,15 @@ public class MarioMovement : MonoBehaviour
         // Stop the "yeah" animation and set the parameter to false
         animator.SetBool("yeah", false);
         isYeahAnimationPlaying = false;
+    }
+
+    public void PlayCapeSound()
+    {
+        if (capeSound != null)
+        {
+            // Play the audio clip
+            audioSource.PlayOneShot(capeSound);
+        }
     }
 
     private IEnumerator SpawnBubbles()

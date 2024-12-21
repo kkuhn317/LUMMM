@@ -4,54 +4,50 @@ using UnityEngine;
 public class EnemyStateSpriteSwitcher : MonoBehaviour
 {
     private BoxCollider2D boxCollider2D;
-    private List<ObjectPhysics> objectsInTrigger = new List<ObjectPhysics>();
+    private SpriteSwapArea spriteSwapArea;
+    private List<FallingSpike> fallingSpikesInTrigger = new List<FallingSpike>();
 
-    private void Start() 
+    private void Start()
     {
         boxCollider2D = GetComponent<BoxCollider2D>();
     }
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        ObjectPhysics objectPhysics = other.GetComponent<ObjectPhysics>();
-        if (objectPhysics != null)
+        FallingSpike fallingSpike = other.GetComponent<FallingSpike>();
+        if (fallingSpike != null)
         {
-            objectsInTrigger.Add(objectPhysics);
-            UpdateSpriteSwapAreaState();
+            fallingSpikesInTrigger.Add(fallingSpike);
+            UpdateColliderState();
         }
     }
 
     private void OnTriggerExit2D(Collider2D other)
     {
-        ObjectPhysics objectPhysics = other.GetComponent<ObjectPhysics>();
-        if (objectPhysics != null)
+        FallingSpike fallingSpike = other.GetComponent<FallingSpike>();
+        if (fallingSpike != null)
         {
-            objectsInTrigger.Remove(objectPhysics);
-            UpdateSpriteSwapAreaState();
+            fallingSpikesInTrigger.Remove(fallingSpike);
+            UpdateColliderState();
         }
     }
 
     private void Update()
     {
-        UpdateSpriteSwapAreaState();
+        UpdateColliderState();
     }
 
-    private void UpdateSpriteSwapAreaState()
+    private void UpdateColliderState()
     {
-        bool hasFallingObjects = false;
+        // Check if any FallingSpike in the trigger is falling
+        bool hasFallingSpikes = fallingSpikesInTrigger.Exists(spike =>
+            spike != null && spike.movement == ObjectPhysics.ObjectMovement.sliding
+        );
 
-        foreach (ObjectPhysics obj in objectsInTrigger)
-        {
-            if (obj != null && obj.objectState == ObjectPhysics.ObjectState.falling)
-            {
-                hasFallingObjects = true;
-                break;
-            }
-        }
-
+        // Enable/disable the collider based on falling spike state
         if (boxCollider2D != null)
         {
-            boxCollider2D.enabled = hasFallingObjects;
+            boxCollider2D.enabled = hasFallingSpikes;
         }
     }
 }

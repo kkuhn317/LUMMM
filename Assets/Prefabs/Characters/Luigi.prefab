@@ -150,6 +150,7 @@ MonoBehaviour:
   swimDrag: 3
   swimTerminalVelocity: 2.5
   onGround: 0
+  wasGrounded: 0
   groundLength: 0.7
   groundSink: 0.1
   onMovingPlatform: 0
@@ -162,7 +163,7 @@ MonoBehaviour:
   groundPos: {x: 0, y: 0}
   animationScale: {x: 1, y: 1, z: 1}
   originalScale: {x: 0, y: 0, z: 0}
-  animationRotation: {x: 0, y: 0, z: 0, w: 1}
+  animationRotation: 0
   wasScaledNormal: 1
   canSkid: 1
   canCrouch: 1
@@ -191,11 +192,17 @@ MonoBehaviour:
   canWallJump: 1
   canWallJumpWhenHoldingObject: 0
   canSpinJump: 0
+  isCapeActive: 0
+  wallSliding: 0
   spinning: 0
+  canGroundPound: 0
+  groundPounding: 0
   spinJumpBounceSound: {fileID: 8300000, guid: 675f20d4f3c17b54b9d7a8701c238a08, type: 3}
   spinJumpPoofSound: {fileID: 8300000, guid: 8ae20015ffccaf9448a05731093ade40, type: 3}
   spinJumpBouncePrefab: {fileID: 6456935476818214770, guid: b9e9367b2b506104c9c19c2fe561695b, type: 3}
   spinJumpPoofPrefab: {fileID: 6098009751153003477, guid: 8c5860b76baa21744bb502dc76ff9896, type: 3}
+  groundPoundSound: {fileID: 0}
+  groundPoundLandSound: {fileID: 0}
 --- !u!50 &7419182181435639168
 Rigidbody2D:
   serializedVersion: 4
