@@ -38,11 +38,17 @@ public class CapeAttack : MarioAbility
         yield return new WaitForSeconds(capeAttackDelay);
 
         // Perform cape attack logic (e.g., hit enemies)
+
+        // Perform cape attack logic (e.g., hit enemies)
         RaycastHit2D[] hit = Physics2D.RaycastAll(transform.position, marioMovement.facingRight ? Vector2.right : Vector2.left, 1.5f, LayerMask.GetMask("Enemy"));
 
         foreach (RaycastHit2D enemy in hit)
         {
             EnemyAI enemyAI = enemy.collider.GetComponent<EnemyAI>();
+            if (enemyAI)
+            {
+                enemyAI.OnCapeAttack(marioMovement.facingRight);
+            }
             if (enemyAI)
             {
                 enemyAI.OnCapeAttack(marioMovement.facingRight);
@@ -53,6 +59,9 @@ public class CapeAttack : MarioAbility
     private IEnumerator CapeCooldown()
     {
         yield return new WaitForSeconds(capeCooldown);
+
+        marioMovement.isCapeActive = false; // Reset cape state
+        marioMovement.GetComponent<Animator>().SetBool("cape", false); // Stop animation
 
         marioMovement.isCapeActive = false; // Reset cape state
         marioMovement.GetComponent<Animator>().SetBool("cape", false); // Stop animation
