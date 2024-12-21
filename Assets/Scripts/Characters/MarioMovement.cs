@@ -359,16 +359,8 @@ public class MarioMovement : MonoBehaviour
             return;
         }
 
-        if (facingRight)
-        {
-            // set rotation based on animation if facing right
-            rb.SetRotation(-animationRotation); // clockwise
-        } 
-        else
-        {
-            // set rotation based on animation if facing left
-            rb.SetRotation(animationRotation); // anticlockwise 
-        }
+        // set rotation based on animation
+        rb.SetRotation(animationRotation);
 
         // Movement
         MoveCharacter(direction.x);
