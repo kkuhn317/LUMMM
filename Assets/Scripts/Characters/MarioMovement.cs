@@ -359,9 +359,6 @@ public class MarioMovement : MonoBehaviour
             return;
         }
 
-        // set rotation based on animation
-        rb.SetRotation(animationRotation);
-
         // Movement
         MoveCharacter(direction.x);
 
