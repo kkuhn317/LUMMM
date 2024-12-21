@@ -49,10 +49,6 @@ public class CapeAttack : MarioAbility
             {
                 enemyAI.OnCapeAttack(marioMovement.facingRight);
             }
-            if (enemyAI)
-            {
-                enemyAI.OnCapeAttack(marioMovement.facingRight);
-            }
         }
     }
 
@@ -63,8 +59,6 @@ public class CapeAttack : MarioAbility
         marioMovement.isCapeActive = false; // Reset cape state
         marioMovement.GetComponent<Animator>().SetBool("cape", false); // Stop animation
 
-        marioMovement.isCapeActive = false; // Reset cape state
-        marioMovement.GetComponent<Animator>().SetBool("cape", false); // Stop animation
         canCape = true;
         isBlockingJump = false;
     }
