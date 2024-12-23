@@ -82,8 +82,6 @@ public class GoombaCelebration : MonoBehaviour
 
     private void ProcessEnemyGroup(EnemiesGroup group)
     {
-        group.onThisGroupHappen.Invoke();
-
         foreach (GameObject parent in group.parents)
         {
             if (parent != null)
@@ -103,5 +101,7 @@ public class GoombaCelebration : MonoBehaviour
                 child.SetActive(true);
             }
         }
+
+        group.onThisGroupHappen.Invoke();
     }
 }
