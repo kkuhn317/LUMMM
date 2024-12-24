@@ -2009,6 +2009,11 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 7384276377935262447, guid: 58c115d689575404f8428b6c77cd4621, type: 3}
   m_PrefabInstance: {fileID: 95234516}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &96149712 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7384276377935262440, guid: 58c115d689575404f8428b6c77cd4621, type: 3}
+  m_PrefabInstance: {fileID: 1690362368}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &96169895
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -13516,7 +13521,7 @@ BoxCollider2D:
   m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 1.9449549, y: 0.99806404}
+  m_Offset: {x: 1.5, y: 1}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -13527,7 +13532,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 3.1137133, y: 2.996128}
+  m_Size: {x: 4, y: 3}
   m_EdgeRadius: 0
 --- !u!1001 &164629790
 PrefabInstance:
@@ -44800,6 +44805,52 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   dontPauseObjectAnimator: 0
   resumeObjectAnimator: 0
+--- !u!1 &1574451226 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7384276377935262440, guid: 58c115d689575404f8428b6c77cd4621, type: 3}
+  m_PrefabInstance: {fileID: 614010207}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1574451228 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2997031150096691213, guid: 58c115d689575404f8428b6c77cd4621, type: 3}
+  m_PrefabInstance: {fileID: 614010207}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1574451226}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 86173d77a3329f6478200d74bd0104ec, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1574451233
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1574451226}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e52de21a22b6dd44c9cc19f810c65059, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Events:
+    m_Signals:
+    - {fileID: 11400000, guid: 22eb0a865073a6847b1e1e2b2ce0b94e, type: 2}
+    m_Events:
+    - m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 1574451228}
+          m_TargetAssemblyTypeName: ObjectPhysics, Assembly-CSharp
+          m_MethodName: SetObjectGravity
+          m_Mode: 4
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 60
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
 --- !u!1001 &1579493839
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -59519,6 +59570,47 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 7384276377935262447, guid: 58c115d689575404f8428b6c77cd4621, type: 3}
   m_PrefabInstance: {fileID: 1690362368}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1690362371 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2997031150096691213, guid: 58c115d689575404f8428b6c77cd4621, type: 3}
+  m_PrefabInstance: {fileID: 1690362368}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 96149712}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 86173d77a3329f6478200d74bd0104ec, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1690362376
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 96149712}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e52de21a22b6dd44c9cc19f810c65059, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Events:
+    m_Signals:
+    - {fileID: 11400000, guid: 22eb0a865073a6847b1e1e2b2ce0b94e, type: 2}
+    m_Events:
+    - m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 1690362371}
+          m_TargetAssemblyTypeName: ObjectPhysics, Assembly-CSharp
+          m_MethodName: SetObjectGravity
+          m_Mode: 4
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 60
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
 --- !u!1001 &1695719895
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -59874,7 +59966,7 @@ BoxCollider2D:
   m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: -6.460768, y: -0.91610026}
+  m_Offset: {x: -6.45, y: -0.9}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -59885,7 +59977,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 3.0475283, y: 6.017443}
+  m_Size: {x: 3, y: 6}
   m_EdgeRadius: 0
 --- !u!4 &1705551741
 Transform:

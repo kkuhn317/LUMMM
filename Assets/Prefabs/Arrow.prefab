@@ -74,12 +74,12 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 1815492906, guid: 0536592681bf275419482ac6e6a473b5, type: 3}
+  m_Sprite: {fileID: -1628673871, guid: 88fa50cd7e211814d852d81f3ba4c366, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 1
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 0.96, y: 0.5}
+  m_Size: {x: 1.25, y: 0.3125}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -164,7 +164,7 @@ MonoBehaviour:
   DontFallOffLedges: 0
   bounceOffWalls: 1
   flipObject: 0
-  FrequentMovement: 0
+  updateType: 0
   lavaKill: 1
   sinkSpeed: 20
   lavaMask:
@@ -173,6 +173,7 @@ MonoBehaviour:
   carryable: 0
   carried: 0
   throwVelocity: {x: 12, y: 10}
+  rotateAroundCenter: 0
   knockAwayVelocity: {x: 1, y: 3}
   overrideKnockAwayGravity: 0
   knockAwayGravity: 60
@@ -189,15 +190,17 @@ MonoBehaviour:
   stompHeight: 0.05
   heldItem: {fileID: 0}
   itemSpawnOffset: {x: 0, y: 0, z: 0}
-  InstantChange: 0
   customDeath: {fileID: 2163776378943282265, guid: a2cb9f55eb53968489bfef579a953666, type: 3}
+  onPlayerDamaged:
+    m_PersistentCalls:
+      m_Calls: []
+  spinJumpEffect: 0
   rotateToMovement: 1
   stuckInWallTime: 3
   stuckInWall: 0
   stuckOrderInLayer: -2
   stickInOffset: 0.3
   fadeTime: 1
-  arrowLength: 1
 --- !u!82 &2267598617802190281
 AudioSource:
   m_ObjectHideFlags: 0
