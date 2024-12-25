@@ -1,27 +1,24 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Localization.Settings;
 
-public class GiantThwomp : EnemyAI
+public class GiantThwomp : EnemyAI, GroundPoundable
 {
     [Header("Giant Thwomp")]
-    public SpriteRenderer front;
-    public SpriteRenderer back;
-    public Sprite idleSprite;
-    public Sprite angrySprite;
     private List<Material> materials;  // Should be the special Thwomp Color Overlay material
     public Color hitColor = Color.red;
     private Color defaultColor;
     public BoxCollider2D mainCollider;
     public BoxCollider2D vulnerableCollider;
+    public BoxCollider2D fallBackCollider;
     public GameObject hurtEffectPrefab;
     public float addDetectionRange = 0f; // Additional range to detect Mario added to the width/height of the Thwomp
     public float landWaitTime = 1f; // Time the Thwomp waits after landing before rising back up
     public float riseSpeed = 1f; // The speed the Thwomp rises back up after landing
-    public float rotateSpeed = 1f; // The speed the Thwomp rotates at when flipping
     public float vulnerableTime = 3f; // The time the Thwomp remains vulnerable after being hit by Mario's cape
-    private float currentRotation = 0f; // The current y rotation of the Thwomp
     public int health = 3; // Number of hits the Thwomp can take before falling back
+    private Animator animator;
 
     // Sounds
     private AudioSource audioSource;
@@ -37,10 +34,9 @@ public class GiantThwomp : EnemyAI
         FallBack, // After losing all health, the Thwomp falls backward and Mario can ground pound it
     }
     private ThwompStates currentState = ThwompStates.Idle;
-
     private bool checkSides = false; // Changes to true after first fall
-
     private Vector2 initialPosition; // The initial position of the Thwomp
+    public GameObject poofEffectPrefab;
 
     public enum FallDirections {
         Down,
@@ -61,6 +57,7 @@ public class GiantThwomp : EnemyAI
         initialPosition = transform.position;
         audioSource = GetComponent<AudioSource>();
         materials = new List<Material>();
+        animator = GetComponent<Animator>();
         foreach (SpriteRenderer renderer in GetComponentsInChildren<SpriteRenderer>())
         {
             materials.Add(renderer.material);
@@ -123,35 +120,6 @@ public class GiantThwomp : EnemyAI
                 break;
         }
 
-        // Rotate the Thwomp when it is vulnerable
-        if (currentState == ThwompStates.Vulnerable && currentRotation > -180)
-        {
-            currentRotation -= rotateSpeed * Time.deltaTime;
-            // Change layer order (doesn't work if all are the same layer)
-            if (currentRotation <= -90)
-            {
-                front.sortingOrder = -1;
-                back.sortingOrder = 1;
-            } else if (currentRotation <= -180)
-            {
-                currentRotation = -180;
-            }
-        } else if (currentState != ThwompStates.Vulnerable && currentRotation < 0)
-        {
-            // Slowly rotate back to normal
-            currentRotation += rotateSpeed * Time.deltaTime;
-            // Change layer order (doesn't work if all are the same layer)
-            if (currentRotation >= -90)
-            {
-                front.sortingOrder = 1;
-                back.sortingOrder = -1;
-            } else if (currentRotation >= 0)
-            {
-                currentRotation = 0;
-            }
-        }
-
-        transform.rotation = Quaternion.Euler(0, currentRotation, 0);
     }
 
     private void ChangeState(ThwompStates newState)
@@ -163,16 +131,17 @@ public class GiantThwomp : EnemyAI
         switch (newState)
         {
             case ThwompStates.Idle:
-                front.sprite = idleSprite;
+                animator.SetBool("angry", false);
                 gravity = 0f;
                 velocity = Vector2.zero;
                 break;
             case ThwompStates.Falling:
-                front.sprite = angrySprite;
+                animator.SetBool("angry", true);
                 gravity = internalGravity;
                 checkSides = true;
                 break;
             case ThwompStates.Landed:
+                animator.SetBool("flip", false);
                 gravity = 0f;
                 velocity = Vector2.zero;
                 if (oldState == ThwompStates.Falling)
@@ -188,7 +157,8 @@ public class GiantThwomp : EnemyAI
                 Invoke(nameof(ThwompRise), landWaitTime);
                 break;
             case ThwompStates.Rising:
-                front.sprite = idleSprite;
+                animator.SetBool("flip", false);
+                animator.SetBool("angry", false);
                 switch (fallDirection)
                 {
                     case FallDirections.Down:
@@ -209,6 +179,7 @@ public class GiantThwomp : EnemyAI
                 gravity = 0f;
                 break;
             case ThwompStates.Vulnerable:
+                animator.SetBool("flip", true);
                 gravity = 0f;
                 velocity = Vector2.zero;
                 mainCollider.enabled = false;
@@ -216,6 +187,11 @@ public class GiantThwomp : EnemyAI
                 Invoke(nameof(FlipBack), vulnerableTime);
                 break;
             case ThwompStates.FallBack:
+                mainCollider.enabled = false;
+                vulnerableCollider.enabled = false;
+                fallBackCollider.enabled = true;
+                gameObject.layer = LayerMask.NameToLayer("Ground");
+                animator.SetBool("fall", true);
                 break;
             default:
                 break;
@@ -231,6 +207,10 @@ public class GiantThwomp : EnemyAI
 
     private void FlipBack()
     {
+        if (currentState == ThwompStates.FallBack)
+        {
+            return;
+        }
         mainCollider.enabled = true;
         vulnerableCollider.enabled = false;
         ChangeState(ThwompStates.Landed);
@@ -343,4 +323,18 @@ public class GiantThwomp : EnemyAI
             material.SetColor("_Color", defaultColor);
         }
     }
+
+    public void OnGroundPound()
+    {
+        if (currentState == ThwompStates.FallBack)
+        {
+            // Play the poof effect
+            if (poofEffectPrefab != null)
+            {
+                Instantiate(poofEffectPrefab, transform.position, Quaternion.identity);
+            }
+            Destroy(gameObject);
+        }
+    }
+
 }

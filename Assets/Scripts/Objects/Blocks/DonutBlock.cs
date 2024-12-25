@@ -30,24 +30,6 @@ public class DonutBlock : MonoBehaviour
         rb.isKinematic = true;
     }
 
-    private void OnCollisionEnter2D(Collision2D collision)
-    {
-        if (collision.gameObject.CompareTag("Player"))
-        {
-            // Make the player a child of the DonutBlock
-            collision.transform.parent = transform;
-        }
-    }
-
-    private void OnCollisionExit2D(Collision2D collision)
-    {
-        if (collision.gameObject.CompareTag("Player"))
-        {
-            // Remove the player as a child of the DonutBlock
-            collision.transform.parent = null;
-        }
-    }
-
     private void Update()
     {
         // Check if the player is on the block

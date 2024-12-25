@@ -468,9 +468,7 @@ public class MarioMovement : MonoBehaviour
             // Stop spinning, stop ground pounding
             spinning = false;
             if (groundPounding) {
-                groundPounding = false;
-                groundPoundRotating = false;
-                audioSource.PlayOneShot(groundPoundLandSound);
+                GroundPoundLand(hitRay.transform.gameObject);
             }
             animator.SetBool("isDropping", false);
 
@@ -871,6 +869,17 @@ public class MarioMovement : MonoBehaviour
         // Start the ground pound fall
         groundPoundRotating = false;
         rb.velocity = new Vector2(rb.velocity.x, -jumpSpeed * 1.5f);
+    }
+
+    private void GroundPoundLand(GameObject hitObject) {
+        groundPounding = false;
+        groundPoundRotating = false;
+        audioSource.PlayOneShot(groundPoundLandSound);
+        GroundPoundable groundPoundable = hitObject.GetComponent<GroundPoundable>();
+        if (groundPoundable != null) {
+            groundPoundable.OnGroundPound();
+        }
+        
     }
 
     void ModifyPhysics() {
