@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using UnityEngine.Events;
 using TMPro;
+using System.Data.Common;
+using System.Collections;
 
 ////TODO: localization support
 
@@ -217,16 +219,23 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
             if (!ResolveActionAndBinding(out var action, out var bindingIndex))
                 return;
 
+            string currentBinding = action.bindings[bindingIndex].effectivePath;
+
             if (action.bindings[bindingIndex].isComposite)
             {
                 // It's a composite. Remove overrides from part bindings.
                 for (var i = bindingIndex + 1; i < action.bindings.Count && action.bindings[i].isPartOfComposite; ++i)
+                {
                     action.RemoveBindingOverride(i);
+                    actionBindingMap.Remove(action.bindings[i].effectivePath);
+                }                  
             }
             else
             {
                 action.RemoveBindingOverride(bindingIndex);
+                actionBindingMap.Remove(currentBinding);
             }
+
             UpdateBindingDisplay();
         }
 
@@ -236,6 +245,8 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
         /// </summary>
         public void StartInteractiveRebind()
         {
+            m_Action.action.Disable();
+            
             if (!ResolveActionAndBinding(out var action, out var bindingIndex))
                 return;
 
@@ -254,28 +265,64 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
 
         private void PerformInteractiveRebind(InputAction action, int bindingIndex, bool allCompositeParts = false)
         {
+            action.Disable();
             m_RebindOperation?.Cancel(); // Will null out m_RebindOperation.
 
             void CleanUp()
             {
                 m_RebindOperation?.Dispose();
                 m_RebindOperation = null;
+                m_Action.action.Enable();
+                SaveActionBinding();
+
+                // Stop dot animation
+                if (dotAnimationCoroutine != null)
+                {
+                    StopCoroutine(dotAnimationCoroutine);
+                    dotAnimationCoroutine = null;
+                }
+                
+                // Update binding text with the final control name
+                if (m_RebindText != null)
+                {
+                    var bindingDisplay = action.GetBindingDisplayString(bindingIndex);
+                    m_RebindText.text = bindingDisplay;
+                }
             }
+            
 
             // Configure the rebind.
             m_RebindOperation = action.PerformInteractiveRebinding(bindingIndex)
+                .WithControlsExcluding("<Mouse>")
+                .OnMatchWaitForAnother(0.2f) 
                 .OnCancel(
                     operation =>
                     {
                         m_RebindStopEvent?.Invoke(this, operation);
-                        m_RebindOverlay?.SetActive(false);
+                        //m_RebindOverlay?.SetActive(false);
                         UpdateBindingDisplay();
                         CleanUp();
                     })
                 .OnComplete(
                     operation =>
                     {
-                        m_RebindOverlay?.SetActive(false);
+                        string newBinding = operation.selectedControl.path;
+                        string actionName = action.name;
+
+                        // Validate binding
+                        if (!IsValidBinding(newBinding, actionName))
+                        {
+                            Debug.LogError($"Cannot bind '{actionName}' to '{newBinding}'. Validation failed.");
+                            action.RemoveBindingOverride(bindingIndex);
+                            CleanUp();
+                            PerformInteractiveRebind(action, bindingIndex, allCompositeParts);
+                            return;
+                        }     
+
+                        // Update the binding map
+                        actionBindingMap[newBinding] = actionName;
+
+                        // m_RebindOverlay?.SetActive(false);
                         m_RebindStopEvent?.Invoke(this, operation);
                         UpdateBindingDisplay();
                         CleanUp();
@@ -290,13 +337,19 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
                         }
                     });
 
+            // Start dot animation
+            if (m_RebindText != null)
+            {
+                dotAnimationCoroutine = StartCoroutine(AnimateDots(m_RebindText));
+            }
+
             // If it's a part binding, show the name of the part in the UI.
-            var partName = default(string);
+            /*var partName = default(string);
             if (action.bindings[bindingIndex].isPartOfComposite)
                 partName = $"Binding '{action.bindings[bindingIndex].name}'. ";
 
             // Bring up rebind overlay, if we have one.
-            m_RebindOverlay?.SetActive(true);
+            // m_RebindOverlay?.SetActive(true);
             if (m_RebindText != null)
             {
                 var text = !string.IsNullOrEmpty(m_RebindOperation.expectedControlType)
@@ -308,12 +361,29 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
             // If we have no rebind overlay and no callback but we have a binding text label,
             // temporarily set the binding text label to "<Waiting>".
             if (m_RebindOverlay == null && m_RebindText == null && m_RebindStartEvent == null && m_BindingText != null)
-                m_BindingText.text = "<Waiting...>";
+                m_BindingText.text = "<Waiting...>";*/
 
             // Give listeners a chance to act on the rebind starting.
             m_RebindStartEvent?.Invoke(this, m_RebindOperation);
 
             m_RebindOperation.Start();
+        }
+
+        private bool IsValidBinding(string newBinding, string actionName)
+        {
+            // Check if another action already uses the binding
+            if (actionBindingMap.TryGetValue(newBinding, out var existingAction))
+            {
+                // Allow duplicates if the actions are compatible
+                if (duplicateRules.TryGetValue(actionName, out var allowedDuplicates) && allowedDuplicates.Contains(existingAction))
+                    return true;
+
+                // Disallow duplicates for non-compatible actions
+                Debug.LogError($"Binding conflict: '{actionName}' cannot share '{newBinding}' with '{existingAction}'.");
+                return false;
+            }
+
+            return true; // No conflict
         }
 
         protected void OnEnable()
@@ -412,6 +482,31 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
 
         private static List<RebindActionUI> s_RebindActionUIs;
 
+        // Track all active bindings and their associated actions
+        private static Dictionary<string, string> actionBindingMap = new Dictionary<string, string>();
+        private static Dictionary<string, HashSet<string>> duplicateRules = new Dictionary<string, HashSet<string>>
+        {
+            { "Shoot", new HashSet<string> { "Run" } }, // Shoot and Run can share the same binding
+            { "Run", new HashSet<string> { "Shoot" } }, // Symmetric rule
+            // Add other exceptions if needed
+        };
+
+        private Coroutine dotAnimationCoroutine;
+
+        private IEnumerator AnimateDots(TMP_Text textComponent)
+        {
+            string[] dotStates = { ".", "..", "..." };
+            int index = 0;
+
+            while (true)
+            {
+                textComponent.text = dotStates[index];
+                index = (index + 1) % dotStates.Length;
+                yield return new WaitForSeconds(0.5f); // Adjust speed if needed
+            }
+        }
+
+
         // We want the label for the action name to update in edit mode, too, so
         // we kick that off from here.
 #if UNITY_EDITOR
@@ -429,6 +524,26 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
             {
                 var action = m_Action?.action;
                 m_ActionLabel.text = action != null ? action.name : string.Empty;
+            }
+        }
+
+        private void Start() 
+        {
+            LoadActionBinding();
+        }
+
+        private void SaveActionBinding()
+        {
+            var currentBindings = actionReference.action.actionMap.SaveBindingOverridesAsJson();
+            PlayerPrefs.SetString(m_Action.action.name + bindingId, currentBindings);
+        }
+
+        private void LoadActionBinding()
+        {
+            var savedBindings = PlayerPrefs.GetString(m_Action.action.name + bindingId);
+            if (!string.IsNullOrEmpty(savedBindings))
+            {
+                actionReference.action.actionMap.LoadBindingOverridesFromJson(savedBindings);
             }
         }
 

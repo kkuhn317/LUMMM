@@ -27,9 +27,12 @@ public class SwipeController : MonoBehaviour, IEndDragHandler
 
     [SerializeField] List<CanvasGroup> pageCanvasGroups; // Add CanvasGroups for each page
 
+    private Vector3 initialPosition;
+
     private void Awake()
     {
         currentPage = 1;
+        initialPosition = levelPagesRect.localPosition;
         targetPos = levelPagesRect.localPosition;
         dragThereshould = Screen.width / 15;
         UpdateBar();
@@ -58,6 +61,26 @@ public class SwipeController : MonoBehaviour, IEndDragHandler
             MovePage();
         }
         UpdateButtonStates(); // Update button states after navigation
+    }
+
+    public void GoToPage(int targetPage) // Start from 1
+    {
+        if (targetPage < 1 || targetPage > maxPage)
+        {
+            Debug.LogWarning($"Invalid page number: {targetPage}. Must be between 1 and {maxPage}.");
+            return;
+        }
+
+        // Update the current page
+        currentPage = targetPage;
+
+        // Calculate the absolute position of the target page
+        targetPos = initialPosition + (targetPage - 1) * pageStep;
+
+        Debug.Log($"GoToPage: TargetPage = {targetPage}, TargetPos = {targetPos}, InitialPos = {initialPosition}, PageStep = {pageStep}");
+
+        // Move to the new page
+        MovePage();
     }
 
     void MovePage()

@@ -98,6 +98,4 @@ public class MobileControls : MonoBehaviour
     {
         getPlayer1().onExtraActionPressed();
     }
-
-
 }

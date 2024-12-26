@@ -47,6 +47,8 @@ public class LevelSelectionManager : MonoBehaviour
     void Start()
     {
         playButton.gameObject.SetActive(false); // Deactivate the button if it's initially active
+        // Set the active state of the videoLinkButton based on persistent event listeners
+        videoLinkButton.gameObject.SetActive(videoLinkButton.onClick.GetPersistentEventCount() > 0);
     }
 
     public static bool IsLevelPlayable(LevelButton button)
@@ -79,9 +81,11 @@ public class LevelSelectionManager : MonoBehaviour
         if (string.IsNullOrEmpty(button.levelInfo.videoLink))
         {
             videoLinkText.text = "";
+            videoLinkButton.gameObject.SetActive(false); 
         }
         else
         {
+            videoLinkButton.gameObject.SetActive(true); 
             print(table.GetEntry("WatchVideo").GetLocalizedString());
             videoLinkText.text = table.GetEntry("WatchVideo").GetLocalizedString();
             videoLinkButton.onClick.AddListener(OpenVideoLink);
