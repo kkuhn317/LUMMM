@@ -1,63 +1,63 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class CollisionHandler : MonoBehaviour
 {
-    public GameObject objectToSpawn;
-    public AudioClip hit;
+    public GameObject objectToSpawn; // Yellow burst prefab
+    public AudioClip hit;           // Hit sound
     private AudioSource audioSource;
     private Collider2D col;
-    private EnemyAI enemyAI;
 
     private void Start()
     {
         audioSource = GetComponent<AudioSource>();
         col = GetComponentInChildren<Collider2D>();
-        enemyAI = GetComponent<EnemyAI>();
-        if (enemyAI != null)
-        {
-            enemyAI.onPlayerDamaged.AddListener(onPlayerHit);
-        }
     }
 
-    private void onPlayerHit(GameObject player)
+    private void OnTriggerEnter2D(Collider2D other)
     {
-        onPlayerHitPosition(player.transform.position);
-    }
-
-    private void onPlayerHitPosition(Vector2 hitPoint)
-    {
-        Instantiate(objectToSpawn, hitPoint, Quaternion.identity);
-
-        if (audioSource != null)
+        if (other.CompareTag("Player"))
         {
-            audioSource.PlayOneShot(hit);
+            var mario = other.GetComponent<MarioMovement>();
+
+            // Check if Mario can be damaged
+            if (mario != null && mario.invincetimeremain <= 0)
+            {
+                DamageMario(mario, col.ClosestPoint(other.transform.position));
+            }
         }
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (enemyAI != null) {
-            return;
-        }
-
         if (collision.gameObject.CompareTag("Player"))
         {
-            onPlayerHitPosition(collision.GetContact(0).point);
+            var mario = collision.gameObject.GetComponent<MarioMovement>();
+
+            // Check if Mario can be damaged
+            if (mario != null && mario.invincetimeremain <= 0)
+            {
+                DamageMario(mario, col.ClosestPoint(collision.transform.position));
+            }
         }
     }
 
-    private void OnTriggerEnter2D(Collider2D other)
+    private void DamageMario(MarioMovement mario, Vector2 hitPoint)
     {
-        if (enemyAI != null) {
-            return;
+        // Damage Mario
+        mario.damageMario();
+
+        // Spawn yellow burst at the hit position
+        if (objectToSpawn != null)
+        {
+            Instantiate(objectToSpawn, hitPoint, Quaternion.identity);
         }
 
-        if (other.gameObject.CompareTag("Player"))
+        // Play hit sound
+        if (audioSource != null && hit != null)
         {
-            onPlayerHitPosition(col.ClosestPoint(other.transform.position));
+            audioSource.PlayOneShot(hit);
         }
+
+        Debug.Log($"Mario damaged at position: {hitPoint}");
     }
 }

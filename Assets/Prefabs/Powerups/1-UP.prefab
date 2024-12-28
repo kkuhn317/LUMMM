@@ -161,9 +161,11 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 265
   checkObjectCollision: 1
+  ceilingDetection: 1
   DontFallOffLedges: 0
+  bounceOffWalls: 1
   flipObject: 0
-  FrequentMovement: 0
+  updateType: 0
   lavaKill: 1
   sinkSpeed: 20
   lavaMask:
@@ -172,6 +174,7 @@ MonoBehaviour:
   carryable: 0
   carried: 0
   throwVelocity: {x: 12, y: 10}
+  rotateAroundCenter: 0
   knockAwayVelocity: {x: 5, y: 5}
   overrideKnockAwayGravity: 0
   knockAwayGravity: 60
@@ -185,12 +188,14 @@ MonoBehaviour:
   bounceHeight: 0
   minHeightToBounce: 1
   newMarioState: {fileID: 0}
-  powerLevel: 1
   starTime: -1
   starMusicOverride: {fileID: 0}
+  powerUpType: 0
+  temporalInactiveTime: 5
   is1Up: 1
   oneupSpritePrefab: {fileID: 727655648299408341, guid: a0e58a9c09c24f84bb0a72a754cf0cc3, type: 3}
   upSpeed: 0.5
+  extraLife: {fileID: 8300000, guid: f83439a532a7bd4478046c50601b6a5a, type: 3}
 --- !u!82 &3766574690123714039
 AudioSource:
   m_ObjectHideFlags: 0

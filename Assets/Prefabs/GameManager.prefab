@@ -3329,6 +3329,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   currentTime: 0
+  isOptionsMenuLevel: 0
   hideCursor: 1
   levelUI: {fileID: 1209335747865642886}
   startingTime: 300
@@ -3336,8 +3337,6 @@ MonoBehaviour:
   timerText: {fileID: 1209335747926929473}
   livesText: {fileID: 1209335749467003827}
   targetColor: {r: 0, g: 1, b: 0, a: 1}
-  coin: {fileID: 8300000, guid: af878d0ac7320124ea0aebfd1971fb3b, type: 3}
-  bigCoin: {fileID: 8300000, guid: af878d0ac7320124ea0aebfd1971fb3b, type: 3}
   coinText: {fileID: 1209335748130260746}
   saveCoinsAfterDeath: 1
   greenCoins:
@@ -3351,7 +3350,6 @@ MonoBehaviour:
   collectedSprite: {fileID: 388613814, guid: cb3e1ab023497c844946d072e5175005, type: 3}
   highScore: 0
   highScoreText: {fileID: 5667716767099293686}
-  extraLife: {fileID: 8300000, guid: f83439a532a7bd4478046c50601b6a5a, type: 3}
   scoreText: {fileID: 1209335749384280290}
   music: {fileID: 0}
   pausemenu: {fileID: 8049855368611573285}
@@ -7463,33 +7461,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 12acd57235cbb6047ad3312f464f59b6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dpadImage: {fileID: 6518229866546179312}
-  idleSprite: {fileID: 653758632, guid: 281b49850e211764982a4455e395dda0, type: 3}
-  leftSprite: {fileID: -1247031562, guid: 281b49850e211764982a4455e395dda0, type: 3}
-  rightSprite: {fileID: 452838701, guid: 281b49850e211764982a4455e395dda0, type: 3}
-  upSprite: {fileID: 1507361429, guid: 281b49850e211764982a4455e395dda0, type: 3}
-  downSprite: {fileID: 584667677, guid: 281b49850e211764982a4455e395dda0, type: 3}
-  buttonActions:
-  - buttonImage: {fileID: 7737030091249138507}
-    triggerButtons:
-    - Fire3
-    pressedSprite: {fileID: -1967550883, guid: 281b49850e211764982a4455e395dda0, type: 3}
-    defaultSprite: {fileID: -1810837975, guid: 281b49850e211764982a4455e395dda0, type: 3}
-  - buttonImage: {fileID: 1000326572281779678}
-    triggerButtons:
-    - Jump
-    pressedSprite: {fileID: -886421706, guid: 281b49850e211764982a4455e395dda0, type: 3}
-    defaultSprite: {fileID: -1677778596, guid: 281b49850e211764982a4455e395dda0, type: 3}
-  - buttonImage: {fileID: 2031751869143410151}
-    triggerButtons:
-    - Select
-    pressedSprite: {fileID: 1386999615, guid: 281b49850e211764982a4455e395dda0, type: 3}
-    defaultSprite: {fileID: 1774850380, guid: 281b49850e211764982a4455e395dda0, type: 3}
-  - buttonImage: {fileID: 7045434376560864577}
-    triggerButtons:
-    - Pause
-    pressedSprite: {fileID: 332432509, guid: 281b49850e211764982a4455e395dda0, type: 3}
-    defaultSprite: {fileID: -580684843, guid: 281b49850e211764982a4455e395dda0, type: 3}
+  actionBindings: []
 --- !u!114 &5176819194400376025
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -19962,6 +19934,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1209335749245954321}
     m_Modifications:
+    - target: {fileID: -1869682602490666156, guid: 5dd8e8f2d13025140b61dafd1742d9ca, type: 3}
+      propertyPath: coinSound
+      value: 
+      objectReference: {fileID: 8300000, guid: af878d0ac7320124ea0aebfd1971fb3b, type: 3}
     - target: {fileID: 7668448856661109272, guid: 5dd8e8f2d13025140b61dafd1742d9ca, type: 3}
       propertyPath: m_Sprite
       value: 
@@ -20026,6 +20002,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8727740608937543453, guid: 5dd8e8f2d13025140b61dafd1742d9ca, type: 3}
+      propertyPath: m_Volume
+      value: 0.7
+      objectReference: {fileID: 0}
+    - target: {fileID: 8727740608937543453, guid: 5dd8e8f2d13025140b61dafd1742d9ca, type: 3}
+      propertyPath: OutputAudioMixerGroup
+      value: 
+      objectReference: {fileID: -1032615450488366135, guid: 52d4409ed4d7bb645aad562fcfd87159, type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 5dd8e8f2d13025140b61dafd1742d9ca, type: 3}
 --- !u!4 &7414580713697158979 stripped
@@ -20064,6 +20048,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1209335749245954321}
     m_Modifications:
+    - target: {fileID: -1869682602490666156, guid: 5dd8e8f2d13025140b61dafd1742d9ca, type: 3}
+      propertyPath: coinSound
+      value: 
+      objectReference: {fileID: 8300000, guid: af878d0ac7320124ea0aebfd1971fb3b, type: 3}
     - target: {fileID: 7668448856661109272, guid: 5dd8e8f2d13025140b61dafd1742d9ca, type: 3}
       propertyPath: m_Sprite
       value: 
@@ -20136,6 +20124,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8727740608937543453, guid: 5dd8e8f2d13025140b61dafd1742d9ca, type: 3}
+      propertyPath: m_Volume
+      value: 0.7
+      objectReference: {fileID: 0}
+    - target: {fileID: 8727740608937543453, guid: 5dd8e8f2d13025140b61dafd1742d9ca, type: 3}
+      propertyPath: OutputAudioMixerGroup
+      value: 
+      objectReference: {fileID: -1032615450488366135, guid: 52d4409ed4d7bb645aad562fcfd87159, type: 2}
     m_RemovedComponents:
     - {fileID: 0}
   m_SourcePrefab: {fileID: 100100000, guid: 5dd8e8f2d13025140b61dafd1742d9ca, type: 3}
@@ -20175,6 +20171,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1209335749245954321}
     m_Modifications:
+    - target: {fileID: -1869682602490666156, guid: 5dd8e8f2d13025140b61dafd1742d9ca, type: 3}
+      propertyPath: coinSound
+      value: 
+      objectReference: {fileID: 8300000, guid: af878d0ac7320124ea0aebfd1971fb3b, type: 3}
     - target: {fileID: 7668448856661109272, guid: 5dd8e8f2d13025140b61dafd1742d9ca, type: 3}
       propertyPath: m_Sprite
       value: 
@@ -20239,6 +20239,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8727740608937543453, guid: 5dd8e8f2d13025140b61dafd1742d9ca, type: 3}
+      propertyPath: m_Volume
+      value: 0.7
+      objectReference: {fileID: 0}
+    - target: {fileID: 8727740608937543453, guid: 5dd8e8f2d13025140b61dafd1742d9ca, type: 3}
+      propertyPath: OutputAudioMixerGroup
+      value: 
+      objectReference: {fileID: -1032615450488366135, guid: 52d4409ed4d7bb645aad562fcfd87159, type: 2}
     m_RemovedComponents:
     - {fileID: 0}
   m_SourcePrefab: {fileID: 100100000, guid: 5dd8e8f2d13025140b61dafd1742d9ca, type: 3}

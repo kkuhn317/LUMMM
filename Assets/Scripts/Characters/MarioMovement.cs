@@ -19,6 +19,9 @@ public class MarioMovement : MonoBehaviour
     // Do not use the old input system or raw keyboard input anywhere in the game
     [HideInInspector] public Vector2 moveInput; // The raw directional input from the player's controller
     [HideInInspector] public bool crouchPressed = false;
+    private bool crouchPressedInAir = false;
+    private float groundPoundCancelCooldown = 0.2f; // Cooldown time in seconds
+    private float lastCancelTime = -1f; // Tracks the time of the last cancel
     private bool jumpPressed = false;
     private bool runPressed = false;
     private bool spinPressed = false;
@@ -289,6 +292,10 @@ public class MarioMovement : MonoBehaviour
                 throwCarry();
             }
         }
+
+        if (onGround){
+            crouchPressedInAir = false;
+        }
     }
 
     private void OnCollisionEnter2D(Collision2D other) {
@@ -385,8 +392,16 @@ public class MarioMovement : MonoBehaviour
             }
         }
 
+        // Ground Pound Cancel
+        if (groundPounding && !groundPoundRotating && direction.y > 0)
+        {
+            CancelGroundPound();
+        }
+
+        Debug.Log($"{crouchPressedInAir}");
+
         // Ground Pound
-        if (canGroundPound && !onGround && crouchPressed && !groundPounding && !wallSliding) {
+        if (canGroundPound && !onGround && crouchPressedInAir && !groundPounding && !wallSliding) {
             GroundPound();
         }
 
@@ -866,6 +881,8 @@ public class MarioMovement : MonoBehaviour
     }
 
     private void GroundPoundFall() {
+        if (!groundPounding) return; // Skip if ground pound is canceled
+        
         // Start the ground pound fall
         groundPoundRotating = false;
         rb.velocity = new Vector2(rb.velocity.x, -jumpSpeed * 1.5f);
@@ -879,8 +896,24 @@ public class MarioMovement : MonoBehaviour
         if (groundPoundable != null) {
             groundPoundable.OnGroundPound();
         }
-        
     }
+
+    private void CancelGroundPound()
+    {
+        if (!groundPounding || groundPoundRotating) // Only cancel during the fall phase
+        return;
+
+        groundPounding = false;  // Exit ground pound state
+        groundPoundRotating = false;  // Stop rotation effect
+        crouchPressedInAir = false;
+
+        // Allow normal air movement
+        rb.gravityScale = gravity;
+
+        // Play cancel animation or sound if needed
+        animator.SetBool("isDropping", false);
+    }
+
 
     void ModifyPhysics() {
         changingDirections = (direction.x > 0 && rb.velocity.x < 0) || (direction.x < 0 && rb.velocity.x > 0);
@@ -1456,6 +1489,12 @@ public class MarioMovement : MonoBehaviour
     // Crouch
     public void Crouch(InputAction.CallbackContext context)
     {
+        if (context.started){
+            if (!onGround)
+            {
+                crouchPressedInAir = true; // Set if crouch started while in the air
+            }
+        }
         if (context.performed)
         {
             crouchPressed = true;

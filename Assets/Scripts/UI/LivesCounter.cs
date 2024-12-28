@@ -44,8 +44,20 @@ public class LivesCounter : MonoBehaviour
         }
     }
 
-    void GoBackToLevel() {
+    private void GoBackToLevel()
+    {
+        SceneManager.sceneLoaded += OnSceneLoaded; // Subscribe to event
         SceneManager.LoadScene(GlobalVariables.levelInfo.levelScene);
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        if (scene.name == GlobalVariables.levelInfo.levelScene)
+        {
+            Debug.Log($"Scene {scene.name} loaded. Resuming music.");
+            ResumeGameMusic();
+            SceneManager.sceneLoaded -= OnSceneLoaded; // Unsubscribe after use
+        }
     }
 
     void PlaySound() {

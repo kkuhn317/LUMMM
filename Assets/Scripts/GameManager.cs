@@ -19,6 +19,10 @@ public class GameManager : MonoBehaviour
 
     [HideInInspector]
     public float currentTime;
+
+    [Header("Options Menu actions")]
+    [SerializeField] private bool isOptionsMenuLevel = false;
+
     public bool hideCursor = true;
 
     public GameObject levelUI;
@@ -31,7 +35,7 @@ public class GameManager : MonoBehaviour
     private bool isTimeUp = false;
     private bool stopTimer = false;
     public AudioClip timeWarning;
-    [SerializeField] TMP_Text timerText;
+    [SerializeField] protected TMP_Text timerText;
 
     [Header("Lives")]
     private int maxLives = 99;
@@ -39,8 +43,6 @@ public class GameManager : MonoBehaviour
     public Color targetColor = Color.green;
 
     [Header("Coin System")]
-    public AudioClip coin;
-    public AudioClip bigCoin;
     [SerializeField] TMP_Text coinText;
     private int totalCoins = 0;
     public bool saveCoinsAfterDeath = true; // set false for coin door levels
@@ -126,7 +128,6 @@ public class GameManager : MonoBehaviour
     [SerializeField] TMP_Text highScoreText;
 
     [Header("Score System")]
-    public AudioClip extraLife;
     [SerializeField] TMP_Text scoreText;
 
     [Header("Music")]
@@ -296,12 +297,18 @@ public class GameManager : MonoBehaviour
     }
 
     // Start is called before the first frame update
-    void Start()
+    protected virtual void Start()
     {
         pauseable = true;
         isPaused = false;
         if (hideCursor) {
             CursorHelper.HideCursor();
+        }
+
+        if (isOptionsMenuLevel)
+        {
+            // Options menu-specific settings
+            ApplyOptionsMenuSettings();
         }
 
         if (music) {
@@ -358,7 +365,7 @@ public class GameManager : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    protected virtual void Update()
     {
         levelNameText.text = LocalizationSettings.StringDatabase.GetLocalizedString("Level_" + levelID);
 
@@ -421,6 +428,18 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    private void ApplyOptionsMenuSettings()
+    {
+        // Disable level UI
+        if (levelUI != null)
+        {
+            levelUI.SetActive(false);
+        }
+        
+        // Stop timer
+        stopTimer = true;
+    }
+
     public void Restart()
     {
         if(GlobalVariables.checkpoint != -1) {
@@ -465,13 +484,12 @@ public class GameManager : MonoBehaviour
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
-    public void DecrementLives()
+    public virtual void DecrementLives()
     {
         // turn off all music overrides
         RemoveAllMusicOverrides();
 
-        // Check if the player is not in infinite lives mode
-        if (!GlobalVariables.infiniteLivesMode)
+        if (!GlobalVariables.infiniteLivesMode)        // Check if the player is not in infinite lives mode
         {
             GlobalVariables.lives--;
 
@@ -505,8 +523,6 @@ public class GameManager : MonoBehaviour
 
     public void AddLives()
     {
-        audioSource.clip = extraLife;
-        audioSource.PlayOneShot(extraLife);
         GlobalVariables.lives++;
         UpdateLivesUI();
 
@@ -553,7 +569,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private void UpdateLivesUI()
+    public void UpdateLivesUI()
     {
         if (GlobalVariables.infiniteLivesMode)
         {
@@ -586,33 +602,8 @@ public class GameManager : MonoBehaviour
     }
     #endregion
 
-    public void AddCoin(int coinValue, bool playSound = true)
+    public void AddCoin(int coinValue)
     {
-        AudioClip coinSound;
-        switch (coinValue)
-        {
-            case 1:
-                coinSound = coin;
-                break;
-            case 10:
-                coinSound = bigCoin;
-                break;
-            case 30:
-                coinSound = bigCoin;
-                break;
-            case 50:
-                coinSound = bigCoin;
-                break;
-            default:
-                coinSound = coin;
-                break;
-        }
-
-        if (playSound)
-        {
-            audioSource.clip = coinSound;
-            audioSource.PlayOneShot(coinSound);
-        }
         GlobalVariables.coinCount += coinValue;
         GlobalVariables.score += coinValue * 100;
 
@@ -624,12 +615,6 @@ public class GameManager : MonoBehaviour
 
         UpdateCoinsUI();
         UpdateScoreUI();
-    }
-
-    public void PlayCoinSound()
-    {
-        audioSource.clip = coin;
-        audioSource.PlayOneShot(coin);
     }
 
     public void RemoveCoins(int coins)
@@ -647,7 +632,6 @@ public class GameManager : MonoBehaviour
     public void CollectGreenCoin(GameObject greenCoin)
     {
         AddScorePoints(4000);
-        audioSource.PlayOneShot(coin);
 
         collectedGreenCoinsInRun.Add(greenCoin);    // This assumes you can't collect the same green coin twice in the same run
 
@@ -1045,13 +1029,19 @@ public class GameManager : MonoBehaviour
 
         CursorHelper.ShowCursor();
 
-        // Activate the pause menu
-        pausemenu.SetActive(true);
-        mainPauseMenu.SetActive(true);
-        ResetPopUp.SetActive(false);
-        optionsPauseMenu.SetActive(false);
+        if (pausemenu != null) {
+            // Activate the pause menu
+            pausemenu.SetActive(true);
+        }      
 
-        resumeButton.Select();  // Select the resume button by default
+        if (!isOptionsMenuLevel) {
+            mainPauseMenu.SetActive(true);
+            ResetPopUp.SetActive(false);
+            optionsPauseMenu.SetActive(false);
+
+            resumeButton.Select();  // Select the resume button by default
+        }
+        
     }
 
     public void ResumeGame()
@@ -1061,18 +1051,29 @@ public class GameManager : MonoBehaviour
         
         Time.timeScale = 1f; // Set time scale to normal (unpause)
 
-        if(currentlyPlayingMusic != null) { 
-        currentlyPlayingMusic.GetComponent<AudioSource>().volume = originalVolume;
+        if(currentlyPlayingMusic != null) 
+        { 
+            currentlyPlayingMusic.GetComponent<AudioSource>().volume = originalVolume;
         }
 
-        CursorHelper.HideCursor();
-
-        // Deactivate the pause menu
+        if (hideCursor)
+        {
+            CursorHelper.HideCursor();  
+        }
+        
         if (pausemenu != null)
+        {
             pausemenu.SetActive(false);
+        }
+        
+        // Deactivate the pause menu
+        if (!isOptionsMenuLevel)
+        {
             mainPauseMenu.SetActive(true);
             ResetPopUp.SetActive(false);
             optionsPauseMenu.SetActive(false);
+        }
+            
     }
 
     public void GoToMainPauseMenu()

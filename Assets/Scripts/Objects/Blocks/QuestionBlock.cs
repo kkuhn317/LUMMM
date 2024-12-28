@@ -228,15 +228,20 @@ public class QuestionBlock : MonoBehaviour
         // However, the pitch/sound will not be changed for a small question block for example
         // If we need this functionality, we can rework some of the code to allow for it
 
-        float startheight = originalPosition.y + boxCollider.size.y;
+        float startHeight = originalPosition.y + boxCollider.size.y;
+
         foreach (GameObject coinPrefab in coins)
         {
             GameObject spinningCoin = Instantiate(coinPrefab, transform.parent);
-            spinningCoin.transform.position = new Vector2(originalPosition.x, startheight);
-            spinningCoin.GetComponent<Coin>().popUpAnimationName = popUpCoinAnimationName;
-            spinningCoin.GetComponent<Coin>().PopUp();
+            spinningCoin.transform.position = new Vector2(originalPosition.x, startHeight);
+
+            Coin coinScript = spinningCoin.GetComponent<Coin>();
+            if (coinScript != null)
+            {
+                coinScript.popUpAnimationName = popUpCoinAnimationName;
+                coinScript.PopUp(); // No delay required
+            }
         }
-        
     }
 
     IEnumerator Bounce()
@@ -268,7 +273,6 @@ public class QuestionBlock : MonoBehaviour
 
         while (true)
         {
-
             transform.position = new Vector2(transform.position.x, transform.position.y + bounceSpeed * Time.deltaTime);
 
             if (transform.position.y >= originalPosition.y + bounceHeight)
@@ -279,7 +283,6 @@ public class QuestionBlock : MonoBehaviour
 
         while (true)
         {
-
             transform.position = new Vector2(transform.position.x, transform.position.y - bounceSpeed * Time.deltaTime);
 
             if (transform.position.y <= originalPosition.y)

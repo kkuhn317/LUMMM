@@ -43,7 +43,7 @@ public class WingedObject : MonoBehaviour
         transform.position += Vector3.up * Mathf.Cos(Time.time * moveSpeed) * Time.deltaTime * moveDistance;
 
         for (int i = 0; i < children.Count; i++) {
-            if (children[i] == null) {
+            if (children[i] == null || IsChildDisabled(children[i])) {
                 children.RemoveAt(i);
                 i--;
             }
@@ -52,5 +52,17 @@ public class WingedObject : MonoBehaviour
             fell = true;
             WingsFall();
         }
+    }
+
+    private bool IsChildDisabled(GameObject child)
+    {
+        Collider2D collider = child.GetComponent<Collider2D>();
+        SpriteRenderer spriteRenderer = child.GetComponent<SpriteRenderer>();
+
+        // Check if both the collider and sprite renderer are disabled
+        bool colliderDisabled = collider != null && !collider.enabled;
+        bool spriteRendererDisabled = spriteRenderer != null && !spriteRenderer.enabled;
+
+        return colliderDisabled && spriteRendererDisabled;
     }
 }

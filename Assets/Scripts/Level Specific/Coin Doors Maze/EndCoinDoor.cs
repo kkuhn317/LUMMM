@@ -24,7 +24,19 @@ public class EndCoinDoor : CoinDoor
 
     protected override void SubtractOneCoin()
     {
-        Destroy(pushCoin);
+        if (pushCoin != null)
+        {
+            // Detach only the player if they are a child of pushCoin
+            foreach (Transform child in pushCoin.transform)
+            {
+                if (child.gameObject.CompareTag("Player")) // Assuming the player has the "Player" tag
+                {
+                    child.parent = null; // Detach the player
+                }
+            }
+
+            Destroy(pushCoin); // Safely destroy the pushCoin
+        }
     }
 
     protected override bool PlayerAtDoor(MarioMovement playerScript)

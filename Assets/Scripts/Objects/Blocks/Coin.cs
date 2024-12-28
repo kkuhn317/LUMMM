@@ -16,6 +16,24 @@ public class Coin : MonoBehaviour
 
     public string popUpAnimationName = "PopUp";
 
+    [Header("Audio")]
+    public AudioClip coinSound;
+
+    private SpriteRenderer spriteRenderer;
+    private BoxCollider2D boxCollider2D;
+    private AudioSource audioSource;
+
+    private void Awake() 
+    {
+        spriteRenderer = GetComponentInChildren<SpriteRenderer>();
+    }
+
+    private void Start() 
+    { 
+        boxCollider2D = GetComponent<BoxCollider2D>();
+        audioSource = GetComponent<AudioSource>();
+    }
+
     // Method to get the coin value
     public int GetCoinValue()
     {
@@ -42,35 +60,59 @@ public class Coin : MonoBehaviour
         }
     }
 
+    public void PlayCoinSound()
+    {
+        // Lazily initialize AudioSource if it hasn't been assigned
+        if (audioSource == null)
+        {
+            audioSource = GetComponent<AudioSource>();
+            if (audioSource == null)
+            {
+                Debug.LogWarning("AudioSource component is missing on the coin prefab!");
+                return;
+            }
+        }
+
+        if (coinSound != null)
+        {
+            audioSource.PlayOneShot(coinSound);
+        }
+    }
+
     protected virtual void OnCoinCollected()
     {
+        PlayCoinSound();
         AddCoinAmount();
 
         if (type != Amount.green)
         {
-            Destroy(gameObject);
+            DisableCoinVisuals();
+            Destroy(gameObject, coinSound.length);
         }
         else
         {
-            Collider2D collider = GetComponent<Collider2D>();
-            collider.enabled = false;
-            SpriteRenderer spriteRenderer = GetComponent<SpriteRenderer>();
-            spriteRenderer.enabled = false;
+            DisableCoinVisuals();
         }
     }
 
-    void AddCoinAmount(bool playSound = true)
+    void AddCoinAmount()
     {
         int coinValue = GetCoinValue();
 
         if (type != Amount.green)
         {
-            GameManager.Instance.AddCoin(coinValue, playSound: playSound);
+            GameManager.Instance.AddCoin(coinValue);
         }
         else
         {
             GameManager.Instance.CollectGreenCoin(gameObject);
         }
+    }
+
+    private void DisableCoinVisuals()
+    {
+        boxCollider2D.enabled = false;
+        spriteRenderer.enabled = false;
     }
 
     public void PopUp()
@@ -96,7 +138,7 @@ public class Coin : MonoBehaviour
             Debug.Log("PopUp");
         }
 
-        GameManager.Instance.PlayCoinSound();
+        PlayCoinSound();
 
         if (bounceTime > 0)
         {
@@ -109,14 +151,17 @@ public class Coin : MonoBehaviour
 
     void AddCoinAmountAndDestroy()
     {
-        AddCoinAmount(false);
-        Destroy(gameObject);
+        AddCoinAmount();
+        Destroy(gameObject, coinSound.length);
     }
 
 
     // Default coin movement
     IEnumerator MoveCoin()
     {
+        if (boxCollider2D != null)
+        boxCollider2D.enabled = false;
+
         // Move in a parabola
         float t = 0;
         while (t < bounceTime)
@@ -126,6 +171,9 @@ public class Coin : MonoBehaviour
             transform.position = new Vector2(transform.position.x, originalPosition.y + y * bounceHeight);
             yield return null;
         }
+
+        if (spriteRenderer != null)
+        spriteRenderer.enabled = false;
 
         AddCoinAmountAndDestroy();
     }

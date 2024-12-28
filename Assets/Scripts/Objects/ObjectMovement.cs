@@ -182,6 +182,7 @@ public class ObjectMovement : MonoBehaviour
                 onStartMovingBackward.Invoke();   // Event for starting backward movement
 
             // Play audio clip based on movement direction
+            // Play audio clip based on movement direction
             int audioIndex = isMovingForward ? 0 : 1;
 
             if (audioIndex >= 0 && audioIndex < audioObjects.Length && isVisible)
@@ -199,10 +200,24 @@ public class ObjectMovement : MonoBehaviour
                             audioSource.clip = audioClip;
                             audioSource.loop = loop;
                             audioSource.Play();
+                            Debug.Log($"Playing {audioClip.name} on {audioObject.name}");
+                        }
+                        else
+                        {
+                            Debug.LogWarning($"AudioClip is null for movement direction: {(isMovingForward ? "forward" : "backward")}");
                         }
                     }
+                    else
+                    {
+                        Debug.LogError($"No AudioSource found on {audioObject.name}");
+                    }
+                }
+                else
+                {
+                    Debug.LogError($"No audioObject found for index: {audioIndex}");
                 }
             }
+
 
             // Reset the transition timer
             transitionTimer = 0f;
