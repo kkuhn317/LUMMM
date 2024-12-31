@@ -171,6 +171,14 @@ public class CameraFollow : MonoBehaviour
         isLookingUp = false;
     }
 
+    // Call this method for default camera shake, compatible with UnityEvents
+    // most mario levels shake the camera using only the y axis
+    public void ShakeCameraRepeatedlyDefault()
+    {
+        // Use predefined default values
+        ShakeCameraRepeatedly(0.1f, 1.0f, 1.0f, new Vector3(0, 1, 0), 2, 0.1f);
+    }
+
     // Call this method to trigger camera shake on any specified axis
     public void ShakeCamera(float duration = 0.5f, float intensity = 0.1f, float decreaseFactor = 1.0f, Vector3 axis = default)
     {

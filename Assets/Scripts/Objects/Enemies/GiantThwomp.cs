@@ -1,6 +1,8 @@
+
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.Localization.Settings;
 
 public class GiantThwomp : EnemyAI, GroundPoundable
@@ -18,6 +20,7 @@ public class GiantThwomp : EnemyAI, GroundPoundable
     public float riseSpeed = 1f; // The speed the Thwomp rises back up after landing
     public float vulnerableTime = 3f; // The time the Thwomp remains vulnerable after being hit by Mario's cape
     public int health = 3; // Number of hits the Thwomp can take before falling back
+    public GameObject hitEffect;
     private Animator animator;
 
     // Sounds
@@ -48,6 +51,10 @@ public class GiantThwomp : EnemyAI, GroundPoundable
     private FallDirections fallDirection = FallDirections.Down; // The direction the Thwomp is falling in (if rising, opposite of this direction)
 
     private float internalGravity;  // The Thwomp's gravity value set in the inspector (saved because gravity is set to 0 when the Thwomp is idle)
+    public LayerMask shakeTriggerLayers;
+    public float spinAttackBouncePower = 4f;
+    public AudioClip marioLaunched;
+    [SerializeField] private CameraFollow cameraFollow;
 
     protected override void Start()
     {
@@ -58,6 +65,7 @@ public class GiantThwomp : EnemyAI, GroundPoundable
         audioSource = GetComponent<AudioSource>();
         materials = new List<Material>();
         animator = GetComponent<Animator>();
+        cameraFollow = FindObjectOfType<CameraFollow>();
         foreach (SpriteRenderer renderer in GetComponentsInChildren<SpriteRenderer>())
         {
             materials.Add(renderer.material);
@@ -144,6 +152,9 @@ public class GiantThwomp : EnemyAI, GroundPoundable
                 animator.SetBool("flip", false);
                 gravity = 0f;
                 velocity = Vector2.zero;
+
+                InstantiateHitEffect();
+
                 if (oldState == ThwompStates.Falling)
                 {
                     // Play the landing sound
@@ -198,6 +209,38 @@ public class GiantThwomp : EnemyAI, GroundPoundable
         }
     }
 
+    private void InstantiateHitEffect()
+    {
+        if (hitEffect != null)
+        {
+            Vector2 hitPosition = transform.position;
+
+            // Adjust the position based on the fall direction
+            switch (fallDirection)
+            {
+                case FallDirections.Down:
+                    hitPosition.y -= GetComponent<Collider2D>().bounds.extents.y;
+                    break;
+                case FallDirections.Left:
+                    hitPosition.x -= GetComponent<Collider2D>().bounds.extents.x;
+                    break;
+                case FallDirections.Right:
+                    hitPosition.x += GetComponent<Collider2D>().bounds.extents.x;
+                    break;
+                case FallDirections.Up:
+                    hitPosition.y += GetComponent<Collider2D>().bounds.extents.y;
+                    break;
+            }
+
+            // Instantiate the effect at the hit position
+            Instantiate(hitEffect, hitPosition, Quaternion.identity);
+        }
+        else
+        {
+            Debug.LogWarning("HitEffect prefab is not assigned.");
+        }
+    }   
+
     private void ThwompRise()
     {
         if (currentState == ThwompStates.Landed) {
@@ -214,6 +257,14 @@ public class GiantThwomp : EnemyAI, GroundPoundable
         mainCollider.enabled = true;
         vulnerableCollider.enabled = false;
         ChangeState(ThwompStates.Landed);
+    }
+
+    private void TriggerScreenShake(GameObject other) {
+        // Check if the current object's layer is in the shakeTriggerLayers mask
+        if (other != null && (shakeTriggerLayers.value & (1 << other.layer)) != 0)
+        {
+            cameraFollow.ShakeCameraRepeatedlyDefault();
+        }
     }
 
     // We are overriding HorizontalMovement and VerticalMovement because the gravity can be applied horizontally instead of just vertically
@@ -250,8 +301,9 @@ public class GiantThwomp : EnemyAI, GroundPoundable
     {
         if (currentState == ThwompStates.Falling && (fallDirection == FallDirections.Left || fallDirection == FallDirections.Right))
         {
+            TriggerScreenShake(other);
             ChangeState(ThwompStates.Landed);
-        }
+        }        
     }
 
     public override void Land() {
@@ -337,4 +389,39 @@ public class GiantThwomp : EnemyAI, GroundPoundable
         }
     }
 
+    protected override void OnTriggerEnter2D(Collider2D other) {
+        base.OnTriggerEnter2D(other);
+
+        if (other.gameObject.CompareTag("Player"))
+        {
+            MarioMovement playerScript = other.gameObject.GetComponent<MarioMovement>();
+
+            if (playerScript != null)
+            {
+                // Only apply the trampoline effect if the Thwomp is moving up and the player is performing a spin attack
+                if (fallDirection == FallDirections.Up && currentState == ThwompStates.Falling && playerScript.spinning)
+                {
+                    // Apply the trampoline-like bounce with increased power
+                    Rigidbody2D playerRb = other.gameObject.GetComponent<Rigidbody2D>();
+                    if (playerRb != null)
+                    {
+                        // Apply a stronger upward force if the player is in a spin attack
+                        playerRb.velocity = new Vector2(playerRb.velocity.x, playerRb.velocity.y * spinAttackBouncePower);
+                    }
+
+                    if (marioLaunched != null){
+                        audioSource.PlayOneShot(marioLaunched);
+                    }
+                } 
+                else
+                {
+                    Rigidbody2D playerRb = other.gameObject.GetComponent<Rigidbody2D>();
+                    if (playerRb != null)
+                    {
+                        playerRb.velocity = new Vector2(playerRb.velocity.x, playerRb.velocity.y);
+                    }
+                }
+            }
+        }
+    }
 }

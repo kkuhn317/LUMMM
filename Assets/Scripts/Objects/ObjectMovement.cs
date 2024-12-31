@@ -224,6 +224,18 @@ public class ObjectMovement : MonoBehaviour
         }
     }
 
+    // Start movement manually
+    public void StartMovement()
+    {
+        StartCoroutine(MoveObject());
+    }
+
+    // Stop movement manually
+    public void StopMovement()
+    {
+        StopAllCoroutines();  // Stop all running coroutines (including MoveObject)
+    }
+
     private void OnDrawGizmosSelected()
     {
         // Draw a line to represent the movement range
