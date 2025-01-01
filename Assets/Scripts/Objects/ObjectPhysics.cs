@@ -115,7 +115,8 @@ public class ObjectPhysics : MonoBehaviour
     public enum KnockAwayType
     {
         flip,   // Immediately flip upside down
-        rotate // Constantly Rotate backwards
+        rotate, // Constantly Rotate backwards
+        animation
     }
 
     public ObjectState objectState = ObjectState.falling;
@@ -161,7 +162,6 @@ public class ObjectPhysics : MonoBehaviour
 
     protected virtual void Update()
     {
-        
         if (updateType == UpdateType.EveryFrame)
         {
             adjDeltaTime = Time.deltaTime;
@@ -195,6 +195,20 @@ public class ObjectPhysics : MonoBehaviour
                     AddRotation(knockAwayRotationSpeed * Time.deltaTime);
                 }
 
+            }
+            else if (knockAwayType == KnockAwayType.animation)
+            {
+                // Trigger the animation for knock-away
+                if (GetComponent<Animator>() != null)
+                {
+                    GetComponent<Animator>().SetTrigger("KnockAwayTrigger");
+                }
+
+                // Set movement to still
+                if (movement != ObjectMovement.still)
+                {
+                    movement = ObjectMovement.still;
+                }
             }
 
             // Fade out
@@ -234,7 +248,7 @@ public class ObjectPhysics : MonoBehaviour
     public virtual void UpdatePosition()
     {
         // don't move if carried
-        if (carried)
+        if (carried || (knockAwayType == KnockAwayType.animation && objectState == ObjectState.knockedAway))
         {
             return;
         }
@@ -270,7 +284,6 @@ public class ObjectPhysics : MonoBehaviour
         onMovingPlatform = false;   // reset moving platform flag
         if (objectState != ObjectState.knockedAway && objectState != ObjectState.onLava)
         {
-
             if (velocity.y <= 0)
             {
                 pos = CheckGround(pos);
@@ -619,7 +632,6 @@ public class ObjectPhysics : MonoBehaviour
 
     public virtual bool CheckWalls(Vector3 pos, float direction)
     {
-
         //RaycastHit2D hitRay = RaycastWalls (pos, direction);
         RaycastHit2D hitRay = RaycastWalls(pos, direction);
 
@@ -679,7 +691,6 @@ public class ObjectPhysics : MonoBehaviour
         {
             movingLeft = !movingLeft;
         }
-
     }
 
     public void Fall()
@@ -742,6 +753,8 @@ public class ObjectPhysics : MonoBehaviour
                 case KnockAwayType.rotate:
                     // Handled in update
                     break;
+                case KnockAwayType.animation:
+                    break;
             }
 
             GetComponent<Collider2D>().enabled = false;
@@ -764,10 +777,12 @@ public class ObjectPhysics : MonoBehaviour
     {
         velocity.x = x;
     }
+
     public void SetYVelocity(float y)
     {
         velocity.y = y;
     }
+
     public void SetKnockAwayToFlip()
     {
         knockAwayType = KnockAwayType.flip;
@@ -778,6 +793,11 @@ public class ObjectPhysics : MonoBehaviour
         knockAwayType = KnockAwayType.rotate;
     }
 
+    public void SetKnockAwayTAnimation()
+    {
+        knockAwayType = KnockAwayType.animation;
+    }
+
     public void SetObjectGravity(float newGravity)
     {
         gravity = newGravity;
@@ -785,7 +805,6 @@ public class ObjectPhysics : MonoBehaviour
 
     protected virtual void OnDrawGizmosSelected()
     {
-
         if (movement == ObjectMovement.still)
         {
             return;

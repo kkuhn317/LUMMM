@@ -185,4 +185,17 @@ public class KoopaController : EnemyAI
             ToInShell();
         }
     }
+
+    public override void KnockAway(bool direction, bool sound = true, KnockAwayType? type = null, Vector2? velocity = null)
+    {
+        if (type.HasValue && type.Value == KnockAwayType.animation)
+        {
+            // Skip applying the movingLeft direction if the type is animation
+            base.KnockAway(false, sound, type, velocity); // You might want to use "false" or some default direction here.
+        }
+        else
+        {
+            base.KnockAway(direction, sound, type, velocity); // Default KnockAway behavior
+        }
+    }
 }
