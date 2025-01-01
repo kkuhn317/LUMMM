@@ -29,6 +29,8 @@ public class FirstTimeCheck : MonoBehaviour
         if (PlayerPrefs.GetInt(FirstTimeKey, 1) == 1)
         {
             // First time opening the game
+            Debug.Log("First Time Opening");
+            // First time opening the game
             ActivateObject();
             // Set PlayerPrefs to indicate the game has been opened
             PlayerPrefs.SetInt(FirstTimeKey, 0);
