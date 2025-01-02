@@ -6,7 +6,7 @@ using UnityEngine.Playables;
 using UnityEngine.Events;
 using PowerupState = PowerStates.PowerupState;
 
-public class QuestionBlock : MonoBehaviour
+public class QuestionBlock : MonoBehaviour, IGroundPoundable
 {
     [Header("Invisible Block Behavior")]
     public bool isInvisible;
@@ -105,6 +105,28 @@ public class QuestionBlock : MonoBehaviour
             }
 
             onBlockActivated.Invoke();
+        }
+    }
+
+    public void OnGroundPound()
+    {
+        MarioMovement player = FindObjectOfType<MarioMovement>(); // Find the player interacting
+        if (brickBlock) 
+        {
+            // Brick block behavior
+            if (PowerStates.IsSmall(player.powerupState))
+            {
+                QuestionBlockBounce(); // Bounce for small Mario
+            }
+            else
+            {
+                BrickBlockBreak(); // Break for big Mario
+            }
+        }
+        else
+        {
+            // Question block always bounces
+            QuestionBlockBounce();
         }
     }
 

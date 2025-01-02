@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Localization.Settings;
 
-public class GiantThwomp : EnemyAI, GroundPoundable
+public class GiantThwomp : EnemyAI, IGroundPoundable
 {
     [Header("Giant Thwomp")]
     private List<Material> materials;  // Should be the special Thwomp Color Overlay material

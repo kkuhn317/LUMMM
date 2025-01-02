@@ -20,7 +20,9 @@ public class MarioMovement : MonoBehaviour
     [HideInInspector] public Vector2 moveInput; // The raw directional input from the player's controller
     [HideInInspector] public bool crouchPressed = false;
     private bool crouchPressedInAir = false;
-    private float groundPoundCancelCooldown = 0.2f; // Cooldown time in seconds
+    [HideInInspector] public bool groundPoundInWater = false;
+    private float waterGroundPoundDuration = 1f; // Duración permitida en el agua
+    [HideInInspector] public float waterGroundPoundStartTime;
     private float lastCancelTime = -1f; // Tracks the time of the last cancel
     private bool jumpPressed = false;
     private bool runPressed = false;
@@ -185,7 +187,7 @@ public class MarioMovement : MonoBehaviour
     private bool spinJumpQueued = false;    // If the next jump should be a spin jump
     public bool canGroundPound = false;
     [HideInInspector] public bool groundPounding = false;
-    private bool groundPoundRotating = false;
+    [HideInInspector] public bool groundPoundRotating = false;
 
     // Made private to not clog inspector
     private float groundPoundSpinTime = 0.5f; // How long the player will be frozen in the air when ground pound starts
@@ -379,8 +381,10 @@ public class MarioMovement : MonoBehaviour
         if (Time.time < jumpTimer && (onGround || swimming || wallSliding) && !jumpBlocked) {
 
             if (swimming) {
-                audioSource.PlayOneShot(swimSound);
-                Swim();
+                if (!groundPounding){
+                    audioSource.PlayOneShot(swimSound);
+                    Swim();
+                }              
             } else if (wallSliding) {
                 audioSource.Play();
                 WallJump();
@@ -426,16 +430,27 @@ public class MarioMovement : MonoBehaviour
             groundPos = hitRay.point;
 
             if (onMovingPlatform) {
-                onMovingPlatform = true;
-                transform.parent = hitRay.transform;
-                //transform.SetParent(hitRay.transform, true);
+                //onMovingPlatform = true;
+                //transform.parent = hitRay.transform;
+                if (transform.parent != hitRay.transform) 
+                {
+                    transform.parent = hitRay.transform; // Only set parent if not already the moving platform
+                }
             } else {
-                if (wasOnMovingPlatform) {
+                /*if (wasOnMovingPlatform) {
                     // Transfer momentum to mario
                     TransferMovingPlatformMomentum();
                 }
                 onMovingPlatform = false;
-                transform.parent = null;
+                transform.parent = null;*/
+
+                if (wasOnMovingPlatform && transform.parent != null && transform.parent.CompareTag("MovingPlatform")) 
+                {
+                    // Transfer momentum to mario only when detaching from a moving platform
+                    TransferMovingPlatformMomentum();
+                    transform.parent = null;
+                }
+                onMovingPlatform = false;
             }
 
             // Slope detection
@@ -488,12 +503,18 @@ public class MarioMovement : MonoBehaviour
             animator.SetBool("isDropping", false);
 
         } else {
-            if (wasOnMovingPlatform) {
+            /*if (wasOnMovingPlatform) {
                 // Transfer momentum to mario
                 TransferMovingPlatformMomentum();
+            }*/
+            if (wasOnMovingPlatform && transform.parent != null && transform.parent.CompareTag("MovingPlatform")) 
+            {
+                // Transfer momentum to mario only when detaching from a moving platform
+                TransferMovingPlatformMomentum();
+                transform.parent = null;
             }
             onMovingPlatform = false;
-            transform.parent = null;
+            //transform.parent = null;
         }
 
         // Corner correction
@@ -800,6 +821,8 @@ public class MarioMovement : MonoBehaviour
 
     // for swimming
     public void Swim() {
+        if (groundPounding) return; 
+
         onGround = false;
         rb.AddForce(Vector2.up * swimForce, ForceMode2D.Impulse);
         animator.SetTrigger("swim");
@@ -891,10 +914,18 @@ public class MarioMovement : MonoBehaviour
     private void GroundPoundLand(GameObject hitObject) {
         groundPounding = false;
         groundPoundRotating = false;
+        groundPoundInWater = false; 
+        waterGroundPoundStartTime = 0f; // Reset timer
         audioSource.PlayOneShot(groundPoundLandSound);
-        GroundPoundable groundPoundable = hitObject.GetComponent<GroundPoundable>();
+        IGroundPoundable groundPoundable = hitObject.GetComponent<IGroundPoundable>();
         if (groundPoundable != null) {
             groundPoundable.OnGroundPound();
+        }
+
+        // start swim idle if you're swimming when the ground pound lands
+        if (swimming)
+        {
+            animator.SetTrigger("enterWater");
         }
     }
 
@@ -906,17 +937,57 @@ public class MarioMovement : MonoBehaviour
         groundPounding = false;  // Exit ground pound state
         groundPoundRotating = false;  // Stop rotation effect
         crouchPressedInAir = false;
+        groundPoundInWater = false;
+        waterGroundPoundStartTime = 0f;
 
         // Allow normal air movement
         rb.gravityScale = gravity;
 
         // Play cancel animation or sound if needed
         animator.SetBool("isDropping", false);
+
+        if (swimming){
+            animator.SetTrigger("enterWater");
+        }
     }
 
+    public void StopGroundPound()
+    {
+        // Cancel any pending ground pound actions
+        CancelInvoke(nameof(GroundPoundFall));
+
+        // Reset ground pound states
+        groundPounding = false;
+        groundPoundRotating = false;
+        groundPoundInWater = false;
+        waterGroundPoundStartTime = 0f;
+
+        // Reset animations
+        animator.SetBool("isDropping", false);
+
+        // Reset physics
+        rb.velocity = Vector2.zero; // Clear velocity
+        rb.gravityScale = gravity; // Reset gravity to normal
+
+        // Reset input flags (to prevent lingering input re-triggering the ground pound)
+        crouchPressedInAir = false; 
+        spinPressed = false;
+    }
 
     void ModifyPhysics() {
         changingDirections = (direction.x > 0 && rb.velocity.x < 0) || (direction.x < 0 && rb.velocity.x > 0);
+
+        // Special ground pound physics
+        if (groundPounding) {
+            rb.drag = 0;
+            if (groundPoundRotating) {
+                rb.gravityScale = 0; // Freeze during rotation phase
+                rb.velocity = new Vector2(0, 0);
+            } else {
+                rb.gravityScale = gravity; // Normal gravity during fall phase
+            }
+            return;
+        }
 
         // special swimming physics
         if (swimming) {
@@ -931,23 +1002,11 @@ public class MarioMovement : MonoBehaviour
             int pushDir = facingRight ? 1 : -1;
             rb.velocity = new Vector2(pushingSpeed * pushDir, rb.velocity.y);
             return;
-        }
-
-        // Special ground pound physics
-        if (groundPounding) {
-            rb.drag = 0;
-            if (groundPoundRotating) {
-                rb.gravityScale = 0;
-                rb.velocity = new Vector2(0, 0);
-            } else {
-                rb.gravityScale = gravity;
-            }
-            return;
-        }
+        }  
 
         Vector2 physicsInput = direction;   // So we can modify it without changing the direction variable
 
-        if (onGround) {
+        if (onGround) { // Regular physics for air or ground
             // no crazy crouch sliding (but do allow crawling)
             if (inCrouchState)
             {
@@ -1008,6 +1067,11 @@ public class MarioMovement : MonoBehaviour
     }
     
     void Flip() {
+        if (groundPounding || groundPoundRotating)
+        {
+            return; // Prevent flipping during ground pound phases
+        }
+
         facingRight = !facingRight;
         //transform.rotation = Quaternion.Euler(0, facingRight ? 0 : 180, 0);
         if (sprite) {
@@ -1100,6 +1164,12 @@ public class MarioMovement : MonoBehaviour
     public MarioMovement transferProperties(GameObject newMario) {
         newMario.GetComponent<Rigidbody2D>().velocity = gameObject.GetComponent<Rigidbody2D>().velocity;
         var newMarioMovement = newMario.GetComponent<MarioMovement>();
+
+        // Transfer the parent relationship
+        if (transform.parent != null)
+        {
+            newMario.transform.SetParent(transform.parent, true); // Maintain the parent's relationship
+        }
 
         newMarioMovement.FlipTo(facingRight);
 
@@ -1284,6 +1354,25 @@ public class MarioMovement : MonoBehaviour
     void OnTriggerStay2D(Collider2D other)
     {
         DetectDamagingObject(other);
+
+        if (other.gameObject.layer == LayerMask.NameToLayer("Water"))
+        {
+            if (groundPounding && !groundPoundInWater)
+            {
+                // If the ground pound started in the water, alllow it with a time limit
+                groundPoundInWater = true;
+                waterGroundPoundStartTime = Time.time;
+            }
+
+            if (groundPounding && !groundPoundRotating && groundPoundInWater)
+            {
+                // Cancel the ground pound if it exceeds the ground pound time allowed in the water
+                if (Time.time - waterGroundPoundStartTime > waterGroundPoundDuration)
+                {
+                    CancelGroundPound();
+                }
+            }
+        }
     }
     
     private void OnTriggerEnter2D(Collider2D other)
@@ -1296,9 +1385,19 @@ public class MarioMovement : MonoBehaviour
 
         if (other.gameObject.layer == LayerMask.NameToLayer("Water"))
         {
+            spinning = false;
             swimming = true;
+            waterGroundPoundStartTime = 0f;
             animator.SetTrigger("enterWater");
+
+            if (groundPounding)
+            {
+                // If player enters the water during a ground pound started in the air, cancel it
+                CancelGroundPound();
+                groundPoundInWater = false;
+            }
         }
+
         DetectDamagingObject(other);
     }
 
@@ -1318,13 +1417,36 @@ public class MarioMovement : MonoBehaviour
     {
         if (other.gameObject.layer == LayerMask.NameToLayer("Water"))
         {
-            swimming = false;
-            animator.SetTrigger("exitWater");
+            // Check if still in water before setting swimming to false
+            Collider2D[] overlappingColliders = Physics2D.OverlapCircleAll(transform.position, 0.1f);
+            bool stillInWater = false;
 
-            // if you are moving up, you can jump out of water
-            if (rb.velocity.y > 0)
+            foreach (var collider in overlappingColliders)
             {
-                JumpOutOfWater();
+                if (collider.gameObject.layer == LayerMask.NameToLayer("Water"))
+                {
+                    stillInWater = true;
+                    break;
+                }
+            }
+
+            if (!stillInWater)
+            {
+                swimming = false;
+                animator.SetTrigger("exitWater");
+
+                // Reset water-specific ground pound state
+                groundPoundInWater = false;
+                waterGroundPoundStartTime = 0f;
+
+                if (rb.velocity.y > 0 && !groundPounding)
+                {
+                    JumpOutOfWater();
+                }
+                else if (groundPounding)
+                {
+                    CancelGroundPound();
+                }
             }
         }
     }

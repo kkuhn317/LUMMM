@@ -60,6 +60,13 @@ public class Pipe : MonoBehaviour
     private IEnumerator Enter(Transform player)
     {
         /* ENTERING */
+        MarioMovement marioMovement = player.GetComponent<MarioMovement>();
+         // Wait until the player finishes the ground pound rotation phase
+        while (marioMovement != null && marioMovement.groundPoundRotating)
+        {
+            Debug.Log("Waiting for ground pound rotation to finish...");
+            yield return null; // Wait for the next frame
+        }
 
         isEnteringPipe = true; // Set the flag to prevent re-entry
 
@@ -88,13 +95,20 @@ public class Pipe : MonoBehaviour
         playerAnimator.SetBool("isCrouching", enterDirection == Direction.Down);
         playerAnimator.SetBool("isRunning", enterDirection == Direction.Left || enterDirection == Direction.Right);
         playerAnimator.SetFloat("Horizontal", enterDirection == Direction.Left || enterDirection == Direction.Right ? 1 : 0);
+
+        // Reset ground pound state
+       
+        if (marioMovement != null)
+        {
+            marioMovement.StopGroundPound();
+        }
         if (enterDirection == Direction.Left || enterDirection == Direction.Right)
         {
             playerSprite.flipX = enterDirection == Direction.Left;
         }
 
         // Disable player's movement
-        player.GetComponent<MarioMovement>().enabled = false;
+        marioMovement.enabled = false;
 
         Vector2 enterDirectionVector = DirectionToVector(enterDirection) * enterDistance; // Get the direction vector based on the enter direction
 

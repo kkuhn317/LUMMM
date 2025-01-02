@@ -4,7 +4,7 @@ using UnityEngine;
 
 
 // Interface for objects that can be ground pounded (that are solid) (e.g. Giant Thwomp after falling back)
-public interface GroundPoundable
+public interface IGroundPoundable
 {
     public void OnGroundPound();
 }
