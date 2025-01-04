@@ -25,7 +25,7 @@ public class Arrow : BulletBill
     }
 
     // Don't do regular landing or wall touch. Instead, do our own behavior
-    public override void Land() {}
+    public override void Land(GameObject other = null) {}
     protected override void onTouchWall(GameObject wall){}
 
     protected override void FixedUpdate()

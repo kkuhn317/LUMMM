@@ -1,9 +1,17 @@
-
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Localization.Settings;
+using UnityEngine.Playables;
+
+[System.Serializable]
+public struct RaycastConfiguration
+{
+    public Vector2 offset;       // Offset from the object's position
+    public Vector2 size;         // Size of the box (if using boxcast)
+    public Vector2 effectSpawnOffset; // Offset where the effect will spawn
+}
 
 public class GiantThwomp : EnemyAI, IGroundPoundable
 {
@@ -28,6 +36,10 @@ public class GiantThwomp : EnemyAI, IGroundPoundable
     public AudioClip thwompLandSound;
     public AudioClip thwompHurtSound;
 
+    [Header("Hit Effect Settings")]
+    public List<RaycastConfiguration> raycastConfigurations; // Configurable raycasts
+    public LayerMask hitEffectTriggerLayers;                // Layers that trigger hit effects
+
     public enum ThwompStates {
         Idle, // The Thwomp remains stationary, waiting for the player to come into range
         Falling, // The Thwomp falls rapidly towards the player or a specific target area
@@ -40,6 +52,7 @@ public class GiantThwomp : EnemyAI, IGroundPoundable
     private bool checkSides = false; // Changes to true after first fall
     private Vector2 initialPosition; // The initial position of the Thwomp
     public GameObject poofEffectPrefab;
+     public PlayableDirector defeatTimeline;
 
     public enum FallDirections {
         Down,
@@ -52,9 +65,12 @@ public class GiantThwomp : EnemyAI, IGroundPoundable
 
     private float internalGravity;  // The Thwomp's gravity value set in the inspector (saved because gravity is set to 0 when the Thwomp is idle)
     public LayerMask shakeTriggerLayers;
+    public LayerMask audioTriggerLayers;  
     public float spinAttackBouncePower = 4f;
     public AudioClip marioLaunched;
     [SerializeField] private CameraFollow cameraFollow;
+
+    public SpikesFlagPole flagpole;
 
     protected override void Start()
     {
@@ -102,10 +118,46 @@ public class GiantThwomp : EnemyAI, IGroundPoundable
         }
     }
 
+    public void DetectFlagpole()
+    {
+        // Ensure the flagpole exists
+        if (flagpole != null)
+        {
+            // Adjust fall direction to target the flagpole along the x-axis
+            float directionToFlagpoleX = Mathf.Sign(flagpole.transform.position.x + 2f - transform.position.x);
+
+            if (directionToFlagpoleX > 0)
+            {
+                fallDirection = FallDirections.Right;
+            }
+            else if (directionToFlagpoleX < 0)
+            {
+                fallDirection = FallDirections.Left;
+            }
+            else
+            {
+                // Optional: Handle case where Thwomp and flagpole are perfectly aligned on the x-axis
+                Debug.Log("Thwomp and flagpole are aligned on the x-axis.");
+            }
+
+            // Ensure the Thwomp is not in the FallBack state before changing state
+            if (currentState != ThwompStates.FallBack)
+            {
+                ChangeState(ThwompStates.Falling);
+            }
+
+            Debug.Log("Flagpole detected and Thwomp is reacting!");
+        }
+        else
+        {
+            Debug.LogWarning("Flagpole reference is missing.");
+        }
+    }
+
     protected override void Update()
     {
         base.Update();
-
+        
         switch (currentState)
         {
             case ThwompStates.Idle:
@@ -127,7 +179,6 @@ public class GiantThwomp : EnemyAI, IGroundPoundable
             default:
                 break;
         }
-
     }
 
     private void ChangeState(ThwompStates newState)
@@ -144,7 +195,10 @@ public class GiantThwomp : EnemyAI, IGroundPoundable
                 velocity = Vector2.zero;
                 break;
             case ThwompStates.Falling:
-                animator.SetBool("angry", true);
+                if (fallDirection != FallDirections.Up) {
+                    animator.SetBool("angry", true);
+                }
+                
                 gravity = internalGravity;
                 checkSides = true;
                 break;
@@ -153,23 +207,46 @@ public class GiantThwomp : EnemyAI, IGroundPoundable
                 gravity = 0f;
                 velocity = Vector2.zero;
 
-                InstantiateHitEffect();
+                if (oldState != ThwompStates.Vulnerable) {
+                    InstantiateHitEffect();
+                }            
 
                 if (oldState == ThwompStates.Falling)
                 {
-                    // Play the landing sound
-                    if (thwompLandSound != null)
+                    if (audioSource != null && audioTriggerLayers != 0)
                     {
-                        audioSource.PlayOneShot(thwompLandSound);
-                    }
+                        // Check for collision below (ground) and sides
+                        Collider2D hitCollider = Physics2D.OverlapBox(
+                            transform.position + Vector3.down * mainCollider.size.y / 2, // Adjust position to check below
+                            new Vector2(mainCollider.size.x, 0.1f), // Slim horizontal box to detect ground
+                            0,
+                            audioTriggerLayers
+                        );
+
+                        if (hitCollider == null)
+                        {
+                            // Check sides (current box alignment)
+                            hitCollider = Physics2D.OverlapBox(
+                                transform.position,
+                                mainCollider.size,
+                                0,
+                                audioTriggerLayers
+                            );
+                        }
+
+                        if (hitCollider != null)
+                        {
+                            audioSource.PlayOneShot(thwompLandSound);
+                        }
+                    }          
                 }
 
                 // Wait at the bottom for a bit
                 Invoke(nameof(ThwompRise), landWaitTime);
                 break;
             case ThwompStates.Rising:
-                animator.SetBool("flip", false);
                 animator.SetBool("angry", false);
+                animator.SetBool("flip", false);
                 switch (fallDirection)
                 {
                     case FallDirections.Down:
@@ -211,35 +288,24 @@ public class GiantThwomp : EnemyAI, IGroundPoundable
 
     private void InstantiateHitEffect()
     {
-        if (hitEffect != null)
+        foreach (var config in raycastConfigurations)
         {
-            Vector2 hitPosition = transform.position;
+            Vector2 origin = (Vector2)transform.position + config.offset;
 
-            // Adjust the position based on the fall direction
-            switch (fallDirection)
+            // Perform a boxcast to detect objects in the specified area
+            RaycastHit2D[] hits = Physics2D.BoxCastAll(origin, config.size, 0, Vector2.zero, 0);
+
+            foreach (var hit in hits)
             {
-                case FallDirections.Down:
-                    hitPosition.y -= GetComponent<Collider2D>().bounds.extents.y;
-                    break;
-                case FallDirections.Left:
-                    hitPosition.x -= GetComponent<Collider2D>().bounds.extents.x;
-                    break;
-                case FallDirections.Right:
-                    hitPosition.x += GetComponent<Collider2D>().bounds.extents.x;
-                    break;
-                case FallDirections.Up:
-                    hitPosition.y += GetComponent<Collider2D>().bounds.extents.y;
-                    break;
+                if (hit.collider != null && (hitEffectTriggerLayers.value & (1 << hit.collider.gameObject.layer)) != 0)
+                {
+                    // Calculate the position to spawn the effect
+                    Vector2 effectPosition = (Vector2)transform.position + config.effectSpawnOffset;
+                    Instantiate(hitEffect, effectPosition, Quaternion.identity);
+                }
             }
-
-            // Instantiate the effect at the hit position
-            Instantiate(hitEffect, hitPosition, Quaternion.identity);
         }
-        else
-        {
-            Debug.LogWarning("HitEffect prefab is not assigned.");
-        }
-    }   
+    }
 
     private void ThwompRise()
     {
@@ -256,6 +322,14 @@ public class GiantThwomp : EnemyAI, IGroundPoundable
         }
         mainCollider.enabled = true;
         vulnerableCollider.enabled = false;
+
+        // Ensure the Thwomp does not reset to Landed if targeting the flagpole
+        if (flagpole != null && Mathf.Abs(flagpole.transform.position.x - transform.position.x) < mainCollider.size.x / 2)
+        {
+            Debug.Log("Thwomp is targeting the flagpole, staying in current state.");
+            return;
+        }  
+
         ChangeState(ThwompStates.Landed);
     }
 
@@ -302,18 +376,21 @@ public class GiantThwomp : EnemyAI, IGroundPoundable
         if (currentState == ThwompStates.Falling && (fallDirection == FallDirections.Left || fallDirection == FallDirections.Right))
         {
             TriggerScreenShake(other);
+            InstantiateHitEffect(); // Now uses multiple raycasts
             ChangeState(ThwompStates.Landed);
         }        
     }
 
-    public override void Land() {
+    public override void Land(GameObject other = null) {
         if (currentState == ThwompStates.Falling && (fallDirection == FallDirections.Down || fallDirection == FallDirections.Up))
         {
+            TriggerScreenShake(other);
+            InstantiateHitEffect(); // Now uses multiple raycasts
             ChangeState(ThwompStates.Landed);
         }
     }
 
-    protected override void HitCeiling()
+    protected override void HitCeiling(GameObject other = null)
     {
         if (currentState == ThwompStates.Falling && fallDirection == FallDirections.Up)
         {
@@ -380,17 +457,47 @@ public class GiantThwomp : EnemyAI, IGroundPoundable
     {
         if (currentState == ThwompStates.FallBack)
         {
+            GameManager.Instance.StopTimer();
+            GameManager.Instance.StopAllMusic();
+
             // Play the poof effect
             if (poofEffectPrefab != null)
             {
                 Instantiate(poofEffectPrefab, transform.position, Quaternion.identity);
             }
+
+            // Play the defeat timeline
+            if (defeatTimeline != null)
+            {
+                defeatTimeline.Play();
+            }
+            else
+            {
+                Debug.LogWarning("Defeat timeline not assigned!");
+            }
+
             Destroy(gameObject);
         }
     }
 
     protected override void OnTriggerEnter2D(Collider2D other) {
         base.OnTriggerEnter2D(other);
+        Debug.Log($"Collision with {other.name}");
+        IDestructible destructible = other.GetComponent<IDestructible>();
+        if (destructible != null)
+        {
+            destructible.OnDestruction();
+            InstantiateHitEffect();
+
+            // Use ObjectPhysics for knock away logic if available
+            ObjectPhysics objectPhysics = other.GetComponent<ObjectPhysics>();
+            if (objectPhysics != null)
+            {
+                // Determine the knock away direction based on Thwomp's current direction
+                bool knockAwayDirection = other.transform.position.x < transform.position.x;
+                objectPhysics.KnockAway(knockAwayDirection, true, KnockAwayType.rotate);
+            }
+        }
 
         if (other.gameObject.CompareTag("Player"))
         {
@@ -422,6 +529,27 @@ public class GiantThwomp : EnemyAI, IGroundPoundable
                     }
                 }
             }
+        }
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.red;
+
+        foreach (var config in raycastConfigurations)
+        {
+            Vector2 origin = (Vector2)transform.position + config.offset;
+
+            // Draw the detection area
+            Gizmos.DrawWireCube(origin, config.size);
+
+            // Draw the effect spawn position
+            Gizmos.color = Color.green;
+            Vector2 effectPosition = (Vector2)transform.position + config.effectSpawnOffset;
+            Gizmos.DrawSphere(effectPosition, 0.1f);
+
+            // Reset color for consistency in loops
+            Gizmos.color = Color.red;
         }
     }
 }

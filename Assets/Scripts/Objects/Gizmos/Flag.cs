@@ -45,13 +45,13 @@ public class Flag : MonoBehaviour
 
 
     // Start is called before the first frame update
-    void Start()
+    protected virtual void Start()
     {
         
     }
 
     // Update is called once per frame
-    void Update()
+    protected virtual void Update()
     {
         if (state == FlagState.Sliding) {
             // flag moves down
@@ -73,7 +73,7 @@ public class Flag : MonoBehaviour
         }
     }
 
-    void OnTriggerEnter2D(Collider2D other)
+    protected virtual void OnTriggerEnter2D(Collider2D other)
     {
         if (other.gameObject.CompareTag("Player") && state == FlagState.Idle)
         {

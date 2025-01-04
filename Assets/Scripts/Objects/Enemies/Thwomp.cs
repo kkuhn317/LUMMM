@@ -43,7 +43,7 @@ public class Thwomp : EnemyAI
         gravity = internalGravity;
     }
 
-    public override void Land()
+    public override void Land(GameObject other = null)
     {
         base.Land();
         if (!isFalling) return;

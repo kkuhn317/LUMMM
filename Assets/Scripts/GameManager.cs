@@ -431,11 +431,7 @@ public class GameManager : MonoBehaviour
     private void ApplyOptionsMenuSettings()
     {
         // Disable level UI
-        if (levelUI != null)
-        {
-            levelUI.SetActive(false);
-        }
-        
+        HideUI();
         // Stop timer
         stopTimer = true;
     }
@@ -484,6 +480,13 @@ public class GameManager : MonoBehaviour
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
+    public void HideUI(){
+        if (levelUI != null)
+        {
+            levelUI.SetActive(false);
+        }
+    }
+
     public virtual void DecrementLives()
     {
         // turn off all music overrides
@@ -500,7 +503,7 @@ public class GameManager : MonoBehaviour
                 pauseable = false;
                 // Enable the Game Over screen
                 GameOverScreenGameObject.SetActive(true);
-                levelUI.SetActive(false);
+                HideUI();
             }
             else
             {

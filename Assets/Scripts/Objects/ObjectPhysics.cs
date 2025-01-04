@@ -402,7 +402,7 @@ public class ObjectPhysics : MonoBehaviour
 
             if (movement == ObjectMovement.sliding)
             {
-                Land();
+                Land(groundObject);
             }
             else if (movement == ObjectMovement.bouncing)
             {
@@ -415,7 +415,7 @@ public class ObjectPhysics : MonoBehaviour
                 else
                 {
                     // we're done bouncing
-                    Land();
+                    Land(groundObject);
                 }
             }
 
@@ -509,7 +509,7 @@ public class ObjectPhysics : MonoBehaviour
         {
             // We hit the ceiling
             pos.y = shortestRay.point.y - halfHeight;
-            HitCeiling();
+            HitCeiling(shortestRay.collider.gameObject);
         }
 
         return pos;
@@ -695,7 +695,6 @@ public class ObjectPhysics : MonoBehaviour
 
     public void Fall()
     {
-
         velocity.y = 0;
 
         objectState = ObjectState.falling;
@@ -707,10 +706,9 @@ public class ObjectPhysics : MonoBehaviour
         } else {
             transform.parent = null;
         }
-
     }
 
-    public virtual void Land()
+    public virtual void Land(GameObject other = null)
     {
         objectState = ObjectState.grounded;
         if (stopAfterLand)
@@ -719,7 +717,7 @@ public class ObjectPhysics : MonoBehaviour
         }
     }
 
-    protected virtual void HitCeiling()
+    protected virtual void HitCeiling(GameObject other = null)
     {
         velocity.y = -velocity.y * 0.5f;    // bounce off the ceiling a little bit
     }
@@ -902,6 +900,7 @@ public class ObjectPhysics : MonoBehaviour
                 EnemyAI enemy = collision.gameObject.GetComponent<EnemyAI>();
                 if (enemy != null)
                 {
+                    enemy.objectState = ObjectState.falling;
                     enemy.KnockAway(transform.position.x > enemy.transform.position.x);
                 }
                 GameManager.Instance.AddScorePoints(100);

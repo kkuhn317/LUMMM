@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class DonutBlock : MonoBehaviour
+public class DonutBlock : MonoBehaviour, IDestructible
 {
     public float dropTime = 3f;
     public float regenerateTime = 3f;
@@ -94,5 +94,9 @@ public class DonutBlock : MonoBehaviour
         rb.angularVelocity = 0f;
 
         rb.isKinematic = true; // Disable physics while at the initial position
+    }
+
+    public void OnDestruction(){
+        Debug.Log("It works!");
     }
 }

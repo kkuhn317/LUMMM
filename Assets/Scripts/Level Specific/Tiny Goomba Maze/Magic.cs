@@ -27,7 +27,7 @@ public class Magic : EnemyAI
         Dissapear();
     }
 
-    public override void Land() {
+    public override void Land(GameObject other = null) {
         Dissapear();
     }
 

@@ -54,7 +54,7 @@ public class BulletBill : EnemyAI
         KnockAway(!movingLeft);
     }
 
-    public override void Land() {
+    public override void Land(GameObject other = null) {
         KnockAway(!movingLeft);
     }
 

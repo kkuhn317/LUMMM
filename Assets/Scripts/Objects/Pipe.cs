@@ -61,7 +61,7 @@ public class Pipe : MonoBehaviour
     {
         /* ENTERING */
         MarioMovement marioMovement = player.GetComponent<MarioMovement>();
-         // Wait until the player finishes the ground pound rotation phase
+        // Wait until the player finishes the ground pound rotation phase
         while (marioMovement != null && marioMovement.groundPoundRotating)
         {
             Debug.Log("Waiting for ground pound rotation to finish...");
