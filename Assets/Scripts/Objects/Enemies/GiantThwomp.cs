@@ -11,6 +11,7 @@ public struct RaycastConfiguration
     public Vector2 offset;       // Offset from the object's position
     public Vector2 size;         // Size of the box (if using boxcast)
     public Vector2 effectSpawnOffset; // Offset where the effect will spawn
+    public List<GiantThwomp.FallDirections> allowedDirections; // Allowed directions for this configuration
 }
 
 public class GiantThwomp : EnemyAI, IGroundPoundable
@@ -52,7 +53,7 @@ public class GiantThwomp : EnemyAI, IGroundPoundable
     private bool checkSides = false; // Changes to true after first fall
     private Vector2 initialPosition; // The initial position of the Thwomp
     public GameObject poofEffectPrefab;
-     public PlayableDirector defeatTimeline;
+    public PlayableDirector defeatTimeline;
 
     public enum FallDirections {
         Down,
@@ -290,6 +291,12 @@ public class GiantThwomp : EnemyAI, IGroundPoundable
     {
         foreach (var config in raycastConfigurations)
         {
+            // Skip this configuration if the current direction is not allowed
+            if (!config.allowedDirections.Contains(fallDirection))
+            {
+                continue;
+            }
+
             Vector2 origin = (Vector2)transform.position + config.offset;
 
             // Perform a boxcast to detect objects in the specified area

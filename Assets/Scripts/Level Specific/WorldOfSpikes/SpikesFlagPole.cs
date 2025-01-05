@@ -5,6 +5,7 @@ using UnityEngine;
 public class SpikesFlagPole : Flag, IDestructible
 {
     private bool playerReachedFlag = false;
+    public GiantThwomp giantThwomp;
     public GameObject brokenFlag; 
     public GameObject deadMario;
 

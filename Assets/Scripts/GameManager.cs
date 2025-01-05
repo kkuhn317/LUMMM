@@ -462,6 +462,24 @@ public class GameManager : MonoBehaviour
         // Unpause the game
         ResumeGame();
     }
+
+    public void RestartLevelFromBeginningWithFadeOut()
+    {
+        // reset lives, checkpoint, etc
+        GlobalVariables.ResetForLevel();
+
+        // Remove saved progress
+        RemoveProgress();
+
+        // turn off all music overrides
+        RemoveAllMusicOverrides();
+
+        // Reloads the level
+        ReloadSceneWithFade();
+
+        // Unpause the game
+        ResumeGame();
+    }
     
     public void RestartLevelFromCheckpoint()
     {
@@ -478,6 +496,11 @@ public class GameManager : MonoBehaviour
     public void ReloadScene()
     {
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
+
+    public void ReloadSceneWithFade()
+    {
+        FadeInOutScene.Instance.LoadSceneWithFade(SceneManager.GetActiveScene().name);
     }
 
     public void HideUI(){

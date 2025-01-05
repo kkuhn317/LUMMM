@@ -73,11 +73,21 @@ public class Flag : MonoBehaviour
         }
     }
 
+    protected virtual void StopTimer()
+    {
+        GameManager.Instance.StopTimer();
+    }
+
+    protected virtual void StopAllMusic()
+    {
+        GameManager.Instance.StopAllMusic();
+    }
+
     protected virtual void OnTriggerEnter2D(Collider2D other)
     {
         if (other.gameObject.CompareTag("Player") && state == FlagState.Idle)
         {
-            GameManager.Instance.StopTimer();
+            StopTimer();
 
             csMario = cutsceneMario;
 
@@ -109,7 +119,7 @@ public class Flag : MonoBehaviour
             GetComponents<AudioSource>()[0].Play(); // first audio source is the flagpole sound, second is for music
             
             // stop the music
-            GameManager.Instance.StopAllMusic();
+            StopAllMusic();
 
             // change to cutscene state after a certain amount of time
             Invoke(nameof(ToCutsceneState), slideTime);

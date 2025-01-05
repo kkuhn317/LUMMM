@@ -4267,6 +4267,7 @@ MonoBehaviour:
   slideTime: 1.5
   cutsceneTime: 12
   flagOnRight: 0
+  giantThwomp: {fileID: 0}
   brokenFlag: {fileID: 10039679}
   deadMario: {fileID: 2690894693950398662, guid: bbcd46cf0ba891e4e93970cabbe39a14, type: 3}
 --- !u!320 &313474993
@@ -6849,7 +6850,7 @@ MonoBehaviour:
   lockToHorizontal: 0
   lockToVertical: 0
   lockOffset: {x: 0, y: -3.5}
-  snapToBounds: 1
+  snapToBounds: 0
 --- !u!114 &552982290
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6880,8 +6881,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 80c9ed9480f1351438ccb4c7eee81f60, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  topLeft: {x: 117.62, y: 11.14}
-  bottomRight: {x: 138.8, y: -1.46}
+  topLeft: {x: 117.62, y: 9.67}
+  bottomRight: {x: 139, y: -3.74}
   lockToHorizontal: 0
   lockToVertical: 0
   lockOffset: {x: 0, y: 0}
@@ -9169,11 +9170,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1771483343543010229, guid: 0ed8634130540ee49afd6a10ccb53bf6, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 139.51
+      value: 118.82
       objectReference: {fileID: 0}
     - target: {fileID: 1771483343543010229, guid: 0ed8634130540ee49afd6a10ccb53bf6, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.503
+      value: 6.39
       objectReference: {fileID: 0}
     - target: {fileID: 1771483343543010229, guid: 0ed8634130540ee49afd6a10ccb53bf6, type: 3}
       propertyPath: m_LocalPosition.z
@@ -22496,7 +22497,7 @@ BoxCollider2D:
   m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0.3600769, y: 1.5389209}
+  m_Offset: {x: 0.3600769, y: 1.5148711}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -22507,7 +22508,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 5.9563904, y: 15.939313}
+  m_Size: {x: 5.9563904, y: 15.987412}
   m_EdgeRadius: 0
 --- !u!4 &1188363037
 Transform:
@@ -31325,11 +31326,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 180378801255794293, guid: 007d8e12425c17b40857a50ed98ac42a, type: 3}
       propertyPath: m_Size.y
-      value: 9.5
+      value: 10.454293
       objectReference: {fileID: 0}
     - target: {fileID: 180378801255794293, guid: 007d8e12425c17b40857a50ed98ac42a, type: 3}
       propertyPath: m_Offset.y
-      value: 5.25
+      value: 4.7728534
       objectReference: {fileID: 0}
     - target: {fileID: 180378801255794293, guid: 007d8e12425c17b40857a50ed98ac42a, type: 3}
       propertyPath: m_IsTrigger
@@ -32140,7 +32141,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
       propertyPath: raycastConfigurations.Array.size
-      value: 19
+      value: 20
       objectReference: {fileID: 0}
     - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
       propertyPath: detectionAreas.Array.data[0].size.x
@@ -32192,7 +32193,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
       propertyPath: raycastConfigurations.Array.data[2].size.y
-      value: 1
+      value: 1.2
       objectReference: {fileID: 0}
     - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
       propertyPath: raycastConfigurations.Array.data[3].size.x
@@ -32212,11 +32213,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
       propertyPath: raycastConfigurations.Array.data[5].size.x
-      value: 0.61
+      value: 1.75
       objectReference: {fileID: 0}
     - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
       propertyPath: raycastConfigurations.Array.data[5].size.y
-      value: 1.75
+      value: 0.55
       objectReference: {fileID: 0}
     - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
       propertyPath: raycastConfigurations.Array.data[6].size.x
@@ -32244,11 +32245,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
       propertyPath: raycastConfigurations.Array.data[9].size.x
-      value: 1.75
+      value: 0.61
       objectReference: {fileID: 0}
     - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
       propertyPath: raycastConfigurations.Array.data[9].size.y
-      value: 1
+      value: 1.75
       objectReference: {fileID: 0}
     - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
       propertyPath: raycastConfigurations.Array.data[10].size.x
@@ -32292,11 +32293,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
       propertyPath: raycastConfigurations.Array.data[15].size.x
-      value: 0.61
+      value: 1.75
       objectReference: {fileID: 0}
     - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
       propertyPath: raycastConfigurations.Array.data[15].size.y
-      value: 1.75
+      value: 0.55
       objectReference: {fileID: 0}
     - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
       propertyPath: raycastConfigurations.Array.data[16].size.x
@@ -32320,6 +32321,14 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
       propertyPath: raycastConfigurations.Array.data[18].size.y
+      value: 1.75
+      objectReference: {fileID: 0}
+    - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
+      propertyPath: raycastConfigurations.Array.data[19].size.x
+      value: 0.61
+      objectReference: {fileID: 0}
+    - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
+      propertyPath: raycastConfigurations.Array.data[19].size.y
       value: 1.75
       objectReference: {fileID: 0}
     - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
@@ -32356,7 +32365,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
       propertyPath: raycastConfigurations.Array.data[2].offset.y
-      value: 0.1
+      value: 0.2
       objectReference: {fileID: 0}
     - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
       propertyPath: raycastConfigurations.Array.data[3].distance
@@ -32380,15 +32389,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
       propertyPath: raycastConfigurations.Array.data[5].offset.x
-      value: -2.25
+      value: -3.66
       objectReference: {fileID: 0}
     - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
       propertyPath: raycastConfigurations.Array.data[5].offset.y
-      value: -4
+      value: -3.43
       objectReference: {fileID: 0}
     - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
       propertyPath: raycastConfigurations.Array.data[6].offset.x
-      value: -0.67
+      value: -2.25
       objectReference: {fileID: 0}
     - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
       propertyPath: raycastConfigurations.Array.data[6].offset.y
@@ -32396,7 +32405,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
       propertyPath: raycastConfigurations.Array.data[7].offset.x
-      value: 1.07
+      value: -0.67
       objectReference: {fileID: 0}
     - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
       propertyPath: raycastConfigurations.Array.data[7].offset.y
@@ -32404,7 +32413,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
       propertyPath: raycastConfigurations.Array.data[8].offset.x
-      value: 2.48
+      value: 1.07
       objectReference: {fileID: 0}
     - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
       propertyPath: raycastConfigurations.Array.data[8].offset.y
@@ -32412,11 +32421,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
       propertyPath: raycastConfigurations.Array.data[9].offset.x
-      value: 3.65
+      value: 2.48
       objectReference: {fileID: 0}
     - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
       propertyPath: raycastConfigurations.Array.data[9].offset.y
-      value: 2.8
+      value: -4
       objectReference: {fileID: 0}
     - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
       propertyPath: onLanded.m_PersistentCalls.m_Calls.Array.size
@@ -32464,15 +32473,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
       propertyPath: raycastConfigurations.Array.data[15].offset.x
-      value: -2.25
+      value: 3.65
       objectReference: {fileID: 0}
     - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
       propertyPath: raycastConfigurations.Array.data[15].offset.y
-      value: 4.55
+      value: -3.43
       objectReference: {fileID: 0}
     - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
       propertyPath: raycastConfigurations.Array.data[16].offset.x
-      value: -0.67
+      value: -2.25
       objectReference: {fileID: 0}
     - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
       propertyPath: raycastConfigurations.Array.data[16].offset.y
@@ -32480,7 +32489,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
       propertyPath: raycastConfigurations.Array.data[17].offset.x
-      value: 1.07
+      value: -0.67
       objectReference: {fileID: 0}
     - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
       propertyPath: raycastConfigurations.Array.data[17].offset.y
@@ -32488,10 +32497,18 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
       propertyPath: raycastConfigurations.Array.data[18].offset.x
-      value: 2.49
+      value: 1.07
       objectReference: {fileID: 0}
     - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
       propertyPath: raycastConfigurations.Array.data[18].offset.y
+      value: 4.55
+      objectReference: {fileID: 0}
+    - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
+      propertyPath: raycastConfigurations.Array.data[19].offset.x
+      value: 2.49
+      objectReference: {fileID: 0}
+    - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
+      propertyPath: raycastConfigurations.Array.data[19].offset.y
       value: 4.55
       objectReference: {fileID: 0}
     - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
@@ -32560,15 +32577,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
       propertyPath: raycastConfigurations.Array.data[5].effectSpawnOffset.x
-      value: -2.475
+      value: -3.75
       objectReference: {fileID: 0}
     - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
       propertyPath: raycastConfigurations.Array.data[5].effectSpawnOffset.y
-      value: -4
+      value: -3.73
       objectReference: {fileID: 0}
     - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
       propertyPath: raycastConfigurations.Array.data[6].effectSpawnOffset.x
-      value: -0.75
+      value: -2.475
       objectReference: {fileID: 0}
     - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
       propertyPath: raycastConfigurations.Array.data[6].effectSpawnOffset.y
@@ -32576,7 +32593,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
       propertyPath: raycastConfigurations.Array.data[7].effectSpawnOffset.x
-      value: 1.05
+      value: -0.75
       objectReference: {fileID: 0}
     - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
       propertyPath: raycastConfigurations.Array.data[7].effectSpawnOffset.y
@@ -32584,7 +32601,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
       propertyPath: raycastConfigurations.Array.data[8].effectSpawnOffset.x
-      value: 2.65
+      value: 1.05
       objectReference: {fileID: 0}
     - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
       propertyPath: raycastConfigurations.Array.data[8].effectSpawnOffset.y
@@ -32592,11 +32609,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
       propertyPath: raycastConfigurations.Array.data[9].effectSpawnOffset.x
-      value: 3.75
+      value: 2.65
       objectReference: {fileID: 0}
     - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
       propertyPath: raycastConfigurations.Array.data[9].effectSpawnOffset.y
-      value: 2.8
+      value: -4
       objectReference: {fileID: 0}
     - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
       propertyPath: raycastConfigurations.Array.data[10].effectSpawnOffset.x
@@ -32640,15 +32657,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
       propertyPath: raycastConfigurations.Array.data[15].effectSpawnOffset.x
-      value: -2.4
+      value: 3.75
       objectReference: {fileID: 0}
     - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
       propertyPath: raycastConfigurations.Array.data[15].effectSpawnOffset.y
-      value: 4.64
+      value: -3.73
       objectReference: {fileID: 0}
     - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
       propertyPath: raycastConfigurations.Array.data[16].effectSpawnOffset.x
-      value: -0.67
+      value: -2.4
       objectReference: {fileID: 0}
     - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
       propertyPath: raycastConfigurations.Array.data[16].effectSpawnOffset.y
@@ -32656,7 +32673,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
       propertyPath: raycastConfigurations.Array.data[17].effectSpawnOffset.x
-      value: 1.05
+      value: -0.67
       objectReference: {fileID: 0}
     - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
       propertyPath: raycastConfigurations.Array.data[17].effectSpawnOffset.y
@@ -32664,10 +32681,18 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
       propertyPath: raycastConfigurations.Array.data[18].effectSpawnOffset.x
-      value: 2.65
+      value: 1.05
       objectReference: {fileID: 0}
     - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
       propertyPath: raycastConfigurations.Array.data[18].effectSpawnOffset.y
+      value: 4.64
+      objectReference: {fileID: 0}
+    - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
+      propertyPath: raycastConfigurations.Array.data[19].effectSpawnOffset.x
+      value: 2.65
+      objectReference: {fileID: 0}
+    - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
+      propertyPath: raycastConfigurations.Array.data[19].effectSpawnOffset.y
       value: 4.64
       objectReference: {fileID: 0}
     - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
@@ -32681,6 +32706,158 @@ PrefabInstance:
     - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
       propertyPath: onLanded.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
       value: ShakeCameraRepeatedlyDefault
+      objectReference: {fileID: 0}
+    - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
+      propertyPath: raycastConfigurations.Array.data[0].allowedDirections.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
+      propertyPath: raycastConfigurations.Array.data[1].allowedDirections.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
+      propertyPath: raycastConfigurations.Array.data[2].allowedDirections.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
+      propertyPath: raycastConfigurations.Array.data[3].allowedDirections.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
+      propertyPath: raycastConfigurations.Array.data[4].allowedDirections.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
+      propertyPath: raycastConfigurations.Array.data[5].allowedDirections.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
+      propertyPath: raycastConfigurations.Array.data[6].allowedDirections.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
+      propertyPath: raycastConfigurations.Array.data[7].allowedDirections.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
+      propertyPath: raycastConfigurations.Array.data[8].allowedDirections.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
+      propertyPath: raycastConfigurations.Array.data[9].allowedDirections.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
+      propertyPath: raycastConfigurations.Array.data[10].allowedDirections.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
+      propertyPath: raycastConfigurations.Array.data[11].allowedDirections.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
+      propertyPath: raycastConfigurations.Array.data[12].allowedDirections.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
+      propertyPath: raycastConfigurations.Array.data[13].allowedDirections.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
+      propertyPath: raycastConfigurations.Array.data[14].allowedDirections.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
+      propertyPath: raycastConfigurations.Array.data[15].allowedDirections.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
+      propertyPath: raycastConfigurations.Array.data[16].allowedDirections.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
+      propertyPath: raycastConfigurations.Array.data[17].allowedDirections.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
+      propertyPath: raycastConfigurations.Array.data[18].allowedDirections.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
+      propertyPath: raycastConfigurations.Array.data[19].allowedDirections.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
+      propertyPath: raycastConfigurations.Array.data[0].allowedDirections.Array.data[0]
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
+      propertyPath: raycastConfigurations.Array.data[1].allowedDirections.Array.data[0]
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
+      propertyPath: raycastConfigurations.Array.data[2].allowedDirections.Array.data[0]
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
+      propertyPath: raycastConfigurations.Array.data[3].allowedDirections.Array.data[0]
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
+      propertyPath: raycastConfigurations.Array.data[4].allowedDirections.Array.data[0]
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
+      propertyPath: raycastConfigurations.Array.data[5].allowedDirections.Array.data[0]
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
+      propertyPath: raycastConfigurations.Array.data[8].allowedDirections.Array.data[0]
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
+      propertyPath: raycastConfigurations.Array.data[9].allowedDirections.Array.data[0]
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
+      propertyPath: raycastConfigurations.Array.data[10].allowedDirections.Array.data[0]
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
+      propertyPath: raycastConfigurations.Array.data[11].allowedDirections.Array.data[0]
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
+      propertyPath: raycastConfigurations.Array.data[12].allowedDirections.Array.data[0]
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
+      propertyPath: raycastConfigurations.Array.data[13].allowedDirections.Array.data[0]
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
+      propertyPath: raycastConfigurations.Array.data[14].allowedDirections.Array.data[0]
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
+      propertyPath: raycastConfigurations.Array.data[15].allowedDirections.Array.data[0]
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
+      propertyPath: raycastConfigurations.Array.data[16].allowedDirections.Array.data[0]
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
+      propertyPath: raycastConfigurations.Array.data[17].allowedDirections.Array.data[0]
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
+      propertyPath: raycastConfigurations.Array.data[18].allowedDirections.Array.data[0]
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
+      propertyPath: raycastConfigurations.Array.data[19].allowedDirections.Array.data[0]
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
       propertyPath: onLanded.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
