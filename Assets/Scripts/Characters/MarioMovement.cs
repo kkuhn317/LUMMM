@@ -264,11 +264,10 @@ public class MarioMovement : MonoBehaviour
         animationRotation = facingRight ? -Mathf.Abs(animationRotation) : Mathf.Abs(animationRotation); // Update rotation based on where the player is facing
         transform.rotation = Quaternion.Euler(0, 0, animationRotation);
 
-        if (invincetimeremain > 0f) {
-            sprite.color = new Color(sprite.color.r, sprite.color.g, sprite.color.b, 0.5f);
+        if (invincetimeremain > 0f){
             invincetimeremain -= Time.deltaTime;
+            StartCoroutine(FlashDuringInvincibility());
         } else {
-            sprite.color = new Color(sprite.color.r, sprite.color.g, sprite.color.b, 1.0f);
             invincetimeremain = 0f;
         }
 
@@ -1104,6 +1103,24 @@ public class MarioMovement : MonoBehaviour
     {
         // Check if Mario's height is below a certain point relative to the block
         return transform.position.y < blockYPosition - 0.5f; // You can adjust the value (0.5f) as needed
+    }
+
+    private IEnumerator FlashDuringInvincibility()
+    {
+        while (invincetimeremain > 0f)
+        {
+            // Reduce alpha to half
+            sprite.color = new Color(sprite.color.r, sprite.color.g, sprite.color.b, 0.5f);
+            yield return new WaitForSeconds(0.125f);
+
+            // Restore alpha to full
+            sprite.color = new Color(sprite.color.r, sprite.color.g, sprite.color.b, 1f);
+            yield return new WaitForSeconds(0.125f);
+        }
+
+        // Ensure visibility at the end
+        sprite.color = new Color(sprite.color.r, sprite.color.g, sprite.color.b, 1f);
+        sprite.enabled = true;
     }
 
     public void damageMario(bool force=false) {
