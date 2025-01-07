@@ -13,13 +13,13 @@ public class SpikesFlagPole : Flag, IDestructible
     {
         base.Start(); // Ensure base class Start logic is executed
         brokenFlag.SetActive(false);
-        Debug.Log("SpikesFlagPole specific Start logic.");
+        //Debug.Log("SpikesFlagPole specific Start logic.");
     }
 
     protected override void Update()
     {
         base.Update(); // Ensure base class Update logic is executed
-        Debug.Log("SpikesFlagPole specific Update logic.");
+        //Debug.Log("SpikesFlagPole specific Update logic.");
     }
 
     public void OnDestruction()

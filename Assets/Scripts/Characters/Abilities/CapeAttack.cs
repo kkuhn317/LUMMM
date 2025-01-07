@@ -81,6 +81,11 @@ public class CapeAttack : MarioAbility
 
     private void FixedUpdate()
     {
+        if (!marioMovement)
+        {
+            return;
+        }
+        
         Rigidbody2D rb = marioMovement.GetComponent<Rigidbody2D>();
 
         // Handle cape attack logic

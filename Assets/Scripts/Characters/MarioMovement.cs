@@ -731,7 +731,7 @@ public class MarioMovement : MonoBehaviour
 
         //print("moving in " + moveDir);
         if (regularMoving || isCrawling) {
-            print("regular moving");
+            //print("regular moving");
             if (runPressed && !swimming && !isCrawling) {
                 // Running
                 rb.AddForce(horizontal * runSpeed * moveDir);
@@ -921,7 +921,7 @@ public class MarioMovement : MonoBehaviour
         audioSource.PlayOneShot(groundPoundLandSound);
         IGroundPoundable groundPoundable = hitObject.GetComponent<IGroundPoundable>();
         if (groundPoundable != null) {
-            groundPoundable.OnGroundPound();
+            groundPoundable.OnGroundPound(this);
         }
 
         // start swim idle if you're swimming when the ground pound lands
@@ -1771,7 +1771,7 @@ public class MarioMovement : MonoBehaviour
     }
 
     void carry(ObjectPhysics obj) {
-        print("carry!");
+        //print("carry!");
         carrying = true;
 
         animator.SetTrigger("grab");
@@ -1787,7 +1787,7 @@ public class MarioMovement : MonoBehaviour
     }
 
     public void dropCarry() {
-        print("drop!");
+        //print("drop!");
         carrying = false;
 
         animator.SetTrigger("grab");

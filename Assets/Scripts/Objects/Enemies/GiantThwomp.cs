@@ -54,6 +54,7 @@ public class GiantThwomp : EnemyAI, IGroundPoundable
     private Vector2 initialPosition; // The initial position of the Thwomp
     public GameObject poofEffectPrefab;
     public PlayableDirector defeatTimeline;
+    public float cutsceneTime = 5f; // How long the cutscene plays before the level ends
 
     public enum FallDirections {
         Down,
@@ -196,6 +197,9 @@ public class GiantThwomp : EnemyAI, IGroundPoundable
                 velocity = Vector2.zero;
                 break;
             case ThwompStates.Falling:
+                // In case the Thwomp was rising (e.g. when it detects the player is near the flagpole)
+                velocity = Vector2.zero;
+
                 if (fallDirection != FallDirections.Up) {
                     animator.SetBool("angry", true);
                 }
@@ -323,7 +327,7 @@ public class GiantThwomp : EnemyAI, IGroundPoundable
 
     private void FlipBack()
     {
-        if (currentState == ThwompStates.FallBack)
+        if (currentState != ThwompStates.Vulnerable)
         {
             return;
         }
@@ -460,31 +464,27 @@ public class GiantThwomp : EnemyAI, IGroundPoundable
         }
     }
 
-    public void OnGroundPound()
+    public void OnGroundPound(MarioMovement player)
     {
         if (currentState == ThwompStates.FallBack)
         {
-            GameManager.Instance.StopTimer();
-            GameManager.Instance.StopAllMusic();
-
             // Play the poof effect
             if (poofEffectPrefab != null)
             {
                 Instantiate(poofEffectPrefab, transform.position, Quaternion.identity);
             }
 
-            // Play the defeat timeline
-            if (defeatTimeline != null)
-            {
-                defeatTimeline.Play();
-            }
-            else
-            {
-                Debug.LogWarning("Defeat timeline not assigned!");
-            }
+            // If thwomp is destroyed, TriggerEndLevelCutscene will not ever call EndLevel
+            // https://discussions.unity.com/t/coroutines-after-destruction/864315/2
+            // Destroy(gameObject);  
 
-            Destroy(gameObject);
+            StartCoroutine(GameManager.Instance.TriggerEndLevelCutscene(defeatTimeline, 0, cutsceneTime, true, true, true));
         }
+    }
+
+    void EndLevel()
+    {
+        GameManager.Instance.FinishLevel();
     }
 
     protected override void OnTriggerEnter2D(Collider2D other) {

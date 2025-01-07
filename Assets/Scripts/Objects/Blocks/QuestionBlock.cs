@@ -108,9 +108,8 @@ public class QuestionBlock : MonoBehaviour, IGroundPoundable
         }
     }
 
-    public void OnGroundPound()
+    public void OnGroundPound(MarioMovement player)
     {
-        MarioMovement player = FindObjectOfType<MarioMovement>(); // Find the player interacting
         if (brickBlock) 
         {
             // Brick block behavior

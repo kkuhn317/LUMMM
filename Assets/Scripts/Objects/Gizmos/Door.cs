@@ -58,6 +58,10 @@ public class Door : MonoBehaviour
 
         MarioMovement playerScript = player.GetComponent<MarioMovement>();
 
+        if (playerScript == null) {
+            return;
+        }
+
         // if player is at the door
         if (PlayerAtDoor(playerScript))
         {

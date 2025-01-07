@@ -10,6 +10,7 @@ using System.Linq;
 using System.Globalization;
 using UnityEngine.Localization.Settings;
 using UnityEngine.Events;
+using UnityEngine.Playables;
 
 public class GameManager : MonoBehaviour
 {
@@ -1181,6 +1182,52 @@ public class GameManager : MonoBehaviour
         }
         // Ensure ObtainedRank matches the currentRank
         ObtainedRank.texture = currentRankImage.texture;  
+    }
+
+    // TODO: Clean this method up and use it for all other ways of ending the level (flag, axe, others if any) (currently only used for Giant Thwomp)
+    public IEnumerator TriggerEndLevelCutscene(PlayableDirector cutscene, float cutsceneDelay, float cutsceneLength, bool destroyPlayersImmediately, bool stopMusicImmediately, bool hideUI = false)
+    {
+        print("TriggerEndLevelCutscene");
+        StopTimer();
+        if (destroyPlayersImmediately)
+        {
+            // Delete all players immediately, without waiting for the cutscene to start
+            foreach (MarioMovement player in players)
+            {
+                Destroy(player.gameObject);
+            }
+        }
+        if (stopMusicImmediately)
+        {
+            StopAllMusic();
+        }
+        if (cutsceneDelay > 0) {
+            yield return new WaitForSeconds(cutsceneDelay);
+        }
+
+        print("Cutscne start");
+        
+        if (!destroyPlayersImmediately)
+        {
+            // Delete all players as soon as the cutscene starts
+            foreach (MarioMovement player in players)
+            {
+                Destroy(player.gameObject);
+            }
+        }
+        if (!stopMusicImmediately)
+        {
+            StopAllMusic();
+        }
+        if (hideUI)
+        {
+            HideUI();
+        }
+        HideUI();
+        cutscene.Play();
+        yield return new WaitForSeconds(cutsceneLength);
+        print("Cutscene end");
+        FinishLevel();
     }
 
     // after level ends, call this (ex: flag cutscene ends)
