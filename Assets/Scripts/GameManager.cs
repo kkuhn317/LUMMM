@@ -1205,7 +1205,7 @@ public class GameManager : MonoBehaviour
             yield return new WaitForSeconds(cutsceneDelay);
         }
 
-        print("Cutscne start");
+        print("Cutscene start");
         
         if (!destroyPlayersImmediately)
         {
