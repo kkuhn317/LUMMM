@@ -102,6 +102,7 @@ public class MarioMovement : MonoBehaviour
     public Vector3 colliderOffset;
     public float damageinvinctime = 3f;
     public float invincetimeremain = 0f;
+    private bool flashing = false;
 
     public Vector2 groundPos;
 
@@ -264,9 +265,11 @@ public class MarioMovement : MonoBehaviour
         animationRotation = facingRight ? -Mathf.Abs(animationRotation) : Mathf.Abs(animationRotation); // Update rotation based on where the player is facing
         transform.rotation = Quaternion.Euler(0, 0, animationRotation);
 
-        if (invincetimeremain > 0f){
+        if (invincetimeremain > 0f) {
             invincetimeremain -= Time.deltaTime;
-            StartCoroutine(FlashDuringInvincibility());
+            if (!flashing) {
+                StartCoroutine(FlashDuringInvincibility());
+            }
         } else {
             invincetimeremain = 0f;
         }
@@ -1107,20 +1110,23 @@ public class MarioMovement : MonoBehaviour
 
     private IEnumerator FlashDuringInvincibility()
     {
+        flashing = true;
+        float flashSpeed = 1/20f;   // 20 fps flash speed
         while (invincetimeremain > 0f)
         {
             // Reduce alpha to half
             sprite.color = new Color(sprite.color.r, sprite.color.g, sprite.color.b, 0.5f);
-            yield return new WaitForSeconds(0.125f);
+            yield return new WaitForSeconds(flashSpeed);
 
             // Restore alpha to full
             sprite.color = new Color(sprite.color.r, sprite.color.g, sprite.color.b, 1f);
-            yield return new WaitForSeconds(0.125f);
+            yield return new WaitForSeconds(flashSpeed);
         }
 
         // Ensure visibility at the end
         sprite.color = new Color(sprite.color.r, sprite.color.g, sprite.color.b, 1f);
         sprite.enabled = true;
+        flashing = false;
     }
 
     public void damageMario(bool force=false) {
@@ -1743,6 +1749,10 @@ public class MarioMovement : MonoBehaviour
     void checkForCarry() {
         //print("Check carry");
 
+        if (dead) {
+            return; // Fixes issue of picking an object back up on the frame you die
+        }
+
         // raycast in front of feet of mario
         RaycastHit2D[] hit = Physics2D.RaycastAll(transform.position + new Vector3(0, grabRaycastHeight, 0), facingRight ? Vector2.right : Vector2.left, 0.6f);
 
@@ -1761,7 +1771,7 @@ public class MarioMovement : MonoBehaviour
     }
 
     void carry(ObjectPhysics obj) {
-        //print("carry!");
+        print("carry!");
         carrying = true;
 
         animator.SetTrigger("grab");
@@ -1777,7 +1787,7 @@ public class MarioMovement : MonoBehaviour
     }
 
     public void dropCarry() {
-        //print("drop!");
+        print("drop!");
         carrying = false;
 
         animator.SetTrigger("grab");
