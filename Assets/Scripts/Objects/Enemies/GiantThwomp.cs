@@ -483,11 +483,6 @@ public class GiantThwomp : EnemyAI, IGroundPoundable
         }
     }
 
-    void EndLevel()
-    {
-        GameManager.Instance.FinishLevel();
-    }
-
     protected override void OnTriggerEnter2D(Collider2D other) {
         base.OnTriggerEnter2D(other);
         Debug.Log($"Collision with {other.name}");

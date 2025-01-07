@@ -67,7 +67,6 @@ public class Axe : MonoBehaviour
 
     [Header("Ending Cutscene")]
     public PlayableDirector endingScene;
-    public float playerDestroyDelay = 1f; // delay before destroying the player
     public float endingSceneDelay = 0.25f; // delay before playing the ending cutscene
     public float timeUntilWinScreen = 10f; // how long to play the ending cutscene before the win screen appears
 
@@ -210,26 +209,17 @@ public class Axe : MonoBehaviour
             GameManager.Instance.StopAllMusic();
         }
 
-        // If there's an ending cutscene, destroy the player and play the cutscene with a delay.
+        // If there's an ending cutscene, trigger it.
         if (endingScene != null)
         {
-            // Destroy the player after a specified delay.
-            Destroy(player, playerDestroyDelay);
-
-            // Play the ending cutscene after a specified delay.
-            StartCoroutine(PlayCutsceneWithDelay(endingSceneDelay));
-        }
-    }
-
-    private IEnumerator PlayCutsceneWithDelay(float delay)
-    {
-        // Wait for the specified delay before playing the ending cutscene.
-        yield return new WaitForSeconds(delay);
-
-        if (endingScene != null)
-        {
-            endingScene.Play(); // Play the ending cutscene.
-            Invoke(nameof(EndLevel), timeUntilWinScreen); // Show the win screen after a specified delay.
+            StartCoroutine(GameManager.Instance.TriggerEndLevelCutscene(
+                endingScene,           // PlayableDirector for the cutscene
+                endingSceneDelay,      // Delay before the cutscene starts
+                timeUntilWinScreen,    // Duration of the cutscene
+                false,                 // Do not destroy players immediately
+                false,                 // Do not stop music immediately
+                true                   // Hide UI during the cutscene
+            ));
         }
     }
 
@@ -315,10 +305,5 @@ public class Axe : MonoBehaviour
         {
             player.GetComponent<MarioMovement>().Unfreeze();
         }
-    }
-
-    void EndLevel()
-    {
-        GameManager.Instance.FinishLevel();
     }
 }

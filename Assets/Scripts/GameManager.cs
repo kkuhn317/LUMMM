@@ -41,6 +41,7 @@ public class GameManager : MonoBehaviour
     [Header("Lives")]
     private int maxLives = 99;
     [SerializeField] TMP_Text livesText;
+    public Color defaultColor = Color.white;
     public Color targetColor = Color.green;
 
     [Header("Coin System")]
@@ -547,7 +548,7 @@ public class GameManager : MonoBehaviour
             ReloadScene();
         }
     }
-
+    
     public void AddLives()
     {
         GlobalVariables.lives++;
@@ -559,7 +560,7 @@ public class GameManager : MonoBehaviour
 
     IEnumerator AnimateTextColor(TMP_Text text, Color targetColor, float duration)
     {
-        Color initialColor = text.color;
+        Color initialColor = defaultColor;
 
         // Fade the text color to the target color over the specified duration
         float timeElapsed = 0f;
@@ -569,6 +570,9 @@ public class GameManager : MonoBehaviour
             timeElapsed += Time.deltaTime;
             yield return null;
         }
+
+        // Ensure it’s fully green
+        text.color = targetColor;
 
         // Wait for a short period
         yield return new WaitForSeconds(0.1f);
@@ -1194,15 +1198,20 @@ public class GameManager : MonoBehaviour
             // Delete all players immediately, without waiting for the cutscene to start
             foreach (MarioMovement player in players)
             {
-                Destroy(player.gameObject);
+                if (player != null){
+                    Destroy(player.gameObject);
+                }   
             }
         }
+        print("DestroyPlayersImmediately complete");
+
         if (stopMusicImmediately)
         {
             StopAllMusic();
         }
         if (cutsceneDelay > 0) {
             yield return new WaitForSeconds(cutsceneDelay);
+            print($"Waited {cutsceneDelay} seconds before starting the cutscene.");
         }
 
         print("Cutscene start");
@@ -1212,20 +1221,28 @@ public class GameManager : MonoBehaviour
             // Delete all players as soon as the cutscene starts
             foreach (MarioMovement player in players)
             {
-                Destroy(player.gameObject);
+                if (player != null)
+                {
+                    player.gameObject.SetActive(false);
+                }
             }
         }
+
         if (!stopMusicImmediately)
         {
             StopAllMusic();
         }
+        
         if (hideUI)
         {
             HideUI();
+            print("UI hidden");
         }
-        HideUI();
+
         cutscene.Play();
         yield return new WaitForSeconds(cutsceneLength);
+        print($"Cutscene played for {cutsceneLength} seconds.");
+
         print("Cutscene end");
         FinishLevel();
     }

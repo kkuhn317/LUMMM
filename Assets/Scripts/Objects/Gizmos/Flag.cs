@@ -72,22 +72,12 @@ public class Flag : MonoBehaviour
             }
         }
     }
-
-    protected virtual void StopTimer()
-    {
-        GameManager.Instance.StopTimer();
-    }
-
-    protected virtual void StopAllMusic()
-    {
-        GameManager.Instance.StopAllMusic();
-    }
-
+    
     protected virtual void OnTriggerEnter2D(Collider2D other)
     {
         if (other.gameObject.CompareTag("Player") && state == FlagState.Idle)
         {
-            StopTimer();
+            GameManager.Instance.StopTimer();
 
             csMario = cutsceneMario;
 
@@ -119,20 +109,29 @@ public class Flag : MonoBehaviour
             GetComponents<AudioSource>()[0].Play(); // first audio source is the flagpole sound, second is for music
             
             // stop the music
-            StopAllMusic();
+            GameManager.Instance.StopAllMusic();
 
             // change to cutscene state after a certain amount of time
-            Invoke(nameof(ToCutsceneState), slideTime);
+            StartCoroutine(ToCutsceneState());
         }
     }
 
-    void ToCutsceneState()
+    private IEnumerator ToCutsceneState()
     {
-        state = FlagState.Cutscene;
+        yield return new WaitForSeconds(slideTime);
 
-        // play the cutscene
-        GetComponent<PlayableDirector>().Play();
-        Invoke(nameof(endLevel), cutsceneTime);
+        state = FlagState.Cutscene; // Transition to cutscene state
+        print("Transitioning to cutscene state.");
+
+        // Play the cutscene
+        StartCoroutine(GameManager.Instance.TriggerEndLevelCutscene(
+            GetComponent<PlayableDirector>(), // PlayableDirector
+            0f,                               // No additional delay for cutscene
+            cutsceneTime,                     // Duration of the cutscene
+            false,                            // Players are already destroyed
+            false,                            // Music is already stopped
+            true                              // Hide UI
+        ));
     }
 
     // used in the editor to change the height of the entire flagpole easily
@@ -150,11 +149,6 @@ public class Flag : MonoBehaviour
         // collider
         GetComponent<BoxCollider2D>().size = new Vector2(0.25f, height);
         GetComponent<BoxCollider2D>().offset = new Vector2(0, (height + 1) / 2);
-    }
-
-    void endLevel()
-    {
-        GameManager.Instance.FinishLevel();
     }
 
     #region particles

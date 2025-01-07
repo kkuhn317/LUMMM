@@ -58,8 +58,17 @@ public class DiscordManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        discord = new Discord.Discord(applicationID, (System.UInt64)Discord.CreateFlags.NoRequireDiscord);
-        time = System.DateTimeOffset.Now.ToUnixTimeMilliseconds();
+        try
+        {
+            discord = new Discord.Discord(applicationID, (System.UInt64)Discord.CreateFlags.NoRequireDiscord);
+            time = System.DateTimeOffset.Now.ToUnixTimeMilliseconds();
+            Debug.Log("Discord initialized successfully.");
+        }
+        catch (ResultException ex)
+        {
+            Debug.LogError($"Failed to initialize Discord: {ex.Message}");
+            discord = null; // Prevent further issues
+        }
     }
 
     // Update is called once per frame
@@ -67,11 +76,14 @@ public class DiscordManager : MonoBehaviour
     {
         try
         {
-            discord.RunCallbacks();
+            if (discord != null)
+            {
+                discord.RunCallbacks();
+            }
         }
         catch (Exception ex)
         {
-            Debug.LogError("Error disposing Discord: " + ex.Message);
+            Debug.LogError($"Error running Discord callbacks: {ex.Message}");
         }
     }
 
@@ -84,6 +96,8 @@ public class DiscordManager : MonoBehaviour
     {
         try
         {
+            if (discord == null) return;
+
             var activityManager = discord.GetActivityManager();
             string sceneName = SceneManager.GetActiveScene().name;
 
@@ -114,7 +128,7 @@ public class DiscordManager : MonoBehaviour
                 {
                     if (res != Discord.Result.Ok) Debug.LogWarning("Failed connecting to Discord!");
                 });
-            } 
+            }
             else
             {
                 // Default activity for unlisted scenes
@@ -141,26 +155,44 @@ public class DiscordManager : MonoBehaviour
                 });
             }
         }
-        catch
+        catch (Exception ex)
         {
-            Destroy(gameObject);
+            Debug.LogError($"Error updating Discord status: {ex.Message}");
+            Destroy(gameObject); // Destroy manager if Discord fails completely
         }
     }
 
     private void OnDisable()
     {
-        if (discord != null)
+        try
         {
-            discord.Dispose();
+            if (discord != null)
+            {
+                discord.Dispose();
+                discord = null;
+                Debug.Log("Discord disposed successfully.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"Error disposing Discord: {ex.Message}");
         }
     }
 
     private void OnApplicationQuit()
     {
-        if (discord != null)
+        try
         {
-            discord.Dispose();
-            discord = null;
+            if (discord != null)
+            {
+                discord.Dispose();
+                discord = null;
+                Debug.Log("Discord disposed on application quit.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"Error during application quit Discord disposal: {ex.Message}");
         }
     }
 }
