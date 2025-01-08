@@ -25,6 +25,8 @@ public class FirstTimeCheck : MonoBehaviour
             Debug.LogError("Animator not assigned. Please assign an Animator in the Inspector.");
         }
 
+        //PlayerPrefs.SetInt(FirstTimeKey, 1);    // For testing purposes
+
         // Check if this is the first time the game is being opened
         if (PlayerPrefs.GetInt(FirstTimeKey, 1) == 1)
         {

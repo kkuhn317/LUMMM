@@ -142,18 +142,31 @@ public class GiantThwomp : EnemyAI, IGroundPoundable
                 Debug.Log("Thwomp and flagpole are aligned on the x-axis.");
             }
 
-            // Ensure the Thwomp is not in the FallBack state before changing state
-            if (currentState != ThwompStates.FallBack)
+            Debug.Log("Flagpole detected and Thwomp is reacting!");
+
+            // Flip back first if the Thwomp is vulnerable
+            if (currentState == ThwompStates.Vulnerable)
+            {
+                animator.SetFloat("flipSpeed", 2f);
+                CancelInvoke(nameof(FlipBack)); // Cancel pending FlipBack
+                FlipBack();
+                Invoke(nameof(FallToFlagAfterFlip), 0.5f);   // Fall after flipping back
+            } // Ensure the Thwomp is not in the FallBack state before changing state
+            else if (currentState != ThwompStates.FallBack)
             {
                 ChangeState(ThwompStates.Falling);
             }
-
-            Debug.Log("Flagpole detected and Thwomp is reacting!");
         }
         else
         {
             Debug.LogWarning("Flagpole reference is missing.");
         }
+    }
+
+    private void FallToFlagAfterFlip()
+    {
+        animator.SetFloat("flipSpeed", 1f);
+        ChangeState(ThwompStates.Falling);
     }
 
     protected override void Update()

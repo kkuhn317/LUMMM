@@ -1003,6 +1003,10 @@ public class MarioMovement : MonoBehaviour
         if (pushing && !changingDirections) {
             int pushDir = facingRight ? 1 : -1;
             rb.velocity = new Vector2(pushingSpeed * pushDir, rb.velocity.y);
+            if (onGround) {
+                // Fix for falling inside moving platforms while pushing
+                rb.gravityScale = 0;
+            }
             return;
         }  
 
