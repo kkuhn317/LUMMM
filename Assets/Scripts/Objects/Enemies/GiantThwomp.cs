@@ -298,11 +298,36 @@ public class GiantThwomp : EnemyAI, IGroundPoundable
                 fallBackCollider.enabled = true;
                 gameObject.layer = LayerMask.NameToLayer("Ground");
                 animator.SetBool("fall", true);
+                // Start monitoring the animation
+                StartCoroutine(MonitorFallBackAnimation());
                 break;
             default:
                 break;
         }
     }
+
+    private IEnumerator MonitorFallBackAnimation()
+    {    
+        // Wait for the FallBack animation to start
+        while (!animator.GetCurrentAnimatorStateInfo(0).IsName("falldown"))
+        {
+            yield return null; // Wait until the animation starts
+        }
+
+        // Wait for the FallBack animation to finish
+        while (animator.GetCurrentAnimatorStateInfo(0).IsName("falldown") && 
+            animator.GetCurrentAnimatorStateInfo(0).normalizedTime < 1f)
+        {
+            yield return null; // Wait until the animation completes
+        }
+
+        // Trigger the camera shake after the animation is done
+        if (cameraFollow != null)
+        {
+            cameraFollow.ShakeCameraRepeatedlyDefault();
+        }
+    }
+
 
     private void InstantiateHitEffect()
     {
