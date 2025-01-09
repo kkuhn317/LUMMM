@@ -9,6 +9,9 @@ public class BulletBill : EnemyAI
     public bool rotateToMovement = true; // if true, rotate to movement direction (like a bullet bill)
     // This should be off for cannon balls
 
+    public AudioClip appearSound;   // For bullet bills that come from offscreen
+    public float appearSoundVolume = 0.2f;
+
     protected override void Start()
     {
         base.Start();
@@ -56,6 +59,15 @@ public class BulletBill : EnemyAI
 
     public override void Land(GameObject other = null) {
         KnockAway(!movingLeft);
+    }
+
+    public override void OnBecameVisible()
+    {
+        // First time appearing?
+        if (!appeared && appearSound != null) {
+            GetComponent<AudioSource>().PlayOneShot(appearSound, appearSoundVolume);
+        }
+        base.OnBecameVisible();
     }
 
 }

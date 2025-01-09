@@ -37,7 +37,7 @@ public class EnemyAI : ObjectPhysics
         enabled = false;
     }
 
-    public void OnBecameVisible()
+    public virtual void OnBecameVisible()
     {
         isVisible = true;
 
@@ -47,7 +47,7 @@ public class EnemyAI : ObjectPhysics
         }
     }
 
-    public void OnBecameInvisible()
+    public virtual void OnBecameInvisible()
     {
         isVisible = false;
     }

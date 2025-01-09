@@ -1,12 +1,15 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using UnityEngine.Events;
 
 // For hazards like sawblades that let you spin jump off of them but that's it
 public class SpikeyHazard : MonoBehaviour
 {
     public float stompHeight = 0.2f;
+
+    // TODO: Merge this functionality with enemyAI somehow, because of redundancy in DamageEffect.cs
+    [HideInInspector] public UnityEvent<GameObject> onPlayerDamaged;
 
     protected virtual void OnTriggerEnter2D(Collider2D other) {
         if (other.gameObject.CompareTag("Player")) {
@@ -25,9 +28,11 @@ public class SpikeyHazard : MonoBehaviour
                 playerscript.SpinJumpBounce(gameObject);
             } else {
                 playerscript.damageMario();
+                onPlayerDamaged.Invoke(player);
             }
         } else {
             playerscript.damageMario();
+            onPlayerDamaged.Invoke(player);
         }
 
     }
