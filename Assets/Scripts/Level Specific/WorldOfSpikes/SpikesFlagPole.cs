@@ -6,13 +6,14 @@ public class SpikesFlagPole : Flag, IDestructible
 {
     private bool playerReachedFlag = false;
     public GiantThwomp giantThwomp;
-    public GameObject brokenFlag; 
+    public GameObject brokenFlagPole; 
     public GameObject deadMario;
+    public GameObject brokenflag;
 
     protected override void Start()
     {
         base.Start(); // Ensure base class Start logic is executed
-        brokenFlag.SetActive(false);
+        brokenFlagPole.SetActive(false);
         //Debug.Log("SpikesFlagPole specific Start logic.");
     }
 
@@ -30,7 +31,8 @@ public class SpikesFlagPole : Flag, IDestructible
             deadMario.transform.position = cutsceneMario.transform.position; 
             Instantiate(deadMario, cutsceneMario.transform.position, Quaternion.identity);
         }
-        brokenFlag.SetActive(true);
+        brokenflag.transform.position = flag.transform.position;
+        brokenFlagPole.SetActive(true);
         // Destroy the object
         Destroy(gameObject);
     }
