@@ -404,8 +404,6 @@ public class MarioMovement : MonoBehaviour
             CancelGroundPound();
         }
 
-        Debug.Log($"{crouchPressedInAir}");
-
         // Ground Pound
         if (canGroundPound && !onGround && crouchPressedInAir && !groundPounding && !wallSliding) {
             GroundPound();
