@@ -1285,7 +1285,7 @@ public class MarioMovement : MonoBehaviour
     private IEnumerator InvokeDeath()
     {
         yield return null; // Wait until the next frame
-        GameObject newMario = Instantiate(deadMario, transform.position, transform.rotation);
+        Instantiate(deadMario, transform.position, Quaternion.identity);
         Destroy(gameObject);
     }
 
@@ -1316,10 +1316,11 @@ public class MarioMovement : MonoBehaviour
         yield return null; // Wait for the next frame
 
         // Instantiate the new object at the current position and rotation
-        GameObject m = Instantiate(newMario, transform.position, transform.rotation);
+        GameObject m = Instantiate(newMario, transform.position, Quaternion.identity);
 
         // Flip the object based on the current facing direction
         m.GetComponent<SpriteRenderer>().flipX = !facingRight;
+        // Adjust the x velocity based on facing direction
         m.GetComponent<DeadMario>().velocity.x = facingRight ? Mathf.Abs(m.GetComponent<DeadMario>().velocity.x) : -Mathf.Abs(m.GetComponent<DeadMario>().velocity.x);
 
         // Destroy the current GameObject
