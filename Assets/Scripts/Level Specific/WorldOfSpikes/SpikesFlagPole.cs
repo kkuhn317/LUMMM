@@ -41,6 +41,7 @@ public class SpikesFlagPole : Flag, IDestructible
         
         if (other.CompareTag("Player") && !playerReachedFlag)
         {
+            other.gameObject.transform.position = transform.position;
             playerReachedFlag = true;
             Debug.Log("Player reached the flagpole!");
         }

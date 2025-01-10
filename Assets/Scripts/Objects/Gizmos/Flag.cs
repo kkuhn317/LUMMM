@@ -96,8 +96,8 @@ public class Flag : MonoBehaviour
                 SpawnStarParticles();
             }
 
-            // delete the player
-            Destroy(other.gameObject);
+            // hide the player
+            other.gameObject.SetActive(false);
 
             var animator = csMario.GetComponent<Animator>();
             animator.SetBool("isClimbing", true);
