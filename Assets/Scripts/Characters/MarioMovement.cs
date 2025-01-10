@@ -1313,12 +1313,15 @@ public class MarioMovement : MonoBehaviour
 
     private IEnumerator InvokeTransformationWithDelay(GameObject newMario)
     {
-        yield return null; // Wait for the next frame.
+        yield return null; // Wait for the next frame
 
-        // Instantiate the new object at the current position and rotation.
+        // Instantiate the new object at the current position and rotation
         GameObject m = Instantiate(newMario, transform.position, transform.rotation);
 
-        // Destroy the current GameObject.
+        // Flip the object based on the current facing direction
+        m.GetComponent<SpriteRenderer>().flipX = !facingRight;
+
+        // Destroy the current GameObject
         Destroy(gameObject);
     } 
 

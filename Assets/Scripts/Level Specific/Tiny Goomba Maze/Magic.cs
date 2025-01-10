@@ -32,7 +32,7 @@ public class Magic : EnemyAI
     }
 
     protected override void hitOnSide(GameObject player)
-    {
+    {  
         player.GetComponent<MarioMovement>().TransformIntoObject(pigMario);
         Dissapear();
     }
@@ -49,6 +49,11 @@ public class Magic : EnemyAI
 
         // disable sprite
         GetComponent<SpriteRenderer>().enabled = false;
+
+        // Deactivate all child GameObjects
+        foreach (Transform child in transform) {
+            child.gameObject.SetActive(false);
+        }
 
         // destroy
         Destroy(gameObject, 1f);
