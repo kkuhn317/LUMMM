@@ -99,7 +99,12 @@ public class MarioMovement : MonoBehaviour
     // Height offset for raycasts
     Vector3 HOffset => new(0, inCrouchState ? -(groundLength / 2) : 0f, 0);
 
-    public Vector3 colliderOffset;
+    // Total horizontal raycast offsets
+    Vector3 raycastLeftOffset => new(raycastSeparation + raycastOffsetX, 0, 0);
+    Vector3 raycastRightOffset => new(-raycastSeparation + raycastOffsetX, 0, 0);
+
+    public float raycastSeparation = 0.35f; // How far apart the raycasts are from the center of the player
+    public float raycastOffsetX = 0f;   // Offset for the raycasts in the x direction
     public float damageinvinctime = 3f;
     public float invincetimeremain = 0f;
     private bool flashing = false;
@@ -576,9 +581,9 @@ public class MarioMovement : MonoBehaviour
         // Ceiling detection
         // TODO: Use this for hittable blocks (will fix not being able to hit the block you want)
         float updCeilingLength = inCrouchState ? ceilingLength / 2 : ceilingLength;
-        RaycastHit2D ceilLeft = Physics2D.Raycast(transform.position - colliderOffset + HOffset, Vector2.up, updCeilingLength, groundLayer);
+        RaycastHit2D ceilLeft = Physics2D.Raycast(transform.position + raycastLeftOffset + HOffset, Vector2.up, updCeilingLength, groundLayer);
         RaycastHit2D ceilMid = Physics2D.Raycast(transform.position + HOffset, Vector2.up, ceilingLength, groundLayer);
-        RaycastHit2D ceilRight = Physics2D.Raycast(transform.position + colliderOffset + HOffset, Vector2.up, updCeilingLength, groundLayer);
+        RaycastHit2D ceilRight = Physics2D.Raycast(transform.position + raycastRightOffset + HOffset, Vector2.up, updCeilingLength, groundLayer);
 
         if (ceilLeft.collider != null || ceilMid.collider != null || ceilRight.collider != null) {
 
@@ -669,8 +674,8 @@ public class MarioMovement : MonoBehaviour
         float updGroundLength = inCrouchState ? groundLength / 2 : groundLength;
 
         // Floor detection
-        RaycastHit2D groundHit1 = Physics2D.Raycast(transform.position + colliderOffset + HOffset, Vector2.down, updGroundLength, groundLayer);
-        RaycastHit2D groundHit2 = Physics2D.Raycast(transform.position - colliderOffset + HOffset, Vector2.down, updGroundLength, groundLayer);
+        RaycastHit2D groundHit1 = Physics2D.Raycast(transform.position + raycastLeftOffset + HOffset, Vector2.down, updGroundLength, groundLayer);
+        RaycastHit2D groundHit2 = Physics2D.Raycast(transform.position + raycastRightOffset + HOffset, Vector2.down, updGroundLength, groundLayer);
 
         onGround = (groundHit1 || groundHit2) && (rb.velocity.y <= 0.01f || onGround);
 
@@ -1499,9 +1504,9 @@ public class MarioMovement : MonoBehaviour
 
         // Ground
         Gizmos.color = Color.red;
-        Vector3 startpos = transform.position + colliderOffset + HOffset;
+        Vector3 startpos = transform.position + raycastLeftOffset + HOffset;
         Gizmos.DrawLine(startpos, startpos + Vector3.down * updGroundLength);
-        startpos = transform.position - colliderOffset + HOffset;
+        startpos = transform.position + raycastRightOffset + HOffset;
         Gizmos.DrawLine(startpos, startpos + Vector3.down * updGroundLength);
 
         // Corner
@@ -1534,11 +1539,11 @@ public class MarioMovement : MonoBehaviour
 
         // Ceiling
         Gizmos.color = Color.yellow;
-        startpos = transform.position - colliderOffset + HOffset;
+        startpos = transform.position + raycastLeftOffset + HOffset;
         Gizmos.DrawLine(startpos, startpos + Vector3.up * updCeilingLength);
         startpos = transform.position + HOffset;
         Gizmos.DrawLine(startpos, startpos + Vector3.up * ceilingLength);
-        startpos = transform.position + colliderOffset + HOffset;
+        startpos = transform.position + raycastRightOffset + HOffset;
         Gizmos.DrawLine(startpos, startpos + Vector3.up * updCeilingLength);
 
 

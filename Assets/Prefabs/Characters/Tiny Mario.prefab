@@ -56,6 +56,8 @@ MonoBehaviour:
   playerNumber: 0
   moveInput: {x: 0, y: 0}
   crouchPressed: 0
+  groundPoundInWater: 0
+  waterGroundPoundStartTime: 0
   moveSpeed: 7.5
   runSpeed: 7.5
   slowDownForce: 2
@@ -94,7 +96,8 @@ MonoBehaviour:
   ceilingLength: 0.18
   doCornerCorrection: 1
   cornerCorrection: 0.1
-  colliderOffset: {x: 0.1, y: 0, z: 0}
+  raycastSeparation: 0.115
+  raycastOffsetX: -0.018
   damageinvinctime: 3
   invincetimeremain: 0
   groundPos: {x: 0, y: 0}
@@ -131,13 +134,10 @@ MonoBehaviour:
   canSpinJump: 1
   isCapeActive: 0
   wallSliding: 0
-  isCapeActive: 0
-  wallSliding: 0
   spinning: 0
   canGroundPound: 0
   groundPounding: 0
-  canGroundPound: 0
-  groundPounding: 0
+  groundPoundRotating: 0
   spinJumpBounceSound: {fileID: 8300000, guid: 675f20d4f3c17b54b9d7a8701c238a08, type: 3}
   spinJumpPoofSound: {fileID: 8300000, guid: 8ae20015ffccaf9448a05731093ade40, type: 3}
   spinJumpBouncePrefab: {fileID: 6456935476818214770, guid: 3b9fc9f948245fc4484a29f4619e0e93, type: 3}

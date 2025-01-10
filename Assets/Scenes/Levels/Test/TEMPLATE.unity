@@ -880,6 +880,16 @@ Tilemap:
       m_TileObjectToInstantiateIndex: 65535
       dummyAlignment: 0
       m_AllTileFlags: 2147483649
+  - first: {x: 17, y: 4, z: 0}
+    second:
+      serializedVersion: 2
+      m_TileIndex: 11
+      m_TileSpriteIndex: 9
+      m_TileMatrixIndex: 0
+      m_TileColorIndex: 0
+      m_TileObjectToInstantiateIndex: 65535
+      dummyAlignment: 0
+      m_AllTileFlags: 2147483649
   - first: {x: -3, y: 5, z: 0}
     second:
       serializedVersion: 2
@@ -974,7 +984,7 @@ Tilemap:
     m_Data: {fileID: 11400000, guid: a66d32da3b0f26c499191130f02a9ade, type: 2}
   - m_RefCount: 4
     m_Data: {fileID: 11400000, guid: 6e1fdb51816705c44853301fee4823d2, type: 2}
-  - m_RefCount: 3
+  - m_RefCount: 4
     m_Data: {fileID: 11400000, guid: bc2d2b6b9237a5a45bc72897914815e3, type: 2}
   - m_RefCount: 7
     m_Data: {fileID: 11400000, guid: fef35c55cfbdeb34d88834f1027f45fd, type: 2}
@@ -1027,7 +1037,7 @@ Tilemap:
     m_Data: {fileID: 1909544728, guid: 73e8458ff5e4cb64785e934cba22ebe4, type: 3}
   - m_RefCount: 4
     m_Data: {fileID: 2069867135, guid: 73e8458ff5e4cb64785e934cba22ebe4, type: 3}
-  - m_RefCount: 3
+  - m_RefCount: 4
     m_Data: {fileID: 416353833, guid: 73e8458ff5e4cb64785e934cba22ebe4, type: 3}
   - m_RefCount: 7
     m_Data: {fileID: -1413730, guid: 73e8458ff5e4cb64785e934cba22ebe4, type: 3}
@@ -1066,7 +1076,7 @@ Tilemap:
   - m_RefCount: 1
     m_Data: {fileID: -232719823, guid: 73e8458ff5e4cb64785e934cba22ebe4, type: 3}
   m_TileMatrixArray:
-  - m_RefCount: 50
+  - m_RefCount: 51
     m_Data:
       e00: 1
       e01: 0
@@ -1085,7 +1095,7 @@ Tilemap:
       e32: 0
       e33: 1
   m_TileColorArray:
-  - m_RefCount: 50
+  - m_RefCount: 51
     m_Data: {r: 1, g: 1, b: 1, a: 1}
   m_TileObjectToInstantiateArray: []
   m_AnimationFrameRate: 1
@@ -1232,6 +1242,7 @@ MonoBehaviour:
   lockToHorizontal: 1
   lockToVertical: 0
   lockOffset: {x: 0, y: 0}
+  snapToBounds: 0
 --- !u!114 &495973910
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1245,13 +1256,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   smoothDampTime: 0.15
-  canMoveHorizontally: 1
-  leftBounds: -22
-  rightBounds: 190
-  canMoveVertically: 0
-  topBounds: 0
-  bottomBounds: 0
-  snapToBounds: 1
   offset: {x: 0, y: 0, z: 0}
 --- !u!81 &495973911
 AudioListener:
@@ -3127,14 +3131,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 4697530181789495794, guid: abaa141d0948d9c4d9626f843f325199, type: 3}
-      propertyPath: spawnableItems.Array.size
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4697530181789495794, guid: abaa141d0948d9c4d9626f843f325199, type: 3}
-      propertyPath: spawnableItems.Array.data[0]
-      value: 
-      objectReference: {fileID: 5395331499358379697, guid: 15c05d9875d73f04184e941d8f431179, type: 3}
     - target: {fileID: 6969007471449977867, guid: abaa141d0948d9c4d9626f843f325199, type: 3}
       propertyPath: m_RootOrder
       value: 7
