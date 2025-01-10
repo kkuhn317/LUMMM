@@ -238,17 +238,17 @@ public class Axe : MonoBehaviour
     }
 
     private void DestroyBridge()
-    {
-        // play sound
-        if (bridgeBreakSound != null)
-            audioSource.PlayOneShot(bridgeBreakSound);
-
+    { 
         // Destroy the bridge.
         StartCoroutine(DestroyBridgeTiles(startFromLastTile));
     }
 
     private IEnumerator DestroyBridgeTiles(bool startFromLastTile)
     {
+         // play sound
+        if (bridgeBreakSound != null)
+            audioSource.PlayOneShot(bridgeBreakSound);
+
         int tileCount = bridgeTiles.Count;
 
         // Make sure startTileIndex is within the valid range.

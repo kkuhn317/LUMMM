@@ -195,9 +195,12 @@ public class CameraFollow : MonoBehaviour
         float elapsed = 0f;
         while (elapsed < duration)
         {
-            float shakeOffset = Random.Range(-0.5f, 0.5f);
-            transform.localPosition = originalPosition + axis * shakeOffset * intensity;
-            elapsed += Time.deltaTime;
+            if (Time.timeScale > 0) // Only shake if the game is not paused
+            {
+                float shakeOffset = Random.Range(-0.5f, 0.5f);
+                transform.localPosition = originalPosition + axis * shakeOffset * intensity;
+                elapsed += Time.deltaTime;
+            }
             yield return null;
         }
         ongoingShakes--;
@@ -220,6 +223,7 @@ public class CameraFollow : MonoBehaviour
         for (int i = 0; i < numberOfShakes; i++)
         {
             ShakeCamera(duration, intensity, decreaseFactor, axis);
+            
             yield return new WaitForSeconds(delayBetweenShakes);
         }
     }
