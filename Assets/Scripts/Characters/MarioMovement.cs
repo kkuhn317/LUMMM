@@ -1320,6 +1320,7 @@ public class MarioMovement : MonoBehaviour
 
         // Flip the object based on the current facing direction
         m.GetComponent<SpriteRenderer>().flipX = !facingRight;
+        m.GetComponent<DeadMario>().velocity.x = facingRight ? Mathf.Abs(m.GetComponent<DeadMario>().velocity.x) : -Mathf.Abs(m.GetComponent<DeadMario>().velocity.x);
 
         // Destroy the current GameObject
         Destroy(gameObject);
