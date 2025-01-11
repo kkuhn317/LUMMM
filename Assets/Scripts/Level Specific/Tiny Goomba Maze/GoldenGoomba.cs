@@ -28,7 +28,7 @@ public class GoldenGoomba : MonoBehaviour
 
         while (true)
         {
-            Debug.Log("Random value: " + randomValue);
+            // Debug.Log("Random value: " + randomValue);
 
             if (!isActive && randomValue > activationProbability) 
             {

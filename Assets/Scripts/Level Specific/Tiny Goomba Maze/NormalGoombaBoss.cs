@@ -20,16 +20,36 @@ public class NormalGoombaBoss : EnemyAI
     public GameObject hitEffectPrefab;
     private bool isJumping = false;
 
+    // Dash Attack
+    private bool dashAttackMode = false;
+    private enum DashAttackState {
+        walkBack,
+        jump,
+        dash
+    }
+    private DashAttackState dashAttackState = DashAttackState.walkBack;
+    public float dashWalkBackPos = -0.5f;  // walk back until reaching this position
+    public float dashForwardPos = 0.5f;    // run forward until reaching this position
+    public AudioClip dashJumpSound;
+
     public void StartFight() {
         if (fightStarted) {
             return;
         }
         fightStarted = true;
-        movement = ObjectPhysics.ObjectMovement.sliding;
+        movement = ObjectMovement.sliding;
         player = GameObject.FindGameObjectWithTag("Player");
 
-        // jump after random time between 1 and 2 seconds
-        Invoke (nameof(Jump), Random.Range(1f, 2f));
+        // Choose which mode to start in
+        float random = Random.Range(0f, 1f);
+        //print("Random: " + random);
+        if (random < 0.5) {
+            // jump after random time between 1 and 2 seconds
+            Invoke (nameof(Jump), Random.Range(1f, 2f));
+        } else {
+            // dash attack
+            DashWalkBack();
+        }
     }
 
     protected override void Start() {
@@ -52,23 +72,92 @@ public class NormalGoombaBoss : EnemyAI
             return;
         }
 
+        if (fightStarted && player != null) {
+            if (dashAttackMode) {
+                DashAttackMovement();
+            } else {
+                FollowPlayer();
+            }
+        }
+    }
+
+    void DashAttackMovement() {
+        switch (dashAttackState) {
+            case DashAttackState.walkBack:
+                if (transform.position.x < dashWalkBackPos) {
+                    // Initiate jump
+                    DashJump();
+                }
+                break;
+            case DashAttackState.jump:
+                if (objectState == ObjectState.grounded) {
+                    // Start dashing
+                    DashForward();
+                }
+                break;
+            case DashAttackState.dash:
+                if (transform.position.x > dashForwardPos) {
+                    // stop dashing
+                    animator.SetBool("dashing", false);
+                    dashAttackMode = false;
+                    animator.SetFloat("walkSpeed", 1);
+                    movement = ObjectMovement.sliding;
+                    Invoke (nameof(Jump), Random.Range(1f, 2f));
+                }
+                break;
+        }
+    }
+
+    void DashWalkBack() {
+        // walk back to charge up
+        dashAttackMode = true;
+        dashAttackState = DashAttackState.walkBack;
+        movingLeft = true;
+        velocity.x = 1f;
+    }
+
+    void DashJump() {
+        if (fightEnded) {
+            return;
+        }
+        animator.SetFloat("walkSpeed", 3);
+        dashAttackState = DashAttackState.jump;
+        isJumping = true;
+        Fall();
+        velocity = new Vector2(0, jumpHeight);
+        audioSource.pitch = 1.1f;
+        audioSource.PlayOneShot(dashJumpSound);
+    }
+
+    void DashForward() {
+        if (fightEnded) {
+            return;
+        }
+        animator.SetFloat("walkSpeed", 3);
+        dashAttackState = DashAttackState.dash;
+        animator.SetBool("dashing", true);
+        movingLeft = false;
+        velocity = new Vector2(3, 1f);
+        Fall();
+        movement = ObjectMovement.bouncing; // tiny bounces
+    }
+
+    void FollowPlayer() {
         if (velocity.x == 0) {
             // When you hit the axe
             fightEnded = true;
             return;
         }   
 
-        if (fightStarted && player != null) {
-            // check if left or right of player
-            if (player.transform.position.x < transform.position.x && objectState == ObjectState.grounded) {
-                // move left
-                movingLeft = true;
-                velocity.x = 2f; // move faster to the left
-            } else {
-                // move right
-                movingLeft = false;
-                velocity.x = 0.5f; 
-            }
+        // check if left or right of player
+        if (player.transform.position.x < transform.position.x && objectState == ObjectState.grounded) {
+            // move left
+            movingLeft = true;
+            velocity.x = 2f; // move faster to the left
+        } else {
+            // move right
+            movingLeft = false;
+            velocity.x = 0.5f; 
         }
     }
 
@@ -91,8 +180,6 @@ public class NormalGoombaBoss : EnemyAI
     {
         base.Land(other);
 
-        objectState = ObjectState.grounded;
-
         // Trigger camera shake only if landing after a jump
         if (isJumping)
         {
@@ -103,6 +190,12 @@ public class NormalGoombaBoss : EnemyAI
             } 
             isJumping = false; // Reset jump state
         }
+    }
+
+    protected override void OnBounced()
+    {
+        base.OnBounced();
+        
     }
 
     private void TriggerCameraShake() {
@@ -158,5 +251,15 @@ public class NormalGoombaBoss : EnemyAI
                 fightEnded = true;
                 break;
         }
+    }
+
+    protected override void OnDrawGizmosSelected()
+    {
+        base.OnDrawGizmosSelected();
+
+        // Draw the dash attack positions
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(new Vector3(dashWalkBackPos, transform.position.y, transform.position.z), 0.1f);
+        Gizmos.DrawWireSphere(new Vector3(dashForwardPos, transform.position.y, transform.position.z), 0.1f);
     }
 }
