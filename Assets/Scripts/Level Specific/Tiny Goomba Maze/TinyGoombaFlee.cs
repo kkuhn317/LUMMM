@@ -29,6 +29,7 @@ public class TinyGoombaFlee : MonoBehaviour
     void Update()
     {
         CheckAndMove();
+        FaceNearestPlayer();
     }
 
     void OnDrawGizmosSelected()
@@ -43,6 +44,38 @@ public class TinyGoombaFlee : MonoBehaviour
         {
             StartCoroutine(MoveToTargetPoint());
         }   
+    }
+
+    void FaceNearestPlayer()
+    {
+        GameObject nearestPlayer = FindNearestPlayer();
+        if (nearestPlayer == null) return;
+
+        Vector3 playerPosition = nearestPlayer.transform.position;
+
+        // Flip the Goomba's local scale based on the player's position
+        Vector3 scale = transform.localScale;
+        scale.x = playerPosition.x > transform.position.x ? -Mathf.Abs(scale.x) : Mathf.Abs(scale.x);
+        transform.localScale = scale;
+    }
+
+    GameObject FindNearestPlayer()
+    {
+        GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
+        GameObject nearestPlayer = null;
+        float shortestDistance = float.MaxValue;
+
+        foreach (GameObject player in players)
+        {
+            float distance = Vector3.Distance(transform.position, player.transform.position);
+            if (distance < shortestDistance)
+            {
+                shortestDistance = distance;
+                nearestPlayer = player;
+            }
+        }
+
+        return nearestPlayer;
     }
 
     IEnumerator MoveToTargetPoint()
