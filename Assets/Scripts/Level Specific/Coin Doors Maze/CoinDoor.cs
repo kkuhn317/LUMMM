@@ -8,6 +8,7 @@ public class CoinDoor : Door
     public int coinsRequired = 1;
 
     protected bool playerInRange = false;
+    public bool placePlayerOnDoorCenter = false;
 
     public bool mustBeStanding = true; // If true, player must be standing to open the door
 
@@ -60,6 +61,13 @@ public class CoinDoor : Door
 
     protected override void Unlock()
     {
+        // Place the player at the center of the door if the flag is enabled
+        if (placePlayerOnDoorCenter && player != null)
+        {
+            Vector3 doorCenter = new Vector3(transform.position.x, transform.position.y, player.transform.position.z);
+            player.transform.position = doorCenter;
+        }
+
         // we want to have the door spit out coins until the player uses enough coins to open the door
         FreezePlayer();
 
