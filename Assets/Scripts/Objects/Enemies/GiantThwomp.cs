@@ -233,6 +233,7 @@ public class GiantThwomp : EnemyAI, IGroundPoundable
                 {
                     if (audioSource != null && audioTriggerLayers != 0)
                     {
+                        // TODO: Either remove this hitCollider code or use it for something
                         // Check for collision below (ground) and sides
                         Collider2D hitCollider = Physics2D.OverlapBox(
                             transform.position + Vector3.down * mainCollider.size.y / 2, // Adjust position to check below
@@ -252,8 +253,7 @@ public class GiantThwomp : EnemyAI, IGroundPoundable
                             );
                         }
 
-                        if (hitCollider != null)
-                        {
+                        if (fallDirection != FallDirections.Up) {
                             audioSource.PlayOneShot(thwompLandSound);
                         }
                     }          
