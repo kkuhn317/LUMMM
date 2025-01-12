@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class NormalGoombaBoss : EnemyAI
 {
-
     [Header("Normal Goomba Boss")]
     bool fightStarted = false;
     bool fightEnded = false;
