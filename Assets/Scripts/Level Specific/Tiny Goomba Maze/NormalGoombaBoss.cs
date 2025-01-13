@@ -30,6 +30,9 @@ public class NormalGoombaBoss : EnemyAI
     public float dashWalkBackPos = -0.5f;  // walk back until reaching this position
     public float dashForwardPos = 0.5f;    // run forward until reaching this position
     public AudioClip dashJumpSound;
+    public Transform dashParticlesPosition;
+    public GameObject dashPrefab;
+    public GameObject smirkGoomba;
 
     public void StartFight() {
         if (fightStarted) {
@@ -138,6 +141,9 @@ public class NormalGoombaBoss : EnemyAI
         movingLeft = false;
         velocity = new Vector2(3, 1f);
         Fall();
+        /*if (dashPrefab != null && dashParticlesPosition != null){
+            Instantiate(dashPrefab, dashParticlesPosition.transform.position, Quaternion.identity);
+        }*/
         movement = ObjectMovement.bouncing; // tiny bounces
     }
 
@@ -194,7 +200,9 @@ public class NormalGoombaBoss : EnemyAI
     protected override void OnBounced()
     {
         base.OnBounced();
-        
+        if (dashPrefab != null && dashParticlesPosition != null){
+            Instantiate(dashPrefab, dashParticlesPosition.transform.position, Quaternion.identity);
+        }
     }
 
     private void TriggerCameraShake() {
@@ -249,6 +257,38 @@ public class NormalGoombaBoss : EnemyAI
                 animator.SetBool("isCrushed", true);
                 fightEnded = true;
                 break;
+        }
+    }
+
+    protected override void hitOnSide(GameObject player){
+        base.hitOnSide(player);
+
+        // Get the player script
+        MarioMovement playerScript = player.GetComponent<MarioMovement>();
+
+        // Check if goomba's health is more or equals to 3 and the player is dead and the Goomba is moving left
+        if (health >= 3 && playerScript != null && playerScript.Dead && movingLeft)
+        {
+            StartCoroutine(HandlePlayerDeath());
+        }
+       
+    }
+
+    private IEnumerator HandlePlayerDeath()
+    {
+        movement = ObjectPhysics.ObjectMovement.still;
+         
+        yield return new WaitForSeconds(0.5f);
+
+        if (smirkGoomba != null)
+        {
+            smirkGoomba.SetActive(true);
+        }
+
+        SpriteRenderer spriteRenderer = GetComponent<SpriteRenderer>();
+        if (spriteRenderer != null)
+        {
+            spriteRenderer.enabled = false;
         }
     }
 
