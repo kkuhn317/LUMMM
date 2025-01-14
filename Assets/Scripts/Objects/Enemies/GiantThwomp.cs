@@ -516,9 +516,18 @@ public class GiantThwomp : EnemyAI, IGroundPoundable
             // https://discussions.unity.com/t/coroutines-after-destruction/864315/2
             // Destroy(gameObject);  
 
-            // Note: the cutscene already hides the ui so it is technically not needed here
-            StartCoroutine(GameManager.Instance.TriggerEndLevelCutscene(defeatTimeline, 0, cutsceneTime, true, true, true));
+            // Start my own cutscene
+            GetComponent<PlayableDirector>().Play();
+
+            // Trigger the end level cutscene after 2 seconds
+            Invoke(nameof(TriggerEndCutscene), 2f);
         }
+    }
+
+    void TriggerEndCutscene()
+    {
+        // Note: the cutscene already hides the ui so it is technically not needed here
+        StartCoroutine(GameManager.Instance.TriggerEndLevelCutscene(defeatTimeline, 0, cutsceneTime, true, true, true));
     }
 
     protected override void OnTriggerEnter2D(Collider2D other) {
