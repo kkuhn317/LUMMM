@@ -1744,7 +1744,8 @@ public class MarioMovement : MonoBehaviour
         // pause animations
         animator.enabled = false;
         // pause physics
-        rb.simulated = false;
+        rb.velocity = Vector2.zero;
+        rb.bodyType = RigidbodyType2D.Kinematic; 
 
         frozen = true;
     }
@@ -1753,7 +1754,7 @@ public class MarioMovement : MonoBehaviour
         // unpause animations
         animator.enabled = true;
         // unpause physics
-        rb.simulated = true;
+        rb.bodyType = RigidbodyType2D.Dynamic; 
 
         frozen = false;
     }

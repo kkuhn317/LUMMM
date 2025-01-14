@@ -5,7 +5,6 @@ using UnityEngine.UI;
 
 public class WOSRenderTextureSetup : MonoBehaviour
 {
-
     private RenderTexture rt;
     public Camera cam;
     public RawImage[] rawImages;
@@ -25,12 +24,5 @@ public class WOSRenderTextureSetup : MonoBehaviour
         {
             rawImage.texture = rt;
         }
-
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 }

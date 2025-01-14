@@ -506,6 +506,8 @@ public class GiantThwomp : EnemyAI, IGroundPoundable
     {
         if (currentState == ThwompStates.FallBack)
         {
+            player.Freeze();
+            
             // Play the poof effect
             if (poofEffectPrefab != null)
             {
@@ -516,7 +518,7 @@ public class GiantThwomp : EnemyAI, IGroundPoundable
             // https://discussions.unity.com/t/coroutines-after-destruction/864315/2
             // Destroy(gameObject);  
 
-            // Start my own cutscene
+            // Start my own cutscene (Death Thwomp Cutscene)
             GetComponent<PlayableDirector>().Play();
 
             // Trigger the end level cutscene after 2 seconds
