@@ -12,4 +12,13 @@ public class ObjectDefeatEnemies : MonoBehaviour
             enemyAI.KnockAway(other.transform.position.x > transform.position.x);
         }
     }
+
+    private void OnCollisionEnter2D(Collision2D other)
+    {
+        if (other.collider.CompareTag("Enemy"))
+        {
+            EnemyAI enemyAI = other.collider.GetComponent<EnemyAI>();
+            enemyAI.KnockAway(other.transform.position.x > transform.position.x);
+        }
+    }
 }
