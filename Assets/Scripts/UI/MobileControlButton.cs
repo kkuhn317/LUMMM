@@ -5,11 +5,10 @@ using UnityEngine.Events;
 using UnityEngine.UI;
 
 public class MobileControlButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler {
+    public string buttonID;
     public bool buttonPressed;
-
     public UnityEvent onPress;
     public UnityEvent onRelease;
-
     public bool toggleButton; // if true, button stays pressed until pressed again
 
     public Sprite upSprite;
@@ -25,8 +24,22 @@ public class MobileControlButton : MonoBehaviour, IPointerDownHandler, IPointerU
     void Start() {
         image = GetComponent<Image>();
 
+        // Get Opacity from PlayerPrefs
         buttonPressedOpacity = PlayerPrefs.GetFloat(SettingsKeys.ButtonPressedOpacityKey, 0.38f);
         buttonUnpressedOpacity = PlayerPrefs.GetFloat(SettingsKeys.ButtonUnpressedOpacityKey, 0.38f);
+
+        // Load the position and scale from PlayerPrefs
+        if (PlayerPrefs.HasKey(buttonID + SettingsKeys.ButtonPosXKey))
+        {
+            float x = PlayerPrefs.GetFloat(buttonID + SettingsKeys.ButtonPosXKey);
+            float y = PlayerPrefs.GetFloat(buttonID + SettingsKeys.ButtonPosYKey);
+            transform.position = new Vector2(x, y);
+        }
+        if (PlayerPrefs.HasKey(buttonID + SettingsKeys.ButtonScaleKey))
+        {
+            float scale = PlayerPrefs.GetFloat(buttonID + SettingsKeys.ButtonScaleKey);
+            transform.localScale = new Vector3(scale, scale, 1f);
+        }
 
         // Set opacity
         if (buttonPressed) {

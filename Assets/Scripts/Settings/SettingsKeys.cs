@@ -20,7 +20,8 @@ class SettingsKeys
     public const string ButtonUnpressedOpacityKey = "ButtonUnpressedOpacity";
 
     // MobileButtonRebinding
-    public const string ButtonPosKey = "ButtonPos_";
-    public const string ButtonSizeKey = "ButtonSize_";
+    public const string ButtonPosXKey = "_PosX";
+    public const string ButtonPosYKey = "_PosY";
+    public const string ButtonScaleKey = "_Scale";
 
 }
