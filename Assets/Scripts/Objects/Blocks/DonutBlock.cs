@@ -41,8 +41,9 @@ public class DonutBlock : MonoBehaviour, IDestructible
             animator.enabled = true;
             spriteRenderer.sprite = droppedSprite; // Change to droppedSprite when the player steps on the block
             timeOnBlock += Time.deltaTime;
-            if (timeOnBlock >= dropTime)
+            if (timeOnBlock >= dropTime && !isDropping && !isRegenerating)
             {
+                isDropping = true;
                 StartCoroutine(Drop());
             }
         }
