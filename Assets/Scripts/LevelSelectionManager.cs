@@ -15,6 +15,14 @@ public class LevelSelectionManager : MonoBehaviour
         None,
     }
 
+    public enum MarioLiveCounter
+    {
+        Normal,
+        Tiny,
+        NES,
+        None,
+    }
+
     public static LevelSelectionManager Instance { get; private set; }
 
     private List<AnimatorIcon> animatorIcons = new();

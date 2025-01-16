@@ -2,64 +2,93 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Events;
+using TMPro;
 
-public class IntroLevelUI : MonoBehaviour
+public class IntroLevel : MonoBehaviour
 {
-    public List<RectTransform> targets; // List of UI elements (RectTransforms)
-    public Vector3 targetPosition; // Position to move all objects to (in local space)
-    public float moveDuration = 1f; // Duration of the move
-    public float delayBeforeMove = 0.5f; // Delay before starting the movement
-    public Color lineColor = Color.green; // Color of the debug lines
+    public Image marioImage;
+    public Image xImage;
+    public TMP_Text lives;
+    public TMP_Text conditionText;
+    public Image conditionIconImage;
 
-    private Dictionary<RectTransform, Vector3> initialPositions = new Dictionary<RectTransform, Vector3>();
+    [System.Serializable]
+    public class TargetData
+    {
+        public RectTransform target; // The UI element to move
+        public Vector3 targetPosition; // The specific target position for this UI element
+        public LeanTweenType easingType = LeanTweenType.linear; // Easing type for the move
+    }
+
+    public List<TargetData> targetDataList; // List of targets and their respective transition settings
+    public float moveDuration = 1f; // Global duration of the move
+    public float delayBeforeMove = 1f; // Global delay before starting the movement
+    public Color lineColor = Color.green; // Color of the debug lines
+    public UnityEvent OnMoveStart; // Event triggered when a move starts
+    public UnityEvent OnTargetReached; // Event triggered when all targets finish moving
+
+    private int completedTweens = 0;
 
     private void Start()
     {
-        if (targets == null || targets.Count == 0)
+        // Reset LeanTween to avoid stale tweens
+        LeanTween.reset();
+
+        // Force layout update to ensure consistent UI positions
+        LayoutRebuilder.ForceRebuildLayoutImmediate(transform as RectTransform);
+
+        if (targetDataList == null || targetDataList.Count == 0)
         {
-            Debug.LogError("No targets assigned for IntroLevelUI.");
+            Debug.LogError("No target data assigned for IntroLevel.");
             return;
         }
 
-        // Cache the initial positions of all targets
-        foreach (RectTransform target in targets)
+        // Reset the completed tween counter
+        completedTweens = 0;
+
+        // Start moving each target with its own easing type
+        foreach (TargetData data in targetDataList)
         {
-            if (target != null)
-            {
-                initialPositions[target] = target.anchoredPosition;
-            }
-        }
+            if (data.target == null) continue;
 
-        // Start the delayed movement coroutine
-        StartCoroutine(DelayedMoveAll());
-    }
+            Debug.Log($"Preparing to move {data.target.name} to {data.targetPosition} with easing {data.easingType}");
 
-    private IEnumerator DelayedMoveAll()
-    {
-        // Wait for the specified delay
-        yield return new WaitForSeconds(delayBeforeMove);
+            LeanTween.move(data.target, data.targetPosition, moveDuration)
+                .setDelay(delayBeforeMove) // Use global delay
+                .setEase(data.easingType) // Use easing type from TargetData
+                .setOnStart(() =>
+                {
+                    Debug.Log($"Started moving {data.target.name}");
+                    OnMoveStart?.Invoke(); // Trigger OnMoveStart event
+                })
+                .setOnComplete(() =>
+                {
+                    Debug.Log($"Completed moving {data.target.name} to {data.targetPosition}");
+                    completedTweens++;
 
-        // Move all targets simultaneously
-        foreach (RectTransform target in targets)
-        {
-            if (target == null) continue;
-
-            LeanTween.move(target, targetPosition, moveDuration);
+                    // Check if all tweens are complete
+                    if (completedTweens == targetDataList.Count)
+                    {
+                        Debug.Log("All targets have reached their positions.");
+                        OnTargetReached?.Invoke();
+                    }
+                });
         }
     }
 
     private void OnDrawGizmos()
     {
-        if (targets == null || targets.Count == 0)
+        if (targetDataList == null || targetDataList.Count == 0)
             return;
 
-        foreach (RectTransform target in targets)
+        foreach (TargetData data in targetDataList)
         {
-            if (target == null) continue;
+            if (data.target == null) continue;
 
             // Convert UI positions to world space for visualization
-            Vector3 worldStart = target.position;
-            Vector3 worldEnd = transform.TransformPoint(targetPosition);
+            Vector3 worldStart = data.target.position;
+            Vector3 worldEnd = data.target.parent.TransformPoint(data.targetPosition);
 
             // Use Debug.DrawLine to visualize paths in world space
             Debug.DrawLine(worldStart, worldEnd, lineColor);
