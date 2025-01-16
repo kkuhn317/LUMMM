@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using System;
 
 public class ObjectIndicator : MonoBehaviour
 {
@@ -84,7 +85,14 @@ public class ObjectIndicator : MonoBehaviour
             if (indicatorRect != null)
             {
                 // Set the indicator's local position directly
-                indicatorRect.localPosition = currentSettings.indicatorPosition;
+                //indicatorRect.localPosition = currentSettings.indicatorPosition;
+
+                // Set the indicator's local position directly, offset from the target object
+                
+                // First make the indicator a sibling of the target object
+                existingIndicator.transform.SetParent(currentSettings.targetObject.parent);
+                // Then set the indicator's position relative to the target object
+                indicatorRect.localPosition = currentSettings.indicatorPosition + currentSettings.targetObject.localPosition;
 
                 // Update the image's sprite if specified
                 if (indicatorImage != null && currentSettings.indicatorSprite != null)
