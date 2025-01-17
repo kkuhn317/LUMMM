@@ -50,6 +50,8 @@ public class IntroLevel : MonoBehaviour
         LeanTween.reset();
         LayoutRebuilder.ForceRebuildLayoutImmediate(transform as RectTransform);
 
+        var hasConditionText = UpdateConditionText();
+
         if (GlobalVariables.levelInfo.marioMoves == MarioMoves.None)
         {
             Debug.Log("MarioMoves is None. Skipping animations.");
@@ -62,8 +64,6 @@ public class IntroLevel : MonoBehaviour
             Debug.LogError("No target data assigned for IntroLevel.");
             return;
         }
-
-        var hasConditionText = UpdateConditionText();
 
         var filteredTargets = targetDataList.Where(data => data.target != null && (data.shouldMoveIfNoConditionText || hasConditionText)).ToList();
         if (filteredTargets.Count == 0)
