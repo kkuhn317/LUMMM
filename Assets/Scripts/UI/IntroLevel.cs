@@ -3,62 +3,56 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Events;
+using UnityEngine.Localization;
+using UnityEngine.Localization.Settings;
+using UnityEngine.Localization.Tables;
 using TMPro;
+using System.Linq;
 
 public class IntroLevel : MonoBehaviour
 {
-    public GameObject normalMarioObject;
-    public GameObject tinyMarioObject;
-    public GameObject nesMarioObject;
-    public GameObject conditionTextBox;
-    public Image xImage;
-    public TMP_Text lives;
-    public TMP_Text conditionText;
-    public TMP_Text livesText;
-    public Image conditionIconImage;
+    public GameObject normalMarioObject, tinyMarioObject, nesMarioObject, conditionTextBox;
+    public Image xImage, conditionIconImage;
+    public TMP_Text lives, conditionText, livesText;
+    
+    public GameObject capeMove, spinMove, wallJumpMove, groundPoundMove, crawlMove;
+    public List<TargetData> targetDataList;
+    public float moveDuration = 1f, delayBeforeMove = 1f, delayBeforeSceneTransition = 5f;
+    public Color lineColor = Color.green;
+    
+    public UnityEvent OnMoveStart, OnTargetReached;
+    public AudioSource audioSource;
 
-    // Move Objects (UI elements that show available moves)
-    public GameObject capeMove;
-    public GameObject spinMove;
-    public GameObject wallJumpMove;
-    public GameObject groundPoundMove;
-    public GameObject crawlMove;
+    private int completedTweens = 0;
 
     [System.Serializable]
     public class TargetData
     {
-        public RectTransform target; // The UI element to move
-        public Vector3 targetPosition; // The specific target position for this UI element
-        public LeanTweenType easingType = LeanTweenType.linear; // Easing type for the move
+        public RectTransform target;
+        public Vector3 targetPosition;
+        public LeanTweenType easingType = LeanTweenType.linear;
         public bool shouldMoveIfNoConditionText = true;
     }
 
-    public List<TargetData> targetDataList; // List of targets and their respective transition settings
-    public float moveDuration = 1f; // Global duration of the move
-    public float delayBeforeMove = 1f; // Global delay before starting the movement
-    public float delayBeforeSceneTransition = 5f;
-    public Color lineColor = Color.green; // Color of the debug lines
-    public UnityEvent OnMoveStart; // Event triggered when a move starts
-    public UnityEvent OnTargetReached; // Event triggered when all targets finish moving
+    private void OnEnable()
+    {
+        LocalizationSettings.SelectedLocaleChanged += OnLocaleChanged;
+    }
 
-    private int completedTweens = 0;
-    public AudioSource audioSource;
+    private void OnDisable()
+    {
+        LocalizationSettings.SelectedLocaleChanged -= OnLocaleChanged;
+    }
 
     private void Start()
     {
-        // Load level data before doing anything else
         SetLevelData();
-
-        // Reset LeanTween to avoid stale tweens
         LeanTween.reset();
-
-        // Force layout update to ensure consistent UI positions
         LayoutRebuilder.ForceRebuildLayoutImmediate(transform as RectTransform);
 
-        // If MarioMoves is None, skip the animation and go directly to the scene transition
         if (GlobalVariables.levelInfo.marioMoves == MarioMoves.None)
         {
-            Debug.Log("MarioMoves is None. Skipping LeanTween animations.");
+            Debug.Log("MarioMoves is None. Skipping animations.");
             StartCoroutine(DelayedSceneTransition(GlobalVariables.levelInfo.levelScene));
             return;
         }
@@ -69,13 +63,9 @@ public class IntroLevel : MonoBehaviour
             return;
         }
 
-        completedTweens = 0;
-        bool hasConditionText = conditionText != null && !string.IsNullOrEmpty(GlobalVariables.levelInfo.condition);
+        var hasConditionText = UpdateConditionText();
 
-        // Filter out objects that shouldn't move
-        List<TargetData> filteredTargets = targetDataList.FindAll(data =>
-            data.target != null && (data.shouldMoveIfNoConditionText || hasConditionText));
-
+        var filteredTargets = targetDataList.Where(data => data.target != null && (data.shouldMoveIfNoConditionText || hasConditionText)).ToList();
         if (filteredTargets.Count == 0)
         {
             Debug.Log("No valid targets left to animate.");
@@ -83,26 +73,49 @@ public class IntroLevel : MonoBehaviour
             return;
         }
 
-        foreach (TargetData data in filteredTargets)
+        AnimateTargets(filteredTargets);
+    }
+
+    private void OnLocaleChanged(Locale newLocale)
+    {
+        Debug.Log($"Locale changed to: {newLocale.Identifier.Code}");
+        UpdateConditionText();
+    }
+
+    private bool UpdateConditionText()
+    {
+        var table = LocalizationSettings.StringDatabase.GetTable("Game Text");
+        var entry = table?.GetEntry("ConditionLevel_" + GlobalVariables.levelInfo.levelID);
+        bool hasValidConditionText = entry != null && !string.IsNullOrWhiteSpace(entry.LocalizedValue);
+
+        conditionTextBox.SetActive(hasValidConditionText);
+        if (hasValidConditionText) conditionText.text = entry.LocalizedValue;
+
+        return hasValidConditionText;
+    }
+
+    private void AnimateTargets(List<TargetData> filteredTargets)
+    {
+        completedTweens = 0;
+
+        foreach (var data in filteredTargets)
         {
-            Debug.Log($"Preparing to move {data.target.name} to {data.targetPosition} with easing {data.easingType}");
+            Debug.Log($"Moving {data.target.name} to {data.targetPosition} with easing {data.easingType}");
 
             LeanTween.move(data.target, data.targetPosition, moveDuration)
-                .setDelay(delayBeforeMove) // Use global delay
-                .setEase(data.easingType) // Use easing type from TargetData
+                .setDelay(delayBeforeMove)
+                .setEase(data.easingType)
                 .setOnStart(() =>
                 {
                     Debug.Log($"Started moving {data.target.name}");
-                    OnMoveStart?.Invoke(); // Trigger OnMoveStart event
+                    OnMoveStart?.Invoke();
                 })
                 .setOnComplete(() =>
                 {
-                    Debug.Log($"Completed moving {data.target.name} to {data.targetPosition}");
-                    completedTweens++;
-
-                    if (completedTweens == filteredTargets.Count)
+                    Debug.Log($"Completed moving {data.target.name}");
+                    if (++completedTweens == filteredTargets.Count)
                     {
-                        Debug.Log("All targets have reached their positions.");
+                        Debug.Log("All targets reached positions.");
                         OnTargetReached?.Invoke();
                         StartCoroutine(DelayedSceneTransition(GlobalVariables.levelInfo.levelScene));
                     }
@@ -110,36 +123,38 @@ public class IntroLevel : MonoBehaviour
         }
     }
 
+    private void SetLevelData()
+    {
+        var levelInfo = GlobalVariables.levelInfo;
+        if (levelInfo == null)
+        {
+            Debug.LogError("No level info found!");
+            return;
+        }
+
+        EnableCorrectMarioObject(levelInfo.marioType);
+        xImage?.SetSprite(levelInfo.xImage);
+        conditionIconImage?.SetSprite(levelInfo.conditionIconImage);
+        livesText?.SetText(levelInfo.lives.ToString());
+        ApplyMoveSettings(levelInfo.marioMoves);
+    }
+
     private void EnableCorrectMarioObject(MarioType type)
     {
-        // Disable all Mario objects
-        if (normalMarioObject != null) normalMarioObject.SetActive(false);
-        if (tinyMarioObject != null) tinyMarioObject.SetActive(false);
-        if (nesMarioObject != null) nesMarioObject.SetActive(false);
+        normalMarioObject?.SetActive(type == MarioType.Normal);
+        tinyMarioObject?.SetActive(type == MarioType.Tiny);
+        nesMarioObject?.SetActive(type == MarioType.NES);
 
-        // Enable the correct Mario object based on type
-        switch (type)
-        {
-            case MarioType.Normal:
-                if (normalMarioObject != null) normalMarioObject.SetActive(true); audioSource.pitch = 1f;
-                break;
-            case MarioType.Tiny:
-                if (tinyMarioObject != null) tinyMarioObject.SetActive(true); audioSource.pitch = 1.5f;
-                break;
-            case MarioType.NES:
-                if (nesMarioObject != null) nesMarioObject.SetActive(true); audioSource.pitch = 1f;
-                break;
-        }
+        audioSource.pitch = (type == MarioType.Tiny) ? 1.5f : 1f;
     }
 
     private void ApplyMoveSettings(MarioMoves moves)
     {
-        // Enable or disable objects based on the moves available
-        if (capeMove != null) capeMove.SetActive(moves.HasFlag(MarioMoves.Cape));
-        if (spinMove != null) spinMove.SetActive(moves.HasFlag(MarioMoves.Spin));
-        if (wallJumpMove != null) wallJumpMove.SetActive(moves.HasFlag(MarioMoves.WallJump));
-        if (groundPoundMove != null) groundPoundMove.SetActive(moves.HasFlag(MarioMoves.GroundPound));
-        if (crawlMove != null) crawlMove.SetActive(moves.HasFlag(MarioMoves.Crawl));
+        capeMove?.SetActive(moves.HasFlag(MarioMoves.Cape));
+        spinMove?.SetActive(moves.HasFlag(MarioMoves.Spin));
+        wallJumpMove?.SetActive(moves.HasFlag(MarioMoves.WallJump));
+        groundPoundMove?.SetActive(moves.HasFlag(MarioMoves.GroundPound));
+        crawlMove?.SetActive(moves.HasFlag(MarioMoves.Crawl));
     }
 
     private IEnumerator DelayedSceneTransition(string nextScene)
@@ -147,83 +162,38 @@ public class IntroLevel : MonoBehaviour
         yield return new WaitForSeconds(delayBeforeSceneTransition);
         if (FadeInOutScene.Instance != null)
         {
-            if (GlobalVariables.levelInfo.transitionAudio != null){
-                audioSource.PlayOneShot(GlobalVariables.levelInfo.transitionAudio);
-            }
-            FadeInOutScene.Instance.LoadSceneWithFade(nextScene); // Transition to the actual level
+            audioSource?.PlayOneShot(GlobalVariables.levelInfo.transitionAudio);
+            FadeInOutScene.Instance.LoadSceneWithFade(nextScene);
         }
-    }
-
-    private void SetLevelData()
-    {
-        LevelInfo levelInfo = GlobalVariables.levelInfo;
-
-        if (levelInfo == null)
-        {
-            Debug.LogError("No level info found in GlobalVariables!");
-            return;
-        }
-
-        // Enable the correct Mario object
-        EnableCorrectMarioObject(levelInfo.marioType);
-
-        // Set X Sprite (or special object)
-        if (xImage != null && levelInfo.xImage != null)
-        {
-            xImage.sprite = levelInfo.xImage;
-            xImage.enabled = true;
-        }
-        else if (xImage != null)
-        {
-            xImage.enabled = false;
-        }
-
-        // Set Condition Text
-        if (conditionText != null && !string.IsNullOrEmpty(levelInfo.condition))
-        {
-            conditionText.text = levelInfo.condition;
-        } 
-        else 
-        {
-            conditionTextBox.SetActive(false);
-        }
-
-        // Set Condition Icon
-        if (conditionIconImage != null && levelInfo.conditionIconImage != null)
-        {
-            conditionIconImage.sprite = levelInfo.conditionIconImage;
-            conditionIconImage.enabled = true;
-        }
-        else if (conditionIconImage != null)
-        {
-            conditionIconImage.enabled = false;
-        }
-
-        // Set Lives
-        if (livesText != null)
-        {
-            livesText.text = levelInfo.lives.ToString();
-        }
-
-        // Apply Move Settings
-        ApplyMoveSettings(levelInfo.marioMoves);
     }
 
     private void OnDrawGizmos()
     {
-        if (targetDataList == null || targetDataList.Count == 0)
-            return;
+        if (targetDataList == null) return;
 
-        foreach (TargetData data in targetDataList)
+        foreach (var data in targetDataList.Where(data => data.target != null))
         {
-            if (data.target == null) continue;
-
-            // Convert UI positions to world space for visualization
             Vector3 worldStart = data.target.position;
             Vector3 worldEnd = data.target.parent.TransformPoint(data.targetPosition);
-
-            // Use Debug.DrawLine to visualize paths in world space
             Debug.DrawLine(worldStart, worldEnd, lineColor);
         }
+    }
+}
+
+// Helper Extension Methods
+public static class UIExtensions
+{
+    public static void SetSprite(this Image image, Sprite sprite)
+    {
+        if (image != null)
+        {
+            image.sprite = sprite;
+            image.enabled = sprite != null;
+        }
+    }
+
+    public static void SetText(this TMP_Text text, string value)
+    {
+        if (text != null) text.text = value;
     }
 }

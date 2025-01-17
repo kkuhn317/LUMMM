@@ -33,7 +33,5 @@ public class LevelInfo : ScriptableObject
     public MarioMoves marioMoves; // The available moves for Mario (bitmask)
     public Sprite xImage;
     public Sprite conditionIconImage; // condition icon image for the intro screen
-    [TextArea]
-    public string condition; // Long string for level condition
     public AudioClip transitionAudio; // It'll play when the fade in happens
 }
