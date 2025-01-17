@@ -10,6 +10,7 @@ public class IntroLevel : MonoBehaviour
     public GameObject normalMarioObject;
     public GameObject tinyMarioObject;
     public GameObject nesMarioObject;
+    public GameObject conditionTextBox;
     public Image xImage;
     public TMP_Text lives;
     public TMP_Text conditionText;
@@ -29,6 +30,7 @@ public class IntroLevel : MonoBehaviour
         public RectTransform target; // The UI element to move
         public Vector3 targetPosition; // The specific target position for this UI element
         public LeanTweenType easingType = LeanTweenType.linear; // Easing type for the move
+        public bool shouldMoveIfNoConditionText = true;
     }
 
     public List<TargetData> targetDataList; // List of targets and their respective transition settings
@@ -68,11 +70,21 @@ public class IntroLevel : MonoBehaviour
         }
 
         completedTweens = 0;
+        bool hasConditionText = conditionText != null && !string.IsNullOrEmpty(GlobalVariables.levelInfo.condition);
 
-        foreach (TargetData data in targetDataList)
+        // Filter out objects that shouldn't move
+        List<TargetData> filteredTargets = targetDataList.FindAll(data =>
+            data.target != null && (data.shouldMoveIfNoConditionText || hasConditionText));
+
+        if (filteredTargets.Count == 0)
         {
-            if (data.target == null) continue;
+            Debug.Log("No valid targets left to animate.");
+            StartCoroutine(DelayedSceneTransition(GlobalVariables.levelInfo.levelScene));
+            return;
+        }
 
+        foreach (TargetData data in filteredTargets)
+        {
             Debug.Log($"Preparing to move {data.target.name} to {data.targetPosition} with easing {data.easingType}");
 
             LeanTween.move(data.target, data.targetPosition, moveDuration)
@@ -88,7 +100,7 @@ public class IntroLevel : MonoBehaviour
                     Debug.Log($"Completed moving {data.target.name} to {data.targetPosition}");
                     completedTweens++;
 
-                    if (completedTweens == targetDataList.Count)
+                    if (completedTweens == filteredTargets.Count)
                     {
                         Debug.Log("All targets have reached their positions.");
                         OnTargetReached?.Invoke();
@@ -167,9 +179,13 @@ public class IntroLevel : MonoBehaviour
         }
 
         // Set Condition Text
-        if (conditionText != null)
+        if (conditionText != null && !string.IsNullOrEmpty(levelInfo.condition))
         {
             conditionText.text = levelInfo.condition;
+        } 
+        else 
+        {
+            conditionTextBox.SetActive(false);
         }
 
         // Set Condition Icon

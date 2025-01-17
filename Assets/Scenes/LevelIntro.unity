@@ -423,6 +423,7 @@ MonoBehaviour:
   normalMarioObject: {fileID: 2071563718}
   tinyMarioObject: {fileID: 2017699403}
   nesMarioObject: {fileID: 1189908578}
+  conditionTextBox: {fileID: 771810753}
   xImage: {fileID: 716072241}
   lives: {fileID: 972936180}
   conditionText: {fileID: 1757754765}
@@ -437,9 +438,11 @@ MonoBehaviour:
   - target: {fileID: 1724794066}
     targetPosition: {x: 0, y: 25, z: 0}
     easingType: 3
+    shouldMoveIfNoConditionText: 0
   - target: {fileID: 2023443110}
     targetPosition: {x: 0, y: -170, z: 0}
     easingType: 3
+    shouldMoveIfNoConditionText: 1
   moveDuration: 0.5
   delayBeforeMove: 3
   delayBeforeSceneTransition: 5
@@ -1948,12 +1951,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Never gonna give you up
+  m_text: 'Escape the Tiny
 
-    Never gonna let you down
-
-    Never gonna
-    run around and desert you'
+    GOOMBA to win.'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: de13511d9eba58445ac687cf8063af32, type: 2}
   m_sharedMaterial: {fileID: -228740088794742643, guid: de13511d9eba58445ac687cf8063af32, type: 2}
@@ -1980,8 +1980,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 14
-  m_fontSizeBase: 14
+  m_fontSize: 24
+  m_fontSizeBase: 24
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
