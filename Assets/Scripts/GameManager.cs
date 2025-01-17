@@ -41,6 +41,7 @@ public class GameManager : MonoBehaviour
     [Header("Lives")]
     private int maxLives = 99;
     [SerializeField] TMP_Text livesText;
+    public Image infiniteImage;
     public Color defaultColor = Color.white;
     public Color targetColor = Color.green;
 
@@ -555,39 +556,51 @@ public class GameManager : MonoBehaviour
         UpdateLivesUI();
 
         // Start the color change coroutine
-        StartCoroutine(AnimateTextColor(livesText, targetColor, 0.5f));
+        StartCoroutine(AnimateColor(GlobalVariables.infiniteLivesMode ? infiniteImage : livesText, targetColor, 0.5f));
     }
 
-    IEnumerator AnimateTextColor(TMP_Text text, Color targetColor, float duration)
+    private IEnumerator AnimateColor(Component target, Color overrideTargetColor, float duration = 1f)
     {
-        Color initialColor = defaultColor;
+        if (target == null) yield break;
 
-        // Fade the text color to the target color over the specified duration
+        Color initialColor = defaultColor;
+        Color targetColor = overrideTargetColor;
+
         float timeElapsed = 0f;
         while (timeElapsed < duration)
         {
-            text.color = Color.Lerp(initialColor, targetColor, timeElapsed / duration);
+            if (target is TMP_Text text)
+                text.color = Color.Lerp(initialColor, targetColor, timeElapsed / duration);
+            else if (target is Image image)
+                image.color = Color.Lerp(initialColor, targetColor, timeElapsed / duration);
+
             timeElapsed += Time.deltaTime;
             yield return null;
         }
 
-        // Ensure it’s fully green
-        text.color = targetColor;
+        if (target is TMP_Text finalText)
+            finalText.color = targetColor;
+        else if (target is Image finalImage)
+            finalImage.color = targetColor;
 
-        // Wait for a short period
         yield return new WaitForSeconds(0.1f);
 
-        // Fade the text color back to the original color over the specified duration
         timeElapsed = 0f;
         while (timeElapsed < duration)
         {
-            text.color = Color.Lerp(targetColor, initialColor, timeElapsed / duration);
+            if (target is TMP_Text revertText)
+                revertText.color = Color.Lerp(targetColor, initialColor, timeElapsed / duration);
+            else if (target is Image revertImage)
+                revertImage.color = Color.Lerp(targetColor, initialColor, timeElapsed / duration);
+
             timeElapsed += Time.deltaTime;
             yield return null;
         }
 
-        // Set the text color back to the original color
-        text.color = initialColor;
+        if (target is TMP_Text finalRevertText)
+            finalRevertText.color = initialColor;
+        else if (target is Image finalRevertImage)
+            finalRevertImage.color = initialColor;
     }
     
     #region updateUI
@@ -602,11 +615,10 @@ public class GameManager : MonoBehaviour
 
     public void UpdateLivesUI()
     {
-        if (GlobalVariables.infiniteLivesMode)
-        {
-            livesText.text = "INF!";
-        }
-        else
+        livesText.gameObject.SetActive(!GlobalVariables.infiniteLivesMode); // if infinite lives mode is deactivated
+        infiniteImage.gameObject.SetActive(GlobalVariables.infiniteLivesMode); // if infinite lives mode is activated
+
+        if (!GlobalVariables.infiniteLivesMode)
         {
             livesText.text = "<mspace=0.8em>" + GlobalVariables.lives.ToString("D2"); // 00
         }

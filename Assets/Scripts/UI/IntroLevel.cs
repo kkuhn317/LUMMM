@@ -12,7 +12,7 @@ using System.Linq;
 public class IntroLevel : MonoBehaviour
 {
     public GameObject normalMarioObject, tinyMarioObject, nesMarioObject, conditionTextBox;
-    public Image xImage, conditionIconImage;
+    public Image xImage, conditionIconImage, infiniteImage;
     public TMP_Text lives, conditionText, livesText;
     
     public GameObject capeMove, spinMove, wallJumpMove, groundPoundMove, crawlMove;
@@ -137,6 +137,19 @@ public class IntroLevel : MonoBehaviour
         conditionIconImage?.SetSprite(levelInfo.conditionIconImage);
         livesText?.SetText(levelInfo.lives.ToString());
         ApplyMoveSettings(levelInfo.marioMoves);
+        UpdateLivesDisplay();
+    }
+
+    private void UpdateLivesDisplay()
+    {
+        bool infiniteLives = GlobalVariables.infiniteLivesMode;
+        livesText.gameObject.SetActive(!infiniteLives);
+        infiniteImage.gameObject.SetActive(infiniteLives);
+
+        if (!infiniteLives)
+        {
+            livesText?.SetText(GlobalVariables.lives.ToString());
+        }
     }
 
     private void EnableCorrectMarioObject(MarioType type)
