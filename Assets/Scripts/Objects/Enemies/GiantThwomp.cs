@@ -73,6 +73,7 @@ public class GiantThwomp : EnemyAI, IGroundPoundable
     [SerializeField] private CameraFollow cameraFollow;
 
     public SpikesFlagPole flagpole;
+    public UnityEvent onThwompDefeat;
 
     protected override void Start()
     {
@@ -507,6 +508,7 @@ public class GiantThwomp : EnemyAI, IGroundPoundable
         if (currentState == ThwompStates.FallBack)
         {
             player.Freeze();
+            onThwompDefeat?.Invoke();
             
             // Play the poof effect
             if (poofEffectPrefab != null)
