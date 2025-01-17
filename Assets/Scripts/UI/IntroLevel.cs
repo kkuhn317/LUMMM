@@ -7,11 +7,21 @@ using TMPro;
 
 public class IntroLevel : MonoBehaviour
 {
-    public Image marioImage;
+    public GameObject normalMarioObject;
+    public GameObject tinyMarioObject;
+    public GameObject nesMarioObject;
     public Image xImage;
     public TMP_Text lives;
     public TMP_Text conditionText;
+    public TMP_Text livesText;
     public Image conditionIconImage;
+
+    // Move Objects (UI elements that show available moves)
+    public GameObject capeMove;
+    public GameObject spinMove;
+    public GameObject wallJumpMove;
+    public GameObject groundPoundMove;
+    public GameObject crawlMove;
 
     [System.Serializable]
     public class TargetData
@@ -24,19 +34,32 @@ public class IntroLevel : MonoBehaviour
     public List<TargetData> targetDataList; // List of targets and their respective transition settings
     public float moveDuration = 1f; // Global duration of the move
     public float delayBeforeMove = 1f; // Global delay before starting the movement
+    public float delayBeforeSceneTransition = 5f;
     public Color lineColor = Color.green; // Color of the debug lines
     public UnityEvent OnMoveStart; // Event triggered when a move starts
     public UnityEvent OnTargetReached; // Event triggered when all targets finish moving
 
     private int completedTweens = 0;
+    public AudioSource audioSource;
 
     private void Start()
     {
+        // Load level data before doing anything else
+        SetLevelData();
+
         // Reset LeanTween to avoid stale tweens
         LeanTween.reset();
 
         // Force layout update to ensure consistent UI positions
         LayoutRebuilder.ForceRebuildLayoutImmediate(transform as RectTransform);
+
+        // If MarioMoves is None, skip the animation and go directly to the scene transition
+        if (GlobalVariables.levelInfo.marioMoves == MarioMoves.None)
+        {
+            Debug.Log("MarioMoves is None. Skipping LeanTween animations.");
+            StartCoroutine(DelayedSceneTransition(GlobalVariables.levelInfo.levelScene));
+            return;
+        }
 
         if (targetDataList == null || targetDataList.Count == 0)
         {
@@ -44,10 +67,8 @@ public class IntroLevel : MonoBehaviour
             return;
         }
 
-        // Reset the completed tween counter
         completedTweens = 0;
 
-        // Start moving each target with its own easing type
         foreach (TargetData data in targetDataList)
         {
             if (data.target == null) continue;
@@ -67,14 +88,109 @@ public class IntroLevel : MonoBehaviour
                     Debug.Log($"Completed moving {data.target.name} to {data.targetPosition}");
                     completedTweens++;
 
-                    // Check if all tweens are complete
                     if (completedTweens == targetDataList.Count)
                     {
                         Debug.Log("All targets have reached their positions.");
                         OnTargetReached?.Invoke();
+                        StartCoroutine(DelayedSceneTransition(GlobalVariables.levelInfo.levelScene));
                     }
                 });
         }
+    }
+
+    private void EnableCorrectMarioObject(MarioType type)
+    {
+        // Disable all Mario objects
+        if (normalMarioObject != null) normalMarioObject.SetActive(false);
+        if (tinyMarioObject != null) tinyMarioObject.SetActive(false);
+        if (nesMarioObject != null) nesMarioObject.SetActive(false);
+
+        // Enable the correct Mario object based on type
+        switch (type)
+        {
+            case MarioType.Normal:
+                if (normalMarioObject != null) normalMarioObject.SetActive(true); audioSource.pitch = 1f;
+                break;
+            case MarioType.Tiny:
+                if (tinyMarioObject != null) tinyMarioObject.SetActive(true); audioSource.pitch = 1.5f;
+                break;
+            case MarioType.NES:
+                if (nesMarioObject != null) nesMarioObject.SetActive(true); audioSource.pitch = 1f;
+                break;
+        }
+    }
+
+    private void ApplyMoveSettings(MarioMoves moves)
+    {
+        // Enable or disable objects based on the moves available
+        if (capeMove != null) capeMove.SetActive(moves.HasFlag(MarioMoves.Cape));
+        if (spinMove != null) spinMove.SetActive(moves.HasFlag(MarioMoves.Spin));
+        if (wallJumpMove != null) wallJumpMove.SetActive(moves.HasFlag(MarioMoves.WallJump));
+        if (groundPoundMove != null) groundPoundMove.SetActive(moves.HasFlag(MarioMoves.GroundPound));
+        if (crawlMove != null) crawlMove.SetActive(moves.HasFlag(MarioMoves.Crawl));
+    }
+
+    private IEnumerator DelayedSceneTransition(string nextScene)
+    {
+        yield return new WaitForSeconds(delayBeforeSceneTransition);
+        if (FadeInOutScene.Instance != null)
+        {
+            if (GlobalVariables.levelInfo.transitionAudio != null){
+                audioSource.PlayOneShot(GlobalVariables.levelInfo.transitionAudio);
+            }
+            FadeInOutScene.Instance.LoadSceneWithFade(nextScene); // Transition to the actual level
+        }
+    }
+
+    private void SetLevelData()
+    {
+        LevelInfo levelInfo = GlobalVariables.levelInfo;
+
+        if (levelInfo == null)
+        {
+            Debug.LogError("No level info found in GlobalVariables!");
+            return;
+        }
+
+        // Enable the correct Mario object
+        EnableCorrectMarioObject(levelInfo.marioType);
+
+        // Set X Sprite (or special object)
+        if (xImage != null && levelInfo.xImage != null)
+        {
+            xImage.sprite = levelInfo.xImage;
+            xImage.enabled = true;
+        }
+        else if (xImage != null)
+        {
+            xImage.enabled = false;
+        }
+
+        // Set Condition Text
+        if (conditionText != null)
+        {
+            conditionText.text = levelInfo.condition;
+        }
+
+        // Set Condition Icon
+        if (conditionIconImage != null && levelInfo.conditionIconImage != null)
+        {
+            conditionIconImage.sprite = levelInfo.conditionIconImage;
+            conditionIconImage.enabled = true;
+        }
+        else if (conditionIconImage != null)
+        {
+            conditionIconImage.enabled = false;
+        }
+
+        // Set Lives
+        if (livesText != null)
+        {
+            livesText.text = levelInfo.lives.ToString();
+        }
+
+        // Apply Move Settings
+        ApplyMoveSettings(levelInfo.marioMoves);
     }
 
     private void OnDrawGizmos()

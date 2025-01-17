@@ -34,4 +34,5 @@ public class LevelInfo : ScriptableObject
     public Sprite xImage;
     public Sprite conditionIconImage; // condition icon image for the intro screen
     public string condition; // Long string for level condition
+    public AudioClip transitionAudio; // It'll play when the fade in happens
 }

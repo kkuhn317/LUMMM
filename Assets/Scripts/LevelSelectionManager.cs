@@ -176,7 +176,7 @@ public class LevelSelectionManager : MonoBehaviour
         }
 
         // Load the scene
-        FadeInOutScene.Instance.LoadSceneWithFade(selectedLevelButton.levelInfo.levelScene);
+        FadeInOutScene.Instance.LoadSceneWithFade("LevelIntro");
     }
 
     // Animator Icons
