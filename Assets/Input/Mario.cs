@@ -113,7 +113,7 @@ public partial class @Mario : IInputActionCollection2, IDisposable
                     ""isPartOfComposite"": false
                 },
                 {
-                    ""name"": ""ArrowKeys"",
+                    ""name"": ""Arrow Keys"",
                     ""id"": ""00ca640b-d935-4593-8157-c05846ea39b3"",
                     ""path"": ""Dpad"",
                     ""interactions"": """",
@@ -256,7 +256,7 @@ public partial class @Mario : IInputActionCollection2, IDisposable
                     ""isPartOfComposite"": false
                 },
                 {
-                    ""name"": ""WASD"",
+                    ""name"": ""Arrow Keys"",
                     ""id"": ""c7a36ea5-facb-4643-b79b-baf5917fcfa3"",
                     ""path"": ""Dpad"",
                     ""interactions"": """",
@@ -265,17 +265,6 @@ public partial class @Mario : IInputActionCollection2, IDisposable
                     ""action"": ""Crouch"",
                     ""isComposite"": true,
                     ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": ""down"",
-                    ""id"": ""88ea9fb0-5f8c-4a9b-80f2-fb085e09dd65"",
-                    ""path"": ""<Keyboard>/s"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": ""Keyboard&Mouse"",
-                    ""action"": ""Crouch"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": true
                 },
                 {
                     ""name"": ""down"",
@@ -355,7 +344,7 @@ public partial class @Mario : IInputActionCollection2, IDisposable
                     ""isPartOfComposite"": false
                 },
                 {
-                    ""name"": """",
+                    ""name"": ""Arrow Keys"",
                     ""id"": ""bb7f6605-df16-4514-b24c-4fbb04144c85"",
                     ""path"": ""Dpad"",
                     ""interactions"": """",
@@ -364,17 +353,6 @@ public partial class @Mario : IInputActionCollection2, IDisposable
                     ""action"": ""Use"",
                     ""isComposite"": true,
                     ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": ""up"",
-                    ""id"": ""4576434a-7c44-4df5-b1a1-4ec0e09e9441"",
-                    ""path"": ""<Keyboard>/w"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": ""Keyboard&Mouse"",
-                    ""action"": ""Use"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": true
                 },
                 {
                     ""name"": ""up"",

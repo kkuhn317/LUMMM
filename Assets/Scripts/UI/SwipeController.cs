@@ -85,7 +85,7 @@ public class SwipeController : MonoBehaviour, IEndDragHandler
 
     void MovePage()
     {
-        levelPagesRect.LeanMoveLocal(targetPos, tweenTime).setEase(tweenType);
+        levelPagesRect.LeanMoveLocal(targetPos, tweenTime).setEase(tweenType).setIgnoreTimeScale(true);
         UpdateBar();
         UpdateCanvasGroups();
         UpdateButtonStates(); // Ensure buttons are updated after page change
