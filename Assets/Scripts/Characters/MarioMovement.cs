@@ -1662,6 +1662,9 @@ public class MarioMovement : MonoBehaviour
         }
     }
     public void onMobileCrouchPressed() {
+        if (!onGround) {
+            crouchPressedInAir = true;
+        }
         crouchPressed = true;
     }
     public void onMobileCrouchReleased() {
