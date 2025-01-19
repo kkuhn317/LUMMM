@@ -607,7 +607,7 @@ public class MarioMovement : MonoBehaviour
             RaycastHit2D wallHitLeft = Physics2D.Raycast(transform.position, Vector2.left, raycastlength, groundLayer);
             RaycastHit2D wallHitRight = Physics2D.Raycast(transform.position, Vector2.right, raycastlength, groundLayer);
 
-            if ((wallHitLeft.collider != null && direction.x < 0) || (wallHitRight.collider != null && direction.x > 0)) {
+            if ((wallHitLeft.collider != null && direction.x < 0) || (wallHitRight.collider != null && direction.x > 0) && !pushing) {
                 if (!wallSliding) {
                     // flip mario to face the wall
                     FlipTo(direction.x > 0);
@@ -1007,8 +1007,13 @@ public class MarioMovement : MonoBehaviour
             int pushDir = facingRight ? 1 : -1;
             rb.velocity = new Vector2(pushingSpeed * pushDir, rb.velocity.y);
             if (onGround) {
+                print("I'm on the ground!!");
                 // Fix for falling inside moving platforms while pushing
                 rb.gravityScale = 0;
+                rb.drag = 0;
+            } else {
+                rb.gravityScale = fallgravity;
+                rb.drag = linearDrag * 0.15f;
             }
             return;
         }  

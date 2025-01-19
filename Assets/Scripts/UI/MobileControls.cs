@@ -56,6 +56,7 @@ public class MobileControls : MonoBehaviour
     public void onUpPressed()
     {
         getPlayer1().onMobileUpPressed();
+        getPlayer1().onUsePressed();
     }
     public void onUpReleased()
     {
@@ -87,7 +88,7 @@ public class MobileControls : MonoBehaviour
     }
     public void onUsePressed()
     {
-        getPlayer1().onUsePressed();
+        //getPlayer1().onUsePressed();
         getPlayer1().onShootPressed();
     }
     public void onSpinPressed()
