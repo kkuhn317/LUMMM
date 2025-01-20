@@ -198,13 +198,12 @@ public class Door : MonoBehaviour
 
     }
 
-    void CenterPlayerAtDoor(){
+    protected virtual void CenterPlayerAtDoor(){
         if (player != null)
         {
             Vector3 doorCenter = new(transform.position.x, player.transform.position.y, player.transform.position.z);
             player.transform.position = doorCenter;
         }
-
     }
 
     void Teleport() {

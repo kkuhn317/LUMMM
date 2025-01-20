@@ -62,18 +62,22 @@ public class CoinDoor : Door
     protected override void Unlock()
     {
         // Place the player at the center of the door if the flag is enabled
-        if (placePlayerOnDoorCenter && player != null)
-        {
-            Vector3 doorCenter = new Vector3(transform.position.x, transform.position.y, player.transform.position.z);
-            player.transform.position = doorCenter;
-        }
-
+        CenterPlayerAtDoor();
         // we want to have the door spit out coins until the player uses enough coins to open the door
         FreezePlayer();
-
         coinSpendCoroutine = SpawnCoinsUntilOpen();
         StartCoroutine(coinSpendCoroutine);
     }
+
+    protected override void CenterPlayerAtDoor()
+    {
+        if (placePlayerOnDoorCenter && player != null)
+        {
+            Vector3 doorCenter = new Vector3(transform.position.x, player.transform.position.y, player.transform.position.z);
+            player.transform.position = doorCenter;
+        }
+    }
+
 
     protected virtual IEnumerator SpawnCoinsUntilOpen()
     {
