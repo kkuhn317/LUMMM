@@ -81,6 +81,8 @@ public class CollisionTriggerEvent : MonoBehaviour
 
     private bool IsInLayerMask(GameObject obj, LayerMask mask)
     {
+        bool inMask = (mask.value & (1 << obj.layer)) != 0;
+        Debug.Log($"{obj.name} in layer {LayerMask.LayerToName(obj.layer)}: {inMask}");
         return (mask.value & (1 << obj.layer)) != 0;
     }
 }

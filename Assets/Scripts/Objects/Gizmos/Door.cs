@@ -149,6 +149,7 @@ public class Door : MonoBehaviour
         locked = false;
         SpendKey();
         audioSource.PlayOneShot(unlockSound);
+        CenterPlayerAtDoor();
         FreezePlayer();
         animator.SetTrigger("Unlock");
         spawnParticles();
@@ -181,6 +182,7 @@ public class Door : MonoBehaviour
         audioSource.PlayOneShot(openSound);
         FreezePlayer();
         animator.SetTrigger("Open");
+        CenterPlayerAtDoor();
         Invoke(nameof(Teleport), 0.5f);
         Invoke(nameof(Close), 1);
 
@@ -192,6 +194,15 @@ public class Door : MonoBehaviour
             otherDoor.inUse = true;
             destination.GetComponent<Animator>().SetTrigger("Open");
             otherDoor.Invoke(nameof(Close), 1);
+        }
+
+    }
+
+    void CenterPlayerAtDoor(){
+        if (player != null)
+        {
+            Vector3 doorCenter = new(transform.position.x, player.transform.position.y, player.transform.position.z);
+            player.transform.position = doorCenter;
         }
 
     }
