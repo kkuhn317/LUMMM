@@ -47,7 +47,7 @@ public class ButtonHandler : MonoBehaviour, IPointerUpHandler
         }
 
         // Deselect the button to remove highlight after animation completes
-        EventSystem.current.SetSelectedGameObject(null);
+        // EventSystem.current.SetSelectedGameObject(null);
 
         // Reset the isAnimating flag for future interactions
         isAnimating = false;
