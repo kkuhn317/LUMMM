@@ -72,8 +72,6 @@ public class InputActionUIHandler : MonoBehaviour
                         action.performed -= ctx => HandleButtonInput(binding, true);
                         action.canceled -= ctx => HandleButtonInput(binding, false);
                     }
-
-                    action.Disable();
                 }
             }
         }

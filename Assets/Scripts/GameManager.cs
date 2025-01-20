@@ -144,6 +144,7 @@ public class GameManager : MonoBehaviour
     public GameObject CheckpointIndicator;
     public GameObject ResetPopUp;
     public GameObject optionsPauseMenu;
+    public GameObject[] disablingMenusOnResume; // Other menus to disable when the game is resumed
     public TMP_Text levelNameText;
     public Button resumeButton;
     // TEMPORARY
@@ -1115,6 +1116,10 @@ public class GameManager : MonoBehaviour
             mainPauseMenu.SetActive(true);
             ResetPopUp.SetActive(false);
             optionsPauseMenu.SetActive(false);
+            foreach (GameObject menu in disablingMenusOnResume)
+            {
+                menu.SetActive(false);
+            }
         }
             
     }
