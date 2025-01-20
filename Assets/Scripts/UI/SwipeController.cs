@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class SwipeController : MonoBehaviour, IEndDragHandler
+public class SwipeController : MonoBehaviour, IDragHandler, IEndDragHandler
 {
     [SerializeField] int maxPage;
     int currentPage;
@@ -14,7 +14,7 @@ public class SwipeController : MonoBehaviour, IEndDragHandler
 
     [SerializeField] float tweenTime;
     [SerializeField] LeanTweenType tweenType;
-    float dragThereshould;
+    float dragThreshold;
     [SerializeField] Button previousBtn, nextBtn;
 
     [System.Serializable]
@@ -34,7 +34,7 @@ public class SwipeController : MonoBehaviour, IEndDragHandler
         currentPage = 1;
         initialPosition = levelPagesRect.localPosition;
         targetPos = levelPagesRect.localPosition;
-        dragThereshould = Screen.width / 15;
+        dragThreshold = Screen.width / 15;
         UpdateBar();
         UpdateCanvasGroups();
         UpdateButtonStates(); // Ensure buttons are updated on initialization
@@ -65,6 +65,8 @@ public class SwipeController : MonoBehaviour, IEndDragHandler
 
     public void GoToPage(int targetPage) // Start from 1
     {
+        if (targetPage == currentPage) return; 
+        
         if (targetPage < 1 || targetPage > maxPage)
         {
             Debug.LogWarning($"Invalid page number: {targetPage}. Must be between 1 and {maxPage}.");
@@ -91,9 +93,28 @@ public class SwipeController : MonoBehaviour, IEndDragHandler
         UpdateButtonStates(); // Ensure buttons are updated after page change
     }
 
+    public void OnDrag(PointerEventData eventData)
+    {
+        float dragAmount = eventData.position.x - eventData.pressPosition.x;
+
+        // Predict the next page based on drag distance
+        int predictedPage = currentPage;
+
+        if (Mathf.Abs(dragAmount) > dragThreshold)
+        {
+            predictedPage = (dragAmount > 0) ? Mathf.Max(1, currentPage - 1) : Mathf.Min(maxPage, currentPage + 1);
+        }
+
+        // Only update button states if the page prediction changes
+        if (predictedPage != currentPage)
+        {
+            UpdateButtonStates(predictedPage);
+        }
+    }
+
     public void OnEndDrag(PointerEventData eventData)
     {
-        if (Mathf.Abs(eventData.position.x - eventData.pressPosition.x) > dragThereshould)
+        if (Mathf.Abs(eventData.position.x - eventData.pressPosition.x) > dragThreshold)
         {
             if (eventData.position.x > eventData.pressPosition.x)
                 Previous();
@@ -109,6 +130,8 @@ public class SwipeController : MonoBehaviour, IEndDragHandler
 
     void UpdateBar()
     {
+        if (barOptions == null || barOptions.Length == 0 || currentPage - 1 >= barOptions.Length) return;
+
         foreach (var option in barOptions)
         {
             option.barImage.sprite = option.barClosed;
@@ -133,21 +156,22 @@ public class SwipeController : MonoBehaviour, IEndDragHandler
         }
     }
 
-    void UpdateButtonStates()
+    void UpdateButtonStates(int predictedPage = -1)
     {
         // Log for debugging
         Debug.Log($"Updating button states: currentPage = {currentPage}, maxPage = {maxPage}");
 
         // Update button interactivity
-        previousBtn.interactable = currentPage > 1;
-        nextBtn.interactable = currentPage < maxPage;
+        if (predictedPage == -1) predictedPage = currentPage;
 
-        // Select the appropriate button in the EventSystem
-        if (currentPage == 1)
+        previousBtn.interactable = predictedPage > 1;
+        nextBtn.interactable = predictedPage < maxPage;
+
+        if (predictedPage == 1)
         {
             EventSystem.current.SetSelectedGameObject(nextBtn.gameObject);
         }
-        else if (currentPage == maxPage)
+        else if (predictedPage == maxPage)
         {
             EventSystem.current.SetSelectedGameObject(previousBtn.gameObject);
         }
