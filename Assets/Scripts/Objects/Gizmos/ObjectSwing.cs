@@ -12,15 +12,19 @@ public class ObjectSwing : MonoBehaviour
     private float nextWhoosh;
     public float whooshDelay;
 
+    private float startTime;
+
     void Start() {
         audioSource = GetComponent<AudioSource>();
+        startTime = Time.time;
         nextWhoosh = Time.time + whooshDelay;
     }
 
     private void Update()
     {
         // Calculate the rotation of the object
-        float rotation = Mathf.Sin(Time.time * swingSpeed) * swingRotation;
+        // Subtract the start time so the object always starts from the center
+        float rotation = Mathf.Sin((Time.time - startTime) * swingSpeed) * swingRotation;
 
         // Set the rotation of the object
         transform.rotation = Quaternion.Euler(0, 0, rotation);
