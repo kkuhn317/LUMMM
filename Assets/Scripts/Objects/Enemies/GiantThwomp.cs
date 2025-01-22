@@ -217,6 +217,8 @@ public class GiantThwomp : EnemyAI, IGroundPoundable
                 if (fallDirection != FallDirections.Up) {
                     animator.SetBool("angry", true);
                 }
+
+                audioSource.Play(); // Play the falling sound
                 
                 gravity = internalGravity;
                 checkSides = true;
@@ -225,6 +227,8 @@ public class GiantThwomp : EnemyAI, IGroundPoundable
                 animator.SetBool("flip", false);
                 gravity = 0f;
                 velocity = Vector2.zero;
+
+                audioSource.Stop(); // Stop the falling sound
 
                 if (oldState != ThwompStates.Vulnerable) {
                     InstantiateHitEffect();
