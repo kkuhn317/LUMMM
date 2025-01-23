@@ -5,7 +5,6 @@ using System.Collections;
 public class SceneChangerButtonDelay : MonoBehaviour
 { 
     public float delayBeforeSceneChange = 10f; // Adjust this value to set the delay before scene change
-    private int currentSceneBuildIndex;
 
     private AudioSource audioSource;
     private bool buttonPressed = false;
@@ -18,10 +17,16 @@ public class SceneChangerButtonDelay : MonoBehaviour
 
     private void Update()
     {
-        // Check for button press
-        if (!buttonPressed && Input.GetButtonDown("Pause")) {
+        // Check for button press or touch input
+        if (!buttonPressed && (Input.GetButtonDown("Pause") || IsScreenTouched()))
+        {
             ChangeScene();
         }
+    }
+
+    private bool IsScreenTouched()
+    {
+        return Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began;
     }
 
     private void ChangeScene()
@@ -35,7 +40,8 @@ public class SceneChangerButtonDelay : MonoBehaviour
     {
         yield return new WaitForSeconds(delayBeforeSceneChange);
 
-        if (!buttonPressed) {
+        if (!buttonPressed) 
+        {
             ChangeScene();
         }
     }
