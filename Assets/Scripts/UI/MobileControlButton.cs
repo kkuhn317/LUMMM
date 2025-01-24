@@ -28,12 +28,14 @@ public class MobileControlButton : MonoBehaviour, IPointerDownHandler, IPointerU
         buttonPressedOpacity = PlayerPrefs.GetFloat(SettingsKeys.ButtonPressedOpacityKey, 0.38f);
         buttonUnpressedOpacity = PlayerPrefs.GetFloat(SettingsKeys.ButtonUnpressedOpacityKey, 0.38f);
 
+        RectTransform rectTransform = GetComponent<RectTransform>();
+
         // Load the position and scale from PlayerPrefs
         if (PlayerPrefs.HasKey(buttonID + SettingsKeys.ButtonPosXKey))
         {
             float x = PlayerPrefs.GetFloat(buttonID + SettingsKeys.ButtonPosXKey);
             float y = PlayerPrefs.GetFloat(buttonID + SettingsKeys.ButtonPosYKey);
-            transform.position = new Vector2(x, y);
+            rectTransform.anchoredPosition = new Vector2(x, y);
         }
         if (PlayerPrefs.HasKey(buttonID + SettingsKeys.ButtonScaleKey))
         {
@@ -49,7 +51,6 @@ public class MobileControlButton : MonoBehaviour, IPointerDownHandler, IPointerU
         }
 
         if (isRunButton && GlobalVariables.OnScreenControls && GlobalVariables.mobileRunButtonPressed) {
-
             StartCoroutine(TurnOnAtBeginCoroutine());
         }
             

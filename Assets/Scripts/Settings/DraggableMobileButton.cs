@@ -12,10 +12,13 @@ public class DraggableMobileButton : MonoBehaviour, IBeginDragHandler, IDragHand
     private Vector2 mousePosOffset;
     private Image image;
 
+    private RectTransform rectTransform;
+
     // Start is called before the first frame update
     void Start()
     {
-        defaultPosition = transform.position;
+        rectTransform = GetComponent<RectTransform>();
+        defaultPosition = rectTransform.anchoredPosition;
         defaultScale = transform.localScale.x;
 
         print("Default Position of " + buttonID + ": " + defaultPosition);
@@ -26,7 +29,7 @@ public class DraggableMobileButton : MonoBehaviour, IBeginDragHandler, IDragHand
         {
             float x = PlayerPrefs.GetFloat(buttonID + SettingsKeys.ButtonPosXKey);
             float y = PlayerPrefs.GetFloat(buttonID + SettingsKeys.ButtonPosYKey);
-            transform.position = new Vector2(x, y);
+            rectTransform.anchoredPosition = new Vector2(x, y);
         }
         if (PlayerPrefs.HasKey(buttonID + SettingsKeys.ButtonScaleKey))
         {
@@ -52,8 +55,8 @@ public class DraggableMobileButton : MonoBehaviour, IBeginDragHandler, IDragHand
     public void OnEndDrag(PointerEventData eventData)
     {
         // Save the position and scale to PlayerPrefs
-        PlayerPrefs.SetFloat(buttonID + SettingsKeys.ButtonPosXKey, transform.position.x);
-        PlayerPrefs.SetFloat(buttonID + SettingsKeys.ButtonPosYKey, transform.position.y);
+        PlayerPrefs.SetFloat(buttonID + SettingsKeys.ButtonPosXKey, rectTransform.anchoredPosition.x);
+        PlayerPrefs.SetFloat(buttonID + SettingsKeys.ButtonPosYKey, rectTransform.anchoredPosition.y);
         PlayerPrefs.SetFloat(buttonID + SettingsKeys.ButtonScaleKey, transform.localScale.x);
     }
 
@@ -77,7 +80,7 @@ public class DraggableMobileButton : MonoBehaviour, IBeginDragHandler, IDragHand
 
     public void ResetButton()
     {
-        transform.position = defaultPosition;
+        rectTransform.anchoredPosition = defaultPosition;
         transform.localScale = new Vector3(defaultScale, defaultScale, 1f);
         PlayerPrefs.SetFloat(buttonID + SettingsKeys.ButtonPosXKey, defaultPosition.x);
         PlayerPrefs.SetFloat(buttonID + SettingsKeys.ButtonPosYKey, defaultPosition.y);

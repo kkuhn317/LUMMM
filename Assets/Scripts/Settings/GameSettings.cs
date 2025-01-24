@@ -36,7 +36,16 @@ public class GameSettings : MonoBehaviour
 
     Resolution[] GetResolutions()
     {
-        Resolution[] resolutions = Screen.resolutions.Select(resolution => new Resolution { width = resolution.width, height = resolution.height }).Distinct().ToArray();
+        Resolution[] resolutions;
+        if (Application.platform == RuntimePlatform.Android)
+        {
+            // Swap ONLY if height is greater than width (on Kevin's android phone, the resolutions are in portrait mode which needs to be swapped)
+            resolutions = Screen.resolutions.Select(resolution => new Resolution { width = Mathf.Max(resolution.width, resolution.height), height = Math.Min(resolution.width, resolution.height) }).Distinct().ToArray();
+        }
+        else
+        {
+            resolutions = Screen.resolutions.Select(resolution => new Resolution { width = resolution.width, height = resolution.height }).Distinct().ToArray();
+        }
         return resolutions;
     }
 
