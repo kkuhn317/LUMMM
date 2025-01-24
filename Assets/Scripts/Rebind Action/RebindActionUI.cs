@@ -273,7 +273,6 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
                 m_RebindOperation?.Dispose();
                 m_RebindOperation = null;
                 m_Action.action.Enable();
-                SaveActionBinding();
 
                 // Stop dot animation
                 if (dotAnimationCoroutine != null)
@@ -523,26 +522,6 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
             {
                 var action = m_Action?.action;
                 m_ActionLabel.text = action != null ? action.name : string.Empty;
-            }
-        }
-
-        private void Start() 
-        {
-            LoadActionBinding();
-        }
-
-        private void SaveActionBinding()
-        {
-            var currentBindings = actionReference.action.actionMap.SaveBindingOverridesAsJson();
-            PlayerPrefs.SetString(m_Action.action.name + bindingId, currentBindings);
-        }
-
-        private void LoadActionBinding()
-        {
-            var savedBindings = PlayerPrefs.GetString(m_Action.action.name + bindingId);
-            if (!string.IsNullOrEmpty(savedBindings))
-            {
-                actionReference.action.actionMap.LoadBindingOverridesFromJson(savedBindings);
             }
         }
 
