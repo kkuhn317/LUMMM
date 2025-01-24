@@ -36,6 +36,8 @@ public class GiantThwomp : EnemyAI, IGroundPoundable
     private AudioSource audioSource;
     public AudioClip thwompLandSound;
     public AudioClip thwompHurtSound;
+    public AudioClip boomSound; // When landing on the ground or falling back on the ground
+    public AudioClip flipBackSound; // When flipping back after being vulnerable
 
     [Header("Hit Effect Settings")]
     public List<RaycastConfiguration> raycastConfigurations; // Configurable raycasts
@@ -228,7 +230,9 @@ public class GiantThwomp : EnemyAI, IGroundPoundable
                 gravity = 0f;
                 velocity = Vector2.zero;
 
-                audioSource.Stop(); // Stop the falling sound
+                if (oldState == ThwompStates.Falling) {
+                    audioSource.Stop(); // Stop the falling sound
+                }
 
                 if (oldState != ThwompStates.Vulnerable) {
                     InstantiateHitEffect();
@@ -260,6 +264,7 @@ public class GiantThwomp : EnemyAI, IGroundPoundable
 
                         if (fallDirection != FallDirections.Up) {
                             audioSource.PlayOneShot(thwompLandSound);
+                            audioSource.PlayOneShot(boomSound);
                         }
                     }          
                 }
@@ -291,6 +296,7 @@ public class GiantThwomp : EnemyAI, IGroundPoundable
                 break;
             case ThwompStates.Vulnerable:
                 animator.SetBool("flip", true);
+                animator.SetBool("angry", false);
                 gravity = 0f;
                 velocity = Vector2.zero;
                 mainCollider.enabled = false;
@@ -326,10 +332,11 @@ public class GiantThwomp : EnemyAI, IGroundPoundable
             yield return null; // Wait until the animation completes
         }
 
-        // Trigger the camera shake after the animation is done
+        // Trigger the camera shake and sound after the animation is done
         if (cameraFollow != null)
         {
             cameraFollow.ShakeCameraRepeatedlyDefault();
+            audioSource.PlayOneShot(boomSound);
         }
     }
 
@@ -377,12 +384,18 @@ public class GiantThwomp : EnemyAI, IGroundPoundable
         mainCollider.enabled = true;
         vulnerableCollider.enabled = false;
 
+        // Play the flip back sound
+        if (audioSource != null && flipBackSound != null)
+        {
+            audioSource.PlayOneShot(flipBackSound);
+        }
+
         // Ensure the Thwomp does not reset to Landed if targeting the flagpole
         if (flagpole != null && Mathf.Abs(flagpole.transform.position.x - transform.position.x) < mainCollider.size.x / 2)
         {
             Debug.Log("Thwomp is targeting the flagpole, staying in current state.");
             return;
-        }  
+        }
 
         ChangeState(ThwompStates.Landed);
     }
