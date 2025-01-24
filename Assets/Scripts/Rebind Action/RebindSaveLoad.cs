@@ -247,5 +247,4 @@ public class RebindSaveLoad : MonoBehaviour
         PlayerPrefs.SetString(CurrentLayoutKey, currentLoadedLayout);
         PlayerPrefs.Save();
     }
-    
 }
