@@ -290,6 +290,8 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
                 }
             }
             
+            // Before assigning a new binding, we remove the old binding
+            action.RemoveBindingOverride(bindingIndex);
 
             // Configure the rebind.
             m_RebindOperation = action.PerformInteractiveRebinding(bindingIndex)
@@ -315,7 +317,7 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
                             Debug.LogError($"Cannot bind '{actionName}' to '{newBinding}'. Validation failed.");
                             action.RemoveBindingOverride(bindingIndex);
                             CleanUp();
-                            PerformInteractiveRebind(action, bindingIndex, allCompositeParts);
+                            //PerformInteractiveRebind(action, bindingIndex, allCompositeParts);
                             return;
                         }     
 
@@ -371,19 +373,17 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
 
         private bool IsValidBinding(string newBinding, string actionName)
         {
-            // Check if another action already uses the binding
+            // If the key is already in use, but belongs to the same action, we allow it
             if (actionBindingMap.TryGetValue(newBinding, out var existingAction))
             {
-                // Allow duplicates if the actions are compatible
-                if (duplicateRules.TryGetValue(actionName, out var allowedDuplicates) && allowedDuplicates.Contains(existingAction))
-                    return true;
+                if (existingAction == actionName)
+                    return true; // Allow the same action to reuse its original binding
 
-                // Disallow duplicates for non-compatible actions
                 Debug.LogError($"Binding conflict: '{actionName}' cannot share '{newBinding}' with '{existingAction}'.");
                 return false;
             }
 
-            return true; // No conflict
+            return true;
         }
 
         protected void OnEnable()
@@ -505,7 +505,6 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
                 yield return new WaitForSeconds(0.5f); // Adjust speed if needed
             }
         }
-
 
         // We want the label for the action name to update in edit mode, too, so
         // we kick that off from here.
