@@ -39,7 +39,8 @@ public class Goomba : EnemyAI
 
     protected override void hitByGroundPound(MarioMovement player)
     {
-        KnockAway(false);
+        Crush();
+        GameManager.Instance.AddScorePoints(100); // Gives a hundred points to the player
     }
 
     public void Crush () {

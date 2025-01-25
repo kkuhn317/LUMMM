@@ -52,6 +52,12 @@ public class BulletBill : EnemyAI
         GameManager.Instance.AddScorePoints(100); // Gives a hundred points to the player
     }
 
+    protected override void hitByGroundPound(MarioMovement player)
+    {
+        KnockAway(movingLeft, false, KnockAwayType.flip, new Vector2(1,0));
+        GameManager.Instance.AddScorePoints(100); // Gives a hundred points to the player
+    }
+
     // When we hit a wall, we should die
     protected override void onTouchWall(GameObject other){
         KnockAway(!movingLeft);

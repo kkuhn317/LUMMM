@@ -3,6 +3,9 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 
+// This script manages the modifiers in the Level Select screen (infinite lives, checkpoints, no time limit)
+// Additionally, it initializes the GlobalVariables with the current settings from PlayerPrefs
+// So make sure the player goes to the Level Select screen before entering a level
 public class ModifiersSettings : MonoBehaviour
 {
     [Header("Gameplay Toggles")]
@@ -49,6 +52,7 @@ public class ModifiersSettings : MonoBehaviour
         bool isInfiniteLivesEnabled = PlayerPrefs.GetInt(SettingsKeys.InfiniteLivesKey, 0) == 1;
         infiniteLivesToggle.isOn = isInfiniteLivesEnabled;
         infiniteLivesImage.sprite = isInfiniteLivesEnabled ? enableInfiniteLivesSprite : disableInfiniteLivesSprite;
+        GlobalVariables.infiniteLivesMode = isInfiniteLivesEnabled; // Initialize the GlobalVariables with the current setting
         infiniteLivesToggle.onValueChanged.AddListener(OnInfiniteLivesClick);
     }
 
@@ -79,6 +83,7 @@ public class ModifiersSettings : MonoBehaviour
         bool areCheckpointsEnabled = PlayerPrefs.GetInt(SettingsKeys.CheckpointsKey, 0) == 1;
         checkpointsToggle.isOn = areCheckpointsEnabled;
         checkpointsImage.sprite = areCheckpointsEnabled ? enableCheckpointsSprite : disableCheckpointsSprite;
+        GlobalVariables.enableCheckpoints = areCheckpointsEnabled; // Initialize the GlobalVariables with the current setting
         checkpointsToggle.onValueChanged.AddListener(OnCheckpointsClick);
     }
 
@@ -109,6 +114,7 @@ public class ModifiersSettings : MonoBehaviour
         bool isTimeLimitEnabled = PlayerPrefs.GetInt(SettingsKeys.TimeLimitKey, 0) == 1;
         timeLimitToggle.isOn = isTimeLimitEnabled;
         timeLimitImage.sprite = isTimeLimitEnabled ? enableTimeLimitSprite : disableTimeLimitSprite;
+        GlobalVariables.stopTimeLimit = isTimeLimitEnabled; // Initialize the GlobalVariables with the current setting
         timeLimitToggle.onValueChanged.AddListener(OnTimeLimitClick);
     }
 

@@ -22,8 +22,9 @@ public class IntroLevel : MonoBehaviour
     
     public UnityEvent OnMoveStart, OnTargetReached;
     public AudioSource audioSource;
-
     private int completedTweens = 0;
+    private bool canSkip = false;
+    private bool startedTransition = false;
 
     [System.Serializable]
     public class TargetData
@@ -55,7 +56,7 @@ public class IntroLevel : MonoBehaviour
         if (GlobalVariables.levelInfo.marioMoves == MarioMoves.None)
         {
             Debug.Log("MarioMoves is None. Skipping animations.");
-            StartCoroutine(DelayedSceneTransition(GlobalVariables.levelInfo.levelScene));
+            StartCoroutine(DelayedSceneTransition());
             return;
         }
 
@@ -69,7 +70,7 @@ public class IntroLevel : MonoBehaviour
         if (filteredTargets.Count == 0)
         {
             Debug.Log("No valid targets left to animate.");
-            StartCoroutine(DelayedSceneTransition(GlobalVariables.levelInfo.levelScene));
+            StartCoroutine(DelayedSceneTransition());
             return;
         }
 
@@ -117,7 +118,7 @@ public class IntroLevel : MonoBehaviour
                     {
                         Debug.Log("All targets reached positions.");
                         OnTargetReached?.Invoke();
-                        StartCoroutine(DelayedSceneTransition(GlobalVariables.levelInfo.levelScene));
+                        StartCoroutine(DelayedSceneTransition());
                     }
                 });
         }
@@ -157,8 +158,6 @@ public class IntroLevel : MonoBehaviour
         normalMarioObject?.SetActive(type == MarioType.Normal);
         tinyMarioObject?.SetActive(type == MarioType.Tiny);
         nesMarioObject?.SetActive(type == MarioType.NES);
-
-        audioSource.pitch = (type == MarioType.Tiny) ? 1.5f : 1f;
     }
 
     private void ApplyMoveSettings(MarioMoves moves)
@@ -170,14 +169,38 @@ public class IntroLevel : MonoBehaviour
         crawlMove?.SetActive(moves.HasFlag(MarioMoves.Crawl));
     }
 
-    private IEnumerator DelayedSceneTransition(string nextScene)
+    private void Update()
     {
-        yield return new WaitForSeconds(delayBeforeSceneTransition);
-        if (FadeInOutScene.Instance != null)
+        if (canSkip && (Input.anyKeyDown || Input.touchCount > 0))
         {
-            audioSource?.PlayOneShot(GlobalVariables.levelInfo.transitionAudio);
-            FadeInOutScene.Instance.LoadSceneWithFade(nextScene);
+            print("Skip!");
+            startTransition();
         }
+    }
+
+    private IEnumerator DelayedSceneTransition()
+    {
+        canSkip = true;
+        yield return new WaitForSeconds(delayBeforeSceneTransition);
+        startTransition();
+    }
+
+    private void startTransition()
+    {
+        if (startedTransition) return;
+        if (FadeInOutScene.Instance == null) {
+            Debug.LogError("No FadeInOutScene instance found!");
+            return;
+        }
+        if (FadeInOutScene.Instance.transitioning) {
+            Debug.Log("Scene transition already in progress (Like fading into the level intro). Fine if called by skip, but not if called by DelayedSceneTransition.");
+            return;
+        }
+        startedTransition = true;
+        if (audioSource != null && GlobalVariables.levelInfo.transitionAudio != null) {
+            audioSource.PlayOneShot(GlobalVariables.levelInfo.transitionAudio);
+        }
+        FadeInOutScene.Instance.LoadSceneWithFade(GlobalVariables.levelInfo.levelScene); 
     }
 
     private void OnDrawGizmos()

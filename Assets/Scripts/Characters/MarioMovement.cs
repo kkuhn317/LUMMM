@@ -194,6 +194,7 @@ public class MarioMovement : MonoBehaviour
     public bool canGroundPound = false;
     [HideInInspector] public bool groundPounding = false;
     [HideInInspector] public bool groundPoundRotating = false;
+    private bool groundPoundLanded = false; // If the ground pound has landed but you are still in the animation and can't move
 
     // Made private to not clog inspector
     private float groundPoundSpinTime = 0.5f; // How long the player will be frozen in the air when ground pound starts
@@ -385,7 +386,7 @@ public class MarioMovement : MonoBehaviour
                 jumpBlocked = true;
             }
         }
-        if (Time.time < jumpTimer && (onGround || swimming || wallSliding) && !jumpBlocked) {
+        if (Time.time < jumpTimer && (onGround || swimming || wallSliding) && !jumpBlocked && !groundPoundLanded) {
 
             if (swimming) {
                 if (!groundPounding){
@@ -502,10 +503,9 @@ public class MarioMovement : MonoBehaviour
 
             // Stop spinning, stop ground pounding
             spinning = false;
-            if (groundPounding) {
+            if (groundPounding && !groundPoundLanded) {
                 GroundPoundLand(hitRay.transform.gameObject);
             }
-            animator.SetBool("isDropping", false);
 
         } else {
             /*if (wasOnMovingPlatform) {
@@ -917,7 +917,8 @@ public class MarioMovement : MonoBehaviour
     }
 
     private void GroundPoundLand(GameObject hitObject) {
-        groundPounding = false;
+        //groundPounding = false;
+        groundPoundLanded = true;
         groundPoundRotating = false;
         groundPoundInWater = false; 
         waterGroundPoundStartTime = 0f; // Reset timer
@@ -926,6 +927,15 @@ public class MarioMovement : MonoBehaviour
         if (groundPoundable != null) {
             groundPoundable.OnGroundPound(this);
         }
+
+        // Wait a bit before finishing the ground pound
+        Invoke(nameof(FinishGroundPoundLand), 0.25f);
+    }
+
+    private void FinishGroundPoundLand() {
+        groundPounding = false;
+        groundPoundLanded = false;
+        animator.SetBool("isDropping", false);
 
         // start swim idle if you're swimming when the ground pound lands
         if (swimming)

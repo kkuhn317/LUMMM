@@ -72,9 +72,10 @@ public class ButtonSelector : MonoBehaviour
 
         Rect targetVisibleRect = GetVisibleRect(currentTarget);
 
+        // I divide by the canvas scale factor to convert from world space to canvas space (the selector is later scaled by the canvas scale factor)
         Vector2 targetSize = new Vector2(
-            targetVisibleRect.width + padding * 2,
-            targetVisibleRect.height + padding * 2
+            targetVisibleRect.width / canvas.scaleFactor + padding * 2,
+            targetVisibleRect.height / canvas.scaleFactor + padding * 2
         );
         Vector3 targetPosition = targetVisibleRect.center;
 
@@ -90,9 +91,10 @@ public class ButtonSelector : MonoBehaviour
 
         Rect targetVisibleRect = GetVisibleRect(currentTarget);
 
+        // I divide by the canvas scale factor to convert from world space to canvas space (the selector is later scaled by the canvas scale factor)
         Vector2 targetSize = new Vector2(
-            targetVisibleRect.width + padding * 2,
-            targetVisibleRect.height + padding * 2
+            targetVisibleRect.width / canvas.scaleFactor + padding * 2,
+            targetVisibleRect.height / canvas.scaleFactor + padding * 2
         );
         Vector3 targetPosition = targetVisibleRect.center;
 

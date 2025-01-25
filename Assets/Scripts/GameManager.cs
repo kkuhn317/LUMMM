@@ -37,11 +37,12 @@ public class GameManager : MonoBehaviour
     private bool stopTimer = false;
     public AudioClip timeWarning;
     [SerializeField] protected TMP_Text timerText;
+    public Image infiniteTimeImage;
 
     [Header("Lives")]
     private int maxLives = 99;
     [SerializeField] TMP_Text livesText;
-    public Image infiniteImage;
+    public Image infiniteLivesImage;
     public Color defaultColor = Color.white;
     public Color targetColor = Color.green;
 
@@ -355,6 +356,7 @@ public class GameManager : MonoBehaviour
         UpdateLivesUI();
         UpdateCoinsUI();
         UpdateScoreUI();
+        CheckForInfiniteTime();
     }
 
     // So no error when running starting in the level scene
@@ -426,8 +428,6 @@ public class GameManager : MonoBehaviour
                         ResumeMusic(music);
                     }
                 }
-            } else {
-                timerText.text = "INF!";
             }
         }
     }
@@ -557,7 +557,7 @@ public class GameManager : MonoBehaviour
         UpdateLivesUI();
 
         // Start the color change coroutine
-        StartCoroutine(AnimateColor(GlobalVariables.infiniteLivesMode ? infiniteImage : livesText, targetColor, 0.5f));
+        StartCoroutine(AnimateColor(GlobalVariables.infiniteLivesMode ? infiniteLivesImage : livesText, targetColor, 0.5f));
     }
 
     private IEnumerator AnimateColor(Component target, Color overrideTargetColor, float duration = 1f)
@@ -617,7 +617,7 @@ public class GameManager : MonoBehaviour
     public void UpdateLivesUI()
     {
         livesText.gameObject.SetActive(!GlobalVariables.infiniteLivesMode); // if infinite lives mode is deactivated
-        infiniteImage.gameObject.SetActive(GlobalVariables.infiniteLivesMode); // if infinite lives mode is activated
+        infiniteLivesImage.gameObject.SetActive(GlobalVariables.infiniteLivesMode); // if infinite lives mode is activated
 
         if (!GlobalVariables.infiniteLivesMode)
         {
@@ -631,7 +631,19 @@ public class GameManager : MonoBehaviour
     }
     private void UpdateTimerUI()
     {
-        timerText.text = "<mspace=0.8em>" + ((int)currentTime).ToString("D3"); // 000
+        if (!GlobalVariables.stopTimeLimit)
+        {
+            timerText.text = "<mspace=0.8em>" + ((int)currentTime).ToString("D3"); // 000
+        }
+    }
+
+    private void CheckForInfiniteTime()
+    {
+        if (GlobalVariables.stopTimeLimit)
+        {
+            timerText.gameObject.SetActive(false);
+            infiniteTimeImage.gameObject.SetActive(true);
+        }
     }
 
     private void UpdateScoreUI()
