@@ -1175,7 +1175,7 @@ public class MarioMovement : MonoBehaviour
     private void powerDown() {
         invincetimeremain = damageinvinctime;
 
-        GameObject newMario = Instantiate(transformMario, transform.position, transform.rotation);
+        GameObject newMario = Instantiate(transformMario, transform.position, Quaternion.identity);
         
         var newMarioMovement = transferProperties(newMario);
         PlayerTransformation playerTransformation = newMario.GetComponent<PlayerTransformation>();
@@ -1190,7 +1190,7 @@ public class MarioMovement : MonoBehaviour
 
     public void ChangePowerup(GameObject newMarioObject) {
         // NOTE: we will assume here that mario can always change powerups. The PowerUP.cs script will determine if mario can change powerups
-        GameObject newMario = Instantiate(transformMario, transform.position, transform.rotation);
+        GameObject newMario = Instantiate(transformMario, transform.position, Quaternion.identity);
         transferProperties(newMario);
 
         var newMarioMovement = newMario.GetComponent<MarioMovement>();

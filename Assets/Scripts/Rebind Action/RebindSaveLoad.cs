@@ -4,6 +4,7 @@ using TMPro;
 using UnityEngine.InputSystem;
 using System.Collections.Generic;
 using Newtonsoft.Json;
+using UnityEngine.Localization.Settings;
 
 [System.Serializable]
 public class RebindLayoutData
@@ -16,15 +17,20 @@ public class RebindSaveLoad : MonoBehaviour
 {
     private const string LayoutsKey = "rebindLayouts";
     private const string CurrentLayoutKey = "currentLayout";
-    private const string DefaultLayoutName = "Default";
+    private const string DefaultLayoutName = "DEFAULT";
 
     public InputActionAsset actions;
 
     [Header("UI Elements")]
     public TMP_Dropdown layoutDropdown; // Dropdown for selecting layouts
     public TMP_InputField layoutNameInput; // Input field for new layout name
+     public GameObject createLayout;
     public Button createLayoutConfirmButton; // Button to confirm creating
+    public GameObject editLayout;
+    public TMP_InputField editLayoutNameInput;
+    public Button editLayoutConfirmButton;
     public Button deleteLayoutButton; // Button to delete layout
+    public TMP_Text errorText;
 
     private RebindLayoutData loadedLayouts = new RebindLayoutData();
     private string currentLoadedLayout = DefaultLayoutName; // Track the currently loaded layout
@@ -45,6 +51,25 @@ public class RebindSaveLoad : MonoBehaviour
 
         // Add listener for delete button
         deleteLayoutButton.onClick.AddListener(() => DeleteCurrentLayout());
+
+        // Add listener for edit layout button
+        editLayoutConfirmButton.onClick.AddListener(() => EditLayoutName());
+
+        // Force uppercase input in both fields
+        layoutNameInput.onValueChanged.AddListener(delegate { ForceUppercase(layoutNameInput); });
+        editLayoutNameInput.onValueChanged.AddListener(delegate { ForceUppercase(editLayoutNameInput); });
+    }
+
+    private void ForceUppercase(TMP_InputField inputField)
+    {
+        inputField.text = inputField.text.ToUpper();
+    }
+
+    private void DisplayError(string messageKey)
+    {
+        string localizedMessage = LocalizationSettings.StringDatabase.GetLocalizedString("RebindError_" + messageKey);
+        errorText.text = localizedMessage; // Set error text in UI
+        errorText.gameObject.SetActive(true); 
     }
 
     public void OnDisable()
@@ -70,13 +95,13 @@ public class RebindSaveLoad : MonoBehaviour
         string layoutName = layoutNameInput.text.Trim();
         if (string.IsNullOrEmpty(layoutName))
         {
-            Debug.LogError("Layout name cannot be empty.");
+            DisplayError("EmptyLayoutName");
             return;
         }
 
         if (loadedLayouts.layouts.ContainsKey(layoutName))
         {
-            Debug.LogError($"Layout '{layoutName}' already exists. Choose a different name.");
+            DisplayError("LayoutExists");
             return;
         }
 
@@ -93,6 +118,10 @@ public class RebindSaveLoad : MonoBehaviour
         // Update UI
         RefreshDropdown();
         layoutDropdown.value = layoutDropdown.options.FindIndex(option => option.text == layoutName);
+
+        // Deactivate the create layout once you finish
+        createLayout.SetActive(false);
+        errorText.gameObject.SetActive(false);
         // NOTE: This has the side effect of calling OnDropdownSelectionChanged()
         // Which currently saves the new layout again. This is fine for now.
     }
@@ -124,6 +153,7 @@ public class RebindSaveLoad : MonoBehaviour
             PlayerPrefs.Save();
 
             currentLoadedLayout = layoutName; // Track loaded layout
+            editLayoutNameInput.text = layoutName; // edit the layout name input field
         }
         else
         {
@@ -228,6 +258,55 @@ public class RebindSaveLoad : MonoBehaviour
             // Refresh the dropdown
             RefreshDropdown();
         }
+    }
+
+    /// <summary>
+    /// Renames the currently selected layout.
+    /// </summary>
+    public void EditLayoutName()
+    {
+        string newLayoutName = editLayoutNameInput.text.Trim();
+
+        if (string.IsNullOrEmpty(newLayoutName))
+        {
+            DisplayError("EmptyLayoutName");
+            return;
+        }
+
+        if (loadedLayouts.layouts.ContainsKey(newLayoutName))
+        {
+            DisplayError("LayoutExists");
+            return;
+        }
+
+        if (!loadedLayouts.layouts.ContainsKey(currentLoadedLayout))
+        {
+            DisplayError("LayoutNotExist");
+            return;
+        }
+
+        // Rename the layout
+        string rebindJson = loadedLayouts.layouts[currentLoadedLayout];
+        loadedLayouts.layouts.Remove(currentLoadedLayout);
+        loadedLayouts.layouts[newLayoutName] = rebindJson;
+
+        // Update the currently loaded layout name
+        currentLoadedLayout = newLayoutName;
+
+        // Save changes
+        PlayerPrefs.SetString(LayoutsKey, JsonConvert.SerializeObject(loadedLayouts));
+        PlayerPrefs.SetString(CurrentLayoutKey, currentLoadedLayout);
+        PlayerPrefs.Save();
+
+        // Refresh the dropdown with the new name
+        RefreshDropdown();
+        layoutDropdown.value = layoutDropdown.options.FindIndex(option => option.text == newLayoutName);
+
+        // Deactivate the edit layout once you finish
+        editLayout.SetActive(false);
+        errorText.gameObject.SetActive(false);
+        
+        Debug.Log($"Renamed layout '{currentLoadedLayout}' to '{newLayoutName}'");
     }
 
     // <summary>
