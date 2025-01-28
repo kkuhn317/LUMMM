@@ -4,24 +4,27 @@ using UnityEngine.EventSystems;
 using UnityEngine.Events;
 using UnityEngine.UI;
 
-public class MobileControlButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler {
+public class MobileControlButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
+{
     public string buttonID;
     public bool buttonPressed;
     public UnityEvent onPress;
     public UnityEvent onRelease;
-    public bool toggleButton; // if true, button stays pressed until pressed again
+    public bool toggleButton; // If true, button stays pressed until pressed again
+    public bool useActivateSprites; // If true, uses activateSprite & deactivateSprite instead of upSprite & downSprite
 
-    public Sprite upSprite;
-    public Sprite downSprite;
+    public Sprite upSprite; // Default sprite when unpressed
+    public Sprite downSprite; // Default sprite when pressed
+    public Sprite activateSprite;  // Toggle ON sprite
+    public Sprite deactivateSprite; // Toggle OFF sprite
     private Image image;
-    public bool isRunButton = false;  // if true, this button will be used to run
+    public bool isRunButton = false; // If true, this button will be used to run
 
     private float buttonPressedOpacity;
     private float buttonUnpressedOpacity;
 
-    // TODO: Make this code better lol
-
-    void Start() {
+    void Start()
+    {
         image = GetComponent<Image>();
 
         // Get Opacity from PlayerPrefs
@@ -43,67 +46,77 @@ public class MobileControlButton : MonoBehaviour, IPointerDownHandler, IPointerU
             transform.localScale = new Vector3(scale, scale, 1f);
         }
 
-        // Set opacity
-        if (buttonPressed) {
-            image.color = new Color(image.color.r, image.color.g, image.color.b, buttonPressedOpacity);
-        } else {
-            image.color = new Color(image.color.r, image.color.g, image.color.b, buttonUnpressedOpacity);
-        }
+        // Set initial state
+        UpdateButtonAppearance();
 
-        if (isRunButton && GlobalVariables.OnScreenControls && GlobalVariables.mobileRunButtonPressed) {
+        if (isRunButton && GlobalVariables.OnScreenControls && GlobalVariables.mobileRunButtonPressed)
+        {
             StartCoroutine(TurnOnAtBeginCoroutine());
         }
-            
     }
 
-
-    IEnumerator TurnOnAtBeginCoroutine() {
+    IEnumerator TurnOnAtBeginCoroutine()
+    {
         yield return new WaitForEndOfFrame();
         TurnOn();
     }
-    
-    void TurnOn(){
-        if (GameManager.isPaused) {
-            return;
+
+    private void UpdateButtonAppearance()
+    {
+        // Decide which set of sprites to use
+        if (useActivateSprites)
+        {
+            image.sprite = buttonPressed ? activateSprite : deactivateSprite;
         }
+        else
+        {
+            image.sprite = buttonPressed ? downSprite : upSprite;
+        }
+
+        float alpha = buttonPressed ? buttonPressedOpacity : buttonUnpressedOpacity;
+        image.color = new Color(image.color.r, image.color.g, image.color.b, alpha);
+    }
+
+    void TurnOn()
+    {
+        if (GameManager.isPaused) return;
+
         buttonPressed = true;
-        if (isRunButton) {
-            GlobalVariables.mobileRunButtonPressed = true;
-        }
+        if (isRunButton) GlobalVariables.mobileRunButtonPressed = true;
+
         onPress.Invoke();
-        image.sprite = downSprite;
-        image.color = new Color(image.color.r, image.color.g, image.color.b, buttonPressedOpacity);
+        UpdateButtonAppearance();
     }
 
-    void TurnOff() {
+    void TurnOff()
+    {
         buttonPressed = false;
-        if (isRunButton) {
-            GlobalVariables.mobileRunButtonPressed = false;
-        }
+        if (isRunButton) GlobalVariables.mobileRunButtonPressed = false;
+
         onRelease.Invoke();
-        image.sprite = upSprite;
-        image.color = new Color(image.color.r, image.color.g, image.color.b, buttonUnpressedOpacity);
+        UpdateButtonAppearance();
     }
 
-    public void OnPointerDown(PointerEventData eventData){
-        if (toggleButton) {
-            if (buttonPressed) {
-                TurnOff();
-            } else {
-                TurnOn();
-            }
-        } else {
+    public void OnPointerDown(PointerEventData eventData)
+    {
+        if (toggleButton)
+        {
+            buttonPressed = !buttonPressed; // Toggle the state
+            if (buttonPressed) onPress.Invoke();
+            else onRelease.Invoke();
+        }
+        else
+        {
             TurnOn();
         }
+        UpdateButtonAppearance();
     }
-    
-    public void OnPointerUp(PointerEventData eventData){
-        if (!toggleButton) {
+
+    public void OnPointerUp(PointerEventData eventData)
+    {
+        if (!toggleButton)
+        {
             TurnOff();
         }
     }
-
-    
-
-
 }

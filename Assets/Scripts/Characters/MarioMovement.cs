@@ -192,6 +192,7 @@ public class MarioMovement : MonoBehaviour
     [HideInInspector] public bool spinning = false;
     private bool spinJumpQueued = false;    // If the next jump should be a spin jump
     public bool canGroundPound = false;
+    public GameObject groundPoundParticles;
     [HideInInspector] public bool groundPounding = false;
     [HideInInspector] public bool groundPoundRotating = false;
     private bool groundPoundLanded = false; // If the ground pound has landed but you are still in the animation and can't move
@@ -900,6 +901,7 @@ public class MarioMovement : MonoBehaviour
     
         // Start the ground pound animation
         animator.SetBool("isDropping", true);
+        animator.SetBool("cancelDropping", false);
 
         // Play the ground pound sound
         audioSource.PlayOneShot(groundPoundSound);
@@ -928,6 +930,14 @@ public class MarioMovement : MonoBehaviour
             groundPoundable.OnGroundPound(this);
         }
 
+        if (groundPoundParticles != null) {
+            Vector3 particlePosition = new Vector3(transform.position.x, transform.position.y - (colliderY / 2), transform.position.z);
+            Instantiate(groundPoundParticles, particlePosition, Quaternion.identity);
+        }
+
+        animator.SetBool("isDropping", false);
+        animator.SetBool("cancelDropping", false);
+
         // Wait a bit before finishing the ground pound
         Invoke(nameof(FinishGroundPoundLand), 0.25f);
     }
@@ -935,7 +945,6 @@ public class MarioMovement : MonoBehaviour
     private void FinishGroundPoundLand() {
         groundPounding = false;
         groundPoundLanded = false;
-        animator.SetBool("isDropping", false);
 
         // start swim idle if you're swimming when the ground pound lands
         if (swimming)
@@ -959,6 +968,7 @@ public class MarioMovement : MonoBehaviour
         rb.gravityScale = gravity;
 
         // Play cancel animation or sound if needed
+        animator.SetBool("cancelDropping", true);
         animator.SetBool("isDropping", false);
 
         if (swimming){
