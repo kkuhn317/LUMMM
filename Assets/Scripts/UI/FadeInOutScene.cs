@@ -115,6 +115,4 @@ public class FadeInOutScene : MonoBehaviour
     {
         LoadSceneWithFade(sceneNameOrIndex, false);
     }
-
-
 }

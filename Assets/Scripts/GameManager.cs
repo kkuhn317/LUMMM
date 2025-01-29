@@ -538,7 +538,9 @@ public class GameManager : MonoBehaviour
                 SaveProgress();
 
                 // Load the LoseLife scene and restart the current level
-                SceneManager.LoadScene(loseLifeSceneName);
+                if (!FadeInOutScene.Instance.transitioning){
+                    SceneManager.LoadScene(loseLifeSceneName);
+                }
             }
         }
         else
@@ -546,8 +548,11 @@ public class GameManager : MonoBehaviour
             // Save progress
             SaveProgress();
 
-            // Reload the current scene when the player dies in infinite lives mode
-            ReloadScene();
+            // Prevent reloading if a transition is already happening (e.g., quitting the level)
+            if (!FadeInOutScene.Instance.transitioning)
+            {
+                ReloadScene();
+            }
         }
     }
     
@@ -843,8 +848,7 @@ public class GameManager : MonoBehaviour
        
         if (currentlyPlayingMusic != null){
             currentlyPlayingMusic.GetComponent<AudioSource>().mute = false;
-        }
-        
+        }   
     }
 
     public void RestartMusic()
