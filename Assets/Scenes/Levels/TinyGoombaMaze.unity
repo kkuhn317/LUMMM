@@ -14385,6 +14385,10 @@ PrefabInstance:
       propertyPath: m_SpriteTilingProperty.oldSize.y
       value: 0.625
       objectReference: {fileID: 0}
+    - target: {fileID: 1563295794450405723, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
+      propertyPath: m_SpriteKey
+      value: 1.2362407e-29
+      objectReference: {fileID: 0}
     - target: {fileID: 1771483343543010228, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
       propertyPath: pigMario
       value: 
@@ -14671,11 +14675,6 @@ PrefabInstance:
       objectReference: {fileID: 913857547, guid: 591ee19daef112c49a37a4dae3db4616, type: 3}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
---- !u!95 &1184302511 stripped
-Animator:
-  m_CorrespondingSourceObject: {fileID: 7590307370426838290, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
-  m_PrefabInstance: {fileID: 1184302500}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1197017793
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -15133,6 +15132,7 @@ GameObject:
   - component: {fileID: 1236960247}
   - component: {fileID: 1236960249}
   - component: {fileID: 1236960248}
+  - component: {fileID: 1236960250}
   m_Layer: 0
   m_Name: AnimationShrug
   m_TagString: Untagged
@@ -15170,10 +15170,10 @@ MonoBehaviour:
   onPlayerEnter:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1184302511}
-        m_TargetAssemblyTypeName: UnityEngine.Animator, UnityEngine
-        m_MethodName: Play
-        m_Mode: 5
+      - m_Target: {fileID: 1236960250}
+        m_TargetAssemblyTypeName: PlayShrugAnimation, Assembly-CSharp
+        m_MethodName: TryPlayShrug
+        m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -15219,8 +15219,20 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 1.9719095, y: 1.9892777}
+  m_Size: {x: 2.2, y: 1.9892777}
   m_EdgeRadius: 0
+--- !u!114 &1236960250
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1236960246}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb6fdcede3bbe247af327e98ff21d32, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!4 &1237532551 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 648239456224336777, guid: 6b5d1237dc444ef4b89747dacc3314e6, type: 3}

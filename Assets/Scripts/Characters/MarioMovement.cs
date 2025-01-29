@@ -1228,6 +1228,16 @@ public class MarioMovement : MonoBehaviour
 
         newMarioMovement.FlipTo(facingRight);
 
+        /*SpriteRenderer newMarioSprite = newMario.GetComponent<SpriteRenderer>();
+        if (newMarioSprite != null)
+        {
+            newMarioSprite.maskInteraction = GetComponent<SpriteRenderer>().maskInteraction;
+        }
+        else
+        {
+            Debug.LogWarning("New Mario object is missing a SpriteRenderer!");
+        }*/
+
         newMarioMovement.pressRunToGrab = pressRunToGrab;
         newMarioMovement.crouchToGrab = crouchToGrab;
         newMarioMovement.carryMethod = carryMethod;

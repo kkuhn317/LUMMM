@@ -12,7 +12,6 @@ public class RebindLayoutData
     public Dictionary<string, string> layouts = new Dictionary<string, string>(); // LayoutName -> Rebind JSON
 }
 
-
 public class RebindSaveLoad : MonoBehaviour
 {
     private const string LayoutsKey = "rebindLayouts";
@@ -122,6 +121,7 @@ public class RebindSaveLoad : MonoBehaviour
         // Deactivate the create layout once you finish
         createLayout.SetActive(false);
         errorText.gameObject.SetActive(false);
+        layoutNameInput.text = "";
         // NOTE: This has the side effect of calling OnDropdownSelectionChanged()
         // Which currently saves the new layout again. This is fine for now.
     }
@@ -270,6 +270,14 @@ public class RebindSaveLoad : MonoBehaviour
         if (string.IsNullOrEmpty(newLayoutName))
         {
             DisplayError("EmptyLayoutName");
+            return;
+        }
+
+        if (newLayoutName == currentLoadedLayout)
+        {
+            // Allow renaming to the same name since it does not cause duplication
+            editLayout.SetActive(false);
+            errorText.gameObject.SetActive(false);
             return;
         }
 
