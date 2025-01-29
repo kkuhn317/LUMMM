@@ -118,6 +118,7 @@ public class RebindSaveLoad : MonoBehaviour
         RefreshDropdown();
         layoutDropdown.value = layoutDropdown.options.FindIndex(option => option.text == layoutName);
 
+        GameManager.Instance.ResumeGame();
         // Deactivate the create layout once you finish
         createLayout.SetActive(false);
         errorText.gameObject.SetActive(false);
@@ -310,6 +311,7 @@ public class RebindSaveLoad : MonoBehaviour
         RefreshDropdown();
         layoutDropdown.value = layoutDropdown.options.FindIndex(option => option.text == newLayoutName);
 
+        GameManager.Instance.ResumeGame();
         // Deactivate the edit layout once you finish
         editLayout.SetActive(false);
         errorText.gameObject.SetActive(false);

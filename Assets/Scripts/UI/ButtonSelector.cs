@@ -70,38 +70,45 @@ public class ButtonSelector : MonoBehaviour
     {
         if (currentTarget == null) return;
 
-        Rect targetVisibleRect = GetVisibleRect(currentTarget);
+        // Prevent updates while animation is running
+        if (LeanTween.isTweening(selectorImage.gameObject)) return;
 
-        // I divide by the canvas scale factor to convert from world space to canvas space (the selector is later scaled by the canvas scale factor)
-        Vector2 targetSize = new Vector2(
-            targetVisibleRect.width / canvas.scaleFactor + padding * 2,
-            targetVisibleRect.height / canvas.scaleFactor + padding * 2
-        );
-        Vector3 targetPosition = targetVisibleRect.center;
+        Vector3[] worldCorners = new Vector3[4];
+        currentTarget.GetWorldCorners(worldCorners);
 
+        float width = worldCorners[3].x - worldCorners[0].x;
+        float height = worldCorners[1].y - worldCorners[0].y;
+
+        Vector2 targetSize = new Vector2(width + padding * 2, height + padding * 2);
+        Vector3 targetPosition = (worldCorners[0] + worldCorners[2]) / 2;
         Vector3 localPosition = selectorImage.transform.parent.InverseTransformPoint(targetPosition);
 
-        selectorImage.sizeDelta = Vector2.Lerp(selectorImage.sizeDelta, targetSize, Time.deltaTime * (1 / animationTime));
-        selectorImage.localPosition = Vector3.Lerp(selectorImage.localPosition, localPosition, Time.deltaTime * (1 / animationTime));
+        // Directly set the size without interpolation
+        selectorImage.sizeDelta = targetSize;
+        selectorImage.localPosition = localPosition;
     }
 
     private void AnimateSelector()
     {
         if (currentTarget == null) return;
 
-        Rect targetVisibleRect = GetVisibleRect(currentTarget);
+        Vector3[] worldCorners = new Vector3[4];
+        currentTarget.GetWorldCorners(worldCorners);
 
-        // I divide by the canvas scale factor to convert from world space to canvas space (the selector is later scaled by the canvas scale factor)
-        Vector2 targetSize = new Vector2(
-            targetVisibleRect.width / canvas.scaleFactor + padding * 2,
-            targetVisibleRect.height / canvas.scaleFactor + padding * 2
-        );
-        Vector3 targetPosition = targetVisibleRect.center;
+        float width = worldCorners[3].x - worldCorners[0].x;
+        float height = worldCorners[1].y - worldCorners[0].y;
 
+        Vector2 targetSize = new Vector2(width + padding * 2, height + padding * 2);
+        Vector3 targetPosition = (worldCorners[0] + worldCorners[2]) / 2;
         Vector3 localPosition = selectorImage.transform.parent.InverseTransformPoint(targetPosition);
 
-        LeanTween.cancel(selectorImage.gameObject); // Cancel any ongoing animations
-        LeanTween.size(selectorImage, targetSize, animationTime).setEase(tweenType);
+        LeanTween.cancel(selectorImage.gameObject);
+
+        // Animate size and position
+        LeanTween.size(selectorImage, targetSize, animationTime)
+            .setEase(tweenType)
+            .setOnComplete(() => UpdateSelector()); // Ensure correct size after animation
+
         LeanTween.moveLocal(selectorImage.gameObject, localPosition, animationTime).setEase(tweenType);
     }
 

@@ -43,7 +43,7 @@ public class FirePower : MarioAbility
     // Shoot Action
     public override void onShootPressed()
     {
-        if (!marioMovement.carrying)
+        if (!marioMovement.carrying && !marioMovement.groundPounding)
         {
             ShootProjectile();
         }
