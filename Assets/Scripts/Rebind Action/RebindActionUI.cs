@@ -501,7 +501,7 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
             {
                 textComponent.text = dotStates[index];
                 index = (index + 1) % dotStates.Length;
-                yield return new WaitForSeconds(0.5f); // Adjust speed if needed
+                yield return new WaitForSecondsRealtime(0.5f);
             }
         }
 
