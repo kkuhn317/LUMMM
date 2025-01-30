@@ -10,9 +10,9 @@ public class CameraFollow : MonoBehaviour
     private CameraZone[] zones;
 
     private CameraZone currentZone;
-
-    public float camHeight => Camera.main.orthographicSize * 2;
-    public float camWidth => camHeight * Camera.main.aspect;
+    private Camera cam;
+    public float camHeight => cam.orthographicSize * 2;
+    public float camWidth => camHeight * cam.aspect;
 
     private Vector3 originalPosition;
 
@@ -37,9 +37,10 @@ public class CameraFollow : MonoBehaviour
     {
         originalPosition = transform.position;
         offset = new Vector3(0f, 2f, 0f);
+        cam = GetComponent<Camera>();
 
         // Store the original orthographic size of the camera
-        originalOrthographicSize = Camera.main.orthographicSize;
+        originalOrthographicSize = cam.orthographicSize;
 
         // Set the initial target orthographic size to match the original size
         targetOrthographicSize = originalOrthographicSize;
@@ -109,7 +110,7 @@ public class CameraFollow : MonoBehaviour
         transform.position = new Vector3(x, y, transform.position.z);
 
         // Smoothly change the camera's orthographic size
-        Camera.main.orthographicSize = Mathf.SmoothDamp(Camera.main.orthographicSize, targetOrthographicSize, ref smoothDampVelocity.z, zoomSmoothTime);
+        cam.orthographicSize = Mathf.SmoothDamp(cam.orthographicSize, targetOrthographicSize, ref smoothDampVelocity.z, zoomSmoothTime);
 
         // Clamp the camera position to the bounds
         if (zone.snapToBounds)
