@@ -151,6 +151,7 @@ public class LevelSelectionManager : MonoBehaviour
         } else {
             GlobalVariables.checkpoint = -1;
         }
+        GlobalVariables.SetTimerOffsetFromString(PlayerPrefs.GetString("SavedSpeedrunTime"));
 
         // The saved green coins will be handled by GameManager (where we need to check if it's the saved level)
     }

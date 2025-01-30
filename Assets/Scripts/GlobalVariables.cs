@@ -2,7 +2,7 @@ using UnityEngine;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine.InputSystem.Interactions;
+using System.Diagnostics;
 
 public static class GlobalVariables
 {
@@ -30,7 +30,7 @@ public static class GlobalVariables
             try {
                 return Layouts[currentLayoutName];
             } catch {
-                Debug.Log("Layout not loaded (should only happen in editor).");
+                UnityEngine.Debug.Log("Layout not loaded (should only happen in editor).");
                 return new();
             }
         }
@@ -43,11 +43,28 @@ public static class GlobalVariables
     public static bool enablePlushies = false;
     public static bool enableBetaMode = false;
 
+    // Speedrun Timer
+    public static Stopwatch speedrunTimer = new();
+    public static TimeSpan timerOffset = TimeSpan.Zero;
+    public static TimeSpan elapsedTime => timerOffset.Add(speedrunTimer.Elapsed);
+
+    // Converts to String FOR USE BY PLAYERPREFS (not for displaying)
+    public static string ElapsedTimeToString() {
+        return elapsedTime.TotalMilliseconds.ToString(System.Globalization.CultureInfo.InvariantCulture);
+    }
+
+    public static void SetTimerOffsetFromString(string timeString) {
+        timerOffset = TimeSpan.FromMilliseconds(double.Parse(timeString, System.Globalization.CultureInfo.InvariantCulture));
+    }
+
+    // Other
     public static void ResetForLevel()
     {
-        GlobalVariables.lives = levelInfo.lives;
+        lives = levelInfo.lives;
         coinCount = 0;
         score = 0;
         checkpoint = -1;
+        speedrunTimer.Reset();  // Reset to 0 and stop
+        timerOffset = TimeSpan.Zero;
     }
 }

@@ -38,6 +38,7 @@ public class GameManager : MonoBehaviour
     public AudioClip timeWarning;
     [SerializeField] protected TMP_Text timerText;
     public Image infiniteTimeImage;
+    [SerializeField] protected TMP_Text speedrunTimerText;
 
     [Header("Lives")]
     private int maxLives = 99;
@@ -281,6 +282,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] TMP_Text collectedCoinsText;
     [SerializeField] TMP_Text totalCoinsText;
     [SerializeField] TMP_Text scoreWinScreenText;
+    [SerializeField] TMP_Text speedrunTimeFinishText;
     public GameObject NewBestRankText;
     public GameObject NewHighScoreText;
     public List<Image> greenCoinUIWin;
@@ -357,6 +359,7 @@ public class GameManager : MonoBehaviour
         UpdateCoinsUI();
         UpdateScoreUI();
         CheckForInfiniteTime();
+        InitSpeedrunTimer();
     }
 
     // So no error when running starting in the level scene
@@ -385,6 +388,7 @@ public class GameManager : MonoBehaviour
         if (!isTimeUp)
         {
             UpdateRank();
+            UpdateSpeedrunTimerUI();
 
             // Toggle pause when the Esc or P key is pressed
             if (Input.GetButtonDown("Pause")) {
@@ -641,6 +645,16 @@ public class GameManager : MonoBehaviour
             timerText.text = "<mspace=0.8em>" + ((int)currentTime).ToString("D3"); // 000
         }
     }
+    private void UpdateSpeedrunTimerUI() {
+        if (GlobalVariables.SpeedrunMode && speedrunTimerText != null)
+        {
+            //string timeString = "ERROR!";
+            //GlobalVariables.elapsedTime.TryFormat(timeString, 
+            speedrunTimerText.text = "<mspace=0.8em>" + GlobalVariables.elapsedTime.ToString(@"m\:ss\.ff");
+            // NOTE: the timer will currently appear to reset once it goes past 1 hour
+        }
+    }
+
 
     private void CheckForInfiniteTime()
     {
@@ -649,6 +663,15 @@ public class GameManager : MonoBehaviour
             timerText.gameObject.SetActive(false);
             infiniteTimeImage.gameObject.SetActive(true);
         }
+    }
+
+    private void InitSpeedrunTimer()
+    {
+        if (speedrunTimerText == null) return;
+
+        speedrunTimerText.gameObject.SetActive(GlobalVariables.SpeedrunMode);
+
+        GlobalVariables.speedrunTimer.Start();  // Start the speedrun timer!
     }
 
     private void UpdateScoreUI()
@@ -872,9 +895,11 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    // Stops both the level timer and the speedrun timer
     public void StopTimer()
     {
         stopTimer = true;
+        GlobalVariables.speedrunTimer.Stop();
     }
 
     // Function to toggle the game between paused and resumed states.
@@ -961,6 +986,9 @@ public class GameManager : MonoBehaviour
 
             // Save the current checkpoint to PlayerPrefs
             PlayerPrefs.SetInt("SavedCheckpoint", GlobalVariables.checkpoint);
+
+            // Save current speedrun time to PlayerPrefs
+            PlayerPrefs.SetString("SavedSpeedrunTime", GlobalVariables.elapsedTime.TotalMilliseconds.ToString(System.Globalization.CultureInfo.InvariantCulture));
 
             PlayerPrefs.SetString("SavedLevel", levelID);
         }
@@ -1081,6 +1109,7 @@ public class GameManager : MonoBehaviour
 
         isPaused = true;
         Time.timeScale = 0f;  // Set time scale to 0 (pause)
+        GlobalVariables.speedrunTimer.Stop();   // Stop speedrun timer
 
         if (currentlyPlayingMusic != null) {
             originalVolume = currentlyPlayingMusic.GetComponent<AudioSource>().volume;
@@ -1110,6 +1139,10 @@ public class GameManager : MonoBehaviour
         isPaused = false;
         
         Time.timeScale = 1f; // Set time scale to normal (unpause)
+
+        if (!stopTimer) {
+            GlobalVariables.speedrunTimer.Start();  // Resume speedrun timer
+        }
 
         if(currentlyPlayingMusic != null) 
         { 
@@ -1200,6 +1233,9 @@ public class GameManager : MonoBehaviour
             Image uiImageWin = greenCoinUIWin[Array.IndexOf(greenCoins, greenCoin)];
             uiImageWin.sprite = collectedSprite;
         }
+
+        // Speedrun Time
+        speedrunTimeFinishText.text = GlobalVariables.elapsedTime.ToString(@"m\:ss\.ff");
 
         // Save the highest rank to PlayerPrefs if the current rank is higher than the saved rank
         if (currentRank > highestRank) {

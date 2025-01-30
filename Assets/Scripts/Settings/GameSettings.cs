@@ -150,6 +150,15 @@ public class GameSettings : MonoBehaviour
         OnScreenControlsImage.sprite = isOnScreenControlsEnabled ? enabledOnScreenControls : disabledOnScreenControls;
     }
 
+    private void OnOnScreenControlsToggleValueChanged(bool isOnScreenControlsEnabled)
+    {
+        OnScreenControlsToggle.isOn = isOnScreenControlsEnabled;
+        PlayerPrefs.SetInt(SettingsKeys.OnScreenControlsKey, isOnScreenControlsEnabled ? 1 : 0);
+        OnScreenControlsImage.sprite = isOnScreenControlsEnabled ? enabledOnScreenControls : disabledOnScreenControls;
+
+        GlobalVariables.OnScreenControls = isOnScreenControlsEnabled;
+    }
+
     private void ConfigureSpeedrunMode()
     {
         // Load saved setting, default to false
@@ -159,20 +168,8 @@ public class GameSettings : MonoBehaviour
         SpeedrunModeToggle.isOn = isSpeedrunModeEnabled;
         SpeedrunModeImage.sprite = isSpeedrunModeEnabled ? enabledSpeedrunMode : disabledSpeedrunMode;
 
-        // Sync with GlobalVariables
-        GlobalVariables.SpeedrunMode = isSpeedrunModeEnabled;
-
         // Listen for changes
         SpeedrunModeToggle.onValueChanged.AddListener(OnSpeedrunModeToggleChanged);
-    }
-
-    private void OnOnScreenControlsToggleValueChanged(bool isOnScreenControlsEnabled)
-    {
-        OnScreenControlsToggle.isOn = isOnScreenControlsEnabled;
-        PlayerPrefs.SetInt(SettingsKeys.OnScreenControlsKey, isOnScreenControlsEnabled ? 1 : 0);
-        OnScreenControlsImage.sprite = isOnScreenControlsEnabled ? enabledOnScreenControls : disabledOnScreenControls;
-
-        GlobalVariables.OnScreenControls = isOnScreenControlsEnabled;
     }
 
     private void OnSpeedrunModeToggleChanged(bool isSpeedrunModeEnabled)

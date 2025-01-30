@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Audio;
 
+// This script is in the MainMenu and initializes the settings values
 public class SettingsApply : MonoBehaviour
 { 
     [SerializeField] AudioMixer musicMixer;
@@ -19,6 +20,7 @@ public class SettingsApply : MonoBehaviour
         InitInfiniteLives();
         InitCheckpoints();
         InitOnScreenControls();
+        InitSpeedrunMode();
     }
 
     private void InitMasterVolume()
@@ -73,5 +75,11 @@ public class SettingsApply : MonoBehaviour
     {
         bool areOnScreenControlsEnabled = PlayerPrefs.GetInt(SettingsKeys.OnScreenControlsKey, Application.isMobilePlatform ? 1 : 0) == 1;
         GlobalVariables.OnScreenControls = areOnScreenControlsEnabled;
+    }
+
+    private void InitSpeedrunMode()
+    {
+        bool isSpeedrunModeEnabled = PlayerPrefs.GetInt(SettingsKeys.SpeedrunModeKey, 0) == 1;
+        GlobalVariables.SpeedrunMode = isSpeedrunModeEnabled;
     }
 }
