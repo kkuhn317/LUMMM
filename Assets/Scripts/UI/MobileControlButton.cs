@@ -27,24 +27,23 @@ public class MobileControlButton : MonoBehaviour, IPointerDownHandler, IPointerU
     {
         image = GetComponent<Image>();
 
-        // Get Opacity from PlayerPrefs
-        buttonPressedOpacity = PlayerPrefs.GetFloat(SettingsKeys.ButtonPressedOpacityKey, 0.38f);
-        buttonUnpressedOpacity = PlayerPrefs.GetFloat(SettingsKeys.ButtonUnpressedOpacityKey, 0.38f);
-
-        RectTransform rectTransform = GetComponent<RectTransform>();
-
-        // Load the position and scale from PlayerPrefs
-        if (PlayerPrefs.HasKey(buttonID + SettingsKeys.ButtonPosXKey))
+        // Load saved position and scale
+        MobileRebindingData mobileData = GlobalVariables.currentLayout.mobileData;
+        if (mobileData.buttonData.ContainsKey(buttonID))
         {
-            float x = PlayerPrefs.GetFloat(buttonID + SettingsKeys.ButtonPosXKey);
-            float y = PlayerPrefs.GetFloat(buttonID + SettingsKeys.ButtonPosYKey);
-            rectTransform.anchoredPosition = new Vector2(x, y);
-        }
-        if (PlayerPrefs.HasKey(buttonID + SettingsKeys.ButtonScaleKey))
-        {
-            float scale = PlayerPrefs.GetFloat(buttonID + SettingsKeys.ButtonScaleKey);
+            MobileRebindingData.MobileButtonData myData = mobileData.buttonData[buttonID];
+            RectTransform rectTransform = GetComponent<RectTransform>();
+            // Position
+            rectTransform.anchoredPosition = myData.position;
+
+            // Scale
+            float scale = myData.scale;
             transform.localScale = new Vector3(scale, scale, 1f);
         }
+
+        // Opacity
+        buttonPressedOpacity = mobileData.buttonPressedOpacity;
+        buttonUnpressedOpacity = mobileData.buttonUnpressedOpacity;
 
         // Set initial state
         UpdateButtonAppearance();

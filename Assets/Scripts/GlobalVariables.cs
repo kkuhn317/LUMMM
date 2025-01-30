@@ -22,6 +22,18 @@ public static class GlobalVariables
 
     // Settings
     public static bool OnScreenControls = false;
+    public static Dictionary<string, RebindLayoutData> Layouts = new();
+    public static string currentLayoutName = RebindSaveLoad.DefaultLayoutName;
+    public static RebindLayoutData currentLayout {
+        get {
+            try {
+                return Layouts[currentLayoutName];
+            } catch {
+                Debug.Log("Layout not loaded (should only happen in editor).");
+                return new();
+            }
+        }
+    }
 
     // Mobile
     public static bool mobileRunButtonPressed = false;

@@ -14,14 +14,4 @@ class SettingsKeys
     public const string CheckpointsKey = "Checkpoints";
     public const string TimeLimitKey = "TimeLimit";
 
-
-    // RebindSettings
-    public const string ButtonPressedOpacityKey = "ButtonPressedOpacity";
-    public const string ButtonUnpressedOpacityKey = "ButtonUnpressedOpacity";
-
-    // MobileButtonRebinding
-    public const string ButtonPosXKey = "_PosX";
-    public const string ButtonPosYKey = "_PosY";
-    public const string ButtonScaleKey = "_Scale";
-
 }

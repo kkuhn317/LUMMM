@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Localization.Settings;
+using Newtonsoft.Json;
 
 public class StartupThings : MonoBehaviour
 {
@@ -16,6 +17,9 @@ public class StartupThings : MonoBehaviour
         // Get the current language
         string currentLanguage = PlayerPrefs.GetString("Language", "en");
         LocalizationSettings.SelectedLocale = LocalizationSettings.AvailableLocales.GetLocale(currentLanguage);
+
+        // Load control layout (currently only needed for on-screen controls, since keyboard/controler layout is loaded automatically)
+        RebindSaveLoad.OnGameStart();
     }
 
     // Update is called once per frame

@@ -14,6 +14,7 @@ public class MobileControlRebinding : MonoBehaviour
     public TMP_Text scalePercentageText;
     public Slider scaleSlider;
     [HideInInspector] public UnityEvent onResetPressed; // Buttons will subscribe to this event to reset their position and scale
+    private List<DraggableMobileButton> buttons = new();    // Will be populated automatically by the buttons
 
     void Awake() {
         instance = this;
@@ -27,6 +28,20 @@ public class MobileControlRebinding : MonoBehaviour
         instructionsObject.SetActive(true);
         scaleSizeObject.SetActive(false);
         scalePercentageText.gameObject.SetActive(false);
+    }
+
+    void OnDisable() {
+        // Save all the button positions and scales
+        Debug.Log("Saving mobile button layout");
+        Dictionary<string, MobileRebindingData.MobileButtonData> newData = new();
+        foreach (DraggableMobileButton button in buttons) {
+            newData.Add(button.buttonID, button.GetData());
+        }
+        RebindSaveLoad.SaveMobileBindings(newData);
+    }
+
+    public void AddButton(DraggableMobileButton button) {
+        buttons.Add(button);
     }
 
     public void SetSelectedButton(DraggableMobileButton button)

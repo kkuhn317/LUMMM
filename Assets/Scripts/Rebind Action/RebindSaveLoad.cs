@@ -9,34 +9,47 @@ using UnityEngine.Localization.Settings;
 [System.Serializable]
 public class RebindLayoutData
 {
-    public Dictionary<string, string> layouts = new Dictionary<string, string>(); // LayoutName -> Rebind JSON
+    public string rebindJSON = "";
+    public MobileRebindingData mobileData = new();
 }
 
 public class RebindSaveLoad : MonoBehaviour
 {
-    private const string LayoutsKey = "rebindLayouts";
-    private const string CurrentLayoutKey = "currentLayout";
-    private const string DefaultLayoutName = "DEFAULT";
+    public const string LayoutsKey = "rebindLayouts";
+    public const string CurrentLayoutKey = "currentLayout";
+    public const string DefaultLayoutName = "DEFAULT";
 
     public InputActionAsset actions;
 
     [Header("UI Elements")]
     public TMP_Dropdown layoutDropdown; // Dropdown for selecting layouts
     public TMP_InputField layoutNameInput; // Input field for new layout name
-     public GameObject createLayout;
+    public GameObject createLayout;
     public Button createLayoutConfirmButton; // Button to confirm creating
     public GameObject editLayout;
     public TMP_InputField editLayoutNameInput;
     public Button editLayoutConfirmButton;
     public Button deleteLayoutButton; // Button to delete layout
     public TMP_Text errorText;
+    public Slider buttonPressedOpacitySlider;
+    public Slider buttonUnpressedOpacitySlider;
 
-    private RebindLayoutData loadedLayouts = new RebindLayoutData();
-    private string currentLoadedLayout = DefaultLayoutName; // Track the currently loaded layout
+    // Quicker reference to the layouts from GlobalVariables
+    private static Dictionary<string, RebindLayoutData> LoadedLayouts {
+        get => GlobalVariables.Layouts;
+        set => GlobalVariables.Layouts = value;
+    }
+
+    // Quicker reference to the current loaded layout
+    private static string currentLoadedLayout {
+        get => GlobalVariables.currentLayoutName;
+        set => GlobalVariables.currentLayoutName = value;
+    }
 
     private void Awake()
     {
-        LoadLayouts();
+        LoadLayouts();  // Only really needed to initialize Default Layout if needed, but it also makes it easier to use in editor
+
         LoadCurrentLayout();
 
         // Populate dropdown with available layouts
@@ -76,10 +89,27 @@ public class RebindSaveLoad : MonoBehaviour
         // Save current bindings to layout
         SaveCurrentBindings(currentLoadedLayout);
         // Save all layouts to PlayerPrefs
-        string json = JsonConvert.SerializeObject(loadedLayouts);
+        string json = JsonConvert.SerializeObject(LoadedLayouts);
         PlayerPrefs.SetString(LayoutsKey, json);
 
         Debug.Log("Saved all layouts to PlayerPrefs.");
+    }
+
+    // Called from StartupThings
+    public static void OnGameStart() {
+        // Get the current control layout
+        currentLoadedLayout = PlayerPrefs.GetString(RebindSaveLoad.CurrentLayoutKey, "DEFAULT");
+        string json = PlayerPrefs.GetString(RebindSaveLoad.LayoutsKey, "");
+        if (!string.IsNullOrEmpty(json))
+        {
+            try {
+                LoadedLayouts = JsonConvert.DeserializeObject<Dictionary<string, RebindLayoutData>>(json);
+            } catch {
+                Debug.Log("Unable to load layouts. Maybe it was saved in an older format previously.");
+            }
+        } else {
+            Debug.Log("No saved layouts found. Default layout will be created when rebind menu is opened");
+        }
     }
     
     /// <summary>
@@ -98,7 +128,7 @@ public class RebindSaveLoad : MonoBehaviour
             return;
         }
 
-        if (loadedLayouts.layouts.ContainsKey(layoutName))
+        if (LoadedLayouts.ContainsKey(layoutName))
         {
             DisplayError("LayoutExists");
             return;
@@ -129,27 +159,51 @@ public class RebindSaveLoad : MonoBehaviour
 
     /// <summary>
     /// Saves the current bindings under a specified layout name.
+    /// Also saves the opacity slider values.
     /// </summary>
     public void SaveCurrentBindings(string layoutName)
     {
         Debug.Log($"Saving current bindings to layout '{layoutName}'");
         string rebindJson = actions.SaveBindingOverridesAsJson();
-        loadedLayouts.layouts[layoutName] = rebindJson;
 
-        string json = JsonConvert.SerializeObject(loadedLayouts);
+        // Create new layout if not present
+        if (!LoadedLayouts.ContainsKey(layoutName)) {
+            LoadedLayouts[layoutName] = new();
+        }
+        LoadedLayouts[layoutName].rebindJSON = rebindJson;
+        LoadedLayouts[layoutName].mobileData.buttonPressedOpacity = buttonPressedOpacitySlider.value;
+        LoadedLayouts[layoutName].mobileData.buttonUnpressedOpacity = buttonUnpressedOpacitySlider.value;
+
+        string json = JsonConvert.SerializeObject(LoadedLayouts);
+        PlayerPrefs.SetString(LayoutsKey, json);
+        PlayerPrefs.Save();
+    }
+
+    /// <summary>
+    /// Saves mobile bindings to the current layout.
+    /// </summary>
+    public static void SaveMobileBindings(Dictionary<string, MobileRebindingData.MobileButtonData> rebindings)
+    {
+        Debug.Log($"Saving mobile bindings to layout '{currentLoadedLayout}'");
+        LoadedLayouts[currentLoadedLayout].mobileData.buttonData = rebindings;
+
+        string json = JsonConvert.SerializeObject(LoadedLayouts);
         PlayerPrefs.SetString(LayoutsKey, json);
         PlayerPrefs.Save();
     }
 
     /// <summary>
     /// Loads a specific layout if it exists.
+    /// Also sets the opacity slider values.
     /// </summary>
     public void LoadLayout(string layoutName)
     {
         Debug.Log($"Loading layout '{layoutName}'");
-        if (loadedLayouts.layouts.TryGetValue(layoutName, out string rebindJson))
+        if (LoadedLayouts.TryGetValue(layoutName, out RebindLayoutData layout))
         {
-            actions.LoadBindingOverridesFromJson(rebindJson);
+            actions.LoadBindingOverridesFromJson(layout.rebindJSON);
+            buttonPressedOpacitySlider.value = layout.mobileData.buttonPressedOpacity;
+            buttonUnpressedOpacitySlider.value = layout.mobileData.buttonUnpressedOpacity;
             PlayerPrefs.SetString(CurrentLayoutKey, layoutName);
             PlayerPrefs.Save();
 
@@ -208,7 +262,12 @@ public class RebindSaveLoad : MonoBehaviour
             InitDefaultLayout();
         } else
         {
-            loadedLayouts = JsonConvert.DeserializeObject<RebindLayoutData>(json);
+            try {
+                LoadedLayouts = JsonConvert.DeserializeObject<Dictionary<string, RebindLayoutData>>(json);
+            } catch {
+                print("Unable to load layouts. Maybe it was saved in an older format previously.");
+                InitDefaultLayout();
+            }
         }
     }
 
@@ -218,9 +277,9 @@ public class RebindSaveLoad : MonoBehaviour
     private void LoadCurrentLayout()
     {
         string currentLayout = PlayerPrefs.GetString(CurrentLayoutKey, "");
-        if (string.IsNullOrEmpty(currentLayout))
+        if (string.IsNullOrEmpty(currentLayout) || !LoadedLayouts.ContainsKey(currentLayout))
         {
-            // If no current layout is saved, default to the first available layout
+            // If no current layout is saved or it is not present in LoadedLayouts, default to the first available layout
             // This will likely be the "Default" layout
             currentLayout = GetSavedLayouts()[0];
         } else 
@@ -234,7 +293,7 @@ public class RebindSaveLoad : MonoBehaviour
     /// </summary>
     public List<string> GetSavedLayouts()
     {
-        return new List<string>(loadedLayouts.layouts.Keys);
+        return new List<string>(LoadedLayouts.Keys);
     }
 
     /// <summary>
@@ -244,15 +303,15 @@ public class RebindSaveLoad : MonoBehaviour
     {
         if (!string.IsNullOrEmpty(currentLoadedLayout))
         {
-            loadedLayouts.layouts.Remove(currentLoadedLayout);
+            LoadedLayouts.Remove(currentLoadedLayout);
 
             // If no layouts are left, initialize the default layout
-            if (loadedLayouts.layouts.Count == 0)
+            if (LoadedLayouts.Count == 0)
             {
                 InitDefaultLayout();    // Also saves to PlayerPrefs
             } else {
                 // Set current layout to the first available layout or empty
-                string nextLayout = loadedLayouts.layouts.Count > 0 ? GetSavedLayouts()[0] : "";
+                string nextLayout = LoadedLayouts.Count > 0 ? GetSavedLayouts()[0] : "";
                 LoadLayout(nextLayout); // Also saves to PlayerPrefs
             }
 
@@ -282,28 +341,28 @@ public class RebindSaveLoad : MonoBehaviour
             return;
         }
 
-        if (loadedLayouts.layouts.ContainsKey(newLayoutName))
+        if (LoadedLayouts.ContainsKey(newLayoutName))
         {
             DisplayError("LayoutExists");
             return;
         }
 
-        if (!loadedLayouts.layouts.ContainsKey(currentLoadedLayout))
+        if (!LoadedLayouts.ContainsKey(currentLoadedLayout))
         {
             DisplayError("LayoutNotExist");
             return;
         }
 
         // Rename the layout
-        string rebindJson = loadedLayouts.layouts[currentLoadedLayout];
-        loadedLayouts.layouts.Remove(currentLoadedLayout);
-        loadedLayouts.layouts[newLayoutName] = rebindJson;
+        RebindLayoutData layout = LoadedLayouts[currentLoadedLayout];
+        LoadedLayouts.Remove(currentLoadedLayout);
+        LoadedLayouts[newLayoutName] = layout;
 
         // Update the currently loaded layout name
         currentLoadedLayout = newLayoutName;
 
         // Save changes
-        PlayerPrefs.SetString(LayoutsKey, JsonConvert.SerializeObject(loadedLayouts));
+        PlayerPrefs.SetString(LayoutsKey, JsonConvert.SerializeObject(LoadedLayouts));
         PlayerPrefs.SetString(CurrentLayoutKey, currentLoadedLayout);
         PlayerPrefs.Save();
 
@@ -319,18 +378,44 @@ public class RebindSaveLoad : MonoBehaviour
         Debug.Log($"Renamed layout '{currentLoadedLayout}' to '{newLayoutName}'");
     }
 
+    /// <summary>
+    /// Resets all bindings to their defaults.
+    /// Also resets the sliders to their default positions.
+    /// </summary>
+    public void ResetBindings()
+    {
+        // Remove all overrides for all action maps
+        foreach (var actionMap in actions.actionMaps)
+        {
+            actionMap.RemoveAllBindingOverrides();
+        }
+
+        buttonPressedOpacitySlider.value = MobileRebindingData.DefaultPressedOpacity;
+        buttonUnpressedOpacitySlider.value = MobileRebindingData.DefaultUnpressedOpacity;
+    }
+
     // <summary>
     // Adds a default layout for when the list is empty.
     // </summary>
     private void InitDefaultLayout()
     {
-        // Reset all bindings to default
-        foreach (var actionMap in actions.actionMaps)
+        // Reset to default
+        ResetBindings();
+        
+        // Not calling SaveCurrentBindings because of the sliders
+        // (not sure if its an issue, but being on the safe side just in case)
+        string rebindJson = actions.SaveBindingOverridesAsJson();
+
+        // Create new layout
+        LoadedLayouts[DefaultLayoutName] = new()
         {
-            actionMap.RemoveAllBindingOverrides();
-        }
-        SaveCurrentBindings(DefaultLayoutName); // Also saves LayoutsKey to PlayerPrefs
+            rebindJSON = rebindJson
+        };
         currentLoadedLayout = DefaultLayoutName;
+
+        // Save layout to PlayerPrefs
+        string json = JsonConvert.SerializeObject(LoadedLayouts);
+        PlayerPrefs.SetString(LayoutsKey, json);
 
         // Save currentLoadedLayout to PlayerPrefs
         PlayerPrefs.SetString(CurrentLayoutKey, currentLoadedLayout);

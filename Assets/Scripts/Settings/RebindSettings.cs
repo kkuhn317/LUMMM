@@ -17,9 +17,6 @@ public class RebindSettings : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        buttonPressedOpacitySlider.value = PlayerPrefs.GetFloat(SettingsKeys.ButtonPressedOpacityKey, 0.38f);
-        buttonUnpressedOpacitySlider.value = PlayerPrefs.GetFloat(SettingsKeys.ButtonUnpressedOpacityKey, 0.38f);
-
         // Update the text labels
         UpdateOpacityText(buttonPressedOpacityText, buttonPressedOpacitySlider.value);
         UpdateOpacityText(buttonUnpressedOpacityText, buttonUnpressedOpacitySlider.value);
@@ -46,21 +43,19 @@ public class RebindSettings : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        ChangeButtonPressedOpacity();
-        ChangeButtonUnpressedOpacity();
+        ChangeButtonPressedOpacityText();
+        ChangeButtonUnpressedOpacityText();
     }
 
-    public void ChangeButtonPressedOpacity()
+    public void ChangeButtonPressedOpacityText()
     {
         float opacity = buttonPressedOpacitySlider.value;
-        PlayerPrefs.SetFloat(SettingsKeys.ButtonPressedOpacityKey, opacity);
         UpdateOpacityText(buttonPressedOpacityText, opacity);
     }
 
-    public void ChangeButtonUnpressedOpacity()
+    public void ChangeButtonUnpressedOpacityText()
     {
         float opacity = buttonUnpressedOpacitySlider.value;
-        PlayerPrefs.SetFloat(SettingsKeys.ButtonUnpressedOpacityKey, opacity);
         UpdateOpacityText(buttonUnpressedOpacityText, opacity);
     }
 
