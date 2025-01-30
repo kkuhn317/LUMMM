@@ -85,6 +85,14 @@ public class SwipeController : MonoBehaviour, IDragHandler, IEndDragHandler
         MovePage();
     }
 
+        // Add a variable to control selection behavior
+    private bool preventSelection = false;
+
+    public void PreventAutoSelection(bool state)
+    {
+        preventSelection = state;
+    }
+
     void MovePage()
     {
         levelPagesRect.LeanMoveLocal(targetPos, tweenTime).setEase(tweenType).setIgnoreTimeScale(true);
@@ -167,17 +175,21 @@ public class SwipeController : MonoBehaviour, IDragHandler, IEndDragHandler
         previousBtn.interactable = predictedPage > 1;
         nextBtn.interactable = predictedPage < maxPage;
 
-        if (predictedPage == 1)
+        // Only auto-select if preventSelection is false
+        if (!preventSelection)
         {
-            EventSystem.current.SetSelectedGameObject(nextBtn.gameObject);
-        }
-        else if (predictedPage == maxPage)
-        {
-            EventSystem.current.SetSelectedGameObject(previousBtn.gameObject);
-        }
-        else
-        {
-            EventSystem.current.SetSelectedGameObject(nextBtn.gameObject);
+            if (predictedPage == 1)
+            {
+                EventSystem.current.SetSelectedGameObject(nextBtn.gameObject);
+            }
+            else if (predictedPage == maxPage)
+            {
+                EventSystem.current.SetSelectedGameObject(previousBtn.gameObject);
+            }
+            /*else
+            {
+                EventSystem.current.SetSelectedGameObject(nextBtn.gameObject);
+            }*/
         }
 
         // Debugging: Log the currently selected GameObject

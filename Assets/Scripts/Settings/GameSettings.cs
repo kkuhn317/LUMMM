@@ -11,6 +11,7 @@ public class GameSettings : MonoBehaviour
     [Header("UI")]
     public Toggle fullscreenToggle;
     public Toggle OnScreenControlsToggle;
+    public Toggle SpeedrunModeToggle;
     public TMP_Dropdown resolutionDropdown;
     public TMP_Text resolutionText;
     public TMP_Dropdown graphicsQualityDropdown;
@@ -26,12 +27,17 @@ public class GameSettings : MonoBehaviour
     public Sprite enabledOnScreenControls;
     public Sprite disabledOnScreenControls;
 
+    public Image SpeedrunModeImage;
+    public Sprite enabledSpeedrunMode;
+    public Sprite disabledSpeedrunMode;
+
     private void Start()
     {
         ConfigureResolution();
         ConfigureFullscreenToggle();
         ConfigureGraphicsQuality();
         ConfigureOnScreenControls();
+        ConfigureSpeedrunMode();
     }
 
     Resolution[] GetResolutions()
@@ -144,6 +150,22 @@ public class GameSettings : MonoBehaviour
         OnScreenControlsImage.sprite = isOnScreenControlsEnabled ? enabledOnScreenControls : disabledOnScreenControls;
     }
 
+    private void ConfigureSpeedrunMode()
+    {
+        // Load saved setting, default to false
+        bool isSpeedrunModeEnabled = PlayerPrefs.GetInt(SettingsKeys.SpeedrunModeKey, 0) == 1;
+        
+        // Apply the setting
+        SpeedrunModeToggle.isOn = isSpeedrunModeEnabled;
+        SpeedrunModeImage.sprite = isSpeedrunModeEnabled ? enabledSpeedrunMode : disabledSpeedrunMode;
+
+        // Sync with GlobalVariables
+        GlobalVariables.SpeedrunMode = isSpeedrunModeEnabled;
+
+        // Listen for changes
+        SpeedrunModeToggle.onValueChanged.AddListener(OnSpeedrunModeToggleChanged);
+    }
+
     private void OnOnScreenControlsToggleValueChanged(bool isOnScreenControlsEnabled)
     {
         OnScreenControlsToggle.isOn = isOnScreenControlsEnabled;
@@ -151,5 +173,17 @@ public class GameSettings : MonoBehaviour
         OnScreenControlsImage.sprite = isOnScreenControlsEnabled ? enabledOnScreenControls : disabledOnScreenControls;
 
         GlobalVariables.OnScreenControls = isOnScreenControlsEnabled;
+    }
+
+    private void OnSpeedrunModeToggleChanged(bool isSpeedrunModeEnabled)
+    {
+        // Save the new setting
+        PlayerPrefs.SetInt(SettingsKeys.SpeedrunModeKey, isSpeedrunModeEnabled ? 1 : 0);
+        
+        // Update the global variable
+        GlobalVariables.SpeedrunMode = isSpeedrunModeEnabled;
+
+        // Update UI image
+        SpeedrunModeImage.sprite = isSpeedrunModeEnabled ? enabledSpeedrunMode : disabledSpeedrunMode;
     }
 }

@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Events;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class RebindSettings : MonoBehaviour
@@ -13,6 +15,8 @@ public class RebindSettings : MonoBehaviour
     [SerializeField] CanvasGroup optionsCanvasGroup;
     [SerializeField] Button firstSelectedButton;
     [SerializeField] Button ControlsButton; // Will be selected when the rebind menu is closed
+    [SerializeField] UnityEvent onMenuEnabled;
+    
 
     // Start is called before the first frame update
     void Start()
@@ -26,9 +30,27 @@ public class RebindSettings : MonoBehaviour
     {
         // Disable interactability of the options canvas group
         optionsCanvasGroup.interactable = false;
+        
+        // Get SwipeController and prevent auto-selection
+        SwipeController swipeController = FindObjectOfType<SwipeController>();
+        swipeController.PreventAutoSelection(true);
+
+        // Trigger Unity Event
+        onMenuEnabled?.Invoke();
 
         // Set the selected object to the first button
-        firstSelectedButton.Select();   // TODO: This was working, but now it's not. I don't know why.
+        StartCoroutine(DelayedSelectFirstButton(swipeController));
+    }
+
+    private IEnumerator DelayedSelectFirstButton(SwipeController swipeController)
+    {
+        yield return null; // Wait one frame to let GoToPage() process
+
+        // Select the correct first button
+        EventSystem.current.SetSelectedGameObject(firstSelectedButton.gameObject);
+
+        // Re-enable auto-selection AFTER setting our own selection
+        swipeController.PreventAutoSelection(false);
     }
 
     void OnDisable()

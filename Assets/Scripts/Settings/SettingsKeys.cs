@@ -7,6 +7,7 @@ class SettingsKeys
     public const string BGMVolumeKey = "BGMVolume";
     public const string SFXVolumeKey = "SFXVolume";
     public const string OnScreenControlsKey = "OnScreenControls";
+    public const string SpeedrunModeKey = "SpeedrunMode";
 
 
     // Modifiers

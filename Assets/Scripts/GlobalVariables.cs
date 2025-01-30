@@ -22,6 +22,7 @@ public static class GlobalVariables
 
     // Settings
     public static bool OnScreenControls = false;
+    public static bool SpeedrunMode = false;
     public static Dictionary<string, RebindLayoutData> Layouts = new();
     public static string currentLayoutName = RebindSaveLoad.DefaultLayoutName;
     public static RebindLayoutData currentLayout {
