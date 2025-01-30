@@ -76,12 +76,28 @@ public class ButtonSelector : MonoBehaviour
         Vector3[] worldCorners = new Vector3[4];
         currentTarget.GetWorldCorners(worldCorners);
 
-        float width = worldCorners[3].x - worldCorners[0].x;
-        float height = worldCorners[1].y - worldCorners[0].y;
+        // Convert world corners to local canvas space
+        Vector2 min = Vector2.positiveInfinity;
+        Vector2 max = Vector2.negativeInfinity;
+
+        for (int i = 0; i < 4; i++)
+        {
+            Vector2 localPoint;
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(selectorImage.transform.parent as RectTransform,
+                RectTransformUtility.WorldToScreenPoint(null, worldCorners[i]), 
+                null, 
+                out localPoint);
+
+            min = Vector2.Min(min, localPoint);
+            max = Vector2.Max(max, localPoint);
+        }
+
+        // Compute width and height correctly in local space
+        float width = max.x - min.x;
+        float height = max.y - min.y;
 
         Vector2 targetSize = new Vector2(width + padding * 2, height + padding * 2);
-        Vector3 targetPosition = (worldCorners[0] + worldCorners[2]) / 2;
-        Vector3 localPosition = selectorImage.transform.parent.InverseTransformPoint(targetPosition);
+        Vector3 localPosition = (min + max) / 2;
 
         // Directly set the size without interpolation
         selectorImage.sizeDelta = targetSize;
@@ -95,21 +111,40 @@ public class ButtonSelector : MonoBehaviour
         Vector3[] worldCorners = new Vector3[4];
         currentTarget.GetWorldCorners(worldCorners);
 
-        float width = worldCorners[3].x - worldCorners[0].x;
-        float height = worldCorners[1].y - worldCorners[0].y;
+        // Convert world corners to local canvas space
+        Vector2 min = Vector2.positiveInfinity;
+        Vector2 max = Vector2.negativeInfinity;
+
+        for (int i = 0; i < 4; i++)
+        {
+            Vector2 localPoint;
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(selectorImage.transform.parent as RectTransform,
+                RectTransformUtility.WorldToScreenPoint(null, worldCorners[i]), 
+                null, 
+                out localPoint);
+
+            min = Vector2.Min(min, localPoint);
+            max = Vector2.Max(max, localPoint);
+        }
+
+        // Compute width and height correctly in local space
+        float width = max.x - min.x;
+        float height = max.y - min.y;
 
         Vector2 targetSize = new Vector2(width + padding * 2, height + padding * 2);
-        Vector3 targetPosition = (worldCorners[0] + worldCorners[2]) / 2;
-        Vector3 localPosition = selectorImage.transform.parent.InverseTransformPoint(targetPosition);
+        Vector3 localPosition = (min + max) / 2;
 
         LeanTween.cancel(selectorImage.gameObject);
 
         // Animate size and position
         LeanTween.size(selectorImage, targetSize, animationTime)
             .setEase(tweenType)
-            .setOnComplete(() => UpdateSelector()); // Ensure correct size after animation
+            .setIgnoreTimeScale(true) // Ensures animations still play when paused
+            .setOnComplete(() => UpdateSelector());
 
-        LeanTween.moveLocal(selectorImage.gameObject, localPosition, animationTime).setEase(tweenType);
+        LeanTween.moveLocal(selectorImage.gameObject, localPosition, animationTime)
+        .setEase(tweenType)
+        .setIgnoreTimeScale(true);
     }
 
     private Rect GetVisibleRect(RectTransform rectTransform)
