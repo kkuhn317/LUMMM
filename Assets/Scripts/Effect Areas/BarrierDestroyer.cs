@@ -13,8 +13,14 @@ public class BarrierDestroyer : MonoBehaviour
         // Check if the entering object is in one of the specified layers.
         if (triggerLayers == (triggerLayers | (1 << other.gameObject.layer)))
         {
-            // Destroy the entering object.
-            Destroy(other.gameObject);
+            // Check if the object is a collider of a parent ObjectPhysics (example: grrrol)
+            if (other.GetComponentInParent<ObjectPhysics>() != null) {
+                Destroy(other.GetComponentInParent<ObjectPhysics>().gameObject);    // Destroy the parent
+            } else {
+                // Destroy the entering object.
+                Destroy(other.gameObject);
+            }
+            
         }
     }
 }

@@ -105,6 +105,11 @@ public class GiantThwomp : EnemyAI, IGroundPoundable
                 fallDirection = FallDirections.Down;
                 ChangeState(ThwompStates.Falling);
             }
+            else if (player.transform.position.y > transform.position.y && Mathf.Abs(player.transform.position.x - transform.position.x) < width / 2 + addDetectionRange)
+            {
+                fallDirection = FallDirections.Up;
+                ChangeState(ThwompStates.Falling);
+            }
             else if (checkSides && player.transform.position.x < transform.position.x && Mathf.Abs(player.transform.position.y - transform.position.y) < height / 2 + addDetectionRange)
             {
                 fallDirection = FallDirections.Left;
@@ -113,11 +118,6 @@ public class GiantThwomp : EnemyAI, IGroundPoundable
             else if (checkSides && player.transform.position.x > transform.position.x && Mathf.Abs(player.transform.position.y - transform.position.y) < height / 2 + addDetectionRange)
             {
                 fallDirection = FallDirections.Right;
-                ChangeState(ThwompStates.Falling);
-            }
-            else if (player.transform.position.y > transform.position.y && Mathf.Abs(player.transform.position.x - transform.position.x) < width / 2 + addDetectionRange)
-            {
-                fallDirection = FallDirections.Up;
                 ChangeState(ThwompStates.Falling);
             }
         }

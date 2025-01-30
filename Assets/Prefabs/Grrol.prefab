@@ -11,9 +11,10 @@ GameObject:
   - component: {fileID: 513347580218870867}
   - component: {fileID: 8142186640857265871}
   - component: {fileID: 7695895799331735954}
+  - component: {fileID: 4159792375915063994}
   m_Layer: 7
   m_Name: Grrolsprite
-  m_TagString: Deadly
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -99,6 +100,47 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cf8b5dbe197859d4fb7903f1eb63f191, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!60 &4159792375915063994
+PolygonCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1399727692653736092}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 2.625, y: 2.6875}
+    newSize: {x: 2.625, y: 2.6875}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Points:
+    m_Paths:
+    - - {x: 0.7973706, y: 0.23607755}
+      - {x: 0.80547035, y: 0.7267798}
+      - {x: 0.28966373, y: 0.6968488}
+      - {x: 0.018148579, y: 1.0849618}
+      - {x: -0.38275614, y: 0.7149104}
+      - {x: -0.7590789, y: 0.73075855}
+      - {x: -0.7911843, y: 0.25922602}
+      - {x: -1.0963204, y: 0.007712513}
+      - {x: -0.74186325, y: -0.2758825}
+      - {x: -0.749054, y: -0.7287648}
+      - {x: -0.34068882, y: -0.71083087}
+      - {x: 0.010410003, y: -0.9987117}
+      - {x: 0.3100307, y: -0.7328202}
+      - {x: 0.7537842, y: -0.7679859}
+      - {x: 0.7476762, y: -0.24551971}
+      - {x: 1.0969179, y: -0.022268742}
 --- !u!1 &7497016344916374821
 GameObject:
   m_ObjectHideFlags: 0
@@ -210,7 +252,6 @@ GameObject:
   - component: {fileID: 1737679810673620637}
   - component: {fileID: 7889135041742838741}
   - component: {fileID: 7497016346700285334}
-  - component: {fileID: 1548387254409313127}
   m_Layer: 7
   m_Name: Grrol
   m_TagString: Enemy
@@ -264,7 +305,7 @@ MonoBehaviour:
   DontFallOffLedges: 0
   bounceOffWalls: 0
   flipObject: 0
-  FrequentMovement: 0
+  updateType: 0
   lavaKill: 1
   sinkSpeed: 20
   lavaMask:
@@ -273,6 +314,7 @@ MonoBehaviour:
   carryable: 0
   carried: 0
   throwVelocity: {x: 12, y: 10}
+  rotateAroundCenter: 0
   knockAwayVelocity: {x: 5, y: 5}
   overrideKnockAwayGravity: 0
   knockAwayGravity: 60
@@ -289,7 +331,6 @@ MonoBehaviour:
   stompHeight: 0.2
   heldItem: {fileID: 0}
   itemSpawnOffset: {x: 0, y: 0, z: 0}
-  InstantChange: 0
   customDeath: {fileID: 0}
   onPlayerDamaged:
     m_PersistentCalls:
@@ -300,6 +341,12 @@ MonoBehaviour:
   groundMovementSpeed: 5
   startMovementWhenTouchGround: 1
   enableCameraShake: 0
+  shakeDuration: 0.25
+  shakeIntensity: 2
+  shakeFrequency: 1
+  shakeDirection: {x: 0, y: 1, z: 0}
+  shakeRepetitions: 3
+  shakeInterval: 0.1
 --- !u!50 &7497016345514218025
 Rigidbody2D:
   serializedVersion: 4
@@ -444,54 +491,13 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7497016345514218031}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0573533773f705248bcebac502b6d4ab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   objectToSpawn: {fileID: 6456935476818214770, guid: 19805ad2879c2234da77742f124d510d, type: 3}
   hit: {fileID: 8300000, guid: 6e12da1d72ac9b4478d3452d77487858, type: 3}
---- !u!60 &1548387254409313127
-PolygonCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7497016345514218031}
-  m_Enabled: 1
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_UsedByEffector: 0
-  m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
-  m_SpriteTilingProperty:
-    border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 2.625, y: 2.6875}
-    newSize: {x: 2.625, y: 2.6875}
-    adaptiveTilingThreshold: 0.5
-    drawMode: 0
-    adaptiveTiling: 0
-  m_AutoTiling: 0
-  m_Points:
-    m_Paths:
-    - - {x: 0.7973706, y: 0.23607755}
-      - {x: 0.80547035, y: 0.7267798}
-      - {x: 0.28966373, y: 0.6968488}
-      - {x: -0.027978744, y: 1.1126417}
-      - {x: -0.38275614, y: 0.7149104}
-      - {x: -0.7590789, y: 0.73075855}
-      - {x: -0.7911843, y: 0.25922602}
-      - {x: -1.0963204, y: 0.007712513}
-      - {x: -0.74186325, y: -0.2758825}
-      - {x: -0.749054, y: -0.7287648}
-      - {x: -0.34068882, y: -0.71083087}
-      - {x: -0.03571732, y: -0.9894849}
-      - {x: 0.3100307, y: -0.7328202}
-      - {x: 0.7537842, y: -0.7679859}
-      - {x: 0.7476762, y: -0.24551971}
-      - {x: 1.0969179, y: -0.022268742}
 --- !u!1 &7497016346276061603
 GameObject:
   m_ObjectHideFlags: 0

@@ -726,7 +726,7 @@ public class MarioMovement : MonoBehaviour
         // You can only crawl if you are small mario, on the ground, crouching, and not carrying anything, and not swimming, and if canCrawl is true;
         // AND you are pressing left or right pretty hard
         // AND either you are already crawling or you are stopped
-        isCrawling = inCrouchState && onGround && !carrying && !swimming && powerupState == PowerupState.small && canCrawl
+        isCrawling = inCrouchState && onGround && !carrying && !swimming && !groundPounding && powerupState == PowerupState.small && canCrawl
                      && math.abs(horizontal) > 0.5 && (math.abs(rb.velocity.x) < 0.05f || isCrawling);
         bool regularMoving = (!inCrouchState || !onGround) && !groundPounding;
 
@@ -872,6 +872,7 @@ public class MarioMovement : MonoBehaviour
 
     // Called from enemy script when mario spin bounces on an enemy
     public void SpinJumpBounce(GameObject enemy) {
+        print("bouncing off");
         audioSource.PlayOneShot(spinJumpBounceSound);
         // Instantiate the spin jump bounce effect where they are colliding
         Vector3 effectSpawnPos = enemy.GetComponentInChildren<Collider2D>().ClosestPoint(transform.position);

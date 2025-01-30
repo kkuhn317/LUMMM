@@ -36,7 +36,7 @@ public class DamageEffect : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (hasExistingCollision) return;
+        if (hasExistingCollision || !isActiveAndEnabled) return;
 
         if (other.CompareTag("Player"))
         {
@@ -52,7 +52,7 @@ public class DamageEffect : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (hasExistingCollision) return;
+        if (hasExistingCollision || !isActiveAndEnabled) return;
 
         if (collision.gameObject.CompareTag("Player"))
         {

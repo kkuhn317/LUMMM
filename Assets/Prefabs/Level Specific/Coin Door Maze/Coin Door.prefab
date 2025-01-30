@@ -160,13 +160,18 @@ MonoBehaviour:
   blockedSound: {fileID: 8300000, guid: cd850e0e12d5fae45b36371af0ba4e4a, type: 3}
   particle: {fileID: 4811748717798332445, guid: bf150b576e72bb34b83ee64f0b2b6cb1, type: 3}
   blackFade: {fileID: 0}
+  doorWidth: 1
+  doorHeight: 2
   coinsRequired: 1
+  placePlayerOnDoorCenter: 0
   mustBeStanding: 1
   coinEffectObject: {fileID: 1230226740346832260, guid: 3ba779d4868009e488bee971c14821cd, type: 3}
   spawnOffset: {x: 0, y: 0}
   moveHeight: 0.5
   moveDuration: 0.25
   timeBetweenCoins: 0.1
+  coinsAtOnce: 1
+  coinSeparation: 0.5
   useCoinSound: {fileID: 8300000, guid: b9cac7047581fd349a262f277c6ce439, type: 3}
 --- !u!82 &6983163346503446608
 AudioSource:
@@ -180,7 +185,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 24300002, guid: 52d4409ed4d7bb645aad562fcfd87159, type: 2}
   m_audioClip: {fileID: 0}
   m_PlayOnAwake: 0
-  m_Volume: 1
+  m_Volume: 0.8
   m_Pitch: 1
   Loop: 0
   Mute: 0
