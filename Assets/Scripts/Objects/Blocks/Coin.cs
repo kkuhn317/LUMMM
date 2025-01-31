@@ -26,14 +26,10 @@ public class Coin : MonoBehaviour
     private void Awake() 
     {
         spriteRenderer = GetComponentInChildren<SpriteRenderer>();
-    }
-
-    private void Start() 
-    { 
         boxCollider2D = GetComponent<BoxCollider2D>();
         audioSource = GetComponent<AudioSource>();
     }
-
+    
     // Method to get the coin value
     public int GetCoinValue()
     {
