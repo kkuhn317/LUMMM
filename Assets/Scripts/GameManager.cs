@@ -285,6 +285,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] TMP_Text totalCoinsText;
     [SerializeField] TMP_Text scoreWinScreenText;
     [SerializeField] TMP_Text speedrunTimeFinishText;
+    public GameObject speedrunTimeFinishBox;    // The object that holds the speedrun time info
     public GameObject NewBestRankText;
     public GameObject NewHighScoreText;
     public List<Image> greenCoinUIWin;
@@ -1253,7 +1254,10 @@ public class GameManager : MonoBehaviour
         }
 
         // Speedrun Time
-        speedrunTimeFinishText.text = GlobalVariables.elapsedTime.ToString(@"m\:ss\.ff");
+        speedrunTimeFinishBox.SetActive(GlobalVariables.SpeedrunMode);
+        if (GlobalVariables.SpeedrunMode) {
+            speedrunTimeFinishText.text = GlobalVariables.elapsedTime.ToString(@"m\:ss\.ff");
+        }
 
         // Save the highest rank to PlayerPrefs if the current rank is higher than the saved rank
         if (currentRank > highestRank) {

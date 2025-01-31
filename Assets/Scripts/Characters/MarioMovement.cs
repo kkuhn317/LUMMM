@@ -222,6 +222,9 @@ public class MarioMovement : MonoBehaviour
 
     public void DisableInputs()
     {
+        if (this == null) return;   // Can happen when pausing while taking damage
+        if (!gameObject.activeSelf) return;
+
         if (playerInput != null)
         {
             playerInput.DeactivateInput(); // Disable input actions
@@ -231,6 +234,10 @@ public class MarioMovement : MonoBehaviour
 
     public void EnableInputs()
     {
+        if (this == null) return;   // Can happen when unpausing while taking damage
+        if (!gameObject.activeSelf) return; // Can happen after the level is completed
+        if (playerInput == null) return;    // Can happen when transitioning between powerup states
+
         if (playerInput != null && !playerInput.enabled)
         {
             playerInput.enabled = true; // Ensure PlayerInput is enabled first
