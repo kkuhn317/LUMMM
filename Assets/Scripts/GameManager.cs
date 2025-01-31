@@ -10,6 +10,7 @@ using System.Linq;
 using System.Globalization;
 using UnityEngine.Localization.Settings;
 using UnityEngine.Events;
+using UnityEngine.EventSystems;
 using UnityEngine.Playables;
 
 public class GameManager : MonoBehaviour
@@ -22,7 +23,7 @@ public class GameManager : MonoBehaviour
     public float currentTime;
 
     [Header("Options Menu actions")]
-    [SerializeField] private bool isOptionsMenuLevel = false;
+    public bool isOptionsMenuLevel = false;
 
     public bool hideCursor = true;
 
@@ -152,6 +153,7 @@ public class GameManager : MonoBehaviour
     // TEMPORARY
     public Button optionsButton;
     public Button restartButton;
+    public Button optionsBackButton;
     public Button restartFromBeginningButton;
     public Slider masterSlider;
     public Button restartButtonWinScreen;
@@ -301,6 +303,13 @@ public class GameManager : MonoBehaviour
             Destroy(gameObject);
         }
         audioSource = GetComponent<AudioSource>();
+
+        if (optionsBackButton != null && optionsButton != null)
+    {
+        optionsBackButton.onClick.AddListener(() =>
+            EventSystem.current.SetSelectedGameObject(optionsButton.gameObject)
+        );
+    }
     }
 
     // Start is called before the first frame update
@@ -1118,6 +1127,11 @@ public class GameManager : MonoBehaviour
 
         CursorHelper.ShowCursor();
 
+        foreach (MarioMovement player in players)
+        {
+            player.DisableInputs();
+        }
+
         if (pausemenu != null) {
             // Activate the pause menu
             pausemenu.SetActive(true);
@@ -1153,6 +1167,11 @@ public class GameManager : MonoBehaviour
         {
             CursorHelper.HideCursor();  
         }
+
+        foreach (MarioMovement player in players)
+        {
+            player.EnableInputs();
+        } 
         
         if (pausemenu != null)
         {
@@ -1170,7 +1189,6 @@ public class GameManager : MonoBehaviour
                 menu.SetActive(false);
             }
         }
-            
     }
 
     public void GoToMainPauseMenu()

@@ -23,7 +23,7 @@ public class DiscordManager : MonoBehaviour
     public Discord.Discord discord;
 
     // Dictionary to manage scene-specific Discord presence
-    private Dictionary<string, (string details, string state, string largeImage, string largeText)> levelSettings = new Dictionary<string, (string, string, string, string)>
+    private Dictionary<string, (string details, string state, string largeImage, string largeText)> levelSettings = new()
     {
         { "AttentionPlease", ("Disclaimer", "Acknowledging the game is fan-made.", "LUMMM_icon_512px", "") },
         { "MainMenu", ("In the Main Menu", "The game started", "LUMMM_icon_512px", "") },
@@ -66,7 +66,7 @@ public class DiscordManager : MonoBehaviour
         }
         catch (ResultException ex)
         {
-            Debug.LogError($"Failed to initialize Discord: {ex.Message}");
+            Debug.LogWarning($"Failed to initialize Discord: {ex.Message}");
             discord = null; // Prevent further issues
         }
     }
@@ -83,7 +83,7 @@ public class DiscordManager : MonoBehaviour
         }
         catch (Exception ex)
         {
-            Debug.LogError($"Error running Discord callbacks: {ex.Message}");
+            Debug.LogWarning($"Error running Discord callbacks: {ex.Message}");
         }
     }
 

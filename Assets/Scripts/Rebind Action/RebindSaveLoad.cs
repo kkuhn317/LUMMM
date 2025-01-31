@@ -5,6 +5,8 @@ using UnityEngine.InputSystem;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using UnityEngine.Localization.Settings;
+using UnityEngine.EventSystems;
+using UnityEngine.Events;
 
 [System.Serializable]
 public class RebindLayoutData
@@ -24,15 +26,23 @@ public class RebindSaveLoad : MonoBehaviour
     [Header("UI Elements")]
     public TMP_Dropdown layoutDropdown; // Dropdown for selecting layouts
     public TMP_InputField layoutNameInput; // Input field for new layout name
+    public GameObject createNewLayoutButton;
     public GameObject createLayout;
     public Button createLayoutConfirmButton; // Button to confirm creating
+    public GameObject cancelNewLayoutButton;
+    public GameObject editLayoutButton;
     public GameObject editLayout;
     public TMP_InputField editLayoutNameInput;
     public Button editLayoutConfirmButton;
+    public GameObject canceleditLayoutButton;
     public Button deleteLayoutButton; // Button to delete layout
     public TMP_Text errorText;
     public Slider buttonPressedOpacitySlider;
     public Slider buttonUnpressedOpacitySlider;
+
+    [Header("Events")]
+    public UnityEvent onSaveNewLayoutCompleted; // Event for SaveNewLayout completion
+    public UnityEvent onEditLayoutCompleted; 
 
     // Quicker reference to the layouts from GlobalVariables
     private static Dictionary<string, RebindLayoutData> LoadedLayouts {
@@ -70,6 +80,19 @@ public class RebindSaveLoad : MonoBehaviour
         // Force uppercase input in both fields
         layoutNameInput.onValueChanged.AddListener(delegate { ForceUppercase(layoutNameInput); });
         editLayoutNameInput.onValueChanged.AddListener(delegate { ForceUppercase(editLayoutNameInput); });
+
+        // Set selected input field when opening create or edit layout
+        createNewLayoutButton.GetComponent<Button>().onClick.AddListener(() => 
+            EventSystem.current.SetSelectedGameObject(layoutNameInput.gameObject));
+
+        editLayoutButton.GetComponent<Button>().onClick.AddListener(() => 
+            EventSystem.current.SetSelectedGameObject(editLayoutNameInput.gameObject));
+
+        cancelNewLayoutButton.GetComponent<Button>().onClick.AddListener(() => 
+            EventSystem.current.SetSelectedGameObject(createNewLayoutButton.gameObject));
+        canceleditLayoutButton.GetComponent<Button>().onClick.AddListener(() => 
+            EventSystem.current.SetSelectedGameObject(editLayoutButton.gameObject));
+        
     }
 
     private void ForceUppercase(TMP_InputField inputField)
@@ -148,11 +171,17 @@ public class RebindSaveLoad : MonoBehaviour
         RefreshDropdown();
         layoutDropdown.value = layoutDropdown.options.FindIndex(option => option.text == layoutName);
 
-        GameManager.Instance.ResumeGame();
-        // Deactivate the create layout once you finish
+        if (GameManager.Instance.isOptionsMenuLevel && GameManager.Instance != null){
+            GameManager.Instance.ResumeGame();
+        }
+
+        // Deactivate the create layout once you finish and assign button
+        EventSystem.current.SetSelectedGameObject(createNewLayoutButton.gameObject);
         createLayout.SetActive(false);
         errorText.gameObject.SetActive(false);
         layoutNameInput.text = "";
+
+        onSaveNewLayoutCompleted?.Invoke();
         // NOTE: This has the side effect of calling OnDropdownSelectionChanged()
         // Which currently saves the new layout again. This is fine for now.
     }
@@ -338,6 +367,8 @@ public class RebindSaveLoad : MonoBehaviour
             // Allow renaming to the same name since it does not cause duplication
             editLayout.SetActive(false);
             errorText.gameObject.SetActive(false);
+            onEditLayoutCompleted?.Invoke();
+            EventSystem.current.SetSelectedGameObject(editLayoutButton.gameObject);
             return;
         }
 
@@ -370,8 +401,14 @@ public class RebindSaveLoad : MonoBehaviour
         RefreshDropdown();
         layoutDropdown.value = layoutDropdown.options.FindIndex(option => option.text == newLayoutName);
 
-        GameManager.Instance.ResumeGame();
-        // Deactivate the edit layout once you finish
+        if (GameManager.Instance.isOptionsMenuLevel && GameManager.Instance != null){
+            GameManager.Instance.ResumeGame();
+        }    
+
+        // Deactivate the edit layout once you finish and assign button
+        onEditLayoutCompleted?.Invoke();
+        errorText.gameObject.SetActive(false);
+        EventSystem.current.SetSelectedGameObject(editLayoutButton.gameObject);
         editLayout.SetActive(false);
         errorText.gameObject.SetActive(false);
         

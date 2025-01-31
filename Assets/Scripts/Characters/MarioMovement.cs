@@ -218,6 +218,26 @@ public class MarioMovement : MonoBehaviour
         }
     }
 
+    public PlayerInput playerInput;
+
+    public void DisableInputs()
+    {
+        if (playerInput != null)
+        {
+            playerInput.DeactivateInput(); // Disable input actions
+            playerInput.enabled = false; // Disable the PlayerInput component to fully block input
+        }
+    }
+
+    public void EnableInputs()
+    {
+        if (playerInput != null && !playerInput.enabled)
+        {
+            playerInput.enabled = true; // Ensure PlayerInput is enabled first
+        }
+        playerInput.ActivateInput(); // Re-enables input after unpausing
+    }
+
     // Start is called before the first frame update
     void Start()
     {
@@ -372,7 +392,7 @@ public class MarioMovement : MonoBehaviour
     }
 
     private void FixedUpdate() 
-    {
+    {   
         if (frozen) {
             return;
         }

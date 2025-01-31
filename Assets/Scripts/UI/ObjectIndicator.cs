@@ -21,6 +21,18 @@ public class ObjectIndicator : MonoBehaviour
     private ObjectIndicatorSettings currentSettings;
     private Image indicatorImage; // UI Image component of the indicator
 
+    void OnDisable(){
+        // Move indicator to the first object in the array
+        if (objectSettings.Length > 0 && objectSettings[0].targetObject != null)
+        {
+            // Ensure EventSystem is available before setting selected object
+            if (EventSystem.current != null)
+            {
+                EventSystem.current.SetSelectedGameObject(objectSettings[0].targetObject.gameObject);
+            }
+        }
+    }
+
     void Start()
     {
         if (existingIndicator == null)

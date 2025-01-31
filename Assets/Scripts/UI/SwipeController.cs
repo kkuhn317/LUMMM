@@ -20,13 +20,13 @@ public class SwipeController : MonoBehaviour, IDragHandler, IEndDragHandler
     [System.Serializable]
     public class BarOption
     {
-        public Image barImage;
-        public Sprite barClosed, barOpen;
+        public List<Image> barImages; // Multiple bar icons
+        public List<Sprite> barClosed; // Each icon has a closed state
+        public List<Sprite> barOpen;   // Each icon has an open state
     }
     [SerializeField] BarOption[] barOptions;
 
     [SerializeField] List<CanvasGroup> pageCanvasGroups; // Add CanvasGroups for each page
-
     private Vector3 initialPosition;
 
     private void Awake()
@@ -49,7 +49,7 @@ public class SwipeController : MonoBehaviour, IDragHandler, IEndDragHandler
             targetPos += pageStep;
             MovePage();
         }
-        UpdateButtonStates(); // Update button states after navigation
+        UpdateButtonStates();  // Update button states after navigation
     }
 
     public void Previous()
@@ -60,12 +60,12 @@ public class SwipeController : MonoBehaviour, IDragHandler, IEndDragHandler
             targetPos -= pageStep;
             MovePage();
         }
-        UpdateButtonStates(); // Update button states after navigation
+        UpdateButtonStates();  // Update button states after navigation
     }
 
-    public void GoToPage(int targetPage) // Start from 1
+    public void GoToPage(int targetPage)
     {
-        if (targetPage == currentPage) return; 
+        if (targetPage == currentPage) return;
         
         if (targetPage < 1 || targetPage > maxPage)
         {
@@ -73,19 +73,11 @@ public class SwipeController : MonoBehaviour, IDragHandler, IEndDragHandler
             return;
         }
 
-        // Update the current page
         currentPage = targetPage;
-
-        // Calculate the absolute position of the target page
         targetPos = initialPosition + (targetPage - 1) * pageStep;
-
-        Debug.Log($"GoToPage: TargetPage = {targetPage}, TargetPos = {targetPos}, InitialPos = {initialPosition}, PageStep = {pageStep}");
-
-        // Move to the new page
         MovePage();
     }
 
-        // Add a variable to control selection behavior
     private bool preventSelection = false;
 
     public void PreventAutoSelection(bool state)
@@ -98,14 +90,12 @@ public class SwipeController : MonoBehaviour, IDragHandler, IEndDragHandler
         levelPagesRect.LeanMoveLocal(targetPos, tweenTime).setEase(tweenType).setIgnoreTimeScale(true);
         UpdateBar();
         UpdateCanvasGroups();
-        UpdateButtonStates(); // Ensure buttons are updated after page change
+        UpdateButtonStates();
     }
 
     public void OnDrag(PointerEventData eventData)
     {
         float dragAmount = eventData.position.x - eventData.pressPosition.x;
-
-        // Predict the next page based on drag distance
         int predictedPage = currentPage;
 
         if (Mathf.Abs(dragAmount) > dragThreshold)
@@ -113,7 +103,6 @@ public class SwipeController : MonoBehaviour, IDragHandler, IEndDragHandler
             predictedPage = (dragAmount > 0) ? Mathf.Max(1, currentPage - 1) : Mathf.Min(maxPage, currentPage + 1);
         }
 
-        // Only update button states if the page prediction changes
         if (predictedPage != currentPage)
         {
             UpdateButtonStates(predictedPage);
@@ -133,49 +122,56 @@ public class SwipeController : MonoBehaviour, IDragHandler, IEndDragHandler
         {
             MovePage();
         }
-        UpdateButtonStates(); // Ensure buttons are updated after dragging
+        UpdateButtonStates();
     }
 
     void UpdateBar()
     {
-        if (barOptions == null || barOptions.Length == 0 || currentPage - 1 >= barOptions.Length) return;
+        if (barOptions == null || barOptions.Length == 0) return;
 
         foreach (var option in barOptions)
         {
-            option.barImage.sprite = option.barClosed;
+            if (option.barImages.Count != option.barClosed.Count || option.barImages.Count != option.barOpen.Count)
+            {
+                Debug.LogWarning("Mismatch in BarOption: Ensure barImages, barClosed, and barOpen have the same count.");
+                continue;
+            }
+
+            for (int i = 0; i < option.barImages.Count; i++)
+            {
+                option.barImages[i].sprite = option.barClosed[i];
+            }
         }
-        barOptions[currentPage - 1].barImage.sprite = barOptions[currentPage - 1].barOpen;
+
+        int index = Mathf.Clamp(currentPage - 1, 0, barOptions.Length - 1);
+
+        if (index < barOptions.Length)
+        {
+            BarOption selectedOption = barOptions[index];
+
+            for (int i = 0; i < selectedOption.barImages.Count; i++)
+            {
+                selectedOption.barImages[i].sprite = selectedOption.barOpen[i];
+            }
+        }
     }
 
     void UpdateCanvasGroups()
     {
         for (int i = 0; i < pageCanvasGroups.Count; i++)
         {
-            if (i == currentPage - 1)
-            {
-                pageCanvasGroups[i].interactable = true;
-                pageCanvasGroups[i].blocksRaycasts = true;
-            }
-            else
-            {
-                pageCanvasGroups[i].interactable = false;
-                pageCanvasGroups[i].blocksRaycasts = false;
-            }
+            pageCanvasGroups[i].interactable = (i == currentPage - 1);
+            pageCanvasGroups[i].blocksRaycasts = (i == currentPage - 1);
         }
     }
 
     void UpdateButtonStates(int predictedPage = -1)
     {
-        // Log for debugging
-        Debug.Log($"Updating button states: currentPage = {currentPage}, maxPage = {maxPage}");
-
-        // Update button interactivity
         if (predictedPage == -1) predictedPage = currentPage;
 
         previousBtn.interactable = predictedPage > 1;
         nextBtn.interactable = predictedPage < maxPage;
 
-        // Only auto-select if preventSelection is false
         if (!preventSelection)
         {
             if (predictedPage == 1)
@@ -186,13 +182,6 @@ public class SwipeController : MonoBehaviour, IDragHandler, IEndDragHandler
             {
                 EventSystem.current.SetSelectedGameObject(previousBtn.gameObject);
             }
-            /*else
-            {
-                EventSystem.current.SetSelectedGameObject(nextBtn.gameObject);
-            }*/
         }
-
-        // Debugging: Log the currently selected GameObject
-        Debug.Log($"Selected Button: {EventSystem.current.currentSelectedGameObject?.name}");
     }
 }
