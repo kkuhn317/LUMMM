@@ -12,6 +12,7 @@ using UnityEngine.Localization.Settings;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using UnityEngine.Playables;
+using UnityEngine.InputSystem;
 
 public class GameManager : MonoBehaviour
 {
@@ -150,6 +151,7 @@ public class GameManager : MonoBehaviour
     public GameObject[] disablingMenusOnResume; // Other menus to disable when the game is resumed
     public TMP_Text levelNameText;
     public Button resumeButton;
+    public InputAction pauseAction;
     // TEMPORARY
     public Button optionsButton;
     public Button restartButton;
@@ -306,11 +308,11 @@ public class GameManager : MonoBehaviour
         audioSource = GetComponent<AudioSource>();
 
         if (optionsBackButton != null && optionsButton != null)
-    {
-        optionsBackButton.onClick.AddListener(() =>
-            EventSystem.current.SetSelectedGameObject(optionsButton.gameObject)
-        );
-    }
+        {
+            optionsBackButton.onClick.AddListener(() =>
+                EventSystem.current.SetSelectedGameObject(optionsButton.gameObject)
+            );
+        }
     }
 
     // Start is called before the first frame update
@@ -372,6 +374,14 @@ public class GameManager : MonoBehaviour
         InitSpeedrunTimer();
     }
 
+    void OnEnable() {
+        pauseAction.Enable();
+    }
+
+    void OnDisable() {
+        pauseAction.Disable();
+    }
+
     // So no error when running starting in the level scene
     LevelInfo TestLevelInfo() {
         LevelInfo info = ScriptableObject.CreateInstance<LevelInfo>();
@@ -400,8 +410,7 @@ public class GameManager : MonoBehaviour
             UpdateRank();
             UpdateSpeedrunTimerUI();
 
-            // Toggle pause when the Esc or P key is pressed
-            if (Input.GetButtonDown("Pause")) {
+            if (pauseAction.WasPressedThisFrame()) {
                 TogglePauseGame();
             }
 
