@@ -1475,6 +1475,11 @@ public class MarioMovement : MonoBehaviour
     
     private void OnTriggerEnter2D(Collider2D other)
     {
+        // TODO!! The crush detector can trigger this method too!
+        // This could cause some triggers to trigger TWICE as mario enters them
+        // This particularly affects water animations with big mario
+        // Please find some solution to this issue
+
         // Check if the trigger collider is the one you want to trigger the "yeah" animation
         if (other.gameObject.CompareTag("AnimationYeah"))
         {
@@ -1516,6 +1521,7 @@ public class MarioMovement : MonoBehaviour
         if (other.gameObject.layer == LayerMask.NameToLayer("Water"))
         {
             // Check if still in water before setting swimming to false
+            // Note: this might have been written in an attempt to get around the crush detector issue mentioned above
             Collider2D[] overlappingColliders = Physics2D.OverlapCircleAll(transform.position, 0.1f);
             bool stillInWater = false;
 
