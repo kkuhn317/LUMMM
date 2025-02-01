@@ -33,14 +33,14 @@ public class Pushable : MonoBehaviour
             physics.movingLeft = false;
             physics.velocity.x = pushSpeed;
             playerScript.FlipTo(true);
-            playerScript.StartPushing(pushSpeed);
+            playerScript.StartPushing(physics, pushSpeed);
         }
         else if (mario.transform.position.x > transform.position.x && playerScript.moveInput.x < 0 && marioRb.velocity.x <= 0)
         {
             physics.movingLeft = true;
             physics.velocity.x = pushSpeed;
             playerScript.FlipTo(false);
-            playerScript.StartPushing(pushSpeed);
+            playerScript.StartPushing(physics, pushSpeed);
         } else {
             physics.velocity.x = 0;
             playerScript.StopPushing();

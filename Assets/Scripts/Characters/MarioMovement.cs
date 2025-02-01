@@ -188,6 +188,7 @@ public class MarioMovement : MonoBehaviour
     [HideInInspector] public bool isCapeActive = false;
     [HideInInspector] public bool wallSliding = false;
     private bool pushing = false;
+    private ObjectPhysics pushingObject;
     private float pushingSpeed = 0f;
     [HideInInspector] public bool spinning = false;
     private bool spinJumpQueued = false;    // If the next jump should be a spin jump
@@ -705,7 +706,12 @@ public class MarioMovement : MonoBehaviour
         RaycastHit2D groundHit1 = Physics2D.Raycast(transform.position + raycastLeftOffset + HOffset, Vector2.down, updGroundLength, groundLayer);
         RaycastHit2D groundHit2 = Physics2D.Raycast(transform.position + raycastRightOffset + HOffset, Vector2.down, updGroundLength, groundLayer);
 
-        onGround = (groundHit1 || groundHit2) && (rb.velocity.y <= 0.01f || onGround);
+        // Don't stand on the object Mario is pushing
+        // TODO: Might not work correctly for future pushable objects where their collider is not on the same object as their ObjectPhysics
+        bool hit1Valid = (groundHit1.collider != null) && (!pushingObject || groundHit1.transform.gameObject != pushingObject.gameObject);
+        bool hit2Valid = (groundHit2.collider != null) && (!pushingObject || groundHit2.transform.gameObject != pushingObject.gameObject);
+
+        onGround = (hit1Valid || hit2Valid) && (rb.velocity.y <= 0.01f || onGround);
 
         if (onGround) {
             RaycastHit2D hitRay = groundHit1;
@@ -714,11 +720,11 @@ public class MarioMovement : MonoBehaviour
             // print("ground2: " + groundHit2.transform.gameObject.tag);
 
             // instead, choose the higher of the two ground hits
-            if (groundHit1 && groundHit2) {
+            if (hit1Valid && hit2Valid) {
                 hitRay = groundHit1.point.y > groundHit2.point.y ? groundHit1 : groundHit2;
-            } else if (groundHit1) {
+            } else if (hit1Valid) {
                 hitRay = groundHit1;
-            } else if (groundHit2) {
+            } else if (hit2Valid) {
                 hitRay = groundHit2;
             }
             return hitRay;
@@ -1055,7 +1061,6 @@ public class MarioMovement : MonoBehaviour
             int pushDir = facingRight ? 1 : -1;
             rb.velocity = new Vector2(pushingSpeed * pushDir, rb.velocity.y);
             if (onGround) {
-                print("I'm on the ground!!");
                 // Fix for falling inside moving platforms while pushing
                 rb.gravityScale = 0;
                 rb.drag = 0;
@@ -1972,12 +1977,14 @@ public class MarioMovement : MonoBehaviour
 
     /* Pushing */
     // Pushable objects use these to let Mario know that he is pushing them
-    public void StartPushing(float speed) {
+    public void StartPushing(ObjectPhysics pushObject, float speed) {
         pushing = true;
+        pushingObject = pushObject;
         pushingSpeed = speed;
     }
 
     public void StopPushing() {
         pushing = false;
+        pushingObject = null;
     }
 }
