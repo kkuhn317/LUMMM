@@ -88,6 +88,7 @@ public class MarioMovement : MonoBehaviour
     public float groundLength = 0.6f;
     public float groundSink = 0.1f; // how much the end of the ground raycast sinks into the ground
     public bool onMovingPlatform = false;
+    [HideInInspector] public bool doMovingPlatformMomentum = true;  // Whether to add momentum to Mario when he leaves a moving platform
     public float ceilingLength = 0.5f;
     public bool doCornerCorrection = true; // false: disable corner correction, true: enable corner correction
     public float cornerCorrection = 0.1f; // Portion of the player's width that can overlap with the ceiling and still correct the position
@@ -682,6 +683,7 @@ public class MarioMovement : MonoBehaviour
     }
 
     private void TransferMovingPlatformMomentum() {
+        if (!doMovingPlatformMomentum) return;
         if (onMovingPlatform) {
             // TODO!! Somehow group all kinds of moving platforms together so we don't need to check for each kind
             // Using an Interface for all moving platforms seems like a good solution
