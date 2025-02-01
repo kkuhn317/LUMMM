@@ -1323,6 +1323,9 @@ public class MarioMovement : MonoBehaviour
         // Passing the sound effects
         newMarioMovement.yeahAudioClip = yeahAudioClip;
 
+        // Passing ground layer values
+        newMarioMovement.groundLayer = groundLayer;
+
         return newMarioMovement;
     }
 
