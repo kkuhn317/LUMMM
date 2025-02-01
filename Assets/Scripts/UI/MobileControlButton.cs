@@ -15,8 +15,6 @@ public class MobileControlButton : MonoBehaviour, IPointerDownHandler, IPointerU
 
     public Sprite upSprite; // Default sprite when unpressed
     public Sprite downSprite; // Default sprite when pressed
-    public Sprite activateSprite;  // Toggle ON sprite
-    public Sprite deactivateSprite; // Toggle OFF sprite
     private Image image;
     public bool isRunButton = false; // If true, this button will be used to run
 
@@ -62,16 +60,7 @@ public class MobileControlButton : MonoBehaviour, IPointerDownHandler, IPointerU
 
     private void UpdateButtonAppearance()
     {
-        // Decide which set of sprites to use
-        if (useActivateSprites)
-        {
-            image.sprite = buttonPressed ? activateSprite : deactivateSprite;
-        }
-        else
-        {
-            image.sprite = buttonPressed ? downSprite : upSprite;
-        }
-
+        image.sprite = buttonPressed ? downSprite : upSprite;
         float alpha = buttonPressed ? buttonPressedOpacity : buttonUnpressedOpacity;
         image.color = new Color(image.color.r, image.color.g, image.color.b, alpha);
     }
@@ -100,15 +89,16 @@ public class MobileControlButton : MonoBehaviour, IPointerDownHandler, IPointerU
     {
         if (toggleButton)
         {
-            buttonPressed = !buttonPressed; // Toggle the state
-            if (buttonPressed) onPress.Invoke();
-            else onRelease.Invoke();
+            if (buttonPressed) {
+                TurnOff();
+            } else {
+                TurnOn();
+            }
         }
         else
         {
             TurnOn();
         }
-        UpdateButtonAppearance();
     }
 
     public void OnPointerUp(PointerEventData eventData)
