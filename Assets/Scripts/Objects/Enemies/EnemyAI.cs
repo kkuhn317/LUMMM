@@ -50,6 +50,11 @@ public class EnemyAI : ObjectPhysics
     public virtual void OnBecameInvisible()
     {
         isVisible = false;
+
+        if (objectState == ObjectState.knockedAway)
+        {
+            Destroy(gameObject);
+        }
     }
 
     protected virtual void OnTriggerEnter2D(Collider2D other) {
