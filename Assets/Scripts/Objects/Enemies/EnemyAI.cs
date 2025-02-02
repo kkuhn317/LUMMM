@@ -51,6 +51,7 @@ public class EnemyAI : ObjectPhysics
     {
         isVisible = false;
 
+        // once the knocked away object is off screen, destroy it
         if (objectState == ObjectState.knockedAway)
         {
             Destroy(gameObject);

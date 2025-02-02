@@ -35,6 +35,7 @@ public class LanguageOption : MonoBehaviour
     public void SetLanguage(string language)
     {
         PlayerPrefs.SetString("Language", language);
+        PlayerPrefs.Save();
         LocalizationSettings.SelectedLocale = LocalizationSettings.AvailableLocales.GetLocale(language);
     }
 }
