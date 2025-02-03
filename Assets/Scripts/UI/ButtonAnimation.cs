@@ -18,7 +18,7 @@ public class ButtonAnimation : MonoBehaviour
 
     void Anim()
     {
-        LeanTween.scale(gameObject, defaultScale * upScaleAmount, 0.1f);
-        LeanTween.scale(gameObject, defaultScale, 0.1f).setDelay(0.1f);
+        LeanTween.scale(gameObject, defaultScale * upScaleAmount, 0.1f).setIgnoreTimeScale(true);
+        LeanTween.scale(gameObject, defaultScale, 0.1f).setDelay(0.1f).setIgnoreTimeScale(true);
     }
 }
