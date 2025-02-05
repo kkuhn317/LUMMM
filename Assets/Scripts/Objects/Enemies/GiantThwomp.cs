@@ -218,10 +218,9 @@ public class GiantThwomp : EnemyAI, IGroundPoundable
 
                 if (fallDirection != FallDirections.Up) {
                     animator.SetBool("angry", true);
+                    audioSource.Play(); // Play the falling sound
                 }
 
-                audioSource.Play(); // Play the falling sound
-                
                 gravity = internalGravity;
                 checkSides = true;
                 break;
@@ -230,7 +229,7 @@ public class GiantThwomp : EnemyAI, IGroundPoundable
                 gravity = 0f;
                 velocity = Vector2.zero;
 
-                if (oldState == ThwompStates.Falling) {
+                if (oldState == ThwompStates.Falling && fallDirection != FallDirections.Up) {
                     audioSource.Stop(); // Stop the falling sound
                 }
 
@@ -536,6 +535,8 @@ public class GiantThwomp : EnemyAI, IGroundPoundable
             // If thwomp is destroyed, TriggerEndLevelCutscene will not ever call EndLevel
             // https://discussions.unity.com/t/coroutines-after-destruction/864315/2
             // Destroy(gameObject);  
+
+            GameManager.Instance.StopTimer();
 
             // Start my own cutscene (Death Thwomp Cutscene)
             GetComponent<PlayableDirector>().Play();

@@ -372,15 +372,16 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
 
         private bool IsValidBinding(string newBinding, string actionName)
         {
+            // Commented out so that duplicates are allowed
             // If the key is already in use, but belongs to the same action, we allow it
-            if (actionBindingMap.TryGetValue(newBinding, out var existingAction))
-            {
-                if (existingAction == actionName)
-                    return true; // Allow the same action to reuse its original binding
+            // if (actionBindingMap.TryGetValue(newBinding, out var existingAction))
+            // {
+            //     if (existingAction == actionName)
+            //         return true; // Allow the same action to reuse its original binding
 
-                Debug.LogError($"Binding conflict: '{actionName}' cannot share '{newBinding}' with '{existingAction}'.");
-                return false;
-            }
+            //     Debug.LogError($"Binding conflict: '{actionName}' cannot share '{newBinding}' with '{existingAction}'.");
+            //     return false;
+            // }
 
             return true;
         }

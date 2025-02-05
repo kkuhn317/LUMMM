@@ -45,6 +45,12 @@ public class SettingsApply : MonoBehaviour
     {
         string savedResolution = PlayerPrefs.GetString(SettingsKeys.ResolutionKey, Screen.currentResolution.width + "x" + Screen.currentResolution.height);
         bool savedFullscreen = PlayerPrefs.GetInt(SettingsKeys.FullscreenKey, 1) == 1;
+
+        // Force fullscreen to be true on web
+        if (Application.platform == RuntimePlatform.WebGLPlayer)
+        {
+           savedFullscreen = true;
+        }
         
         string[] resolutionParts = savedResolution.Split('x');
         int savedWidth = int.Parse(resolutionParts[0]);

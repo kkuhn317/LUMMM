@@ -5,6 +5,7 @@ using System.Linq;
 using System;
 using UnityEngine.Localization.Settings;
 using UnityEngine.Localization.Tables;
+using Unity.VisualScripting;
 
 public class GameSettings : MonoBehaviour
 {
@@ -102,6 +103,16 @@ public class GameSettings : MonoBehaviour
 
     private void ConfigureFullscreenToggle()
     {
+        // If full screen is turned off on web, then it causes issues with the window
+        // TODO: Figure out how to make this actually work instead of disabling it
+        if (Application.platform == RuntimePlatform.WebGLPlayer)
+        {
+           fullscreenToggle.interactable = false;
+           fullscreenToggle.isOn = true;
+           fullscreenToggle.graphic.color = Color.gray;
+           return;
+        }
+
         bool isFullscreen = PlayerPrefs.GetInt(SettingsKeys.FullscreenKey, 1) == 1;
         fullscreenToggle.isOn = isFullscreen;
         fullscreenImage.sprite = isFullscreen ? fullscreenOnSprite : fullscreenOffSprite;

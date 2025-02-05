@@ -335,7 +335,7 @@ public partial class @Mario : IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""49ed0c3a-9083-44f5-a7a8-102deb316abe"",
-                    ""path"": ""<Joystick>/trigger"",
+                    ""path"": ""<Gamepad>/leftTrigger"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": ""Gamepad"",
