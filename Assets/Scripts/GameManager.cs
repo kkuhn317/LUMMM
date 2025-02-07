@@ -690,7 +690,9 @@ public class GameManager : MonoBehaviour
 
         speedrunTimerText.gameObject.SetActive(GlobalVariables.SpeedrunMode);
 
-        GlobalVariables.speedrunTimer.Start();  // Start the speedrun timer!
+        GlobalVariables.speedrunTimer.Restart();  // Start the speedrun timer!
+        // NOTE: for some reason the timer starts at a higher value when i use Start instead of Restart,
+        // and i restart the level while the timer is still running (not on the flagpole, for example)
     }
 
     private void UpdateScoreUI()
