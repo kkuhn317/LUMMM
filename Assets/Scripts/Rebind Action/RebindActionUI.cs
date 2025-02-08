@@ -196,8 +196,6 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
                     displayString = action.GetBindingDisplayString(bindingIndex, out deviceLayoutName, out controlPath, displayStringOptions);
             }
 
-            print("setting BindingText to " + displayString);
-
             // Set on label (if any).
             if (m_BindingText != null)
                 m_BindingText.text = displayString;

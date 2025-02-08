@@ -483,6 +483,8 @@ public class GameManager : MonoBehaviour
         // turn off all music overrides
         RemoveAllMusicOverrides();
 
+        stopTimer = true;   // Stops speedrun timer from starting early
+
         // Reloads the level
         ReloadScene();
 
@@ -690,9 +692,9 @@ public class GameManager : MonoBehaviour
 
         speedrunTimerText.gameObject.SetActive(GlobalVariables.SpeedrunMode);
 
-        GlobalVariables.speedrunTimer.Restart();  // Start the speedrun timer!
-        // NOTE: for some reason the timer starts at a higher value when i use Start instead of Restart,
-        // and i restart the level while the timer is still running (not on the flagpole, for example)
+        print("speedrun timer starting at:" + GlobalVariables.speedrunTimer.Elapsed);
+
+        GlobalVariables.speedrunTimer.Start();
     }
 
     private void UpdateScoreUI()
