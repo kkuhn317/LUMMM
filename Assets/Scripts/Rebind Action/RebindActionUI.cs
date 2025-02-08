@@ -81,16 +81,7 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
             }
         }
 
-        /// <summary>
-        /// Optional text component that receives a text prompt when waiting for a control to be actuated.
-        /// </summary>
-        /// <seealso cref="startRebindEvent"/>
-        /// <seealso cref="rebindOverlay"/>
-        public TMP_Text rebindPrompt
-        {
-            get => m_RebindText;
-            set => m_RebindText = value;
-        }
+
 
         /// <summary>
         /// Optional UI that is activated when an interactive rebind is started and deactivated when the rebind
@@ -190,6 +181,8 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
         /// </summary>
         public void UpdateBindingDisplay()
         {
+            if (isRebinding) return;    // Don't update normally when we are rebinding
+
             var displayString = string.Empty;
             var deviceLayoutName = default(string);
             var controlPath = default(string);
@@ -202,6 +195,8 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
                 if (bindingIndex != -1)
                     displayString = action.GetBindingDisplayString(bindingIndex, out deviceLayoutName, out controlPath, displayStringOptions);
             }
+
+            print("setting BindingText to " + displayString);
 
             // Set on label (if any).
             if (m_BindingText != null)
@@ -267,6 +262,7 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
         {
             action.Disable();
             m_RebindOperation?.Cancel(); // Will null out m_RebindOperation.
+            isRebinding = true;
 
             void CleanUp()
             {
@@ -280,12 +276,14 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
                     StopCoroutine(dotAnimationCoroutine);
                     dotAnimationCoroutine = null;
                 }
+
+                isRebinding = false;
                 
                 // Update binding text with the final control name
-                if (m_RebindText != null)
+                if (m_BindingText != null)
                 {
                     var bindingDisplay = action.GetBindingDisplayString(bindingIndex);
-                    m_RebindText.text = bindingDisplay;
+                    m_BindingText.text = bindingDisplay;
                 }
             }
             
@@ -339,9 +337,9 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
                     });
 
             // Start dot animation
-            if (m_RebindText != null)
+            if (m_BindingText != null)
             {
-                dotAnimationCoroutine = StartCoroutine(AnimateDots(m_RebindText));
+                dotAnimationCoroutine = StartCoroutine(AnimateDots(m_BindingText));
             }
 
             // If it's a part binding, show the name of the part in the UI.
@@ -459,10 +457,6 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
         [SerializeField]
         private GameObject m_RebindOverlay;
 
-        [Tooltip("Optional text label that will be updated with prompt for user input.")]
-        [SerializeField]
-        private TMP_Text m_RebindText;
-
         [Tooltip("Event that is triggered when the way the binding is display should be updated. This allows displaying "
             + "bindings in custom ways, e.g. using images instead of text.")]
         [SerializeField]
@@ -505,6 +499,9 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
                 yield return new WaitForSecondsRealtime(0.5f);
             }
         }
+
+        // True when the action is currently being rebinded (for blocking updates to the text)
+        private bool isRebinding = false;
 
         // We want the label for the action name to update in edit mode, too, so
         // we kick that off from here.
