@@ -285,7 +285,8 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
                 }
             }
             
-            // Before assigning a new binding, we remove the old binding
+            // Before assigning a new binding, we remove the old binding (but save it for when the rebind is cancelled)
+            string oldBinding = action.bindings[bindingIndex].overridePath;
             action.RemoveBindingOverride(bindingIndex);
 
             // Configure the rebind.
@@ -295,6 +296,15 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
                 .OnCancel(
                     operation =>
                     {
+                        // TODO: The following code doesn't work. Please figure out the correct way to do this.
+                        // print("oldBinding: " + oldBinding);
+                        // if (String.IsNullOrEmpty(oldBinding)) {
+                        //     action.ApplyBindingOverride(bindingIndex, oldBinding);
+                        //     actionBindingMap[oldBinding] = action.name;
+                        // } else {
+                        //     action.RemoveBindingOverride(bindingIndex);
+                        // }
+
                         m_RebindStopEvent?.Invoke(this, operation);
                         if (m_RebindOverlay != null) m_RebindOverlay.SetActive(false);
                         UpdateBindingDisplay();
