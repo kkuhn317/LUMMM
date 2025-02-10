@@ -296,7 +296,7 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
                     operation =>
                     {
                         m_RebindStopEvent?.Invoke(this, operation);
-                        //m_RebindOverlay?.SetActive(false);
+                        if (m_RebindOverlay != null) m_RebindOverlay.SetActive(false);
                         UpdateBindingDisplay();
                         CleanUp();
                     })
@@ -319,7 +319,7 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
                         // Update the binding map
                         actionBindingMap[newBinding] = actionName;
 
-                        // m_RebindOverlay?.SetActive(false);
+                        if (m_RebindOverlay != null) m_RebindOverlay.SetActive(false);
                         m_RebindStopEvent?.Invoke(this, operation);
                         UpdateBindingDisplay();
                         CleanUp();
@@ -340,13 +340,17 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
                 dotAnimationCoroutine = StartCoroutine(AnimateDots(m_BindingText));
             }
 
+            // Bring up rebind overlay, if we have one.
+            if (m_RebindOverlay != null) {
+                m_RebindOverlay.SetActive(true);
+                m_RebindOverlay.GetComponent<RebindOverlay>().rebindActionUI = this;
+            }
+            
             // If it's a part binding, show the name of the part in the UI.
             /*var partName = default(string);
             if (action.bindings[bindingIndex].isPartOfComposite)
                 partName = $"Binding '{action.bindings[bindingIndex].name}'. ";
 
-            // Bring up rebind overlay, if we have one.
-            // m_RebindOverlay?.SetActive(true);
             if (m_RebindText != null)
             {
                 var text = !string.IsNullOrEmpty(m_RebindOperation.expectedControlType)
