@@ -18,6 +18,8 @@ public class MarioMovement : MonoBehaviour
     // Other scripts can access these variables to get the player's input
     // Do not use the old input system or raw keyboard input anywhere in the game
     [HideInInspector] public Vector2 moveInput; // The raw directional input from the player's controller
+    private const float lowerDeadzone = 0.3f; // The lower limit of the deadzone
+    private const float upperDeadzone = 0.9f; // The upper limit of the deadzone
     [HideInInspector] public bool crouchPressed = false;
     private bool crouchPressedInAir = false;
     [HideInInspector] public bool groundPoundInWater = false;
@@ -27,7 +29,6 @@ public class MarioMovement : MonoBehaviour
     private bool jumpPressed = false;
     private bool runPressed = false;
     private bool spinPressed = false;
-
 
     [Header("Horizontal Movement")]
     public float moveSpeed = 10f;
@@ -832,11 +833,7 @@ public class MarioMovement : MonoBehaviour
 
         // Animation
         animator.SetFloat("Horizontal", Mathf.Abs(rb.velocity.x) * walkAnimatorSpeed);
-        if (Mathf.Abs(rb.velocity.x) <= 0.5f) {
-            animator.SetBool("isRunning", false);
-        } else {
-            animator.SetBool("isRunning", true);
-        }
+        animator.SetBool("isRunning", Mathf.Abs(rb.velocity.x) > 0.2f);
 
         if (onGround) {
             if (!inCrouchState && canSkid) {
@@ -1650,7 +1647,19 @@ public class MarioMovement : MonoBehaviour
     // Move
     public void Move(InputAction.CallbackContext context)
     {
-        moveInput = context.ReadValue<Vector2>();
+        Vector2 moveRawIn = context.ReadValue<Vector2>();
+        // Deadzone (separate for x and y, taking direction into account)
+        if (Mathf.Abs(moveRawIn.x) < lowerDeadzone) {
+            moveRawIn.x = 0;
+        } else if (Mathf.Abs(moveRawIn.x) > upperDeadzone) {
+            moveRawIn.x = Mathf.Sign(moveRawIn.x);
+        }
+        if (Mathf.Abs(moveRawIn.y) < lowerDeadzone) {
+            moveRawIn.y = 0;
+        } else if (Mathf.Abs(moveRawIn.y) > upperDeadzone) {
+            moveRawIn.y = Mathf.Sign(moveRawIn.y);
+        }
+        moveInput = moveRawIn;
     }
     public void onMobileLeftPressed() {
         moveInput = new Vector2(-1, moveInput.y);
@@ -1725,7 +1734,32 @@ public class MarioMovement : MonoBehaviour
     // Crouch
     public void Crouch(InputAction.CallbackContext context)
     {
+        // TODO: find better way to do this
+        // If the crouch is pressed using a stick, we need to check if it's pressed all the way
+        float crouchValue;
+        try {
+            crouchValue = context.ReadValue<float>();   // Error if it's not a float (like from keyboard)
+            print("crouch value: " + crouchValue);
+            if (crouchValue > 0.5f)
+            {
+                if (!onGround)
+                {
+                    crouchPressedInAir = true; // Set if crouch started while in the air
+                }
+                crouchPressed = true;
+            }
+            else
+            {
+                crouchPressed = false;
+            }
+            return;
+        } catch {
+            // do nothing
+        }
+       
+        // Fallback for keyboard (or other non-float inputs)
         if (context.started){
+            print("crouch started");
             if (!onGround)
             {
                 crouchPressedInAir = true; // Set if crouch started while in the air
@@ -1733,10 +1767,12 @@ public class MarioMovement : MonoBehaviour
         }
         if (context.performed)
         {
+            print("crouch performed");
             crouchPressed = true;
         }
         if (context.canceled)
         {
+            print("crouch canceled");
             crouchPressed = false;
         }
     }

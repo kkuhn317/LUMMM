@@ -692,8 +692,6 @@ public class GameManager : MonoBehaviour
 
         speedrunTimerText.gameObject.SetActive(GlobalVariables.SpeedrunMode);
 
-        print("speedrun timer starting at:" + GlobalVariables.speedrunTimer.Elapsed);
-
         GlobalVariables.speedrunTimer.Start();
     }
 
