@@ -131,12 +131,13 @@ MonoBehaviour:
   crouchPressed: 0
   groundPoundInWater: 0
   waterGroundPoundStartTime: 0
-  moveSpeed: 20
-  runSpeed: 20
+  moveSpeed: 12
+  runSpeed: 12
   slowDownForce: 5
   direction: {x: 0, y: 0}
   facingRight: 1
-  jumpSpeed: 16
+  jumpSpeed: 11
+  walkJumpSpeed: 13.5
   jumpDelay: 0.1
   terminalvelocity: 12.5
   startfallingspeed: 1
@@ -147,12 +148,11 @@ MonoBehaviour:
   cameraFollow: {fileID: 0}
   heldObjectPosition: {fileID: 4241799718361322995}
   maxSpeed: 5
-  maxRunSpeed: 10
-  linearDrag: 10
-  runlinearDrag: 1
-  gravity: 0.2
+  maxRunSpeed: 11
+  turnAroundDrag: 2
+  gravity: 0.1
   fallgravity: 7
-  airtime: 0.4
+  airtime: 0.3
   bubbleSpawnDelay: 2
   bubblePrefab: {fileID: 0}
   splashWaterPrefab: {fileID: 0}
@@ -166,6 +166,7 @@ MonoBehaviour:
   groundLength: 0.6
   groundSink: 0.1
   onMovingPlatform: 0
+  doMovingPlatformMomentum: 1
   ceilingLength: 0.53
   doCornerCorrection: 1
   cornerCorrection: 0.1
@@ -234,7 +235,7 @@ Rigidbody2D:
   m_UseAutoMass: 0
   m_Mass: 1
   m_LinearDrag: 0
-  m_AngularDrag: 0.05
+  m_AngularDrag: 0
   m_GravityScale: 0
   m_Material: {fileID: 6200000, guid: 3605a6811aae3564bb7cf23d3bfa975e, type: 2}
   m_Interpolate: 1

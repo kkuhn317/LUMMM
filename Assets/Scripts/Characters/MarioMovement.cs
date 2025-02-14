@@ -8,6 +8,7 @@ using Unity.VisualScripting;
 using System.Collections.Generic;
 using UnityEngine.AI;
 using PowerupState = PowerStates.PowerupState;
+using System;
 
 public class MarioMovement : MonoBehaviour
 {
@@ -42,7 +43,8 @@ public class MarioMovement : MonoBehaviour
     private float floorAngle = 0f;  // -45 = \, 0 = _, 45 = /
 
     [Header("Vertical Movement")]
-    public float jumpSpeed = 15f;
+    public float jumpSpeed = 11f; // Standing jump speed (4 block jump)
+    public float walkJumpSpeed = 12f; // Jump speed when moving at least a little (5 block jump)
     public float jumpDelay = 0.25f; // How early you can press jump before landing
     public float terminalvelocity = 10f;
     public float startfallingspeed = 1f;
@@ -65,11 +67,10 @@ public class MarioMovement : MonoBehaviour
     [Header("Physics")]
     public float maxSpeed = 7f;
     public float maxRunSpeed = 10f;
-    public float linearDrag = 4f;
-    public float runlinearDrag = 2f;
+    public float turnAroundDrag = 0.5f;
     public float gravity = 0;
     public float fallgravity = 5f;
-    public float airtime = 1f;
+    public float airtime = 1f;  // Max time you can rise in the air after jumping
     private float airtimer = 0;
     private bool changingDirections;
 
@@ -431,7 +432,7 @@ public class MarioMovement : MonoBehaviour
                 SpinJump();
             } else {
                 audioSource.Play();
-                Jump();
+                Jump(1, false);
             }
         }
 
@@ -766,7 +767,7 @@ public class MarioMovement : MonoBehaviour
                      && math.abs(horizontal) > 0.5 && (math.abs(rb.velocity.x) < 0.05f || isCrawling);
         bool regularMoving = (!inCrouchState || !onGround) && !groundPounding;
 
-        // use the angle of the slope instead of Vector2.right
+        // use the angle of the slope if on the ground
         Vector2 moveDir = onGround ? new Vector2(Mathf.Cos(floorAngle * Mathf.Deg2Rad), Mathf.Sin(floorAngle * Mathf.Deg2Rad)) : Vector2.right;
 
         //print("moving in " + moveDir);
@@ -777,9 +778,10 @@ public class MarioMovement : MonoBehaviour
                 rb.AddForce(horizontal * runSpeed * moveDir);
             } else {
                 // Walking
-                if (Mathf.Abs(rb.velocity.x) <= maxSpeed) {
+                if (Mathf.Abs(rb.velocity.x) <= maxSpeed || (Mathf.Sign(horizontal) != Mathf.Sign(rb.velocity.x))) {
                     rb.AddForce(horizontal * moveSpeed * moveDir);
-                } else {
+                } else if (onGround) {
+                    // Slow down if you are going too fast (only on the ground)
                     rb.AddForce(Mathf.Sign(rb.velocity.x) * slowDownForce * -moveDir);
                 }
             }
@@ -848,10 +850,11 @@ public class MarioMovement : MonoBehaviour
         animator.SetBool("isCrawling", isCrawling);
     }
 
-    // for jumping and also stomping enemies
-    public void Jump(float jumpMultiplier = 1f) {
+    // for jumping and also stomping enemies (which always make mario use his walkJumpSpeed)
+    public void Jump(float jumpMultiplier = 1f, bool forceWalkJumpSpeed = true) {
         rb.velocity = new Vector2(rb.velocity.x, 0);
-        rb.AddForce(Vector2.up * jumpSpeed * (swimming ? 0.5f : 1f) * jumpMultiplier, ForceMode2D.Impulse);
+        bool useWalkJumpSpeed = forceWalkJumpSpeed || Mathf.Abs(rb.velocity.x) > 1f;
+        rb.AddForce(Vector2.up * (useWalkJumpSpeed ? walkJumpSpeed : jumpSpeed) * (swimming ? 0.5f : 1f) * jumpMultiplier, ForceMode2D.Impulse);
         onGround = false;
         jumpTimer = 0;
         airtimer = Time.time + (airtime * jumpMultiplier);
@@ -1062,10 +1065,10 @@ public class MarioMovement : MonoBehaviour
             if (onGround) {
                 // Fix for falling inside moving platforms while pushing
                 rb.gravityScale = 0;
-                rb.drag = 0;
+                rb.drag = 0f;
             } else {
                 rb.gravityScale = fallgravity;
-                rb.drag = linearDrag * 0.15f;
+                rb.drag = 0f;
             }
             return;
         }  
@@ -1084,30 +1087,28 @@ public class MarioMovement : MonoBehaviour
                 animator.SetBool("isCrouching", false);
             }             
 
-            // if not holding left or right all the way or changing directions
-            if (Mathf.Abs(physicsInput.x) < 0.4f || changingDirections) {
+            // if changing directions
+            if (changingDirections) {
+                rb.drag = turnAroundDrag;
 
-                // if running and holding left or right
-                if (runPressed && (physicsInput.x != 0)) {
-                    rb.drag = runlinearDrag;
-
-                // if not holding left or right
-                } else if (physicsInput.x == 0) {
-
-                    if (Mathf.Abs(rb.velocity.x) < 5f) {
-                        rb.drag = linearDrag;
-                    } else {
-                        rb.drag = 3 * runlinearDrag;
-                    }
-
-                // if walking left or right (not all the way or changing directions)
-                } else {
-                    rb.drag = linearDrag;
-                }
-
-                // if holding left or right all the way and not changing directions
+            // If holding direction of movement
+            } else if (Mathf.Abs(physicsInput.x) > 0) {
+                rb.drag = 0f;
             } else {
-                rb.drag = 0;
+                // Not holding any direction or crouching
+                float spd = Mathf.Abs(rb.velocity.x);
+                //rb.drag = Mathf.Abs(rb.velocity.x) < 5f ? noMoveSlowDrag : noMoveFastDrag;
+                //float newDrag = (3f / Mathf.Pow(spd, 3)) + 0.7f;
+                float newDrag = (4f / spd + 1f) * (inCrouchState ? 2f : 1f);
+                
+                // if newDrag is not Infinity, set it as the drag
+                if (!float.IsInfinity(newDrag))
+                {
+                    rb.drag = newDrag;
+                } else {    
+                    // if newDrag is Infinity, set the drag to 100
+                    rb.drag = 100f;
+                }
             }
 
             // 0 gravity on the ground
@@ -1115,15 +1116,15 @@ public class MarioMovement : MonoBehaviour
 
         } else {
             // in the air
-            rb.gravityScale = gravity;
-            rb.drag = linearDrag * 0.15f;
+            rb.gravityScale = gravity;  // Rising Gravity
+            rb.drag = 0;
             //if(rb.velocity.y < startfallingspeed){
 
-            // Rising
+            // Falling
             if (airtimer < Time.time || rb.velocity.y < startfallingspeed) {
                 rb.gravityScale = fallgravity;
 
-            // Falling
+            // Rising but not pressing jump/spin anymore
             } else if (rb.velocity.y > 0 && !(jumpPressed || (spinPressed && spinning))) {
                 rb.gravityScale = fallgravity;
                 airtimer = Time.time - 1f;
@@ -1759,7 +1760,6 @@ public class MarioMovement : MonoBehaviour
        
         // Fallback for keyboard (or other non-float inputs)
         if (context.started){
-            print("crouch started");
             if (!onGround)
             {
                 crouchPressedInAir = true; // Set if crouch started while in the air
@@ -1767,12 +1767,10 @@ public class MarioMovement : MonoBehaviour
         }
         if (context.performed)
         {
-            print("crouch performed");
             crouchPressed = true;
         }
         if (context.canceled)
         {
-            print("crouch canceled");
             crouchPressed = false;
         }
     }
