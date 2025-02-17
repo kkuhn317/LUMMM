@@ -72,7 +72,11 @@ public class MarioMovement : MonoBehaviour
     public float fallgravity = 5f;
     public float airtime = 1f;  // Max time you can rise in the air after jumping
     private float airtimer = 0;
-    private bool changingDirections;
+    private bool changingDirections {
+        get {
+            return (direction.x > 0 && rb.velocity.x < 0) || (direction.x < 0 && rb.velocity.x > 0);
+        }
+    }
 
     [Header("Swimming")]
     public float bubbleSpawnDelay = 2.5f;
@@ -770,16 +774,22 @@ public class MarioMovement : MonoBehaviour
         // use the angle of the slope if on the ground
         Vector2 moveDir = onGround ? new Vector2(Mathf.Cos(floorAngle * Mathf.Deg2Rad), Mathf.Sin(floorAngle * Mathf.Deg2Rad)) : Vector2.right;
 
+        float speedMult = 1f;
+        // If turning around, increase speed
+        if (changingDirections) {
+            speedMult = 2f;
+        }
+
         //print("moving in " + moveDir);
         if (regularMoving || isCrawling) {
             //print("regular moving");
             if (runPressed && !swimming && !isCrawling) {
                 // Running
-                rb.AddForce(horizontal * runSpeed * moveDir);
+                rb.AddForce(horizontal * runSpeed * moveDir * speedMult);
             } else {
                 // Walking
                 if (Mathf.Abs(rb.velocity.x) <= maxSpeed || (Mathf.Sign(horizontal) != Mathf.Sign(rb.velocity.x))) {
-                    rb.AddForce(horizontal * moveSpeed * moveDir);
+                    rb.AddForce(horizontal * moveSpeed * moveDir * speedMult);
                 } else if (onGround) {
                     // Slow down if you are going too fast (only on the ground)
                     rb.AddForce(Mathf.Sign(rb.velocity.x) * slowDownForce * -moveDir);
@@ -1036,8 +1046,6 @@ public class MarioMovement : MonoBehaviour
     }
 
     void ModifyPhysics() {
-        changingDirections = (direction.x > 0 && rb.velocity.x < 0) || (direction.x < 0 && rb.velocity.x > 0);
-
         // Special ground pound physics
         if (groundPounding) {
             rb.drag = 0;
