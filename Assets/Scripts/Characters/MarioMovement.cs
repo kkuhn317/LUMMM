@@ -67,7 +67,6 @@ public class MarioMovement : MonoBehaviour
     [Header("Physics")]
     public float maxSpeed = 7f;
     public float maxRunSpeed = 10f;
-    public float turnAroundDrag = 0.5f;
     public float gravity = 0;
     public float fallgravity = 5f;
     public float airtime = 1f;  // Max time you can rise in the air after jumping
@@ -777,7 +776,11 @@ public class MarioMovement : MonoBehaviour
         float speedMult = 1f;
         // If turning around, increase speed
         if (changingDirections) {
-            speedMult = 2f;
+            if (onGround) {
+                speedMult = 0.7f;
+            } else {
+                speedMult = 1f;
+            }
         }
 
         //print("moving in " + moveDir);
@@ -1095,12 +1098,8 @@ public class MarioMovement : MonoBehaviour
                 animator.SetBool("isCrouching", false);
             }             
 
-            // if changing directions
-            if (changingDirections) {
-                rb.drag = turnAroundDrag;
-
             // If holding direction of movement
-            } else if (Mathf.Abs(physicsInput.x) > 0) {
+            if (Mathf.Abs(physicsInput.x) > 0 && !changingDirections) {
                 rb.drag = 0f;
             } else {
                 // Not holding any direction or crouching

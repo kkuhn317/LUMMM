@@ -63,7 +63,8 @@ MonoBehaviour:
   slowDownForce: 2
   direction: {x: 0, y: 0}
   facingRight: 1
-  jumpSpeed: 4.5
+  jumpSpeed: 4
+  walkJumpSpeed: 4.5
   jumpDelay: 0.1
   terminalvelocity: 4.6875
   startfallingspeed: 0.375
@@ -75,8 +76,6 @@ MonoBehaviour:
   heldObjectPosition: {fileID: 4241799718361322995}
   maxSpeed: 1.875
   maxRunSpeed: 3.75
-  linearDrag: 6
-  runlinearDrag: 0.375
   gravity: 0.075
   fallgravity: 2.625
   airtime: 0.4
@@ -93,6 +92,7 @@ MonoBehaviour:
   groundLength: 0.3
   groundSink: 0.1
   onMovingPlatform: 0
+  doMovingPlatformMomentum: 1
   ceilingLength: 0.18
   doCornerCorrection: 1
   cornerCorrection: 0.1
@@ -136,6 +136,7 @@ MonoBehaviour:
   wallSliding: 0
   spinning: 0
   canGroundPound: 0
+  groundPoundParticles: {fileID: 0}
   groundPounding: 0
   groundPoundRotating: 0
   spinJumpBounceSound: {fileID: 8300000, guid: 675f20d4f3c17b54b9d7a8701c238a08, type: 3}
@@ -145,6 +146,7 @@ MonoBehaviour:
   groundPoundSound: {fileID: 8300000, guid: c5475d8541a7c38469c1d501e26f02c0, type: 3}
   groundPoundLandSound: {fileID: 8300000, guid: 72d5926657fc36643afc68851e923cf3, type: 3}
   capeSound: {fileID: 8300000, guid: 31657360aa7af6642bdf934076b3d65e, type: 3}
+  playerInput: {fileID: 0}
 --- !u!50 &1771483343543010230
 Rigidbody2D:
   serializedVersion: 4
