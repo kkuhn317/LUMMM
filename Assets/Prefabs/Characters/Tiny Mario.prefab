@@ -64,7 +64,8 @@ MonoBehaviour:
   direction: {x: 0, y: 0}
   facingRight: 1
   jumpSpeed: 4
-  walkJumpSpeed: 4.5
+  walkJumpSpeed: 4
+  walkJumpSpeedRequired: 1
   jumpDelay: 0.1
   terminalvelocity: 4.6875
   startfallingspeed: 0.375
@@ -76,9 +77,11 @@ MonoBehaviour:
   heldObjectPosition: {fileID: 4241799718361322995}
   maxSpeed: 1.875
   maxRunSpeed: 3.75
-  gravity: 0.075
+  riseGravity: 0
+  peakGravity: 2
   fallgravity: 2.625
-  airtime: 0.4
+  airtime: 0.3
+  walkJumpAirtime: 0.35
   bubbleSpawnDelay: 2.5
   bubblePrefab: {fileID: 2475560701492738197, guid: 2849fcd8f062bf34da90e9a3c6c7b4e4, type: 3}
   splashWaterPrefab: {fileID: 9025682128279497783, guid: d51c44c0d299ad14b8aa8f4388aabd41, type: 3}

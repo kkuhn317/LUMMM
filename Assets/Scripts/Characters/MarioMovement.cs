@@ -45,9 +45,10 @@ public class MarioMovement : MonoBehaviour
     [Header("Vertical Movement")]
     public float jumpSpeed = 11f; // Standing jump speed (4 block jump)
     public float walkJumpSpeed = 12f; // Jump speed when moving at least a little (5 block jump)
+    public float walkJumpSpeedRequired = 1f; // How fast you need to be moving to get the walk jump speed
     public float jumpDelay = 0.25f; // How early you can press jump before landing
     public float terminalvelocity = 10f;
-    public float startfallingspeed = 1f;
+    public float startfallingspeed = 1f; // If you are moving slower than this, you will start falling (stops you from floating in the air)
     private float jumpTimer;
 
     [Header("Components")]
@@ -67,15 +68,18 @@ public class MarioMovement : MonoBehaviour
     [Header("Physics")]
     public float maxSpeed = 7f;
     public float maxRunSpeed = 10f;
-    public float gravity = 0;
+    public float riseGravity = 0;
+    public float peakGravity = 1f;  // Gravity at the top of your jump
     public float fallgravity = 5f;
     public float airtime = 1f;  // Max time you can rise in the air after jumping
+    public float walkJumpAirtime = 1.5f; // Max time you can rise in the air after a walk jump
     private float airtimer = 0;
     private bool changingDirections {
         get {
             return (direction.x > 0 && rb.velocity.x < 0) || (direction.x < 0 && rb.velocity.x > 0);
         }
     }
+    private bool maxSpeedSkidding = false;  // Whether the player is skidding after running at max speed
 
     [Header("Swimming")]
     public float bubbleSpawnDelay = 2.5f;
@@ -773,13 +777,19 @@ public class MarioMovement : MonoBehaviour
         // use the angle of the slope if on the ground
         Vector2 moveDir = onGround ? new Vector2(Mathf.Cos(floorAngle * Mathf.Deg2Rad), Mathf.Sin(floorAngle * Mathf.Deg2Rad)) : Vector2.right;
 
+        maxSpeedSkidding = (maxSpeedSkidding && changingDirections) || (Mathf.Abs(rb.velocity.x) >= (maxRunSpeed*0.95f) && changingDirections);
+
         float speedMult = 1f;
-        // If turning around, increase speed
+        // If turning around, apply a speed multiplier
         if (changingDirections) {
             if (onGround) {
-                speedMult = 0.7f;
+                if (maxSpeedSkidding) {
+                    speedMult = 0.8f;
+                } else {
+                    speedMult = 1f;
+                }
             } else {
-                speedMult = 1f;
+                speedMult = 1.5f;
             }
         }
 
@@ -852,7 +862,7 @@ public class MarioMovement : MonoBehaviour
 
         if (onGround) {
             if (!inCrouchState && canSkid) {
-                animator.SetBool("isSkidding", changingDirections);
+                animator.SetBool("isSkidding", maxSpeedSkidding);
             }
             animator.SetBool("onGround", true);
         } else {
@@ -866,11 +876,11 @@ public class MarioMovement : MonoBehaviour
     // for jumping and also stomping enemies (which always make mario use his walkJumpSpeed)
     public void Jump(float jumpMultiplier = 1f, bool forceWalkJumpSpeed = true) {
         rb.velocity = new Vector2(rb.velocity.x, 0);
-        bool useWalkJumpSpeed = forceWalkJumpSpeed || Mathf.Abs(rb.velocity.x) > 1f;
+        bool useWalkJumpSpeed = forceWalkJumpSpeed || Mathf.Abs(rb.velocity.x) > walkJumpSpeedRequired;
         rb.AddForce(Vector2.up * (useWalkJumpSpeed ? walkJumpSpeed : jumpSpeed) * (swimming ? 0.5f : 1f) * jumpMultiplier, ForceMode2D.Impulse);
         onGround = false;
         jumpTimer = 0;
-        airtimer = Time.time + (airtime * jumpMultiplier);
+        airtimer = Time.time + ((useWalkJumpSpeed ? walkJumpAirtime : airtime) * jumpMultiplier);
     }
 
     // for swimming
@@ -914,7 +924,7 @@ public class MarioMovement : MonoBehaviour
         rb.AddForce(Vector2.up * jumpSpeed * 1.1f, ForceMode2D.Impulse);
         onGround = false;
         jumpTimer = 0;
-        airtimer = Time.time + (airtime * 0.3f);
+        airtimer = Time.time + (airtime * 0.6f);
         spinning = true;
     }
 
@@ -925,7 +935,7 @@ public class MarioMovement : MonoBehaviour
         // Instantiate the spin jump bounce effect where they are colliding
         Vector3 effectSpawnPos = enemy.GetComponentInChildren<Collider2D>().ClosestPoint(transform.position);
         Instantiate(spinJumpBouncePrefab, effectSpawnPos, Quaternion.identity);
-        Jump(1f);
+        Jump();
     }
 
     public void SpinJumpPoof(GameObject enemy) {
@@ -935,9 +945,7 @@ public class MarioMovement : MonoBehaviour
         Instantiate(spinJumpPoofPrefab, effectSpawnPos, Quaternion.identity);
         // Destroy the enemy
         Destroy(enemy);
-        // If we are not holding the jump or spin button, the bounce height is reduced
-        float jumpMultiplier = jumpPressed || spinPressed ? 1f : 0.3f;
-        Jump(jumpMultiplier);
+        Jump();
     }
 
     private void GroundPound() {
@@ -1014,7 +1022,7 @@ public class MarioMovement : MonoBehaviour
         waterGroundPoundStartTime = 0f;
 
         // Allow normal air movement
-        rb.gravityScale = gravity;
+        rb.gravityScale = fallgravity;
 
         // Play cancel animation or sound if needed
         animator.SetBool("cancelDropping", true);
@@ -1041,7 +1049,7 @@ public class MarioMovement : MonoBehaviour
 
         // Reset physics
         rb.velocity = Vector2.zero; // Clear velocity
-        rb.gravityScale = gravity; // Reset gravity to normal
+        rb.gravityScale = riseGravity; // Reset gravity to normal
 
         // Reset input flags (to prevent lingering input re-triggering the ground pound)
         crouchPressedInAir = false; 
@@ -1056,7 +1064,7 @@ public class MarioMovement : MonoBehaviour
                 rb.gravityScale = 0; // Freeze during rotation phase
                 rb.velocity = new Vector2(0, 0);
             } else {
-                rb.gravityScale = gravity; // Normal gravity during fall phase
+                rb.gravityScale = fallgravity; // Normal gravity during fall phase
             }
             return;
         }
@@ -1102,20 +1110,22 @@ public class MarioMovement : MonoBehaviour
             if (Mathf.Abs(physicsInput.x) > 0 && !changingDirections) {
                 rb.drag = 0f;
             } else {
-                // Not holding any direction or crouching
+                // Changing directions, not holding any direction, or crouching
                 float spd = Mathf.Abs(rb.velocity.x);
                 //rb.drag = Mathf.Abs(rb.velocity.x) < 5f ? noMoveSlowDrag : noMoveFastDrag;
                 //float newDrag = (3f / Mathf.Pow(spd, 3)) + 0.7f;
-                float newDrag = (4f / spd + 1f) * (inCrouchState ? 2f : 1f);
-                
-                // if newDrag is not Infinity, set it as the drag
-                if (!float.IsInfinity(newDrag))
-                {
-                    rb.drag = newDrag;
-                } else {    
-                    // if newDrag is Infinity, set the drag to 100
-                    rb.drag = 100f;
+                float newDrag = 100000000;
+                if (spd > 0) {
+                    newDrag = 10f / spd * (inCrouchState ? 2f : 1f);
                 }
+
+                if (!float.IsInfinity(newDrag)) {
+                    rb.drag = newDrag;
+                } else {
+                    rb.drag = 100000000;
+                }
+                
+
             }
 
             // 0 gravity on the ground
@@ -1123,13 +1133,17 @@ public class MarioMovement : MonoBehaviour
 
         } else {
             // in the air
-            rb.gravityScale = gravity;  // Rising Gravity
+            rb.gravityScale = riseGravity;  // Rising Gravity
             rb.drag = 0;
             //if(rb.velocity.y < startfallingspeed){
 
             // Falling
             if (airtimer < Time.time || rb.velocity.y < startfallingspeed) {
-                rb.gravityScale = fallgravity;
+                if (rb.velocity.y > 0) {    // Still going up
+                    rb.gravityScale = peakGravity;
+                } else {
+                    rb.gravityScale = fallgravity;
+                }
 
             // Rising but not pressing jump/spin anymore
             } else if (rb.velocity.y > 0 && !(jumpPressed || (spinPressed && spinning))) {
