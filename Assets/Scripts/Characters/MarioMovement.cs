@@ -546,6 +546,11 @@ public class MarioMovement : MonoBehaviour
                 GroundPoundLand(hitRay.transform.gameObject);
             }
 
+            // If we landed AND we are not holding left or right, face the direction we are moving
+            if (direction.x == 0 && wasInAir && Mathf.Abs(rb.velocity.x) > 0.01f) {
+                FlipTo(rb.velocity.x > 0);
+            } 
+
         } else {
             /*if (wasOnMovingPlatform) {
                 // Transfer momentum to mario
@@ -777,14 +782,14 @@ public class MarioMovement : MonoBehaviour
         // use the angle of the slope if on the ground
         Vector2 moveDir = onGround ? new Vector2(Mathf.Cos(floorAngle * Mathf.Deg2Rad), Mathf.Sin(floorAngle * Mathf.Deg2Rad)) : Vector2.right;
 
-        maxSpeedSkidding = (maxSpeedSkidding && changingDirections) || (Mathf.Abs(rb.velocity.x) >= (maxRunSpeed*0.95f) && changingDirections);
+        maxSpeedSkidding = (maxSpeedSkidding && changingDirections) || (Mathf.Abs(rb.velocity.x) >= (maxRunSpeed*0.9f) && changingDirections);
 
         float speedMult = 1f;
         // If turning around, apply a speed multiplier
         if (changingDirections) {
             if (onGround) {
                 if (maxSpeedSkidding) {
-                    speedMult = 0.8f;
+                    speedMult = 0.7f;
                 } else {
                     speedMult = 1f;
                 }
@@ -810,24 +815,11 @@ public class MarioMovement : MonoBehaviour
             }
         }
 
-        // Prevent flipping during cape attack
-        if (!isCapeActive)
+        if ((onGround || swimming) && !isCapeActive && horizontal != 0)
         {
-            if (onGround || swimming)
-            {
-                if ((horizontal > 0 && !facingRight) || (horizontal < 0 && facingRight))
-                {
-                    Flip();
-                }
-                if (horizontal == 0) 
-                {
-                    if ((rb.velocity.x > 0 && !facingRight) || (rb.velocity.x < 0 && facingRight))
-                    {
-                        Flip();
-                    }
-                }
-            }
-        }      
+            // Face the direction we are holding, if on the ground 
+            FlipTo(horizontal > 0);
+        }
 
         // Max Speed (Horizontal)
         if (runPressed) {
@@ -1112,12 +1104,34 @@ public class MarioMovement : MonoBehaviour
             } else {
                 // Changing directions, not holding any direction, or crouching
                 float spd = Mathf.Abs(rb.velocity.x);
-                //rb.drag = Mathf.Abs(rb.velocity.x) < 5f ? noMoveSlowDrag : noMoveFastDrag;
-                //float newDrag = (3f / Mathf.Pow(spd, 3)) + 0.7f;
                 float newDrag = 100000000;
-                if (spd > 0) {
-                    newDrag = 10f / spd * (inCrouchState ? 2f : 1f);
+                // if (spd > 0) {
+                //     newDrag = 10f / spd * (inCrouchState ? 1.5f : 1f);
+                // }
+
+                switch (spd) {
+                    case float n when n < 0.5f:
+                        newDrag = 100000000;
+                        break;
+                    case float n when n < 5f:
+                        newDrag = 8f / spd;
+                        break;
+                    default:
+                        newDrag = 1.5f;
+                        break;
                 }
+
+                float dragMult = 1f;
+                if (inCrouchState) {
+                    // If crouching, set a drag multiplier
+                    dragMult = 1.5f;
+                } else if (facingRight != (rb.velocity.x > 0)) {
+                    // If facing the opposite direction, apply a drag multiplier
+                    dragMult = 1.5f;
+                }
+                
+
+                newDrag *= dragMult;
 
                 if (!float.IsInfinity(newDrag)) {
                     rb.drag = newDrag;
