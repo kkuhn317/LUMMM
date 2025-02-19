@@ -760,7 +760,7 @@ public class MarioMovement : MonoBehaviour
             GetComponent<BoxCollider2D>().size = new Vector2(GetComponent<BoxCollider2D>().size.x, crouchColHeight);
             GetComponent<BoxCollider2D>().offset = new Vector2(GetComponent<BoxCollider2D>().offset.x, crouchColOffset);
 
-        } else if ((!crouch && onGround) || carrying) {
+        } else if ((!crouch && onGround) || carrying || groundPounding) {
 
             // Stop Crouch
             animator.SetBool("isCrouching", false);
