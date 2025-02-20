@@ -194,6 +194,8 @@ public class MarioMovement : MonoBehaviour
     public bool canCrawl = false;       // Only small Mario has an animation for crawling right now, so it will not be transferred after powerup
     public bool canWallJump = false; 
     public bool canWallJumpWhenHoldingObject = false;
+    private const float wallJumpHoldTime = 0.25f;
+    private float wallJumpHoldTimer;
     public bool canSpinJump = false;
     [HideInInspector] public bool isCapeActive = false;
     [HideInInspector] public bool wallSliding = false;
@@ -425,14 +427,15 @@ public class MarioMovement : MonoBehaviour
                 jumpBlocked = true;
             }
         }
-        if (Time.time < jumpTimer && (onGround || swimming || wallSliding) && !jumpBlocked && !groundPoundLanded) {
+        bool isMovingUpNextToWall = rb.velocity.y > 0 && CheckWall(direction.x > 0);
+        if (Time.time < jumpTimer && (onGround || swimming || wallSliding || isMovingUpNextToWall) && !jumpBlocked && !groundPoundLanded) {
 
             if (swimming) {
                 if (!groundPounding){
                     audioSource.PlayOneShot(swimSound);
                     Swim();
                 }              
-            } else if (wallSliding) {
+            } else if (wallSliding || isMovingUpNextToWall) {
                 audioSource.Play();
                 WallJump();
             } else if (spinJumpQueued) {
@@ -642,19 +645,15 @@ public class MarioMovement : MonoBehaviour
             }
         }
 
-        // Wall detection (for wall jumping)
-        if (canWallJump && !onGround && !swimming && (!carrying || canWallJumpWhenHoldingObject)) {
+        // Wall detection (for wall sliding)
+        if ((direction.x != 0 || wallSliding) && rb.velocity.y < 0) {
+            bool checkRight = wallSliding ? facingRight : direction.x > 0;
+            bool hitWall = CheckWall(checkRight);
 
-            float raycastlength = GetComponent<BoxCollider2D>().bounds.size.y / 2 + 0.03f;
-
-            // raycast in the direction the stick is pointing
-            RaycastHit2D wallHitLeft = Physics2D.Raycast(transform.position, Vector2.left, raycastlength, groundLayer);
-            RaycastHit2D wallHitRight = Physics2D.Raycast(transform.position, Vector2.right, raycastlength, groundLayer);
-
-            if ((wallHitLeft.collider != null && direction.x < 0) || (wallHitRight.collider != null && direction.x > 0) && !pushing) {
+            if (hitWall && !pushing) {
                 if (!wallSliding) {
                     // flip mario to face the wall
-                    FlipTo(direction.x > 0);
+                    FlipTo(checkRight);
                     wallSliding = true;
                 }
             } else {
@@ -748,6 +747,23 @@ public class MarioMovement : MonoBehaviour
         return null;
     }
 
+    bool CheckWall(bool right) {
+        // Wall detection (for wall jumping and wall sliding)
+        if (canWallJump && !onGround && !swimming && (!carrying || canWallJumpWhenHoldingObject)) {
+
+            float raycastlength = GetComponent<BoxCollider2D>().bounds.size.y / 2 + 0.03f;
+
+            // raycast in the direction the stick is pointing or the direction Mario is facing if already wall sliding
+            Vector2 raycastDirection = right ? Vector2.right : Vector2.left;
+            RaycastHit2D wallHit = Physics2D.Raycast(transform.position, raycastDirection, raycastlength, groundLayer);
+
+            if (wallHit.collider != null) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     void MoveCharacter(float horizontal) {
         bool crouch = crouchPressed && canCrouch;
 
@@ -777,7 +793,7 @@ public class MarioMovement : MonoBehaviour
         // AND either you are already crawling or you are stopped
         isCrawling = inCrouchState && onGround && !carrying && !swimming && !groundPounding && powerupState == PowerupState.small && canCrawl
                      && math.abs(horizontal) > 0.5 && (math.abs(rb.velocity.x) < 0.05f || isCrawling);
-        bool regularMoving = (!inCrouchState || !onGround) && !groundPounding;
+        bool regularMoving = (!inCrouchState || !onGround) && !groundPounding && !wallSliding;
 
         // use the angle of the slope if on the ground
         Vector2 moveDir = onGround ? new Vector2(Mathf.Cos(floorAngle * Mathf.Deg2Rad), Mathf.Sin(floorAngle * Mathf.Deg2Rad)) : Vector2.right;
@@ -811,6 +827,22 @@ public class MarioMovement : MonoBehaviour
                 } else if (onGround) {
                     // Slow down if you are going too fast (only on the ground)
                     rb.AddForce(Mathf.Sign(rb.velocity.x) * slowDownForce * -moveDir);
+                }
+            }
+        }
+
+        // Wall slide horizontal movement
+        if (wallSliding) {
+            // Stop moving horizontally when wall sliding
+            rb.velocity = new Vector2(0, rb.velocity.y);
+
+            // If holding the direction of the wall or not at all, reset the timer
+            if (horizontal == 0 || (facingRight && horizontal > 0) || (!facingRight && horizontal < 0)) {
+                wallJumpHoldTimer = Time.time + wallJumpHoldTime;
+            } else {
+                // If holding the opposite direction of the wall for too long, stop wall sliding
+                if (Time.time > wallJumpHoldTimer) {
+                    wallSliding = false;
                 }
             }
         }
