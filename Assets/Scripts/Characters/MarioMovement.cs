@@ -611,13 +611,13 @@ public class MarioMovement : MonoBehaviour
                     if (hitLeft.collider != null && hitLeft.point.x < playerleft + cornerCorrection && hitLeft.point.x > playerleft)
                     {
                         Debug.Log("CORNER CORRECTION ACTIVE LEFT");
-                        float newPositionX = hitLeft.point.x + (playerWidth / 2 * 1.1f);
+                        float newPositionX = hitLeft.point.x + (playerWidth / 2 * 1.2f);
                         transform.position = new Vector3(newPositionX, transform.position.y, transform.position.z);
                     }
                     else if (hitRight.collider != null && hitRight.point.x > playerright - cornerCorrection && hitRight.point.x < playerright)
                     {
                         Debug.Log("CORNER CORRECTION ACTIVE RIGHT");
-                        float newPositionX = hitRight.point.x - (playerWidth / 2 * 1.1f);
+                        float newPositionX = hitRight.point.x - (playerWidth / 2 * 1.2f);
                         transform.position = new Vector3(newPositionX, transform.position.y, transform.position.z);
                     }
                 }
