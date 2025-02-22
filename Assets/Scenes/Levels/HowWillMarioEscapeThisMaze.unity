@@ -834,7 +834,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1771483343543010228, guid: 0ed8634130540ee49afd6a10ccb53bf6, type: 3}
       propertyPath: cornerCorrection
-      value: 0.2
+      value: 0.25
       objectReference: {fileID: 0}
     - target: {fileID: 1771483343543010229, guid: 0ed8634130540ee49afd6a10ccb53bf6, type: 3}
       propertyPath: m_RootOrder
@@ -1383,6 +1383,8 @@ GameObject:
   - component: {fileID: 587049668}
   - component: {fileID: 587049667}
   - component: {fileID: 587049669}
+  - component: {fileID: 587049671}
+  - component: {fileID: 587049670}
   m_Layer: 3
   m_Name: MarioMazeEscape
   m_TagString: Untagged
@@ -2438,10 +2440,163 @@ TilemapCollider2D:
   m_Material: {fileID: 6200000, guid: 3605a6811aae3564bb7cf23d3bfa975e, type: 2}
   m_IsTrigger: 0
   m_UsedByEffector: 0
-  m_UsedByComposite: 0
+  m_UsedByComposite: 1
   m_Offset: {x: 0, y: 0}
   m_MaximumTileChangeCount: 1000
   m_ExtrusionFactor: 0.00001
+--- !u!66 &587049670
+CompositeCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 587049665}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 6200000, guid: 3605a6811aae3564bb7cf23d3bfa975e, type: 2}
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0}
+  m_GeometryType: 1
+  m_GenerationType: 0
+  m_EdgeRadius: 0
+  m_ColliderPaths:
+  - m_Collider: {fileID: 587049669}
+    m_ColliderPaths:
+    - - X: 70000000
+        Y: 100000000
+      - X: -70000000
+        Y: 100000000
+      - X: -70000000
+        Y: -50000000
+      - X: 70000000
+        Y: -50000000
+    - - X: -60000000
+        Y: -40000000
+      - X: -60000000
+        Y: 90000000
+      - X: 20000000
+        Y: 90000000
+      - X: 20000000
+        Y: 30000000
+      - X: 0
+        Y: 30000000
+      - X: 0
+        Y: 20000000
+      - X: 20000000
+        Y: 20000000
+      - X: 20000000
+        Y: -10000000
+      - X: -10000000
+        Y: -10000000
+      - X: -10000000
+        Y: -20000000
+      - X: 30000000
+        Y: -20000000
+      - X: 30000000
+        Y: 90000000
+      - X: 60000000
+        Y: 90000000
+      - X: 60000000
+        Y: -40000000
+    - - X: 10000000
+        Y: 70000000
+      - X: -30000000
+        Y: 70000000
+      - X: -30000000
+        Y: 60000000
+      - X: 10000000
+        Y: 60000000
+    - - X: -30000000
+        Y: 0
+      - X: 10000000
+        Y: 0
+      - X: 10000000
+        Y: 10000000
+      - X: -30000000
+        Y: 10000000
+      - X: -30000000
+        Y: 20000000
+      - X: -10000000
+        Y: 20000000
+      - X: -10000000
+        Y: 30000000
+      - X: -30000000
+        Y: 30000000
+      - X: -30000000
+        Y: 40000000
+      - X: 10000000
+        Y: 40000000
+      - X: 10000000
+        Y: 50000000
+      - X: -40000000
+        Y: 50000000
+      - X: -40000000
+        Y: -20000000
+      - X: -30000000
+        Y: -20000000
+  m_CompositePaths:
+    m_Paths:
+    - - {x: 6.9999704, y: -5}
+      - {x: 6.9999704, y: 10}
+      - {x: -7, y: 9.99997}
+      - {x: -6.9999704, y: -5}
+    - - {x: 6, y: -3.9999704}
+      - {x: -6, y: -3.9999704}
+      - {x: -5.9999704, y: 9}
+      - {x: 2, y: 8.99997}
+      - {x: 1.9999707, y: 3}
+      - {x: 0, y: 2.999971}
+      - {x: 0.000029300001, y: 2}
+      - {x: 2, y: 1.9999707}
+      - {x: 1.9999707, y: -1}
+      - {x: -1, y: -1.0000293}
+      - {x: -0.99997073, y: -2}
+      - {x: 3, y: -1.9999708}
+      - {x: 3.0000293, y: 9}
+      - {x: 6, y: 8.99997}
+    - - {x: 0.99997073, y: 6}
+      - {x: 0.99997073, y: 7}
+      - {x: -3, y: 6.9999704}
+      - {x: -2.999971, y: 6}
+    - - {x: -3.0000293, y: -2}
+      - {x: -2.9999707, y: 0}
+      - {x: 1, y: 0.000029300001}
+      - {x: 0.99997073, y: 1}
+      - {x: -3, y: 1.0000294}
+      - {x: -2.9999707, y: 2}
+      - {x: -1, y: 2.0000293}
+      - {x: -1.0000293, y: 3}
+      - {x: -3, y: 3.0000293}
+      - {x: -2.9999707, y: 4}
+      - {x: 1, y: 4.000029}
+      - {x: 0.99997073, y: 5}
+      - {x: -4, y: 4.999971}
+      - {x: -3.999971, y: -2}
+  m_VertexDistance: 0.0005
+  m_OffsetDistance: 0.00005
+--- !u!50 &587049671
+Rigidbody2D:
+  serializedVersion: 4
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 587049665}
+  m_BodyType: 2
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDrag: 0
+  m_AngularDrag: 0.05
+  m_GravityScale: 1
+  m_Material: {fileID: 6200000, guid: 3605a6811aae3564bb7cf23d3bfa975e, type: 2}
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 0
 --- !u!1 &673359529 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4887895206107879957, guid: 007d8e12425c17b40857a50ed98ac42a, type: 3}
