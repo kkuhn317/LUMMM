@@ -89,6 +89,7 @@ public class Bobomb : EnemyAI
                 carryable = true;
             }
             stopAfterLand = true;
+            bounceOffWalls = false;
             Invoke("explode", explodeTime);
         }
         
