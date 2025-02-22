@@ -813,6 +813,15 @@ public class MarioMovement : MonoBehaviour
                 speedMult = 1.5f;
             }
         }
+        // If crawling, move faster so you speed up faster
+        if (isCrawling) {
+            speedMult = 2f;
+        }
+
+        float maxSpeedMult = 1f;
+        if (isCrawling) {
+            maxSpeedMult = 0.5f;
+        }
 
         //print("moving in " + moveDir);
         if (regularMoving || isCrawling) {
@@ -822,7 +831,7 @@ public class MarioMovement : MonoBehaviour
                 rb.AddForce(horizontal * runSpeed * moveDir * speedMult);
             } else {
                 // Walking
-                if (Mathf.Abs(rb.velocity.x) <= maxSpeed || (Mathf.Sign(horizontal) != Mathf.Sign(rb.velocity.x))) {
+                if (Mathf.Abs(rb.velocity.x) <= (maxSpeed * maxSpeedMult) || (Mathf.Sign(horizontal) != Mathf.Sign(rb.velocity.x))) {
                     rb.AddForce(horizontal * moveSpeed * moveDir * speedMult);
                 } else if (onGround) {
                     // Slow down if you are going too fast (only on the ground)
@@ -1131,7 +1140,7 @@ public class MarioMovement : MonoBehaviour
             }             
 
             // If holding direction of movement
-            if (Mathf.Abs(physicsInput.x) > 0 && !changingDirections) {
+            if ((Mathf.Abs(physicsInput.x) > 0 && !changingDirections) || isCrawling) {
                 rb.drag = 0f;
             } else {
                 // Changing directions, not holding any direction, or crouching
