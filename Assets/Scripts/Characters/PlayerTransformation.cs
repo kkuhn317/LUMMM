@@ -24,12 +24,14 @@ public class PlayerTransformation : MonoBehaviour
     void Start()
     {
         
-        
     }
 
     public void startTransformation() {
         MarioMovement oldPlayerScript = oldPlayer.GetComponent<MarioMovement>();
         MarioMovement newPlayerScript = newPlayer.GetComponent<MarioMovement>();
+
+        // Make the GameManager assign this transformation player to the same player number as the old player
+        GameManager.Instance.SetPlayer(GetComponent<MarioMovement>(), oldPlayerScript.playerNumber);
 
         oldPowerupState = oldPlayerScript.powerupState;
         newPowerupState = newPlayerScript.powerupState;

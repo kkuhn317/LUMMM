@@ -17,7 +17,7 @@ public class MobileControls : MonoBehaviour
 
     private MarioMovement getPlayer1()
     {
-        if (player1 == null)
+        if (player1 == null || player1.gameObject == null)
         {
             player1 = GameManager.Instance.GetPlayer(0);
         }
