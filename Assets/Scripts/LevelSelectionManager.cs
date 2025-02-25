@@ -13,6 +13,7 @@ public class LevelSelectionManager : MonoBehaviour
         LevelUp,
         ItsA3,
         None,
+        TeamNellyAqua,
     }
 
     public enum MarioLiveCounter
