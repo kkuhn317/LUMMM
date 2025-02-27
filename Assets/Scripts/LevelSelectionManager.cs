@@ -14,6 +14,7 @@ public class LevelSelectionManager : MonoBehaviour
         ItsA3,
         None,
         TeamNellyAqua,
+        Pixelcraftian
     }
 
     public enum MarioLiveCounter
