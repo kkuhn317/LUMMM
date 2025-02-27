@@ -33,6 +33,7 @@ public class NormalGoombaBoss : EnemyAI
     public Transform dashParticlesPosition;
     public GameObject dashPrefab;
     public GameObject smirkGoomba;
+    private Vector2 originalScale;  // Original global scale of the object
 
     public void StartFight() {
         if (fightStarted) {
@@ -58,6 +59,7 @@ public class NormalGoombaBoss : EnemyAI
         base.Start();
         audioSource = GetComponent<AudioSource>();
         animator = GetComponent<Animator>();
+        originalScale = transform.lossyScale;
     }
 
     protected override void FixedUpdate() {
@@ -237,27 +239,39 @@ public class NormalGoombaBoss : EnemyAI
 
         switch (health) {
             case 2:
-                transform.localScale = new Vector3(0.025f, 0.019f, 0.025f);
-                transform.position = new Vector3(transform.position.x, transform.position.y - 0.003395f, transform.position.z); // 0.15f
-                height = 0.7f;
-                stompHeight = 0.15f;
-                break;
-            case 1:
-                transform.localScale = new Vector3(0.025f, 0.014f, 0.025f);
-                transform.position = new Vector3(transform.position.x, transform.position.y - 0.005905f, transform.position.z);
-                height = 0.5f;
+                SetYScale(0.7f);
                 stompHeight = 0.1f;
                 break;
+            case 1:
+                SetYScale(0.5f);
+                stompHeight = 0.07f;
+                break;
             case 0:
-                transform.localScale = new Vector3(0.025f, 0.025f, 0.025f);
-                transform.position = new Vector3(transform.position.x, transform.position.y + 0.25f, transform.position.z);
+                SetYScale(1f);
                 height = 1f;
-
+                dashAttackMode = false;
+                movement = ObjectMovement.sliding;
                 GetComponent<Collider2D>().enabled = false;
                 animator.SetBool("isCrushed", true);
                 fightEnded = true;
                 break;
         }
+    }
+
+    private void SetYScale(float yScale) {
+        float oldHeight = height;
+        Transform myParent = transform.parent;
+        transform.parent = null;
+        // set my scale relative to my original scale
+        transform.localScale = Vector3.Scale(originalScale, new Vector3(1, yScale, 1));
+        transform.parent = myParent;
+
+        height = yScale;
+
+        // Move position to keep the bottom of the object in the same place
+        Vector3 pos = transform.position;
+        pos.y -= (oldHeight - height) / 2;
+        transform.position = pos;
     }
 
     protected override void hitOnSide(GameObject player){
