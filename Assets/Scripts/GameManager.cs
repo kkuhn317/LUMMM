@@ -343,35 +343,39 @@ public class GameManager : MonoBehaviour
         levelID = GlobalVariables.levelInfo.levelID;
         Debug.Log("Current level ID: " + levelID);
 
-        // Load the high score from PlayerPrefs, defaulting to 0 if it doesn't exist.
-        highScore = PlayerPrefs.GetInt("HighScore", 0);
+        if (!isOptionsMenuLevel) {
+            // Load the high score from PlayerPrefs, defaulting to 0 if it doesn't exist.
+            highScore = PlayerPrefs.GetInt("HighScore", 0);
 
-        // Load the highest rank from PlayerPrefs
-        highestRank = LoadHighestRank();
+            // Load the highest rank from PlayerPrefs
+            highestRank = LoadHighestRank();
 
-        // Set the texture for highestRankImage based on the loaded highest rank
-        if (highestRank != PlayerRank.Default)
-            highestRankImage.texture = rankTypes[(int)highestRank - 1].texture;
+            // Set the texture for highestRankImage based on the loaded highest rank
+            if (highestRank != PlayerRank.Default)
+                highestRankImage.texture = rankTypes[(int)highestRank - 1].texture;
 
-        // Set level name text
-        levelNameText.text = LocalizationSettings.StringDatabase.GetLocalizedString("Level_" + levelID);
+            // Set level name text
+            levelNameText.text = LocalizationSettings.StringDatabase.GetLocalizedString("Level_" + levelID);
+        }
 
         if (!saveCoinsAfterDeath)
         {
             GlobalVariables.coinCount = 0;
         }
-
+        
         GetTotalCoins();    // TODO: remove because we are not tracking total coins anymore
         ResetCurrentRank();
-        LoadCollectedCoins(); // Load collected coins data from PlayerPrefs
+        if (!isOptionsMenuLevel) {
+            LoadCollectedCoins(); // Load collected coins data from PlayerPrefs
+            UpdateHighScoreUI();
+            UpdateLivesUI();
+            UpdateCoinsUI();
+            UpdateScoreUI();
+            InitSpeedrunTimer();
+        }
         ToggleCheckpoints();
         SetMarioPosition();
-        UpdateHighScoreUI();
-        UpdateLivesUI();
-        UpdateCoinsUI();
-        UpdateScoreUI();
         CheckForInfiniteTime();
-        InitSpeedrunTimer();
     }
 
     void OnEnable() {
@@ -396,12 +400,16 @@ public class GameManager : MonoBehaviour
     // Update is called once per frame
     protected virtual void Update()
     {
-        levelNameText.text = LocalizationSettings.StringDatabase.GetLocalizedString("Level_" + levelID);
+        if (levelNameText != null) {
+            levelNameText.text = LocalizationSettings.StringDatabase.GetLocalizedString("Level_" + levelID);
+        }
 
-        if (GlobalVariables.checkpoint != -1) {
-            CheckpointIndicator.SetActive(true);
-        } else {
-            CheckpointIndicator.SetActive(false);
+        if (CheckpointIndicator != null) {
+            if (GlobalVariables.checkpoint != -1) {
+                CheckpointIndicator.SetActive(true);
+            } else {
+                CheckpointIndicator.SetActive(false);
+            }
         }
 
         // Check for pause input only if the game is not over
@@ -461,6 +469,9 @@ public class GameManager : MonoBehaviour
         HideUI();
         // Stop timer
         stopTimer = true;
+
+        // Pause the game to start
+        PauseGame();
     }
 
     public void Restart()
@@ -751,7 +762,9 @@ public class GameManager : MonoBehaviour
 
             Image uiImage = greenCoinUIImages[Array.IndexOf(greenCoins, greenCoin)];
             collectedGreenCoins.Add(greenCoin);
-            uiImage.sprite = collectedSprite;
+            if (uiImage != null) {
+                uiImage.sprite = collectedSprite;
+            }
 
             // Change the alpha of the sprite renderer to indicate it's collected
             SpriteRenderer coinRenderer = greenCoin.GetComponent<SpriteRenderer>();
@@ -1155,12 +1168,16 @@ public class GameManager : MonoBehaviour
             optionsPauseMenu.SetActive(false);
 
             resumeButton.Select();  // Select the resume button by default
+        } else {
+            // Enable UI
+            GetComponent<OptionsGameManager>().OnPause();
         }
         
     }
 
     public void ResumeGame()
     {
+        Debug.Log("MyFunction called from: " +  UnityEngine.StackTraceUtility.ExtractStackTrace()); 
         // print("resume");
         isPaused = false;
         
@@ -1200,6 +1217,9 @@ public class GameManager : MonoBehaviour
             {
                 menu.SetActive(false);
             }
+        } else {
+            // Disable UI
+            GetComponent<OptionsGameManager>().OnResume();
         }
     }
 

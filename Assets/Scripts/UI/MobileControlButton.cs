@@ -17,6 +17,8 @@ public class MobileControlButton : MonoBehaviour
     private Image image;
     public bool isRunButton = false;    // If true, this button will be used to run (state saved in GlobalVariables)
 
+    public bool canPressIfPaused = false;   // Should only be used for the pause button in the rebind menu
+
     private float buttonPressedOpacity;
     private float buttonUnpressedOpacity;
     private RectTransform rectTransform;
@@ -63,7 +65,7 @@ public class MobileControlButton : MonoBehaviour
 
     void TurnOn()
     {
-        if (GameManager.isPaused) return;
+        if (GameManager.isPaused && !canPressIfPaused) return;
 
         buttonPressed = true;
         if (isRunButton) GlobalVariables.mobileRunButtonPressed = true;

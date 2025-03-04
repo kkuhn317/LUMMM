@@ -171,10 +171,6 @@ public class RebindSaveLoad : MonoBehaviour
         RefreshDropdown();
         layoutDropdown.value = layoutDropdown.options.FindIndex(option => option.text == layoutName);
 
-        if (GameManager.Instance.isOptionsMenuLevel && GameManager.Instance != null){
-            GameManager.Instance.ResumeGame();
-        }
-
         // Deactivate the create layout once you finish and assign button
         EventSystem.current.SetSelectedGameObject(createNewLayoutButton.gameObject);
         createLayout.SetActive(false);
@@ -400,10 +396,6 @@ public class RebindSaveLoad : MonoBehaviour
         // Refresh the dropdown with the new name
         RefreshDropdown();
         layoutDropdown.value = layoutDropdown.options.FindIndex(option => option.text == newLayoutName);
-
-        if (GameManager.Instance.isOptionsMenuLevel && GameManager.Instance != null){
-            GameManager.Instance.ResumeGame();
-        }    
 
         // Deactivate the edit layout once you finish and assign button
         onEditLayoutCompleted?.Invoke();
