@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using PowerupState = PowerStates.PowerupState;
 
 public class Door : MonoBehaviour
@@ -134,14 +135,19 @@ public class Door : MonoBehaviour
 
         // disable all scripts
         foreach (MonoBehaviour script in player.GetComponents<MonoBehaviour>()) {
-            script.enabled = false;
+            // Still allow inputs, or else controller inputs will be dropped if you hold them through the freeze
+            if (script.GetType() != typeof(PlayerInput)) {  
+                script.enabled = false;
+            }
         }
     }
     protected void UnfreezePlayer() {
         player.GetComponent<Rigidbody2D>().simulated = true;      
         // enable all scripts
         foreach (MonoBehaviour script in player.GetComponents<MonoBehaviour>()) {
-            script.enabled = true;
+            if (script.GetType() != typeof(PlayerInput)) {  
+                script.enabled = true;
+            }
         }
     }
 

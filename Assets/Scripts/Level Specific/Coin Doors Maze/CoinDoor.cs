@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class CoinDoor : Door
 {
@@ -53,9 +54,11 @@ public class CoinDoor : Door
         playerAnimator.SetBool("isSkidding", false);
 
         // disable all scripts
-        foreach (MonoBehaviour script in player.GetComponents<MonoBehaviour>())
-        {
-            script.enabled = false;
+        foreach (MonoBehaviour script in player.GetComponents<MonoBehaviour>()) {
+            // Still allow inputs, or else controller inputs will be dropped if you hold them through the freeze
+            if (script.GetType() != typeof(PlayerInput)) {  
+                script.enabled = false;
+            }
         }
     }
 

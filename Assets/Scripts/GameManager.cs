@@ -419,7 +419,9 @@ public class GameManager : MonoBehaviour
             UpdateSpeedrunTimerUI();
 
             if (pauseAction.WasPressedThisFrame()) {
-                TogglePauseGame();
+                if (!isOptionsMenuLevel || GetComponent<OptionsGameManager>().CanTogglePause()) {
+                    TogglePauseGame();
+                }
             }
 
             // Check if enablePlushies is true, then activate "Plushie" objects.
@@ -1177,8 +1179,6 @@ public class GameManager : MonoBehaviour
 
     public void ResumeGame()
     {
-        Debug.Log("MyFunction called from: " +  UnityEngine.StackTraceUtility.ExtractStackTrace()); 
-        // print("resume");
         isPaused = false;
         
         Time.timeScale = 1f; // Set time scale to normal (unpause)

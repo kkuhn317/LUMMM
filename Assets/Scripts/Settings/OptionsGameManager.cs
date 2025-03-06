@@ -7,6 +7,7 @@ public class OptionsGameManager : MonoBehaviour
 {
     public CanvasGroup rebindCanvasGroup;
     public GameObject[] mobileButtons;
+    public RebindSettings rebindSettings;
 
     public void OnPause() {
         rebindCanvasGroup.interactable = true;
@@ -22,5 +23,14 @@ public class OptionsGameManager : MonoBehaviour
         {
             button.SetActive(true);
         }
+    }
+
+    // Used by the back button in the rebind window so that you can leave the scene
+    public void SetNormalTimeScale() {
+        Time.timeScale = 1f;
+    }
+
+    public bool CanTogglePause() {
+        return rebindSettings.CanTogglePause;
     }
 }

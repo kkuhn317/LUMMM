@@ -16,8 +16,19 @@ public class RebindSettings : MonoBehaviour
     [SerializeField] Button firstSelectedButton;
     [SerializeField] Button ControlsButton; // Will be selected when the rebind menu is closed
     [SerializeField] UnityEvent onMenuEnabled;
-    
 
+    public bool CanTogglePause { get; private set; } = true;  // Used for the GameManager in the test level. Can be modified by windows to stop unpausing
+
+    public void EnableTogglePause()
+    {
+        CanTogglePause = true;
+    }
+
+    public void DisableTogglePause()
+    {
+        CanTogglePause = false;
+    }
+    
     // Start is called before the first frame update
     void Start()
     {
