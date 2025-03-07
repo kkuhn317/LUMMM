@@ -138,16 +138,19 @@ public class CameraFollow : MonoBehaviour
 
     private CameraZone GetCurrentZone(Vector2 target)
     {
+        CameraZone currentBestZone = null;
         // Check if the middle of the players is within any of the camera zones
         foreach (var zone in zones)
         {
             if (target.x >= zone.topLeft.x && target.x <= zone.bottomRight.x && target.y >= zone.bottomRight.y && target.y <= zone.topLeft.y)
             {
-                return zone;
+                if (currentBestZone == null || zone.priority > currentBestZone.priority) {
+                    currentBestZone = zone;
+                }
             }
         }
 
-        return null;
+        return currentBestZone;
     }
 
     // Change the camera size to a specific value

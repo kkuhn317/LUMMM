@@ -15,6 +15,8 @@ public class CameraZone : MonoBehaviour
     float horizontalMiddle => (topLeft.x + bottomRight.x) / 2;
     float verticalMiddle => (topLeft.y + bottomRight.y) / 2;
 
+    public int priority = 0;    // If Mario is in multiple CameraZones, the camera uses the one with the highest priority
+
     // Start is called before the first frame update
     void Start()
     {
