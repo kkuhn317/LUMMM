@@ -81,8 +81,11 @@ public class CameraFollow : MonoBehaviour
             return;
         }
 
-        float targetX = Mathf.Max(zone.cameraMinX, Mathf.Min(zone.cameraMaxX, target.x));
-        float targetY = Mathf.Max(zone.cameraMinY, Mathf.Min(zone.cameraMaxY, target.y));
+        float posOffsetX = -zone.cameraPosOffset.x * camWidth/2;
+        float posOffsetY = -zone.cameraPosOffset.y * camHeight/2;
+
+        float targetX = Mathf.Max(zone.cameraMinX, Mathf.Min(zone.cameraMaxX, target.x)) + posOffsetX;
+        float targetY = Mathf.Max(zone.cameraMinY, Mathf.Min(zone.cameraMaxY, target.y)) + posOffsetY;
 
         bool tooSmallHorizontal = false;
         bool tooSmallVertical = false;

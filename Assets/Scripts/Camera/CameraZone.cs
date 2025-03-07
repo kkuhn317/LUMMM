@@ -8,6 +8,11 @@ public class CameraZone : MonoBehaviour
     public Vector2 bottomRight;
     public bool lockToHorizontal = false;
     public bool lockToVertical = false;
+
+    // Ranges from (-1,-1) (bottom left) to (1,1) (top right).
+    // Sets where the middle of the camera is located. Used for stationary cameras so that aspect ratio is negated.
+    // NOTE: Bounds are NOT taken into account, so the camera could go outside of them in some situations
+    public Vector2 cameraPosOffset = new(0,0);
     public Vector2 lockOffset = Vector2.zero;
     public bool snapToBounds = false; // if true, it will never display anything outside of the bounds
     private CameraFollow cameraFollow;
