@@ -33,10 +33,13 @@ public class Trampoline : MonoBehaviour
         for(int i = 0; i < contactCount; i++) {
             var contact = other.GetContact(i);
             impulse += contact.normal * contact.normalImpulse;
-            // impulse.x += contact.tangentImpulse * contact.normal.y;
-            // impulse.y -= contact.tangentImpulse * contact.normal.x;
+            #if !UNITY_ANDROID
+            impulse.x += contact.tangentImpulse * contact.normal.y;
+            impulse.y -= contact.tangentImpulse * contact.normal.x;
+            #endif
             // NOTE: The tiny spring could bounce mario up from the side on mobile if the above lines are uncommented
-            // Not exactly sure why, but I don't think we even need them anyway
+            // ALSO, on Web version, springs might have a chance to not work if those 2 lines are not present (at least that's my theory...)
+            // So, for now we will only run those lines on Android and not on Web or Windows
         }
 
         if (impulse.y < 0 && !sideways) {
