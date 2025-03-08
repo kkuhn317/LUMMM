@@ -28,6 +28,18 @@ public class MobileControlButton : MonoBehaviour
         image = GetComponent<Image>();
         rectTransform = GetComponent<RectTransform>();
 
+        UpdatePosScaleOpacity();
+
+        UpdateButtonAppearance();
+
+        if (isRunButton && GlobalVariables.OnScreenControls && GlobalVariables.mobileRunButtonPressed)
+        {
+            StartCoroutine(TurnOnAtBeginCoroutine());
+        }
+    }
+
+    public void UpdatePosScaleOpacity()
+    {
         // Load saved position and scale
         MobileRebindingData mobileData = GlobalVariables.currentLayout.mobileData;
         if (mobileData.buttonData.ContainsKey(buttonID))
@@ -41,13 +53,6 @@ public class MobileControlButton : MonoBehaviour
         // Opacity
         buttonPressedOpacity = mobileData.buttonPressedOpacity;
         buttonUnpressedOpacity = mobileData.buttonUnpressedOpacity;
-
-        UpdateButtonAppearance();
-
-        if (isRunButton && GlobalVariables.OnScreenControls && GlobalVariables.mobileRunButtonPressed)
-        {
-            StartCoroutine(TurnOnAtBeginCoroutine());
-        }
     }
 
     IEnumerator TurnOnAtBeginCoroutine()

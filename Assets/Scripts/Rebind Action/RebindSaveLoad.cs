@@ -167,6 +167,9 @@ public class RebindSaveLoad : MonoBehaviour
 
         currentLoadedLayout = layoutName; // Update current loaded layout
 
+        // Reset mobile bindings to default (needs currentLoadedLayout)
+        ResetMobileBindings();
+
         // Update UI
         RefreshDropdown();
         layoutDropdown.value = layoutDropdown.options.FindIndex(option => option.text == layoutName);
@@ -215,6 +218,31 @@ public class RebindSaveLoad : MonoBehaviour
         string json = JsonConvert.SerializeObject(LoadedLayouts);
         PlayerPrefs.SetString(LayoutsKey, json);
         PlayerPrefs.Save();
+
+        // Update in-game
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.UpdateMobileControls();
+        }
+    }
+
+    /// <summary>
+    /// Resets mobile bindings to their defaults.
+    /// </summary>
+    public static void ResetMobileBindings()
+    {
+        Debug.Log("Resetting mobile bindings to default");
+        LoadedLayouts[currentLoadedLayout].mobileData.buttonData.Clear();
+
+        string json = JsonConvert.SerializeObject(LoadedLayouts);
+        PlayerPrefs.SetString(LayoutsKey, json);
+        PlayerPrefs.Save();
+
+        // Update in-game
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.UpdateMobileControls();
+        }
     }
 
     /// <summary>
@@ -234,6 +262,12 @@ public class RebindSaveLoad : MonoBehaviour
 
             currentLoadedLayout = layoutName; // Track loaded layout
             editLayoutNameInput.text = layoutName; // edit the layout name input field
+
+            // Update mobile controls in-game
+            if (GameManager.Instance != null)
+            {
+                GameManager.Instance.UpdateMobileControls();
+            }
         }
         else
         {

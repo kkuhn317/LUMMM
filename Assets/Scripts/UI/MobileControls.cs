@@ -37,6 +37,13 @@ public class MobileControls : MonoBehaviour
         
     }
 
+    public void updateButtonPosScaleOpacity() {
+        foreach (MobileControlButton button in GetComponentsInChildren<MobileControlButton>())
+        {
+            button.UpdatePosScaleOpacity();
+        }
+    }
+
     public void onLeftPress()
     {
         getPlayer1().onMobileLeftPressed();

@@ -6576,11 +6576,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5440091340396768140, guid: 4d35bff13e4582b4d9d248cf363c5313, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
-      value: 3
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5440091340396768140, guid: 4d35bff13e4582b4d9d248cf363c5313, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Mode
-      value: 1
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 5440091340396768140, guid: 4d35bff13e4582b4d9d248cf363c5313, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[2].m_Mode
@@ -6593,7 +6593,7 @@ PrefabInstance:
     - target: {fileID: 5440091340396768140, guid: 4d35bff13e4582b4d9d248cf363c5313, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Target
       value: 
-      objectReference: {fileID: 1209335749421692988}
+      objectReference: {fileID: 0}
     - target: {fileID: 5440091340396768140, guid: 4d35bff13e4582b4d9d248cf363c5313, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[2].m_Target
       value: 
@@ -6612,7 +6612,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5440091340396768140, guid: 4d35bff13e4582b4d9d248cf363c5313, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName
-      value: PauseGame
+      value: set_interactable
       objectReference: {fileID: 0}
     - target: {fileID: 5440091340396768140, guid: 4d35bff13e4582b4d9d248cf363c5313, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[2].m_MethodName
@@ -6624,7 +6624,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5440091340396768140, guid: 4d35bff13e4582b4d9d248cf363c5313, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_TargetAssemblyTypeName
-      value: GameManager, Assembly-CSharp
+      value: UnityEngine.CanvasGroup, UnityEngine
       objectReference: {fileID: 0}
     - target: {fileID: 5440091340396768140, guid: 4d35bff13e4582b4d9d248cf363c5313, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[2].m_TargetAssemblyTypeName
@@ -6632,7 +6632,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5440091340396768140, guid: 4d35bff13e4582b4d9d248cf363c5313, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Arguments.m_BoolArgument
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5440091340396768140, guid: 4d35bff13e4582b4d9d248cf363c5313, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[2].m_Arguments.m_BoolArgument
@@ -20377,8 +20377,10 @@ MonoBehaviour:
   bottomRight: {x: 19, y: -4.5}
   lockToHorizontal: 0
   lockToVertical: 0
+  cameraPosOffset: {x: 0, y: 0}
   lockOffset: {x: 0, y: 0}
   snapToBounds: 0
+  priority: 0
 --- !u!114 &1759128246
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -20395,8 +20397,10 @@ MonoBehaviour:
   bottomRight: {x: 19, y: -9}
   lockToHorizontal: 0
   lockToVertical: 0
+  cameraPosOffset: {x: 0, y: 0}
   lockOffset: {x: 0, y: 0}
   snapToBounds: 0
+  priority: 0
 --- !u!1 &1759854115 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 7687236340210922787, guid: 5dd8e8f2d13025140b61dafd1742d9ca, type: 3}
@@ -23116,6 +23120,7 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   collectedSprite: {fileID: 388613814, guid: cb3e1ab023497c844946d072e5175005, type: 3}
+  onScreenControls: {fileID: 0}
   highScore: 0
   highScoreText: {fileID: 0}
   scoreText: {fileID: 1209335749207558604}
@@ -25007,6 +25012,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6362915066433511022, guid: 54197ee6b4a3f8741954f7bb061d9ea4, type: 3}
+      propertyPath: rebindCanvasGroup
+      value: 
+      objectReference: {fileID: 1328419567}
     - target: {fileID: 6362915066433511030, guid: 54197ee6b4a3f8741954f7bb061d9ea4, type: 3}
       propertyPath: m_Name
       value: Mobile Controls Rebinding

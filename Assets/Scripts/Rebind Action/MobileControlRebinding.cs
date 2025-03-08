@@ -15,6 +15,7 @@ public class MobileControlRebinding : MonoBehaviour
     public Slider scaleSlider;
     [HideInInspector] public UnityEvent onResetPressed; // Buttons will subscribe to this event to reset their position and scale
     private List<DraggableMobileButton> buttons = new();    // Will be populated automatically by the buttons
+    public CanvasGroup rebindCanvasGroup;
 
     void Awake() {
         instance = this;
@@ -28,6 +29,7 @@ public class MobileControlRebinding : MonoBehaviour
         instructionsObject.SetActive(true);
         scaleSizeObject.SetActive(false);
         scalePercentageText.gameObject.SetActive(false);
+        rebindCanvasGroup.interactable = false;
     }
 
     void OnDisable() {
@@ -38,6 +40,7 @@ public class MobileControlRebinding : MonoBehaviour
             newData.Add(button.buttonID, button.GetData());
         }
         RebindSaveLoad.SaveMobileBindings(newData);
+        rebindCanvasGroup.interactable = true;
     }
 
     public void AddButton(DraggableMobileButton button) {

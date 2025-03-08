@@ -168,6 +168,12 @@ public class GameSettings : MonoBehaviour
         OnScreenControlsImage.sprite = isOnScreenControlsEnabled ? enabledOnScreenControls : disabledOnScreenControls;
 
         GlobalVariables.OnScreenControls = isOnScreenControlsEnabled;
+
+        // Update the mobile controls
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.UpdateMobileControls();
+        }
     }
 
     private void ConfigureSpeedrunMode()
@@ -193,5 +199,11 @@ public class GameSettings : MonoBehaviour
 
         // Update UI image
         SpeedrunModeImage.sprite = isSpeedrunModeEnabled ? enabledSpeedrunMode : disabledSpeedrunMode;
+
+        // Update immediately in-game
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.UpdateSpeedrunTimerVisiblity();
+        }
     }
 }

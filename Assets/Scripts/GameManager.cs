@@ -59,6 +59,9 @@ public class GameManager : MonoBehaviour
     public List<Image> greenCoinUIImages; // List of UI Image components representing green coins
     public Sprite collectedSprite; // Sprite for the collected state
 
+    [Header("On-screen controls")]
+    public GameObject onScreenControls;
+
     [Header("Checkpoints")]
     private Checkpoint[] checkpoints;
 
@@ -703,7 +706,7 @@ public class GameManager : MonoBehaviour
     {
         if (speedrunTimerText == null) return;
 
-        speedrunTimerText.gameObject.SetActive(GlobalVariables.SpeedrunMode);
+        UpdateSpeedrunTimerVisiblity();
 
         GlobalVariables.speedrunTimer.Start();
     }
@@ -718,6 +721,24 @@ public class GameManager : MonoBehaviour
     {
         highScoreText.text = highScore.ToString("D9"); // 000000000 | Display the high score
     }
+
+    public void UpdateMobileControls()
+    {
+        if (onScreenControls != null)
+        {
+            onScreenControls.SetActive(GlobalVariables.OnScreenControls);
+            onScreenControls.GetComponent<MobileControls>().updateButtonPosScaleOpacity();
+        }
+    }
+
+    public void UpdateSpeedrunTimerVisiblity()
+    {
+        if (speedrunTimerText != null)
+        {
+            speedrunTimerText.gameObject.SetActive(GlobalVariables.SpeedrunMode);
+        }
+    }
+
     #endregion
 
     public void AddCoin(int coinValue)
