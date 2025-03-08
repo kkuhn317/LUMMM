@@ -727,7 +727,7 @@ public class GameManager : MonoBehaviour
         if (onScreenControls != null)
         {
             onScreenControls.SetActive(GlobalVariables.OnScreenControls);
-            onScreenControls.GetComponent<MobileControls>().updateButtonPosScaleOpacity();
+            onScreenControls.GetComponent<MobileControls>().UpdateButtonPosScaleOpacity();
         }
     }
 

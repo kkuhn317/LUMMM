@@ -24,10 +24,20 @@ public class MobileControls : MonoBehaviour
         return player1;
     }
 
+    private List<MobileControlButton> myButtons = new List<MobileControlButton>();
+
+    private void GetMyButtons()
+    {
+        if (myButtons.Count > 0) return;
+        foreach (MobileControlButton button in GetComponentsInChildren<MobileControlButton>(includeInactive: true))
+        {
+            myButtons.Add(button);
+        }
+    }
+
     // Start is called before the first frame update
     void Start()
     {
-        //print(GlobalVariables.OnScreenControls);
         gameObject.SetActive(GlobalVariables.OnScreenControls);
     }
 
@@ -37,8 +47,9 @@ public class MobileControls : MonoBehaviour
         
     }
 
-    public void updateButtonPosScaleOpacity() {
-        foreach (MobileControlButton button in GetComponentsInChildren<MobileControlButton>())
+    public void UpdateButtonPosScaleOpacity() {
+        GetMyButtons();
+        foreach (MobileControlButton button in myButtons)
         {
             button.UpdatePosScaleOpacity();
         }

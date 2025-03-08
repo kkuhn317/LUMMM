@@ -205,6 +205,12 @@ public class RebindSaveLoad : MonoBehaviour
         string json = JsonConvert.SerializeObject(LoadedLayouts);
         PlayerPrefs.SetString(LayoutsKey, json);
         PlayerPrefs.Save();
+
+        // Update in-game (opacity)
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.UpdateMobileControls();
+        }
     }
 
     /// <summary>
