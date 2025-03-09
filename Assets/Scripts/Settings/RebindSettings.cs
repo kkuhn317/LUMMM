@@ -16,6 +16,7 @@ public class RebindSettings : MonoBehaviour
     [SerializeField] Button firstSelectedButton;
     [SerializeField] Button ControlsButton; // Will be selected when the rebind menu is closed
     [SerializeField] UnityEvent onMenuEnabled;
+    [SerializeField] bool updateOpacityImmediately = false; // Used in Options scene so the controls for the test level update immediately
 
     public bool CanTogglePause { get; private set; } = true;  // Used for the GameManager in the test level. Can be modified by windows to stop unpausing
 
@@ -33,8 +34,30 @@ public class RebindSettings : MonoBehaviour
     void Start()
     {
         // Update the text labels
-        UpdateOpacityText(buttonPressedOpacityText, buttonPressedOpacitySlider.value);
-        UpdateOpacityText(buttonUnpressedOpacityText, buttonUnpressedOpacitySlider.value);
+        buttonPressedOpacitySlider.onValueChanged.AddListener((value) => UpdateButtonPressedOpacity(value));
+        buttonUnpressedOpacitySlider.onValueChanged.AddListener((value) => UpdateButtonUnpressedOpacity(value));
+
+        // Manually trigger the events to update the text labels
+        UpdateButtonPressedOpacity(buttonPressedOpacitySlider.value);
+        UpdateButtonUnpressedOpacity(buttonUnpressedOpacitySlider.value);
+    }
+
+    private void UpdateButtonPressedOpacity(float value)
+    {
+        buttonPressedOpacityText.text = Mathf.RoundToInt(value * 100) + "%";
+        if (updateOpacityImmediately)
+        {
+            GameManager.Instance.UpdateMobileOpacity(value, buttonUnpressedOpacitySlider.value);
+        }
+    }
+
+    private void UpdateButtonUnpressedOpacity(float value)
+    {
+        buttonUnpressedOpacityText.text = Mathf.RoundToInt(value * 100) + "%";
+        if (updateOpacityImmediately)
+        {
+            GameManager.Instance.UpdateMobileOpacity(buttonPressedOpacitySlider.value, value);
+        }
     }
 
     void OnEnable()
@@ -73,27 +96,4 @@ public class RebindSettings : MonoBehaviour
         ControlsButton.Select();
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        ChangeButtonPressedOpacityText();
-        ChangeButtonUnpressedOpacityText();
-    }
-
-    public void ChangeButtonPressedOpacityText()
-    {
-        float opacity = buttonPressedOpacitySlider.value;
-        UpdateOpacityText(buttonPressedOpacityText, opacity);
-    }
-
-    public void ChangeButtonUnpressedOpacityText()
-    {
-        float opacity = buttonUnpressedOpacitySlider.value;
-        UpdateOpacityText(buttonUnpressedOpacityText, opacity);
-    }
-
-    private void UpdateOpacityText(TMP_Text text, float value)
-    {
-        text.text = Mathf.RoundToInt(value * 100) + "%";
-    }
 }

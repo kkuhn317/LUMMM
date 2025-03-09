@@ -731,6 +731,11 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    public void UpdateMobileOpacity(float buttonPressedOpacity, float buttonUnpressedOpacity)
+    {
+        Instance.onScreenControls.GetComponent<MobileControls>().UpdateButtonOpacity(buttonPressedOpacity, buttonUnpressedOpacity);
+    }
+
     public void UpdateSpeedrunTimerVisiblity()
     {
         if (speedrunTimerText != null)

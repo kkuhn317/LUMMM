@@ -55,6 +55,14 @@ public class MobileControls : MonoBehaviour
         }
     }
 
+    public void UpdateButtonOpacity(float buttonPressedOpacity, float buttonUnpressedOpacity) {
+        GetMyButtons();
+        foreach (MobileControlButton button in myButtons)
+        {
+            button.UpdateButtonOpacity(buttonPressedOpacity, buttonUnpressedOpacity);
+        }
+    }
+
     public void onLeftPress()
     {
         getPlayer1().onMobileLeftPressed();

@@ -55,6 +55,15 @@ public class MobileControlButton : MonoBehaviour
         UpdateButtonAppearance();
     }
 
+    public void UpdateButtonOpacity(float buttonPressedOpacity, float buttonUnpressedOpacity)
+    {
+        if (image == null) image = GetComponent<Image>();
+        if (rectTransform == null) rectTransform = GetComponent<RectTransform>();
+        this.buttonPressedOpacity = buttonPressedOpacity;
+        this.buttonUnpressedOpacity = buttonUnpressedOpacity;
+        UpdateButtonAppearance();
+    }
+
     IEnumerator TurnOnAtBeginCoroutine()
     {
         yield return new WaitForEndOfFrame();

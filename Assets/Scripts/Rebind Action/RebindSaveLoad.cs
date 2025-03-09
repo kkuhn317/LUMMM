@@ -461,6 +461,12 @@ public class RebindSaveLoad : MonoBehaviour
 
         buttonPressedOpacitySlider.value = MobileRebindingData.DefaultPressedOpacity;
         buttonUnpressedOpacitySlider.value = MobileRebindingData.DefaultUnpressedOpacity;
+
+        // Update in-game
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.UpdateMobileControls();
+        }
     }
 
     // <summary>
