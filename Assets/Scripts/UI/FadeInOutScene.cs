@@ -52,12 +52,8 @@ public class FadeInOutScene : MonoBehaviour
     {
         float elapsedTime = 0f;
 
-        yield return null;  // Wait a frame because of first frame lag when entering a new scene
-        // TODO: maybe come up with a better way to fix it
-
         while (elapsedTime < fadeSpeed)
         {
-            print("elapsedTime: " + elapsedTime);
             fadeImage.color = Color.Lerp(Color.black, Color.clear, elapsedTime / fadeSpeed);
             elapsedTime += Time.deltaTime;
             yield return null;
