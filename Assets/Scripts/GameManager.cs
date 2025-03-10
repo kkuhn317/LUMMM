@@ -1005,7 +1005,9 @@ public class GameManager : MonoBehaviour
     private void SetMarioPosition()
     {
         if (!GlobalVariables.enableCheckpoints) return;
-        if (GlobalVariables.checkpoint == -1) return;
+        if (GlobalVariables.checkpoint < 0 || GlobalVariables.checkpoint >= checkpoints.Length) return;
+        // Note: currently, if you exit a level after reaching a checkpoint, then go to the rebind menu in the options scene,
+        // The saved checkpoint will still be in GlobalVariables.checkpoint, so that's why we need to check if it's less than the length of the array
 
         // Get the checkpoint object
         Checkpoint checkpoint = checkpoints[GlobalVariables.checkpoint];
