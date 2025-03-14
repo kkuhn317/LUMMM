@@ -1590,7 +1590,7 @@ public class MarioMovement : MonoBehaviour
 
     private void DetectDamagingObject(Collider2D other)
     {
-        if (other.gameObject.tag == "Damaging")
+        if (other.gameObject.CompareTag("Damaging"))
         {
             damageMario();
         }
