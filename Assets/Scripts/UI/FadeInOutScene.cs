@@ -7,9 +7,9 @@ public class FadeInOutScene : MonoBehaviour
 {
     public Image fadeImage;
     public float fadeSpeed = 5f;
-
     public bool transitioning = false;
-
+    private bool fadingIn = false;  // Whether the scene is currently fading into black.
+    private bool fadingOut = false; // Whether the scene is currently fading out of black.
     public static FadeInOutScene Instance;
 
     private void Awake()
@@ -27,22 +27,32 @@ public class FadeInOutScene : MonoBehaviour
     private IEnumerator FadeIn(float waitTime, bool doFadeOut = true)
     {
         fadeImage.gameObject.SetActive(true);
+        fadingIn = true;
 
         float elapsedTime = 0f;
 
+        Color originalColor = Color.clear;
+        if (fadingOut)
+        {  
+            // Fade in from the fade out color so it still looks smooth.
+            originalColor = fadeImage.color;
+        }
+
         while (elapsedTime < fadeSpeed)
         {
-            fadeImage.color = Color.Lerp(Color.clear, Color.black, elapsedTime / fadeSpeed);
+            fadeImage.color = Color.Lerp(originalColor, Color.black, elapsedTime / fadeSpeed);
             elapsedTime += Time.deltaTime;
             yield return null;
         }
 
+
         if (doFadeOut)
         {
             yield return new WaitForSeconds(waitTime);
-
+            fadingIn = false;
             StartCoroutine(FadeOut());
         } else {
+            fadingIn = false;
             fadeImage.gameObject.SetActive(false);
             transitioning = false;
         }
@@ -51,14 +61,22 @@ public class FadeInOutScene : MonoBehaviour
     private IEnumerator FadeOut()
     {
         float elapsedTime = 0f;
+        fadingOut = true;
 
-        while (elapsedTime < fadeSpeed)
+        while (elapsedTime < fadeSpeed && !fadingIn)
         {
             fadeImage.color = Color.Lerp(Color.black, Color.clear, elapsedTime / fadeSpeed);
             elapsedTime += Time.deltaTime;
             yield return null;
         }
 
+        // If interrupted by fading in, just return and let the fade in finish.
+        if (fadingIn)
+        {
+            yield break;
+        }
+
+        fadingOut = false;
         fadeImage.gameObject.SetActive(false);
         transitioning = false;
     }
@@ -94,7 +112,8 @@ public class FadeInOutScene : MonoBehaviour
 
     public void LoadSceneWithFade(string sceneNameOrIndex, bool doFadeOut = true)
     {
-        if (transitioning)
+        // If already transitioning somewhere, don't allow another transition. (fading out is fine though)
+        if (fadingIn)
         {
             return;
         }
