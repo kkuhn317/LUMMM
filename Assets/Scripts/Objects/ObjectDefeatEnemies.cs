@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+// Used by Luigi in CoinDoorsMaze
 public class ObjectDefeatEnemies : MonoBehaviour
 {
     public GameObject hitPrefab;
