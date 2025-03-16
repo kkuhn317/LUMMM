@@ -427,15 +427,15 @@ public class MarioMovement : MonoBehaviour
                 jumpBlocked = true;
             }
         }
-        bool isMovingUpNextToWall = rb.velocity.y > 0 && CheckWall(direction.x > 0);
-        if (Time.time < jumpTimer && (onGround || swimming || wallSliding || isMovingUpNextToWall) && !jumpBlocked && !groundPoundLanded) {
+        bool wallJumpCheck = direction.x != 0 && CheckWall(direction.x > 0);
+        if (Time.time < jumpTimer && (onGround || swimming || wallSliding || wallJumpCheck) && !jumpBlocked && !groundPoundLanded) {
 
             if (swimming) {
                 if (!groundPounding){
                     audioSource.PlayOneShot(swimSound);
                     Swim();
                 }              
-            } else if (wallSliding || isMovingUpNextToWall) {
+            } else if (wallSliding || wallJumpCheck) {
                 audioSource.Play();
                 WallJump();
             } else if (spinJumpQueued) {
@@ -650,7 +650,7 @@ public class MarioMovement : MonoBehaviour
             bool checkRight = wallSliding ? facingRight : direction.x > 0;
             bool hitWall = CheckWall(checkRight);
 
-            if (hitWall && !pushing) {
+            if (hitWall && !pushing && !spinning) {
                 if (!wallSliding) {
                     // flip mario to face the wall
                     FlipTo(checkRight);
@@ -942,6 +942,7 @@ public class MarioMovement : MonoBehaviour
 
     // jumping off a wall
     public void WallJump() {
+        spinning = false;
         Jump(0.75f);
         // add horizontal force in the opposite direction of the wall (where you are facing)
         int dirToSign = facingRight ? -1 : 1;
