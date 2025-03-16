@@ -11,12 +11,10 @@ GameObject:
   - component: {fileID: 3830289436283276866}
   - component: {fileID: 3830289436283276867}
   - component: {fileID: 3830289436283276865}
-  - component: {fileID: 3830289436283276871}
   - component: {fileID: 3830289436283276864}
   - component: {fileID: 1220052251}
-  - component: {fileID: 8169147506938108966}
   m_Layer: 24
-  m_Name: movingPlatform
+  m_Name: semiPlatform
   m_TagString: MovingPlatform
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -115,22 +113,6 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 3.5, y: 0.0890498}
   m_EdgeRadius: 0
---- !u!70 &3830289436283276871
-CapsuleCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3830289436283276877}
-  m_Enabled: 1
-  m_Density: 1
-  m_Material: {fileID: 6200000, guid: 3605a6811aae3564bb7cf23d3bfa975e, type: 2}
-  m_IsTrigger: 1
-  m_UsedByEffector: 0
-  m_UsedByComposite: 0
-  m_Offset: {x: 0.000000024315003, y: 0.20396906}
-  m_Size: {x: 3.500001, y: 0.21320114}
-  m_Direction: 1
 --- !u!251 &3830289436283276864
 PlatformEffector2D:
   m_ObjectHideFlags: 0
@@ -171,20 +153,6 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 4
---- !u!114 &8169147506938108966
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3830289436283276877}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e0007289182bd7a43bbd2a3ab827dc01, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  rotationSpeed: 500
-  clockwise: 0
 --- !u!1 &3830289436900518460
 GameObject:
   m_ObjectHideFlags: 0
@@ -195,7 +163,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3830289436900518461}
   m_Layer: 0
-  m_Name: PlatformController 1
+  m_Name: SemisolidPlatform
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
