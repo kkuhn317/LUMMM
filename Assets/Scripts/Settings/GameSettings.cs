@@ -90,6 +90,12 @@ public class GameSettings : MonoBehaviour
 
     public void ChangeResolution(int index)
     {
+        // If web version, then don't change resolution or fullscreen setting
+        if (Application.platform == RuntimePlatform.WebGLPlayer)
+        {
+            return;
+        }
+
         Resolution[] availableResolutions = GetResolutions();
 
         if (index >= 0 && index < availableResolutions.Length)
@@ -122,6 +128,10 @@ public class GameSettings : MonoBehaviour
     private void OnFullscreenToggleValueChanged(bool isFullscreen)
     {
         fullscreenImage.sprite = isFullscreen ? fullscreenOnSprite : fullscreenOffSprite;
+        if (Application.platform == RuntimePlatform.WebGLPlayer)
+        {
+            return;
+        }
         Screen.fullScreen = isFullscreen;
         PlayerPrefs.SetInt(SettingsKeys.FullscreenKey, isFullscreen ? 1 : 0);
     }
