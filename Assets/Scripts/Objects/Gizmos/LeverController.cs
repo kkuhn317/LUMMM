@@ -30,8 +30,10 @@ public class LeverController : UseableObject
 
     private void Start()
     {
-        initialRotation = objectToRotate.rotation;
-        initialPosition = objectToMove.position;
+        if (objectToMove != null) {
+            initialRotation = objectToRotate.rotation;
+            initialPosition = objectToMove.position;
+        }
 
         audioSourcePullerRotate = GetComponent<AudioSource>();
         audioSourceBarrierMove = GetComponent<AudioSource>();
