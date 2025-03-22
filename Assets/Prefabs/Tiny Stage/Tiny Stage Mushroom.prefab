@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 1429417888728619845}
   - component: {fileID: 4453021183387286759}
   m_Layer: 6
-  m_Name: Mushroom
+  m_Name: Tiny Stage Mushroom
   m_TagString: PowerUp
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -30,8 +30,8 @@ Transform:
   m_GameObject: {fileID: 6275588455045691860}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -16.669998, y: -3.494, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
@@ -77,7 +77,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: -1825832463, guid: 8f6a654becfacfa42831335f328fc67e, type: 3}
+  m_Sprite: {fileID: 595376292, guid: 5c45bc6ccc558734fb3ff2b5a0f25122, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -148,12 +148,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   movingLeft: 0
-  velocity: {x: 3, y: 0}
-  gravity: 60
-  width: 1
-  height: 1
-  floorRaycastSpacing: 0.2
-  wallRaycastSpacing: 0.2
+  velocity: {x: 1, y: 0}
+  gravity: 30
+  width: 0.3
+  height: 0.5
+  floorRaycastSpacing: 0.25
+  wallRaycastSpacing: 0.25
   floorMask:
     serializedVersion: 2
     m_Bits: 9
@@ -161,9 +161,11 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 9
   checkObjectCollision: 1
+  ceilingDetection: 1
   DontFallOffLedges: 0
+  bounceOffWalls: 1
   flipObject: 0
-  FrequentMovement: 0
+  updateType: 0
   lavaKill: 1
   sinkSpeed: 20
   lavaMask:
@@ -172,18 +174,28 @@ MonoBehaviour:
   carryable: 0
   carried: 0
   throwVelocity: {x: 12, y: 10}
+  rotateAroundCenter: 0
   knockAwayVelocity: {x: 5, y: 5}
-  knockAwaySound: {fileID: 0}
-  objectState: 0
+  overrideKnockAwayGravity: 0
+  knockAwayGravity: 60
+  knockAwayType: 0
+  knockAwayRotationSpeed: 10
+  KnockAwayDissapearTime: -1
+  knockAwaySound: {fileID: 8300000, guid: 62467461e51dddb40931164fd2db1170, type: 3}
+  objectState: 1
   movement: 1
   stopAfterLand: 0
   bounceHeight: 0
   minHeightToBounce: 1
-  newMarioState: {fileID: 4967126123623042494, guid: acda372c906e1f74488e946f30d986c1, type: 3}
-  powerLevel: 1
+  newMarioState: {fileID: 4967126123623042494, guid: 4217b44ede6051343b02222efa7c52c7, type: 3}
   starTime: -1
   starMusicOverride: {fileID: 0}
+  powerUpType: 0
+  temporalInactiveTime: 5
   is1Up: 0
+  oneupSpritePrefab: {fileID: 0}
+  upSpeed: 2
+  extraLife: {fileID: 0}
 --- !u!82 &4453021183387286759
 AudioSource:
   m_ObjectHideFlags: 0

@@ -210,7 +210,10 @@ public class QuestionBlock : MonoBehaviour, IGroundPoundable
     {
 
         if (!brickBlock)
-            GetComponent<Animator>().enabled = false;
+            if (GetComponent<Animator>() != null)
+            {
+                GetComponent<Animator>().enabled = false;
+            }
 
         GetComponent<SpriteRenderer>().sprite = emptyBlockSprite;
 
