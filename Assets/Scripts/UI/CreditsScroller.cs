@@ -5,24 +5,26 @@ using TMPro;
 public class CreditsScroller : MonoBehaviour
 {
     public GameObject creditsText;
-    public float scrollSpeed = 50f; // Speed at which the credits scroll
-    public float scrollUpSpeed = 50f; // Speed at which the credits scroll upwards when up arrow is pressed
-    public float fastScrollSpeed = 100f; // Speed at which the credits scroll when down arrow is pressed
-    private float currentScrollSpeed = 0f; // Current scroll speed
-    private float startPositionY; // Initial position of credits
-    public float stopPositionY; // Position where credits stop scrolling
+    public float scrollSpeed = 50f; // Default auto scroll speed
+    public float scrollUpSpeed = 50f; // When scrolling up manually
+    public float fastScrollSpeed = 100f; // When scrolling down manually
+    private float currentScrollSpeed = 0f; // Actual scroll speed applied each frame
+    private float targetScrollSpeed = 0f; // Target speed to smoothly return to
+    private float startPositionY; // Initial Y position
+    public float stopPositionY; // Limit Y position
 
     public GameObject middleOfScreen;
-    public InputActionAsset inputActions; // Reference to the Input Action Asset in the Inspector
+    public InputActionAsset inputActions;
 
-    private InputAction navigateAction; // Input action for navigation
+    private InputAction navigateAction;
+    private InputAction touchScrollAction;
 
     void Awake()
     {
-        // Retrieve the Navigate action from the Input Action Asset
         if (inputActions != null)
         {
-            navigateAction = inputActions.FindActionMap("UI").FindAction("Navigate"); // This finds the named action map and retrieves the named action from the referenced Input Action Asset
+            navigateAction = inputActions.FindActionMap("UI").FindAction("Navigate");
+            touchScrollAction = inputActions.FindActionMap("UI").FindAction("TouchScroll");
         }
         else
         {
@@ -34,9 +36,14 @@ public class CreditsScroller : MonoBehaviour
     {
         if (navigateAction != null)
         {
-            // Enable and register callback for the Navigate action
             navigateAction.performed += OnNavigatePerformed;
             navigateAction.Enable();
+        }
+
+        if (touchScrollAction != null)
+        {
+            touchScrollAction.performed += OnTouchScrollPerformed;
+            touchScrollAction.Enable();
         }
     }
 
@@ -44,27 +51,30 @@ public class CreditsScroller : MonoBehaviour
     {
         if (navigateAction != null)
         {
-            // Unregister callback and disable the Navigate action
             navigateAction.performed -= OnNavigatePerformed;
             navigateAction.Disable();
+        }
+
+        if (touchScrollAction != null)
+        {
+            touchScrollAction.performed -= OnTouchScrollPerformed;
+            touchScrollAction.Disable();
         }
     }
 
     void Start()
     {
         currentScrollSpeed = scrollSpeed;
+        targetScrollSpeed = scrollSpeed;
         startPositionY = creditsText.transform.position.y;
     }
 
     void Update()
     {
-        // Move the credits based on the current scroll speed
+        // Apply scrolling
         Vector3 newPos = creditsText.transform.position + Vector3.up * currentScrollSpeed * Time.deltaTime * Screen.height / 1080;
 
-        // Adjust the stop position based on screen resolution
         float adjustedStopPositionY = stopPositionY * Screen.height / 1080;
-
-        // Clamp the position between startPositionY and adjustedStopPositionY
         newPos.y = Mathf.Clamp(newPos.y, startPositionY, adjustedStopPositionY);
 
         creditsText.transform.position = newPos;
@@ -74,29 +84,72 @@ public class CreditsScroller : MonoBehaviour
     {
         Vector2 navigateValue = context.ReadValue<Vector2>();
 
-        if (navigateValue.y > 0) // Scroll up
+        if (navigateValue.y > 0)
         {
-            currentScrollSpeed = -scrollUpSpeed;
+            targetScrollSpeed = -scrollUpSpeed;
         }
-        else if (navigateValue.y < 0) // Scroll down
+        else if (navigateValue.y < 0)
         {
-            currentScrollSpeed = fastScrollSpeed;
+            targetScrollSpeed = fastScrollSpeed;
         }
-        else // No input (navigateValue.y == 0)
+        else
         {
-            currentScrollSpeed = scrollSpeed;
+            targetScrollSpeed = scrollSpeed;
         }
     }
 
-    // Show the stop position in the editor
+    private void OnTouchScrollPerformed(InputAction.CallbackContext context)
+    {
+        Vector2 delta = context.ReadValue<Vector2>();
+
+        if (Mathf.Abs(delta.y) > 0.1f)
+        {
+            float currentY = creditsText.transform.position.y;
+            float adjustedStopPositionY = stopPositionY * Screen.height / 1080;
+
+            // Prevent scrolling up when already at the top
+            if (delta.y > 0 && currentY <= startPositionY + 0.01f)
+            {
+                targetScrollSpeed = 0f;
+                return;
+            }
+
+            // Prevent scrolling down when already at the bottom
+            if (delta.y < 0 && currentY >= adjustedStopPositionY - 0.01f)
+            {
+                targetScrollSpeed = 0f;
+                return;
+            }
+
+            // Otherwise, apply input normally
+            targetScrollSpeed = -delta.y;
+        }
+        else
+        {
+            targetScrollSpeed = scrollSpeed;
+        }
+    }
+
+    void LateUpdate()
+    {
+        // Final correction to avoid jitter caused by input at limits
+        float adjustedStopPositionY = stopPositionY * Screen.height / 1080;
+        Vector3 currentPos = creditsText.transform.position;
+
+        float clampedY = Mathf.Clamp(currentPos.y, startPositionY, adjustedStopPositionY);
+        if (!Mathf.Approximately(currentPos.y, clampedY))
+        {
+            currentPos.y = clampedY;
+            creditsText.transform.position = currentPos;
+        }
+    }
+
     void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.red;
 
         if (middleOfScreen == null)
-        {
             return;
-        }
 
         float adjustedStopPositionY = stopPositionY * Camera.main.pixelHeight / 1080;
         float drawPosY = creditsText.transform.position.y - adjustedStopPositionY + middleOfScreen.transform.position.y;
