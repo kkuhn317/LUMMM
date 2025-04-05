@@ -91,6 +91,11 @@ public class MarioMovement : MonoBehaviour
     public float swimDrag = 3f;
     public float swimTerminalVelocity = 2f;
 
+    [Header("Climbing")]
+    private bool climbing = false;
+    public float climbSpeed = 2f;
+    private bool canClimb = false; // Whether the player can climb
+
     [Header("Collision")]
     public bool onGround = false;
     public bool wasGrounded = false;
@@ -219,7 +224,6 @@ public class MarioMovement : MonoBehaviour
     public GameObject spinJumpPoofPrefab;   // Puff of smoke
     public AudioClip groundPoundSound;
     public AudioClip groundPoundLandSound;
-    public AudioClip capeSound;
 
     /* Levers */
     private List<UseableObject> useableObjects = new();
@@ -418,7 +422,12 @@ public class MarioMovement : MonoBehaviour
         }
 
         // Movement
-        MoveCharacter(direction.x);
+        if (climbing) {
+            ClimbMove(direction);
+        } else {
+            MoveCharacter(direction.x);
+        }
+        
 
         // Jumping/Swimming
         bool jumpBlocked = false;
@@ -428,7 +437,7 @@ public class MarioMovement : MonoBehaviour
             }
         }
         bool wallJumpCheck = direction.x != 0 && CheckWall(direction.x > 0);
-        if (Time.time < jumpTimer && (onGround || swimming || wallSliding || wallJumpCheck) && !jumpBlocked && !groundPoundLanded) {
+        if (Time.time < jumpTimer && (onGround || swimming || wallSliding || wallJumpCheck || climbing) && !jumpBlocked && !groundPoundLanded) {
 
             if (swimming) {
                 if (!groundPounding){
@@ -453,13 +462,17 @@ public class MarioMovement : MonoBehaviour
         }
 
         // Ground Pound
-        if (canGroundPound && !onGround && crouchPressedInAir && !groundPounding && !wallSliding) {
+        if (canGroundPound && !onGround && crouchPressedInAir && !groundPounding && !wallSliding && !climbing) {
             GroundPound();
         }
 
         bool wasInAir = !onGround;   // store if mario was in the air last frame
 
-        RaycastHit2D? hitRayMaybe = CheckGround();
+        RaycastHit2D? hitRayMaybe = null;
+
+        if (!climbing) {
+            hitRayMaybe = CheckGround();
+        }
 
         bool wasOnMovingPlatform = onMovingPlatform;
 
@@ -663,9 +676,15 @@ public class MarioMovement : MonoBehaviour
             wallSliding = false;
         }
 
+        // Climbing
+        if (!climbing && canClimb && direction.y > 0.8f) {
+            StartClimbing();
+        }
+
         animator.SetBool("isWallSliding", wallSliding);
         animator.SetBool("isSpinning", spinning);
         animator.SetBool("isLookingUp", isLookingUp);
+        animator.SetBool("isClimbing", climbing);
 
         // Look Up
         if (!isMoving && direction.y > 0.8f)
@@ -693,6 +712,23 @@ public class MarioMovement : MonoBehaviour
 
         // Physics
         ModifyPhysics();
+    }
+
+    private void StartClimbing() {
+        climbing = true;
+        rb.velocity = Vector2.zero; // Stop all movement
+        rb.gravityScale = 0; // Disable gravity
+        rb.drag = 0; // Disable drag
+        //rb.isKinematic = true; // Make the rigidbody kinematic
+    }
+
+    private void StopClimbing() {
+        climbing = false;
+        rb.gravityScale = 1; // Enable gravity
+        rb.drag = 0; // Disable drag
+        //rb.isKinematic = false; // Make the rigidbody non-kinematic
+
+        FlipTo(rb.velocity.x > 0); // Face the direction of movement
     }
 
     private void TransferMovingPlatformMomentum() {
@@ -906,8 +942,16 @@ public class MarioMovement : MonoBehaviour
         animator.SetBool("isCrawling", isCrawling);
     }
 
+    private void ClimbMove(Vector2 dir) {
+        rb.velocity = new Vector2(dir.x * climbSpeed, dir.y * climbSpeed);
+        animator.SetFloat("climbSpeed", rb.velocity.magnitude);
+    }
+
     // for jumping and also stomping enemies (which always make mario use his walkJumpSpeed)
     public void Jump(float jumpMultiplier = 1f, bool forceWalkJumpSpeed = true) {
+        if (climbing) {
+            StopClimbing();
+        }
         rb.velocity = new Vector2(rb.velocity.x, 0);
         bool useWalkJumpSpeed = forceWalkJumpSpeed || Mathf.Abs(rb.velocity.x) > walkJumpSpeedRequired;
         rb.AddForce(Vector2.up * (useWalkJumpSpeed ? walkJumpSpeed : jumpSpeed) * (swimming ? 0.5f : 1f) * jumpMultiplier, ForceMode2D.Impulse);
@@ -1126,6 +1170,13 @@ public class MarioMovement : MonoBehaviour
             return;
         }  
 
+        // Special Climbing physics
+        if (climbing) {
+            rb.gravityScale = 0; // Disable gravity
+            rb.drag = 0; // Disable drag
+            return;
+        }
+
         Vector2 physicsInput = direction;   // So we can modify it without changing the direction variable
 
         if (onGround) { // Regular physics for air or ground
@@ -1180,8 +1231,7 @@ public class MarioMovement : MonoBehaviour
                 } else {
                     rb.drag = 100000000;
                 }
-                
-
+            
             }
 
             // 0 gravity on the ground
@@ -1509,15 +1559,6 @@ public class MarioMovement : MonoBehaviour
         isYeahAnimationPlaying = false;
     }
 
-    public void PlayCapeSound()
-    {
-        if (capeSound != null)
-        {
-            // Play the audio clip
-            audioSource.PlayOneShot(capeSound);
-        }
-    }
-
     private IEnumerator SpawnBubbles()
     {
         while (true)
@@ -1586,6 +1627,11 @@ public class MarioMovement : MonoBehaviour
             }
         }
 
+        if (other.gameObject.layer == LayerMask.NameToLayer("Vine"))
+        {
+            canClimb = true;
+        }
+        
         DetectDamagingObject(other);
     }
 
@@ -1636,6 +1682,14 @@ public class MarioMovement : MonoBehaviour
                 {
                     CancelGroundPound();
                 }
+            }
+        }
+
+        if (other.gameObject.layer == LayerMask.NameToLayer("Vine"))
+        {
+            canClimb = false;
+            if (climbing) {
+                StopClimbing();
             }
         }
     }
@@ -1820,7 +1874,7 @@ public class MarioMovement : MonoBehaviour
             print("crouch value: " + crouchValue);
             if (crouchValue > 0.5f)
             {
-                if (!onGround)
+                if (!onGround && !climbing)
                 {
                     crouchPressedInAir = true; // Set if crouch started while in the air
                 }
@@ -1837,7 +1891,7 @@ public class MarioMovement : MonoBehaviour
        
         // Fallback for keyboard (or other non-float inputs)
         if (context.started){
-            if (!onGround)
+            if (!onGround && !climbing)
             {
                 crouchPressedInAir = true; // Set if crouch started while in the air
             }

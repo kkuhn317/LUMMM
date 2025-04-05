@@ -10,6 +10,7 @@ public class CapeAttack : MarioAbility
     public bool canCape = true;
     public float capeCooldown = 0.75f;
     public float capeAttackDelay = 0.25f; // Time after button press until attack is executed (should line up with animation)
+    public AudioClip capeSound;
 
     public override void onExtraActionPressed()
     {
@@ -36,6 +37,8 @@ public class CapeAttack : MarioAbility
     private IEnumerator CapeAttackDelay()
     {
         yield return new WaitForSeconds(capeAttackDelay);
+
+        GetComponent<AudioSource>().PlayOneShot(capeSound);
 
         // Perform cape attack logic (e.g., hit enemies)
 
