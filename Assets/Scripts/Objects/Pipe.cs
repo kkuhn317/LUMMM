@@ -302,7 +302,6 @@ public class Pipe : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        // Set the Gizmos color to make it easily distinguishable
         Gizmos.color = Color.red;
 
         // Draw the enter direction as a line from the pipe's position
@@ -317,6 +316,5 @@ public class Pipe : MonoBehaviour
             Gizmos.DrawLine(connection.position, (Vector2)connection.position + exitDirectionVector);
             Gizmos.DrawRay(connection.position, exitDirectionVector); // Draw the arrow for the exit direction
         }
-
     }
 }
