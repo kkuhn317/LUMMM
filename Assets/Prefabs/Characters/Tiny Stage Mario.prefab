@@ -34,8 +34,8 @@ Transform:
   m_GameObject: {fileID: 1771483343543010232}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -9.16, y: -2.9367, z: -0.040486585}
-  m_LocalScale: {x: 0.65, y: 0.65, z: 0.65}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 0.9, y: 0.9, z: 0.9}
+  m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 4130259139167701840}
   m_Father: {fileID: 0}
@@ -90,9 +90,10 @@ MonoBehaviour:
   swimGravity: 1
   swimDrag: 3
   swimTerminalVelocity: 2
+  climbSpeed: 2
   onGround: 0
   wasGrounded: 0
-  groundLength: 0.344
+  groundLength: 0.43
   groundSink: 0.1
   onMovingPlatform: 0
   doMovingPlatformMomentum: 1
@@ -148,7 +149,6 @@ MonoBehaviour:
   spinJumpPoofPrefab: {fileID: 6098009751153003477, guid: 4bffeb562d64dd4489d092ac30f57739, type: 3}
   groundPoundSound: {fileID: 8300000, guid: c5475d8541a7c38469c1d501e26f02c0, type: 3}
   groundPoundLandSound: {fileID: 8300000, guid: 72d5926657fc36643afc68851e923cf3, type: 3}
-  capeSound: {fileID: 8300000, guid: 31657360aa7af6642bdf934076b3d65e, type: 3}
   playerInput: {fileID: 0}
 --- !u!50 &1771483343543010230
 Rigidbody2D:

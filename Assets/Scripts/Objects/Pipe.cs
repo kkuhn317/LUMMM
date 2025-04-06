@@ -299,4 +299,24 @@ public class Pipe : MonoBehaviour
             audioSource.PlayOneShot(warpEnterSound);
         }
     }
+
+    private void OnDrawGizmos()
+    {
+        // Set the Gizmos color to make it easily distinguishable
+        Gizmos.color = Color.red;
+
+        // Draw the enter direction as a line from the pipe's position
+        Vector2 enterDirectionVector = DirectionToVector(enterDirection) * enterDistance;
+        Gizmos.DrawLine(transform.position, (Vector2)transform.position + enterDirectionVector);
+        Gizmos.DrawRay(transform.position, enterDirectionVector); // Draw the arrow for the enter direction
+
+        // Draw the exit direction as a line from the connection point
+        if (connection != null)
+        {
+            Vector2 exitDirectionVector = DirectionToVector(exitDirection) * exitDistance;
+            Gizmos.DrawLine(connection.position, (Vector2)connection.position + exitDirectionVector);
+            Gizmos.DrawRay(connection.position, exitDirectionVector); // Draw the arrow for the exit direction
+        }
+
+    }
 }
