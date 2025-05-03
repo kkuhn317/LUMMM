@@ -100,7 +100,7 @@ public class Flag : MonoBehaviour
             other.gameObject.SetActive(false);
 
             var animator = csMario.GetComponent<Animator>();
-            animator.SetBool("isClimbing", true);
+            animator.SetBool("isSideClimbing", true);
             animator.SetFloat("climbSpeed", 1f);
 
             state = FlagState.Sliding;
