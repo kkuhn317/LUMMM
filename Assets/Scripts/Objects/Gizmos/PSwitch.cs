@@ -12,6 +12,13 @@ public class PSwitch : MonoBehaviour
     public GameObject coinPrefab;
     public float effectDuration = 10f; // Duration of the effect in seconds
 
+    public AudioClip switchSound; // Sound to play when the switch is activated
+    private AudioSource audioSource; // Reference to the AudioSource component
+
+    private void Start() {
+        audioSource = GetComponent<AudioSource>();
+    }
+    
     private void OnCollisionEnter2D(Collision2D other) {
         Vector2 impulse = Vector2.zero;
 
@@ -35,14 +42,25 @@ public class PSwitch : MonoBehaviour
 
     private void ActivateSwitch() {
         // Play the animation
-        Animator animator = GetComponent<Animator>();
-        if (animator != null)
-            animator.SetTrigger("Activate");
+        // Animator animator = GetComponent<Animator>();
+        // if (animator != null)
+        //     animator.SetTrigger("Activate");
+
+        // For now, just make the switch disappear visually, and remove the collider
+        GetComponent<Collider2D>().enabled = false;
+        GetComponent<SpriteRenderer>().enabled = false;
 
         // Play the sound
-        AudioSource audioSource = GetComponent<AudioSource>();
+        if (switchSound != null) {
+            audioSource.PlayOneShot(switchSound);
+        }
+
+        // Play the music
         if (audioSource != null)
             audioSource.Play();
+
+        // Override the music
+        GameManager.Instance.OverrideMusic(this.gameObject);
 
         // Change the bricks to coins and add to converted lists
         for (int i = 0; i < bricks.Count; i++) {
@@ -94,6 +112,9 @@ public class PSwitch : MonoBehaviour
             }
         }
         convertedCoins.Clear();
+
+        GameManager.Instance.ResumeMusic(this.gameObject);
+        Destroy(gameObject);
     }
 }
 
