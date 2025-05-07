@@ -45,6 +45,8 @@ public class Firebar : MonoBehaviour
 
     void Update()
     {
+        // Update center position to the current position of the firebar
+        centerPosition = transform.position;
         float angleIncrement = (clockwise ? -1 : 1) * 360f / numFireballs;
         transform.Rotate(Vector3.forward, angleIncrement * Time.deltaTime * firebarRotationSpeed);
 
