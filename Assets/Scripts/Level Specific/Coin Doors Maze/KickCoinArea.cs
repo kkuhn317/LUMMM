@@ -12,7 +12,7 @@ public class KickCoinArea : UseableObject
     private GameObject currentPlayer;
     private AudioSource audioSource;
     bool canKick = false;
-    bool coinInArea = false;
+    public bool coinInArea = false;
 
     // Start is called before the first frame update
     void Start()
@@ -58,6 +58,7 @@ public class KickCoinArea : UseableObject
     protected override void OnTriggerEnter2D(Collider2D collision)
     {
         base.OnTriggerEnter2D(collision);
+        print("This entered: " + collision.gameObject.name);
         if (collision.gameObject == coin)
         {
             coinInArea = true;
