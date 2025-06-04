@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 7555920980545491174}
   - component: {fileID: 7555920980545491175}
   - component: {fileID: 2093626933119272865}
-  - component: {fileID: 2093626933119272870}
+  - component: {fileID: 2809079065065998795}
   - component: {fileID: 2093626933119272871}
   - component: {fileID: 3721417098517996158}
   m_Layer: 7
@@ -126,7 +126,7 @@ CapsuleCollider2D:
   m_Offset: {x: -0.0070729256, y: -0.097}
   m_Size: {x: 0.7794657, y: 0.8028827}
   m_Direction: 0
---- !u!114 &2093626933119272870
+--- !u!114 &2809079065065998795
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -135,7 +135,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 7555920980545491170}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a9b86655e8e6c5048a626eb12a8a1516, type: 3}
+  m_Script: {fileID: 11500000, guid: 4c399731675f9994dba86d101f7cb42e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   movingLeft: 1
@@ -186,7 +186,9 @@ MonoBehaviour:
   onPlayerDamaged:
     m_PersistentCalls:
       m_Calls: []
-  spinJumpEffect: 0
+  spinJumpEffect: 2
+  bobSpeed: 2
+  bobHeight: 0.5
 --- !u!114 &2093626933119272871
 MonoBehaviour:
   m_ObjectHideFlags: 0
