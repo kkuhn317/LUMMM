@@ -1,18 +1,31 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class LevelLoader : MonoBehaviour
 {
     public Animator transition;
     public float transitionChangeDelay = 1.2f;
+    private AudioSource audioSource;
+    private bool isTransitioning = false;
 
-    public void LoadNextLevel() => LoadLevel(SceneManager.GetActiveScene().buildIndex + 1);
+    void Awake()
+    {
+        audioSource = GetComponent<AudioSource>();
+    }
+
+    public void LoadNextLevel()
+    {
+        if (!isTransitioning)
+            LoadLevel(SceneManager.GetActiveScene().buildIndex + 1);
+    }
 
     public void LoadSceneByName(string sceneName)
     {
-        StartCoroutine(LoadSceneByNameCoroutine(sceneName));
+        if (!isTransitioning)
+            StartCoroutine(LoadSceneByNameCoroutine(sceneName));
     }
 
     void LoadLevel(int levelIndex)
@@ -22,21 +35,34 @@ public class LevelLoader : MonoBehaviour
 
     IEnumerator LoadLevelCoroutine(int levelIndex)
     {
-        // Play Animation
+        isTransitioning = true;
+
+        if (EventSystem.current != null)
+        {
+            EventSystem.current.sendNavigationEvents = false;
+            // EventSystem.current.SetSelectedGameObject(null); // Remove selected button, uncommeting this will disables the indicator as well
+        }
+
         transition.SetTrigger("Start");
-        // Add a delay
+        audioSource.Play();
+
         yield return new WaitForSeconds(transitionChangeDelay);
-        // Load scene
         SceneManager.LoadScene(levelIndex);
     }
 
-    IEnumerator LoadSceneByNameCoroutine(string scenename)
+    IEnumerator LoadSceneByNameCoroutine(string sceneName)
     {
-        // Play Animation
+        isTransitioning = true;
+
+        if (EventSystem.current != null)
+        {
+            EventSystem.current.sendNavigationEvents = false;
+            // EventSystem.current.SetSelectedGameObject(null); // Remove selected button, uncommeting this will disables the indicator as well 
+        }
+
         transition.SetTrigger("Start");
-        // Add a delay
+
         yield return new WaitForSeconds(transitionChangeDelay);
-        // Load scene
-        SceneManager.LoadScene(scenename);
+        SceneManager.LoadScene(sceneName);
     }
 }

@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using System.Collections;
+using UnityEngine.EventSystems;
 
 public class FadeInOutScene : MonoBehaviour
 {
@@ -23,9 +24,13 @@ public class FadeInOutScene : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(gameObject);
     }
+    
     #region FadeInAndOut
     private IEnumerator FadeIn(float waitTime, bool doFadeOut = true)
     {
+        if (EventSystem.current != null)
+            EventSystem.current.sendNavigationEvents = false;
+        
         fadeImage.gameObject.SetActive(true);
         fadingIn = true;
 
@@ -33,7 +38,7 @@ public class FadeInOutScene : MonoBehaviour
 
         Color originalColor = Color.clear;
         if (fadingOut)
-        {  
+        {
             // Fade in from the fade out color so it still looks smooth.
             originalColor = fadeImage.color;
         }
@@ -51,10 +56,15 @@ public class FadeInOutScene : MonoBehaviour
             yield return new WaitForSeconds(waitTime);
             fadingIn = false;
             StartCoroutine(FadeOut());
-        } else {
+        }
+        else
+        {
             fadingIn = false;
             fadeImage.gameObject.SetActive(false);
             transitioning = false;
+
+            if (EventSystem.current != null)
+                EventSystem.current.sendNavigationEvents = true;
         }
     }
 
@@ -79,6 +89,9 @@ public class FadeInOutScene : MonoBehaviour
         fadingOut = false;
         fadeImage.gameObject.SetActive(false);
         transitioning = false;
+
+        if (EventSystem.current != null)
+            EventSystem.current.sendNavigationEvents = true; 
     }
     #endregion  
 
