@@ -26,7 +26,7 @@ public class Hero : MonoBehaviour
 	void Update () 
 	{
         if(playerState == PlayerState.Dead) {
-            rb.velocity = Vector2.zero;
+            rb.linearVelocity = Vector2.zero;
             return;
         }
 
@@ -41,7 +41,7 @@ public class Hero : MonoBehaviour
 		if (Input.GetKey(KeyCode.DownArrow))
 			tryMove += Vector3Int.down;
 
-        rb.velocity = Vector3.ClampMagnitude(tryMove, 1f) * m_MoveSpeed;
+        rb.linearVelocity = Vector3.ClampMagnitude(tryMove, 1f) * m_MoveSpeed;
         animator.SetBool("moving", tryMove.magnitude > 0);
         if (Mathf.Abs(tryMove.x) > 0) {
             animator.transform.localScale = tryMove.x < 0f ? new Vector3(-1f, 1f, 1f) : new Vector3(1f, 1f, 1f);

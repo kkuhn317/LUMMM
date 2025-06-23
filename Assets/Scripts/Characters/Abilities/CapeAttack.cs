@@ -106,7 +106,7 @@ public class CapeAttack : MarioAbility
             {
                 // Air-specific cape attack logic
                 rb.gravityScale = marioMovement.fallgravity * 0.3f;
-                rb.velocity = new Vector2(0, Mathf.Max(rb.velocity.y, -1f)); // Retain horizontal momentum, slow descent
+                rb.linearVelocity = new Vector2(0, Mathf.Max(rb.linearVelocity.y, -1f)); // Retain horizontal momentum, slow descent
             }
             else if (marioMovement.onGround && !marioMovement.wasGrounded) // If touching ground during air cape attack
             {
@@ -116,7 +116,7 @@ public class CapeAttack : MarioAbility
             else if (marioMovement.onGround)
             {
                 // Limit horizontal movement in the air
-                marioMovement.GetComponent<Rigidbody2D>().velocity = new Vector2(0, marioMovement.GetComponent<Rigidbody2D>().velocity.y);
+                marioMovement.GetComponent<Rigidbody2D>().linearVelocity = new Vector2(0, marioMovement.GetComponent<Rigidbody2D>().linearVelocity.y);
             }
 
             return; // Skip other movement logic during cape attack

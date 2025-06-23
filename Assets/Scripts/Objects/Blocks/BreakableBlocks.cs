@@ -28,16 +28,16 @@ public class BreakableBlocks : MonoBehaviour
         
             GameObject BlockPiece1 = (GameObject)Instantiate(BlockPiece) as GameObject;
             BlockPiece1.transform.position = new Vector3(blockPos.x - .25f, blockPos.y + .25f, -3);
-            BlockPiece1.GetComponent<Rigidbody2D>().velocity = new Vector2(-4, 16);
+            BlockPiece1.GetComponent<Rigidbody2D>().linearVelocity = new Vector2(-4, 16);
             GameObject BlockPiece2 = (GameObject)Instantiate(BlockPiece) as GameObject;
             BlockPiece2.transform.position = new Vector3(blockPos.x + .25f, blockPos.y + .25f, -3);
-            BlockPiece2.GetComponent<Rigidbody2D>().velocity = new Vector2(4, 16);
+            BlockPiece2.GetComponent<Rigidbody2D>().linearVelocity = new Vector2(4, 16);
             GameObject BlockPiece3 = (GameObject)Instantiate(BlockPiece) as GameObject;
             BlockPiece3.transform.position = new Vector3(blockPos.x - .25f, blockPos.y - .25f, -3);
-            BlockPiece3.GetComponent<Rigidbody2D>().velocity = new Vector2(-4, 10);
+            BlockPiece3.GetComponent<Rigidbody2D>().linearVelocity = new Vector2(-4, 10);
             GameObject BlockPiece4 = (GameObject)Instantiate(BlockPiece) as GameObject;
             BlockPiece4.transform.position = new Vector3(blockPos.x + .25f, blockPos.y - .25f, -3);
-            BlockPiece4.GetComponent<Rigidbody2D>().velocity = new Vector2(4, 10);
+            BlockPiece4.GetComponent<Rigidbody2D>().linearVelocity = new Vector2(4, 10);
 
         }
 

@@ -20,7 +20,7 @@ public class MarioSlip : MonoBehaviour
         // Disable mario movement when slipping
         marioMovement.enabled = false;
 
-        bool movingRight = rb.velocity.x >= 0;
+        bool movingRight = rb.linearVelocity.x >= 0;
 
         float horizVel = movingRight ? 5 : -5;
 
@@ -31,7 +31,7 @@ public class MarioSlip : MonoBehaviour
         rb.AddTorque(movingRight ? 100 : -100);
 
         // Set his vertical velocity
-        rb.velocity = new Vector2(horizVel, 15);
+        rb.linearVelocity = new Vector2(horizVel, 15);
 
         // Set gravity scale to the in air gravity
         rb.gravityScale = marioMovement.fallgravity;
@@ -45,11 +45,11 @@ public class MarioSlip : MonoBehaviour
     void FixedUpdate() {
         RaycastHit2D? hit = marioMovement.CheckGround();
 
-        if (hit != null && rb.velocity.y <= 0) {
+        if (hit != null && rb.linearVelocity.y <= 0) {
             // If mario is on the ground, stop slipping
             rb.constraints = RigidbodyConstraints2D.FreezeRotation;
             transform.rotation = Quaternion.identity;
-            rb.velocity = new Vector2(0, 0);
+            rb.linearVelocity = new Vector2(0, 0);
             animator.SetBool("onGround", true);
             marioMovement.enabled = true;
             Destroy(this);

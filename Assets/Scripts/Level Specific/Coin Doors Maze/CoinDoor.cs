@@ -39,7 +39,7 @@ public class CoinDoor : Door
     protected override void FreezePlayer()
     {
         player.GetComponent<Rigidbody2D>().simulated = false;
-        player.GetComponent<Rigidbody2D>().velocity = Vector2.zero;
+        player.GetComponent<Rigidbody2D>().linearVelocity = Vector2.zero;
         Animator playerAnimator = player.GetComponent<Animator>();
         if (!mustBeStanding)
         {
