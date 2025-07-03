@@ -1,17 +1,22 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Localization.Settings;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 
-public class LanguageOption : MonoBehaviour
+public class LanguageMenu : MenuBase
 {
     public List<Button> languageButtons;
     public List<string> languageCodes;
 
-    void Start() {
-        // Set click events for each language button
+    public override void Open()
+    {
+        base.Open();
+        HighlightCurrentLanguage();
+    }
+
+    private void Start()
+    {
         for (int i = 0; i < languageButtons.Count; i++)
         {
             int index = i;
@@ -19,9 +24,8 @@ public class LanguageOption : MonoBehaviour
         }
     }
 
-    void OnEnable()
+    private void HighlightCurrentLanguage()
     {
-        // make the button for the current language selected
         string currentLanguage = PlayerPrefs.GetString("Language", "en");
         for (int i = 0; i < languageCodes.Count; i++)
         {
@@ -32,7 +36,7 @@ public class LanguageOption : MonoBehaviour
         }
     }
 
-    public void SetLanguage(string language)
+    private void SetLanguage(string language)
     {
         PlayerPrefs.SetString("Language", language);
         PlayerPrefs.Save();

@@ -7,7 +7,7 @@ using UnityEngine.UI;
 public class SwipeController : MonoBehaviour, IDragHandler, IEndDragHandler
 {
     [SerializeField] int maxPage;
-    int currentPage;
+    public int currentPage;
     Vector3 targetPos;
     [SerializeField] Vector3 pageStep;
     [SerializeField] RectTransform levelPagesRect;
@@ -28,6 +28,9 @@ public class SwipeController : MonoBehaviour, IDragHandler, IEndDragHandler
 
     [SerializeField] List<CanvasGroup> pageCanvasGroups; // Add CanvasGroups for each page
     private Vector3 initialPosition;
+
+    public delegate void PageChangedHandler(int newPage);
+    public event PageChangedHandler OnPageChanged;
 
     private void Awake()
     {
@@ -91,6 +94,8 @@ public class SwipeController : MonoBehaviour, IDragHandler, IEndDragHandler
         UpdateBar();
         UpdateCanvasGroups();
         UpdateButtonStates();
+
+        OnPageChanged?.Invoke(currentPage);
     }
 
     public void OnDrag(PointerEventData eventData)

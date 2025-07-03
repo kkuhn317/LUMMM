@@ -71,6 +71,9 @@ public class CreditsScroller : MonoBehaviour
 
     void Update()
     {
+        // Adjust the speed to the desired speed
+        currentScrollSpeed = Mathf.Lerp(currentScrollSpeed, targetScrollSpeed, Time.deltaTime * 5f);
+
         // Apply scrolling
         Vector3 newPos = creditsText.transform.position + Vector3.up * currentScrollSpeed * Time.deltaTime * Screen.height / 1080;
 

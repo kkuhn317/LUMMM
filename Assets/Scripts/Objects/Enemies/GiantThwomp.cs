@@ -585,7 +585,7 @@ public class GiantThwomp : EnemyAI, IGroundPoundable
                     if (playerRb != null)
                     {
                         // Apply a stronger upward force if the player is in a spin attack
-                        playerRb.linearVelocity = new Vector2(playerRb.linearVelocity.x, playerRb.linearVelocity.y * spinAttackBouncePower);
+                        playerRb.velocity = new Vector2(playerRb.velocity.x, playerRb.velocity.y * spinAttackBouncePower);
                     }
 
                     if (marioLaunched != null){
@@ -597,7 +597,7 @@ public class GiantThwomp : EnemyAI, IGroundPoundable
                     Rigidbody2D playerRb = other.gameObject.GetComponent<Rigidbody2D>();
                     if (playerRb != null)
                     {
-                        playerRb.linearVelocity = new Vector2(playerRb.linearVelocity.x, playerRb.linearVelocity.y);
+                        playerRb.velocity = new Vector2(playerRb.velocity.x, playerRb.velocity.y);
                     }
                 }
             }

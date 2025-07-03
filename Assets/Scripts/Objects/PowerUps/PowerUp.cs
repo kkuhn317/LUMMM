@@ -87,7 +87,7 @@ public class PowerUp : ObjectPhysics
         {
             GameObject oneupSprite = Instantiate(oneupSpritePrefab, transform.position, Quaternion.identity);
             Rigidbody2D upSpriteRigidbody = oneupSprite.GetComponent<Rigidbody2D>();
-            upSpriteRigidbody.linearVelocity = Vector2.up * upSpeed;
+            upSpriteRigidbody.velocity = Vector2.up * upSpeed;
 
             Destroy(oneupSprite, 1.0f);
         }

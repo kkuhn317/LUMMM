@@ -9,10 +9,4 @@ public class TitleVersionNumber : MonoBehaviour
     {
         GetComponent<TMPro.TextMeshProUGUI>().text = "Version " + Application.version;
     }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 }

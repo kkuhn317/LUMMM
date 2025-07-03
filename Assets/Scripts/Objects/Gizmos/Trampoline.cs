@@ -46,19 +46,19 @@ public class Trampoline : MonoBehaviour
             if (other.gameObject.tag == "Player") {
                 MarioMovement playerScript = other.gameObject.GetComponent<MarioMovement>();
                 playerScript.Jump();
-                other.gameObject.GetComponent<Rigidbody2D>().linearVelocity += new Vector2(0, playerBouncePower);
+                other.gameObject.GetComponent<Rigidbody2D>().velocity += new Vector2(0, playerBouncePower);
                 Bounce();
             }
         } else if (impulse.x < 0 && sideways) {
             if (other.gameObject.tag == "Player") {
                 MarioMovement playerScript = other.gameObject.GetComponent<MarioMovement>();
-                other.gameObject.GetComponent<Rigidbody2D>().linearVelocity += new Vector2(playerBouncePower, 0);
+                other.gameObject.GetComponent<Rigidbody2D>().velocity += new Vector2(playerBouncePower, 0);
                 Bounce();
             }
         } else if (impulse.x > 0 && sideways) {
             if (other.gameObject.tag == "Player") {
                 MarioMovement playerScript = other.gameObject.GetComponent<MarioMovement>();
-                other.gameObject.GetComponent<Rigidbody2D>().linearVelocity += new Vector2(-playerBouncePower, 0);
+                other.gameObject.GetComponent<Rigidbody2D>().velocity += new Vector2(-playerBouncePower, 0);
                 Bounce();
             }
         }

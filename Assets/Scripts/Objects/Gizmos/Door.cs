@@ -127,7 +127,7 @@ public class Door : MonoBehaviour
 
     protected virtual void FreezePlayer() {
         player.GetComponent<Rigidbody2D>().simulated = false;
-        player.GetComponent<Rigidbody2D>().linearVelocity = Vector2.zero;
+        player.GetComponent<Rigidbody2D>().velocity = Vector2.zero;
         Animator playerAnimator = player.GetComponent<Animator>();
         playerAnimator.SetBool("onGround", true);
         playerAnimator.SetBool("isRunning", false);

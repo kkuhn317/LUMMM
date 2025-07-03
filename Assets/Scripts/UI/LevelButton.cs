@@ -164,9 +164,12 @@ public class LevelButton : MonoBehaviour
 
     public void OnDoubleClick()
     {
-        LevelSelectionManager.Instance.OnPlayButtonClick();
-        if (LevelSelectionManager.IsLevelPlayable(this)) {
-            audioSource.Play();
+        if (!FadeInOutScene.Instance.transitioning)
+        {
+            LevelSelectionManager.Instance.OnPlayButtonClick();
+            if (LevelSelectionManager.IsLevelPlayable(this)) {
+                audioSource.Play();
+            }
         }
     }
 

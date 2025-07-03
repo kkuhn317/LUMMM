@@ -76,7 +76,7 @@ public class Pipe : MonoBehaviour
         Rigidbody2D playerRigidbody = player.GetComponent<Rigidbody2D>();
         if (playerRigidbody != null)
         {
-            playerRigidbody.linearVelocity = Vector2.zero;
+            playerRigidbody.velocity = Vector2.zero;
             playerRigidbody.isKinematic = true;
         }
 

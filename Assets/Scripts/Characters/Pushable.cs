@@ -28,14 +28,14 @@ public class Pushable : MonoBehaviour
         GameObject mario = playerScript.gameObject;
         Rigidbody2D marioRb = mario.GetComponent<Rigidbody2D>();
 
-        if (mario.transform.position.x < transform.position.x && playerScript.moveInput.x > 0 && marioRb.linearVelocity.x >= 0)
+        if (mario.transform.position.x < transform.position.x && playerScript.moveInput.x > 0 && marioRb.velocity.x >= 0)
         {
             physics.movingLeft = false;
             physics.velocity.x = pushSpeed;
             playerScript.FlipTo(true);
             playerScript.StartPushing(physics, pushSpeed);
         }
-        else if (mario.transform.position.x > transform.position.x && playerScript.moveInput.x < 0 && marioRb.linearVelocity.x <= 0)
+        else if (mario.transform.position.x > transform.position.x && playerScript.moveInput.x < 0 && marioRb.velocity.x <= 0)
         {
             physics.movingLeft = true;
             physics.velocity.x = pushSpeed;

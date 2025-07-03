@@ -66,7 +66,7 @@ public class DonutBlock : MonoBehaviour, IDestructible
         rb.isKinematic = false; // Enable physics to let the block fall
 
         // Set the falling speed
-        rb.linearVelocity = new Vector2(0f, -fallSpeed);
+        rb.velocity = new Vector2(0f, -fallSpeed);
 
         yield return new WaitForSeconds(dropTime);
 
@@ -75,7 +75,7 @@ public class DonutBlock : MonoBehaviour, IDestructible
         isRegenerating = true;
 
         // Make the block static for regeneration
-        rb.linearVelocity = Vector2.zero;
+        rb.velocity = Vector2.zero;
         rb.angularVelocity = 0f;
 
         spriteRenderer.sprite = normalSprite;
@@ -91,7 +91,7 @@ public class DonutBlock : MonoBehaviour, IDestructible
         transform.position = initialPosition;
 
         // Reset the block's velocity and angular velocity
-        rb.linearVelocity = Vector2.zero;
+        rb.velocity = Vector2.zero;
         rb.angularVelocity = 0f;
 
         rb.isKinematic = true; // Disable physics while at the initial position

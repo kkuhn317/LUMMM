@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.Localization.Settings;
 using UnityEngine.Localization.Tables;
 using UnityEngine.UI;
+using UnityEngine.Events;
 
 public class LevelSelectionManager : MonoBehaviour
 {
@@ -42,6 +43,10 @@ public class LevelSelectionManager : MonoBehaviour
     public Sprite[] minirankTypes; // 0 - poison, 1 - mushroom, 2 - flower, 3 - 1up, 4 - star
     public LevelButton selectedLevelButton;
 
+    [Header("Events")]
+    public UnityEvent onSceneStart;
+    public UnityEvent onValidLevelSelected;
+
     void Awake()
     {
         if (Instance == null)
@@ -56,6 +61,8 @@ public class LevelSelectionManager : MonoBehaviour
 
     void Start()
     {
+        onSceneStart?.Invoke();
+        playButton.interactable = false;
         playButton.gameObject.SetActive(false); // Deactivate the button if it's initially active
         // Set the enabled state of the videoLinkButton based on persistent event listeners
         videoLinkButton.enabled = videoLinkButton.onClick.GetPersistentEventCount() > 0;
@@ -120,11 +127,18 @@ public class LevelSelectionManager : MonoBehaviour
         playButton.gameObject.SetActive(true);
         playButton.onClick.RemoveAllListeners(); // Remove previous listeners if any
 
+        playButton.gameObject.SetActive(true);
+
         if (!IsLevelPlayable(button))
         {
-            playButton.gameObject.SetActive(false);
+            playButton.interactable = false;
+            gameObject.SetActive(false);
             return;
         }
+
+        playButton.interactable = true;
+
+        onValidLevelSelected?.Invoke();
     }
 
     // Allows you open an URL

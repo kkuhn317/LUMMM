@@ -34,6 +34,8 @@ public class GameSettings : MonoBehaviour
 
     private void Start()
     {
+        LocalizationSettings.InitializationOperation.WaitForCompletion();
+        
         ConfigureResolution();
         ConfigureFullscreenToggle();
         ConfigureGraphicsQuality();
@@ -139,8 +141,12 @@ public class GameSettings : MonoBehaviour
     private void ConfigureGraphicsQuality()
     {
         int currentQualityIndex = PlayerPrefs.GetInt(SettingsKeys.GraphicsQualityKey, QualitySettings.GetQualityLevel());
-        graphicsQualityDropdown.ClearOptions();
         string[] qualityLevels = QualitySettings.names;
+
+        if (currentQualityIndex >= qualityLevels.Length)
+            currentQualityIndex = 0;
+
+        graphicsQualityDropdown.ClearOptions();
 
         foreach (string qualityLevel in qualityLevels)
         {
