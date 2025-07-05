@@ -1,126 +1,143 @@
 using UnityEngine;
 using UnityEngine.Events;
+using System.Collections;
 
 public class LeverController : UseableObject
 {
-    public Transform objectToRotate; // The GameObject to rotate
-    public Vector3 targetRotation; // The target rotation after player interaction
-    public Transform objectToMove; // The GameObject to move after rotation
-    public Vector3 targetPosition; // The target position after player interaction
-    public float rotationSpeed = 50f; // Speed at which the object rotates
-    public float moveSpeed = 5f; // Speed at which the object moves after rotation
+    public enum MovementMode { Parallel, Sequential }
+    public MovementMode movementMode = MovementMode.Parallel;
 
-    private bool isRotating;
-    private bool isMoving;
-    private Quaternion initialRotation;
-    private Vector3 initialPosition;
+    public Transform leverHandle;
+    public Vector3 leverTargetRotation;
 
-    private Vector3 currentTargetRot;   // Will be set to either targetRotation or initialRotation
-    private Vector3 currentTargetPos;   // Will be set to either targetPosition or initialPosition
+    public Transform[] objectsToMove;
+    public Vector3[] targetPositions;
+
+    public float rotationSpeed = 50f;
+    public float moveSpeed = 5f;
+
+    [Min(0f)] public float minTimeBetweenUses = 0f;
+    private float lastUseTime = Mathf.NegativeInfinity;
+
+    private Quaternion initialLeverRotation;
+    private Vector3[] initialPositions;
 
     private AudioSource audioSourcePullerRotate;
     public AudioSource audioSourceBarrierMove;
 
-    public AudioClip pullerAudioClip; // Audio clip for puller rotation
-    public AudioClip barriermoveAudioClip;   // Audio clip for barrier movement
+    public AudioClip pullerAudioClip;
+    public AudioClip barriermoveAudioClip;
 
-    // Used to do more custom things when the lever is pulled
     [SerializeField] UnityEvent onLeverPull;
     [SerializeField] UnityEvent onLeverReset;
 
+    private bool isLocked = false;
+
     private void Start()
     {
-        if (objectToMove != null) {
-            initialRotation = objectToRotate.rotation;
-            initialPosition = objectToMove.position;
-        }
+        initialLeverRotation = leverHandle.rotation;
+
+        initialPositions = new Vector3[objectsToMove.Length];
+        for (int i = 0; i < objectsToMove.Length; i++)
+            initialPositions[i] = objectsToMove[i].position;
 
         audioSourcePullerRotate = GetComponent<AudioSource>();
         audioSourceBarrierMove = GetComponent<AudioSource>();
 
-        // Deactivate the objectToActivate initially
         if (keyActivate != null)
-        {
             keyActivate.SetActive(false);
-        }
     }
 
     protected override void UseObject()
     {
-        RotateHandle(targetRotation);   // Rotate lever handle
+        if (isLocked || Time.time - lastUseTime < minTimeBetweenUses)
+            return;
+
+        lastUseTime = Time.time;
+        isLocked = true;
+        StartCoroutine(RotateLever(hasUsed ? leverTargetRotation : initialLeverRotation.eulerAngles));
         onLeverPull.Invoke();
     }
 
     protected override void ResetObject()
     {
-        RotateHandle(initialRotation.eulerAngles); // Reset lever rotation
+        if (isLocked || Time.time - lastUseTime < minTimeBetweenUses)
+            return;
+
+        lastUseTime = Time.time;
+        isLocked = true;
+        StartCoroutine(RotateLever(initialLeverRotation.eulerAngles));
         onLeverReset.Invoke();
     }
 
-    private void Update()
+    private IEnumerator RotateLever(Vector3 targetEuler)
     {
-        if (isRotating) // rotating logic
-        {
-            // Rotate the object smoothly over time
-            float step = rotationSpeed * Time.deltaTime;
-            objectToRotate.rotation = Quaternion.RotateTowards(objectToRotate.rotation, Quaternion.Euler(currentTargetRot), step);
+        Quaternion target = Quaternion.Euler(targetEuler);
 
-            if (Quaternion.Angle(objectToRotate.rotation, Quaternion.Euler(currentTargetRot)) < 0.01f)
-            {
-                objectToRotate.rotation = Quaternion.Euler(currentTargetRot);
-                isRotating = false;
-
-                if (!isMoving)
-                {
-                    if (hasUsed) {
-                        MoveObject(targetPosition);
-                    }
-                    else {
-                        MoveObject(initialPosition);
-                    }
-                }
-            }
-        }
-
-        if (isMoving)
-        {
-            // Move the object smoothly over time
-            float step = moveSpeed * Time.deltaTime;
-            objectToMove.position = Vector3.MoveTowards(objectToMove.position, currentTargetPos, step);
-
-            if (Vector3.Distance(objectToMove.position, currentTargetPos) < 0.01f)
-            {
-                objectToMove.position = currentTargetPos;
-                isMoving = false;
-            }
-        }
-    }
-
-    private void RotateHandle(Vector3 targetRot)
-    {
-        currentTargetRot = targetRot;
-        isRotating = true;
-
-        if (audioSourcePullerRotate != null && pullerAudioClip != null)
-        {
+        // 🔊 Play only once, regardless of mode
+        if (audioSourcePullerRotate && pullerAudioClip)
             audioSourcePullerRotate.PlayOneShot(pullerAudioClip);
+
+        while (Quaternion.Angle(leverHandle.rotation, target) > 0.01f)
+        {
+            leverHandle.rotation = Quaternion.RotateTowards(leverHandle.rotation, target, rotationSpeed * Time.deltaTime);
+            yield return null;
+        }
+
+        // 🧼 Removed duplicate sound in Sequential mode
+
+        if (movementMode == MovementMode.Parallel)
+            yield return StartCoroutine(MoveAllParallel(hasUsed ? targetPositions : initialPositions));
+        else
+            yield return StartCoroutine(MoveSequentially(hasUsed ? targetPositions : initialPositions));
+
+        isLocked = false;
+    }
+
+    private IEnumerator MoveAllParallel(Vector3[] targetPos)
+    {
+        if (audioSourceBarrierMove && barriermoveAudioClip)
+            audioSourceBarrierMove.PlayOneShot(barriermoveAudioClip);
+
+        bool moving = true;
+        while (moving)
+        {
+            moving = false;
+            for (int i = 0; i < objectsToMove.Length; i++)
+            {
+                objectsToMove[i].position = Vector3.MoveTowards(objectsToMove[i].position, targetPos[i], moveSpeed * Time.deltaTime);
+                if (Vector3.Distance(objectsToMove[i].position, targetPos[i]) > 0.01f)
+                    moving = true;
+            }
+            yield return null;
         }
     }
 
-    private void MoveObject(Vector3 targetPos)
+    private IEnumerator MoveSequentially(Vector3[] targetPos)
     {
-        currentTargetPos = targetPos;
-        isMoving = true;
-
-        if (audioSourceBarrierMove != null && barriermoveAudioClip != null)
+        int count = objectsToMove.Length;
+        for (int j = 0; j < count; j++)
         {
-            audioSourceBarrierMove.PlayOneShot(barriermoveAudioClip);
+            int i = hasUsed ? j : count - 1 - j;
+
+            if (audioSourceBarrierMove && barriermoveAudioClip)
+                audioSourceBarrierMove.PlayOneShot(barriermoveAudioClip);
+
+            while (Vector3.Distance(objectsToMove[i].position, targetPos[i]) > 0.01f)
+            {
+                objectsToMove[i].position = Vector3.MoveTowards(objectsToMove[i].position, targetPos[i], moveSpeed * Time.deltaTime);
+                yield return null;
+            }
         }
     }
 
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(targetPosition, 0.5f);
+        if (targetPositions != null)
+        {
+            foreach (var pos in targetPositions)
+                Gizmos.DrawWireSphere(pos, 0.5f);
+        }
     }
 }
