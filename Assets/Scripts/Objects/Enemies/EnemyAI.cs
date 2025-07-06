@@ -34,7 +34,18 @@ public class EnemyAI : ObjectPhysics
     protected override void Start()
     {
         base.Start();
-        enabled = false;
+
+        // Fix for editor bug where OnBecameVisible is not called on startup sometimes
+        Renderer renderer = GetComponent<Renderer>();
+        if (renderer != null)
+        {
+            
+            if (renderer.isVisible)
+            {
+                print("visible on start: " + gameObject.name);
+                OnBecameVisible();
+            }
+        }
     }
 
     public virtual void OnBecameVisible()

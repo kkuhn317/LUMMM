@@ -11,7 +11,7 @@ public class LeverController : UseableObject
     public Vector3 leverTargetRotation;
 
     public Transform[] objectsToMove;
-    public Vector3[] targetPositions;
+    public Vector3[] targetDistances;
 
     public float rotationSpeed = 50f;
     public float moveSpeed = 5f;
@@ -39,7 +39,7 @@ public class LeverController : UseableObject
 
         initialPositions = new Vector3[objectsToMove.Length];
         for (int i = 0; i < objectsToMove.Length; i++)
-            initialPositions[i] = objectsToMove[i].position;
+            initialPositions[i] = objectsToMove[i].localPosition;
 
         audioSourcePullerRotate = GetComponent<AudioSource>();
         audioSourceBarrierMove = GetComponent<AudioSource>();
@@ -84,12 +84,18 @@ public class LeverController : UseableObject
             yield return null;
         }
 
-        // 🧼 Removed duplicate sound in Sequential mode
+        // Calculate target positions based on lever state
+        bool hasUsed = leverHandle.rotation == Quaternion.Euler(leverTargetRotation);
+        Vector3[] targetPositions = new Vector3[objectsToMove.Length];
+        for (int i = 0; i < objectsToMove.Length; i++)
+        {
+            targetPositions[i] = hasUsed ? initialPositions[i] + targetDistances[i] : initialPositions[i];
+        }
 
         if (movementMode == MovementMode.Parallel)
-            yield return StartCoroutine(MoveAllParallel(hasUsed ? targetPositions : initialPositions));
+            yield return StartCoroutine(MoveAllParallel(targetPositions));
         else
-            yield return StartCoroutine(MoveSequentially(hasUsed ? targetPositions : initialPositions));
+            yield return StartCoroutine(MoveSequentially(targetPositions));
 
         isLocked = false;
     }
@@ -105,8 +111,8 @@ public class LeverController : UseableObject
             moving = false;
             for (int i = 0; i < objectsToMove.Length; i++)
             {
-                objectsToMove[i].position = Vector3.MoveTowards(objectsToMove[i].position, targetPos[i], moveSpeed * Time.deltaTime);
-                if (Vector3.Distance(objectsToMove[i].position, targetPos[i]) > 0.01f)
+                objectsToMove[i].localPosition = Vector3.MoveTowards(objectsToMove[i].localPosition, targetPos[i], moveSpeed * Time.deltaTime);
+                if (Vector3.Distance(objectsToMove[i].localPosition, targetPos[i]) > 0.01f)
                     moving = true;
             }
             yield return null;
@@ -123,9 +129,9 @@ public class LeverController : UseableObject
             if (audioSourceBarrierMove && barriermoveAudioClip)
                 audioSourceBarrierMove.PlayOneShot(barriermoveAudioClip);
 
-            while (Vector3.Distance(objectsToMove[i].position, targetPos[i]) > 0.01f)
+            while (Vector3.Distance(objectsToMove[i].localPosition, targetPos[i]) > 0.01f)
             {
-                objectsToMove[i].position = Vector3.MoveTowards(objectsToMove[i].position, targetPos[i], moveSpeed * Time.deltaTime);
+                objectsToMove[i].localPosition = Vector3.MoveTowards(objectsToMove[i].localPosition, targetPos[i], moveSpeed * Time.deltaTime);
                 yield return null;
             }
         }
@@ -134,10 +140,14 @@ public class LeverController : UseableObject
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.yellow;
-        if (targetPositions != null)
+        if (objectsToMove != null && targetDistances != null && objectsToMove.Length == targetDistances.Length)
         {
-            foreach (var pos in targetPositions)
-                Gizmos.DrawWireSphere(pos, 0.5f);
+            for (int i = 0; i < objectsToMove.Length; i++)
+            {
+                Vector3 initialPos = Application.isPlaying ? initialPositions[i] : objectsToMove[i].localPosition;
+                Vector3 targetPos = initialPos + targetDistances[i];
+                Gizmos.DrawWireSphere(objectsToMove[i].parent ? objectsToMove[i].parent.TransformPoint(targetPos) : targetPos, 0.5f);
+            }
         }
     }
 }
