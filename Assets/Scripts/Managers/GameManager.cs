@@ -572,6 +572,9 @@ public class GameManager : MonoBehaviour
                 // Enable the Game Over screen
                 GameOverScreenGameObject.SetActive(true);
                 HideUI();
+
+                // Remove saved progress
+                RemoveProgress();
             }
             else
             {
@@ -579,7 +582,8 @@ public class GameManager : MonoBehaviour
                 SaveProgress();
 
                 // Load the LoseLife scene and restart the current level
-                if (!FadeInOutScene.Instance.transitioning){
+                if (!FadeInOutScene.Instance.transitioning)
+                {
                     SceneManager.LoadScene(loseLifeSceneName);
                 }
             }
