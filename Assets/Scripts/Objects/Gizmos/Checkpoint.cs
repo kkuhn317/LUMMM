@@ -7,6 +7,7 @@ public class Checkpoint : MonoBehaviour
 {
     [Header("Checkpoint")]
 
+    public int checkpointID; // Unique ID for the checkpoint, used to identify it in GameManager
     public AudioClip CheckpointSound;
     public Sprite passive;
     public Sprite[] active;
@@ -32,6 +33,20 @@ public class Checkpoint : MonoBehaviour
         spriteRenderer = GetComponent<SpriteRenderer>();
         audioSource = GetComponent<AudioSource>();
         checkpointCollider = GetComponent<BoxCollider2D>();
+
+        if (GlobalVariables.enableCheckpoints)
+        {
+            EnableCheckpoint();
+        }
+        else
+        {
+            DisableCheckpoint();
+        }
+    }
+
+    private void Start()
+    {
+        GameManager.Instance.AddCheckpoint(this);
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
@@ -52,7 +67,7 @@ public class Checkpoint : MonoBehaviour
             }
 
             // Set the checkpoint in GlobalVariables
-            GlobalVariables.checkpoint = GameManager.Instance.GetCheckpointID(this);
+            GlobalVariables.checkpoint = checkpointID;
 
             // Save Progress
             GameManager.Instance.SaveProgress();

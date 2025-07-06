@@ -63,7 +63,7 @@ public class GameManager : MonoBehaviour
     public GameObject onScreenControls;
 
     [Header("Checkpoints")]
-    private Checkpoint[] checkpoints;
+    private List<Checkpoint> checkpoints = new List<Checkpoint>(); // List of checkpoints in the scene
 
     #region GreenCoindata
     private List<GameObject> collectedGreenCoins = new List<GameObject>();  // ALL green coins ever collected
@@ -87,7 +87,7 @@ public class GameManager : MonoBehaviour
     //    If you lose the saved progress, these coins will go back to not being collected.
     public void LoadCollectedCoins()
     {
-        for(int i = 0; i < greenCoins.Length; i++)
+        for (int i = 0; i < greenCoins.Length; i++)
         {
             // Collected green coins (the ones you get and then beat the level)
             if (PlayerPrefs.GetInt("CollectedCoin" + i + "_" + levelID, 0) == 1)
@@ -110,7 +110,8 @@ public class GameManager : MonoBehaviour
             // Saved green coins (the ones you get and then hit a checkpoint)
             // Check if the level is the saved level
             // We need to check here because LevelSelectionManager can't load the green coins for the saved level
-            if (levelID != PlayerPrefs.GetString("SavedLevel", "none")) {
+            if (levelID != PlayerPrefs.GetString("SavedLevel", "none"))
+            {
                 continue;
             }
 
@@ -323,7 +324,8 @@ public class GameManager : MonoBehaviour
     {
         pauseable = true;
         isPaused = false;
-        if (hideCursor) {
+        if (hideCursor)
+        {
             CursorHelper.HideCursor();
         }
 
@@ -333,20 +335,23 @@ public class GameManager : MonoBehaviour
             ApplyOptionsMenuSettings();
         }
 
-        if (music) {
+        if (music)
+        {
             print("Music found");
             currentlyPlayingMusic = music;
         }
         currentTime = startingTime;
 
-        if (GlobalVariables.levelInfo == null) {
+        if (GlobalVariables.levelInfo == null)
+        {
             GlobalVariables.levelInfo = TestLevelInfo();
         }
 
         levelID = GlobalVariables.levelInfo.levelID;
         Debug.Log("Current level ID: " + levelID);
 
-        if (!isOptionsMenuLevel) {
+        if (!isOptionsMenuLevel)
+        {
             // Load the high score from PlayerPrefs, defaulting to 0 if it doesn't exist.
             highScore = PlayerPrefs.GetInt("HighScore", 0);
 
@@ -365,10 +370,11 @@ public class GameManager : MonoBehaviour
         {
             GlobalVariables.coinCount = 0;
         }
-        
+
         GetTotalCoins();    // TODO: remove because we are not tracking total coins anymore
         ResetCurrentRank();
-        if (!isOptionsMenuLevel) {
+        if (!isOptionsMenuLevel)
+        {
             LoadCollectedCoins(); // Load collected coins data from PlayerPrefs
             UpdateHighScoreUI();
             UpdateLivesUI();
@@ -376,21 +382,22 @@ public class GameManager : MonoBehaviour
             UpdateScoreUI();
             InitSpeedrunTimer();
         }
-        ToggleCheckpoints();
-        SetMarioPosition();
         CheckForInfiniteTime();
     }
 
-    void OnEnable() {
+    void OnEnable()
+    {
         pauseAction.Enable();
     }
 
-    void OnDisable() {
+    void OnDisable()
+    {
         pauseAction.Disable();
     }
 
     // So no error when running starting in the level scene
-    LevelInfo TestLevelInfo() {
+    LevelInfo TestLevelInfo()
+    {
         LevelInfo info = ScriptableObject.CreateInstance<LevelInfo>();
         info.levelID = "test";
         info.levelScene = SceneManager.GetActiveScene().name;
@@ -403,14 +410,19 @@ public class GameManager : MonoBehaviour
     // Update is called once per frame
     protected virtual void Update()
     {
-        if (levelNameText != null) {
+        if (levelNameText != null)
+        {
             levelNameText.text = LocalizationSettings.StringDatabase.GetLocalizedString("Level_" + levelID);
         }
 
-        if (CheckpointIndicator != null) {
-            if (GlobalVariables.checkpoint != -1) {
+        if (CheckpointIndicator != null)
+        {
+            if (GlobalVariables.checkpoint != -1)
+            {
                 CheckpointIndicator.SetActive(true);
-            } else {
+            }
+            else
+            {
                 CheckpointIndicator.SetActive(false);
             }
         }
@@ -421,16 +433,21 @@ public class GameManager : MonoBehaviour
             UpdateRank();
             UpdateSpeedrunTimerUI();
 
-            if (pauseAction.WasPressedThisFrame()) {
-                if (!isOptionsMenuLevel || GetComponent<OptionsGameManager>().CanTogglePause()) {
+            if (pauseAction.WasPressedThisFrame())
+            {
+                if (!isOptionsMenuLevel || GetComponent<OptionsGameManager>().CanTogglePause())
+                {
                     TogglePauseGame();
                 }
             }
 
             // Check if enablePlushies is true, then activate "Plushie" objects.
-            if (GlobalVariables.enablePlushies) {
+            if (GlobalVariables.enablePlushies)
+            {
                 ActivatePlushieObjects();
-            } else {
+            }
+            else
+            {
                 DeactivatePlushieObjects();
             }
 
@@ -481,9 +498,12 @@ public class GameManager : MonoBehaviour
 
     public void Restart()
     {
-        if(GlobalVariables.checkpoint != -1) {
+        if (GlobalVariables.checkpoint != -1)
+        {
             GoToResetPopUp();
-        } else {
+        }
+        else
+        {
             RestartLevelFromBeginning();
         }
     }
@@ -525,7 +545,7 @@ public class GameManager : MonoBehaviour
         // Unpause the game
         ResumeGame();
     }
-    
+
     public void RestartLevelFromCheckpoint()
     {
         // turn off all music overrides
@@ -548,7 +568,8 @@ public class GameManager : MonoBehaviour
         FadeInOutScene.Instance.LoadSceneWithFade(SceneManager.GetActiveScene().name);
     }
 
-    public void HideUI(){
+    public void HideUI()
+    {
         if (levelUI != null)
         {
             levelUI.SetActive(false);
@@ -600,7 +621,7 @@ public class GameManager : MonoBehaviour
             }
         }
     }
-    
+
     public void AddLives()
     {
         GlobalVariables.lives++;
@@ -653,7 +674,7 @@ public class GameManager : MonoBehaviour
         else if (target is Image finalRevertImage)
             finalRevertImage.color = initialColor;
     }
-    
+
     #region updateUI
     private void UpdateHighScore()
     {
@@ -686,7 +707,8 @@ public class GameManager : MonoBehaviour
             timerText.text = "<mspace=0.8em>" + ((int)currentTime).ToString("D3"); // 000
         }
     }
-    private void UpdateSpeedrunTimerUI() {
+    private void UpdateSpeedrunTimerUI()
+    {
         if (GlobalVariables.SpeedrunMode && speedrunTimerText != null)
         {
             //string timeString = "ERROR!";
@@ -789,12 +811,13 @@ public class GameManager : MonoBehaviour
 
         // Check if the green coin is uncollected
         if (!collectedGreenCoins.Contains(greenCoin))
-        {         
+        {
             Debug.Log("Collecting green coin: " + greenCoin.name);
 
             Image uiImage = greenCoinUIImages[Array.IndexOf(greenCoins, greenCoin)];
             collectedGreenCoins.Add(greenCoin);
-            if (uiImage != null) {
+            if (uiImage != null)
+            {
                 uiImage.sprite = collectedSprite;
             }
 
@@ -877,9 +900,11 @@ public class GameManager : MonoBehaviour
         UpdateScoreUI();
     }
 
-    public void SetNewMainMusic(GameObject music) {
+    public void SetNewMainMusic(GameObject music)
+    {
         // is currentlyPlayingMusic the main music?
-        if (currentlyPlayingMusic == this.music) {
+        if (currentlyPlayingMusic == this.music)
+        {
             currentlyPlayingMusic = music;
         }
         this.music = music;
@@ -921,10 +946,13 @@ public class GameManager : MonoBehaviour
             else
             {
                 // play the original music
-                if (music) {
+                if (music)
+                {
                     currentlyPlayingMusic = music;
                     currentlyPlayingMusic.GetComponent<AudioSource>().mute = false;
-                } else {
+                }
+                else
+                {
                     currentlyPlayingMusic = null;
                 }
             }
@@ -934,10 +962,11 @@ public class GameManager : MonoBehaviour
     public void RemoveAllMusicOverrides()
     {
         StopAllMusic();
-       
-        if (currentlyPlayingMusic != null){
+
+        if (currentlyPlayingMusic != null)
+        {
             currentlyPlayingMusic.GetComponent<AudioSource>().mute = false;
-        }   
+        }
     }
 
     public void RestartMusic()
@@ -954,9 +983,12 @@ public class GameManager : MonoBehaviour
         // clear list of overrides
         musicOverrides.Clear();
 
-        if (music) {
+        if (music)
+        {
             currentlyPlayingMusic = music;
-        } else {
+        }
+        else
+        {
             currentlyPlayingMusic = null;
         }
     }
@@ -971,63 +1003,18 @@ public class GameManager : MonoBehaviour
     // Function to toggle the game between paused and resumed states.
     public void TogglePauseGame()
     {
-        if (!isPaused) {
+        if (!isPaused)
+        {
             PauseGame();
-        } else {
+        }
+        else
+        {
             ResumeGame();
         }
     }
 
-    public void ToggleCheckpoints()
-    {
-        if (!GlobalVariables.enableCheckpoints)
-        {
-            Checkpoint[] checkpoints = FindObjectsOfType<Checkpoint>();
-            foreach (Checkpoint checkpoint in checkpoints)
-            {
-                checkpoint.DisableCheckpoint();
-                Debug.Log("All checkpoints have been disabled");
-            }
-        }
-        else
-        {
-            checkpoints = FindObjectsOfType<Checkpoint>();
-            foreach (Checkpoint checkpoint in checkpoints)
-            {
-                checkpoint.EnableCheckpoint();
-                Debug.Log("All checkpoints have been enabled");
-            }
-        }
-    }
-
-    public int GetCheckpointID(Checkpoint checkpoint)
-    {
-        return Array.IndexOf(checkpoints, checkpoint);
-    }
-
-    // Called when scene is loaded to place mario at the checkpoint
-    private void SetMarioPosition()
-    {
-        if (!GlobalVariables.enableCheckpoints) return;
-        if (GlobalVariables.checkpoint < 0 || GlobalVariables.checkpoint >= checkpoints.Length) return;
-        // Note: currently, if you exit a level after reaching a checkpoint, then go to the rebind menu in the options scene,
-        // The saved checkpoint will still be in GlobalVariables.checkpoint, so that's why we need to check if it's less than the length of the array
-
-        // Get the checkpoint object
-        Checkpoint checkpoint = checkpoints[GlobalVariables.checkpoint];
-
-        // Set it active
-        checkpoint.SetActive();
-
-        // Get the player object
-        GameObject player = GameObject.FindGameObjectWithTag("Player"); // TODO: Replace when we improve player management
-
-        // Set the player's position to the checkpoint's spawn position
-        player.transform.position = checkpoint.SpawnPosition;
-    }
-
     // Save the Level Progress
-    public void SaveProgress() 
+    public void SaveProgress()
     {
         // Save level progress if reached a checkpoint
         if (GlobalVariables.checkpoint != -1)
@@ -1179,7 +1166,8 @@ public class GameManager : MonoBehaviour
         Time.timeScale = 0f;  // Set time scale to 0 (pause)
         GlobalVariables.speedrunTimer.Stop();   // Stop speedrun timer
 
-        if (currentlyPlayingMusic != null) {
+        if (currentlyPlayingMusic != null)
+        {
             originalVolume = currentlyPlayingMusic.GetComponent<AudioSource>().volume;
             currentlyPlayingMusic.GetComponent<AudioSource>().volume = originalVolume * 0.25f;
         }
@@ -1191,54 +1179,59 @@ public class GameManager : MonoBehaviour
             player.DisableInputs();
         }
 
-        if (pausemenu != null) {
+        if (pausemenu != null)
+        {
             // Activate the pause menu
             pausemenu.SetActive(true);
-        }      
+        }
 
-        if (!isOptionsMenuLevel) {
+        if (!isOptionsMenuLevel)
+        {
             mainPauseMenu.SetActive(true);
             ResetPopUp.SetActive(false);
             optionsPauseMenu.SetActive(false);
 
             resumeButton.Select();  // Select the resume button by default
-        } else {
+        }
+        else
+        {
             // Enable UI
             GetComponent<OptionsGameManager>().OnPause();
         }
-        
+
     }
 
     public void ResumeGame()
     {
         isPaused = false;
-        
+
         Time.timeScale = 1f; // Set time scale to normal (unpause)
 
-        if (!stopTimer) {
+        if (!stopTimer)
+        {
             GlobalVariables.speedrunTimer.Start();  // Resume speedrun timer
         }
 
-        if(currentlyPlayingMusic != null) 
-        { 
+        if (currentlyPlayingMusic != null)
+        {
             currentlyPlayingMusic.GetComponent<AudioSource>().volume = originalVolume;
         }
 
         if (hideCursor)
         {
-            CursorHelper.HideCursor();  
+            CursorHelper.HideCursor();
         }
 
         foreach (MarioMovement player in players)
         {
             player.EnableInputs();
-        } 
-        
+        }
+
         if (pausemenu != null)
         {
             pausemenu.SetActive(false);
         }
-        
+
         // Deactivate the pause menu
         if (!isOptionsMenuLevel)
         {
@@ -1249,7 +1242,9 @@ public class GameManager : MonoBehaviour
             {
                 menu.SetActive(false);
             }
-        } else {
+        }
+        else
+        {
             // Disable UI
             GetComponent<OptionsGameManager>().OnResume();
         }
@@ -1303,9 +1298,12 @@ public class GameManager : MonoBehaviour
         // Score amount achieved
         scoreWinScreenText.text = GlobalVariables.score.ToString("D9");
 
-        if (GlobalVariables.score > highScore) { // If the GlobalVariables.score is higher than highScore  on the level
+        if (GlobalVariables.score > highScore)
+        { // If the GlobalVariables.score is higher than highScore  on the level
             NewHighScoreText.SetActive(true); // A text saying "New HighScore!" will appear
-        } else {
+        }
+        else
+        {
             NewHighScoreText.SetActive(false); // The text won't appear
         }
 
@@ -1318,18 +1316,22 @@ public class GameManager : MonoBehaviour
 
         // Speedrun Time
         speedrunTimeFinishBox.SetActive(GlobalVariables.SpeedrunMode);
-        if (GlobalVariables.SpeedrunMode) {
+        if (GlobalVariables.SpeedrunMode)
+        {
             speedrunTimeFinishText.text = GlobalVariables.elapsedTime.ToString(@"m\:ss\.ff");
         }
 
         // Save the highest rank to PlayerPrefs if the current rank is higher than the saved rank
-        if (currentRank > highestRank) {
+        if (currentRank > highestRank)
+        {
             highestRank = currentRank;
             SaveHighestRank(currentRank);
 
             if (highestRank != PlayerRank.Default) // You got a rank that isn't the question mark?
-            NewBestRankText.SetActive(true); // A text saying "New Best!" will appear
-        } else {
+                NewBestRankText.SetActive(true); // A text saying "New Best!" will appear
+        }
+        else
+        {
             NewBestRankText.SetActive(false); // The text won't appear
         }
 
@@ -1339,7 +1341,7 @@ public class GameManager : MonoBehaviour
             highestRankImage.texture = rankTypes[(int)highestRank - 1].texture;
         }
         // Ensure ObtainedRank matches the currentRank
-        ObtainedRank.texture = currentRankImage.texture;  
+        ObtainedRank.texture = currentRankImage.texture;
     }
 
     // TODO: Clean this method up and use it for all other ways of ending the level (flag, axe, others if any) (currently only used for Giant Thwomp)
@@ -1352,9 +1354,10 @@ public class GameManager : MonoBehaviour
             // Delete all players immediately, without waiting for the cutscene to start
             foreach (MarioMovement player in players)
             {
-                if (player != null){
+                if (player != null)
+                {
                     Destroy(player.gameObject);
-                }   
+                }
             }
         }
         print("DestroyPlayersImmediately complete");
@@ -1363,13 +1366,14 @@ public class GameManager : MonoBehaviour
         {
             StopAllMusic();
         }
-        if (cutsceneDelay > 0) {
+        if (cutsceneDelay > 0)
+        {
             yield return new WaitForSeconds(cutsceneDelay);
             print($"Waited {cutsceneDelay} seconds before starting the cutscene.");
         }
 
         print("Cutscene start");
-        
+
         if (!destroyPlayersImmediately)
         {
             // Delete all players as soon as the cutscene starts
@@ -1386,7 +1390,7 @@ public class GameManager : MonoBehaviour
         {
             StopAllMusic();
         }
-        
+
         if (hideUI)
         {
             HideUI();
@@ -1410,7 +1414,7 @@ public class GameManager : MonoBehaviour
 
         // Save the high score when the level ends
         UpdateHighScore();
-        
+
         // Save the collected coin names in PlayerPrefs
         SaveCollectedCoins();
 
@@ -1479,4 +1483,31 @@ public class GameManager : MonoBehaviour
     {
         return ExistingPlayers().Select(player => player.gameObject).ToArray();
     }
+
+    // Checkpoint managing
+    public void AddCheckpoint(Checkpoint checkpoint)
+    {
+        checkpoints.Add(checkpoint);
+
+        if (GlobalVariables.checkpoint == checkpoint.checkpointID)
+        {
+            SetMarioPosToCheckpoint(checkpoint);
+        }
+    }
+
+    // Called when the corresponding checkpoint is added to GameManager to place mario at the checkpoint
+    private void SetMarioPosToCheckpoint(Checkpoint checkpoint)
+    {
+        if (!GlobalVariables.enableCheckpoints) return;
+
+        // Set checkpoint active
+        checkpoint.SetActive();
+
+        // Get the player object
+        GameObject player = GameObject.FindGameObjectWithTag("Player"); // TODO: Replace when we improve player management
+
+        // Set the player's position to the checkpoint's spawn position
+        player.transform.position = checkpoint.SpawnPosition;
+    }
+    
 }
