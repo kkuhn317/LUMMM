@@ -10,6 +10,9 @@ public class CameraFollow : MonoBehaviour
     private CameraZone[] zones;
 
     private CameraZone currentZone;
+    private CameraZone previousZone;
+    private bool justEnteredSnapZone = false;
+
     private Camera cam;
     public float camHeight => cam.orthographicSize * 2;
     public float camWidth => camHeight * cam.aspect;
@@ -24,7 +27,7 @@ public class CameraFollow : MonoBehaviour
 
     // Camera moving up variables
     private bool isLookingUp = false;
-    public Vector3 offset;  // Vertical offset when looking up
+    public Vector3 offset;
     private int ongoingShakes = 0;
 
     [Header("Change Camera Size")]
@@ -32,20 +35,17 @@ public class CameraFollow : MonoBehaviour
     private float targetOrthographicSize;
     private float zoomSmoothTime = 0.2f;
 
-    // Start is called before the first frame update
+    private Vector2 lastTargetPosition;
+
     void Start()
     {
         originalPosition = transform.position;
         offset = new Vector3(0f, 2f, 0f);
         cam = GetComponent<Camera>();
 
-        // Store the original orthographic size of the camera
         originalOrthographicSize = cam.orthographicSize;
-
-        // Set the initial target orthographic size to match the original size
         targetOrthographicSize = originalOrthographicSize;
 
-        // Get all the camera zones attached to this camera
         zones = GetComponents<CameraZone>();
 
         if (zones.Length == 0)
@@ -54,18 +54,11 @@ public class CameraFollow : MonoBehaviour
         }
     }
 
-    // Update is called once per frame
     void Update()
     {
-        // Get all the players in the scene
         players = GameManager.Instance.GetPlayerObjects();
+        if (players.Length == 0) return;
 
-        if (players.Length == 0)
-        {
-            return;
-        }
-
-        // Get middle of all players
         Vector2 target = Vector2.zero;
         foreach (var player in players)
         {
@@ -76,13 +69,21 @@ public class CameraFollow : MonoBehaviour
         CameraZone zone = GetCurrentZone(target);
         currentZone = zone;
 
-        if (zone == null)
+        if (zone == null) return;
+
+        // Detect entry into a new snap zone
+        justEnteredSnapZone = false;
+        if (zone != previousZone)
         {
-            return;
+            if (zone.snapToBounds)
+            {
+                justEnteredSnapZone = true;
+            }
+            previousZone = zone;
         }
 
-        float posOffsetX = -zone.cameraPosOffset.x * camWidth/2;
-        float posOffsetY = -zone.cameraPosOffset.y * camHeight/2;
+        float posOffsetX = -zone.cameraPosOffset.x * camWidth / 2;
+        float posOffsetY = -zone.cameraPosOffset.y * camHeight / 2;
 
         float targetX = Mathf.Max(zone.cameraMinX, Mathf.Min(zone.cameraMaxX, target.x)) + posOffsetX;
         float targetY = Mathf.Max(zone.cameraMinY, Mathf.Min(zone.cameraMaxY, target.y)) + posOffsetY;
@@ -90,7 +91,6 @@ public class CameraFollow : MonoBehaviour
         bool tooSmallHorizontal = false;
         bool tooSmallVertical = false;
 
-        // In case the bounds are too small for the camera, center the camera between the bounds
         if (zone.bottomRight.x - zone.topLeft.x < camWidth && !zone.lockToVertical)
         {
             tooSmallHorizontal = true;
@@ -104,18 +104,30 @@ public class CameraFollow : MonoBehaviour
 
         if (isLookingUp)
         {
-            // Calculate desired position with an offset when looking up
             targetY += offset.y;
         }
 
-        float x = Mathf.SmoothDamp(transform.position.x, targetX, ref smoothDampVelocity.x, smoothDampTime);
-        float y = Mathf.SmoothDamp(transform.position.y, targetY, ref smoothDampVelocity.y, smoothDampTime);
-        transform.position = new Vector3(x, y, transform.position.z);
+        // SNAP if entering a snap zone, else smooth
+        Vector3 newPos;
+        if (justEnteredSnapZone)
+        {
+            newPos = new Vector3(targetX, targetY, transform.position.z);
+            smoothDampVelocity = Vector3.zero;
+        }
+        else
+        {
+            float x = Mathf.SmoothDamp(transform.position.x, targetX, ref smoothDampVelocity.x, smoothDampTime);
+            float y = Mathf.SmoothDamp(transform.position.y, targetY, ref smoothDampVelocity.y, smoothDampTime);
+            newPos = new Vector3(x, y, transform.position.z);
+        }
 
-        // Smoothly change the camera's orthographic size
+        transform.position = newPos;
+        lastTargetPosition = new Vector2(targetX, targetY);
+
+        // Smoothly zoom
         cam.orthographicSize = Mathf.SmoothDamp(cam.orthographicSize, targetOrthographicSize, ref smoothDampVelocity.z, zoomSmoothTime);
 
-        // Clamp the camera position to the bounds
+        // Clamp position
         if (zone.snapToBounds)
         {
             Vector2 clampedPos = new(
@@ -142,51 +154,42 @@ public class CameraFollow : MonoBehaviour
     private CameraZone GetCurrentZone(Vector2 target)
     {
         CameraZone currentBestZone = null;
-        // Check if the middle of the players is within any of the camera zones
         foreach (var zone in zones)
         {
-            if (target.x >= zone.topLeft.x && target.x <= zone.bottomRight.x && target.y >= zone.bottomRight.y && target.y <= zone.topLeft.y)
+            if (target.x >= zone.topLeft.x && target.x <= zone.bottomRight.x &&
+                target.y >= zone.bottomRight.y && target.y <= zone.topLeft.y)
             {
-                if (currentBestZone == null || zone.priority > currentBestZone.priority) {
+                if (currentBestZone == null || zone.priority > currentBestZone.priority)
+                {
                     currentBestZone = zone;
                 }
             }
         }
-
         return currentBestZone;
     }
 
-    // Change the camera size to a specific value
-    public void ChangeCameraSize(float newSize/*, float zoomTime = 0.2f*/)
+    public void ChangeCameraSize(float newSize)
     {
-        // Set the target orthographic size for the camera
         targetOrthographicSize = newSize;
-        //zoomSmoothTime = zoomTime;
     }
 
-    // Call this method from the player script when the player looks up
     public void StartCameraMoveUp()
     {
-        if (Time.timeScale == 0) return; // Block looking up when the game is paused
+        if (Time.timeScale == 0) return;
         isLookingUp = true;
     }
 
-    // Call this method from the player script when the player stops looking up
     public void StopCameraMoveUp()
     {
-        if (Time.timeScale == 0) return; // Block stopping the look-up when the game is paused
+        if (Time.timeScale == 0) return;
         isLookingUp = false;
     }
 
-    // Call this method for default camera shake, compatible with UnityEvents
-    // most mario levels shake the camera using only the y axis
     public void ShakeCameraRepeatedlyDefault()
     {
-        // Use predefined default values
         ShakeCameraRepeatedly(0.1f, 1.0f, 1.0f, new Vector3(0, 1, 0), 2, 0.1f);
     }
 
-    // Call this method to trigger camera shake on any specified axis
     public void ShakeCamera(float duration = 0.5f, float intensity = 0.1f, float decreaseFactor = 1.0f, Vector3 axis = default)
     {
         if (ongoingShakes == 0)
@@ -202,7 +205,7 @@ public class CameraFollow : MonoBehaviour
         float elapsed = 0f;
         while (elapsed < duration)
         {
-            if (Time.timeScale > 0) // Only shake if the game is not paused
+            if (Time.timeScale > 0)
             {
                 float shakeOffset = Random.Range(-0.5f, 0.5f);
                 transform.localPosition = originalPosition + axis * shakeOffset * intensity;
@@ -218,29 +221,25 @@ public class CameraFollow : MonoBehaviour
         }
     }
 
-    // Call this method to trigger camera shake on any specified axis repeatedly
     public void ShakeCameraRepeatedly(float duration, float intensity, float decreaseFactor, Vector3 axis, int numberOfShakes, float delayBetweenShakes)
     {
         StartCoroutine(ShakeCameraRepeatedlyCoroutine(duration, intensity, decreaseFactor, axis, numberOfShakes, delayBetweenShakes));
     }
 
-    // Coroutine to handle the camera shake effect repeatedly
     private IEnumerator ShakeCameraRepeatedlyCoroutine(float duration, float intensity, float decreaseFactor, Vector3 axis, int numberOfShakes, float delayBetweenShakes)
     {
         for (int i = 0; i < numberOfShakes; i++)
         {
             ShakeCamera(duration, intensity, decreaseFactor, axis);
-            
             yield return new WaitForSeconds(delayBetweenShakes);
         }
     }
 
-    // Sets the current zone's lock offset
     public void SetLockOffsetX(float offset)
     {
         currentZone.lockOffset.x = offset;
     }
-    
+
     public void SetLockOffsetY(float offset)
     {
         currentZone.lockOffset.y = offset;
@@ -256,7 +255,6 @@ public class CameraFollow : MonoBehaviour
         currentZone.lockToVertical = locked;
     }
 
-    // Gets the current zone's lock offset
     public Vector2 GetLockOffset()
     {
         return currentZone.lockOffset;
