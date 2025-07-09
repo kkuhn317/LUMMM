@@ -35,6 +35,8 @@ public class EnemyAI : ObjectPhysics
     {
         base.Start();
 
+        enabled = false; // Disable the enemy by default until it becomes visible.
+
         // Fix for editor bug where OnBecameVisible is not called on startup sometimes
         Renderer renderer = GetComponent<Renderer>();
         if (renderer != null)
