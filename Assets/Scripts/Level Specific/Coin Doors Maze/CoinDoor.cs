@@ -76,7 +76,9 @@ public class CoinDoor : Door
     {
         if (placePlayerOnDoorCenter && player != null)
         {
-            Vector3 doorCenter = new Vector3(transform.position.x, player.transform.position.y, player.transform.position.z);
+            bool centerYPos = !mustBeStanding; // If the player doesn't have to be standing, we can center them on the Y position of the door
+            float yPos = centerYPos ? transform.position.y : player.transform.position.y;
+            Vector3 doorCenter = new Vector3(transform.position.x, yPos, player.transform.position.z);
             player.transform.position = doorCenter;
         }
     }
