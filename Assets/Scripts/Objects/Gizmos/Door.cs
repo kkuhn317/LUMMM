@@ -1,7 +1,9 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.U2D.Animation;
 using PowerupState = PowerStates.PowerupState;
 
 public class Door : MonoBehaviour
@@ -30,7 +32,8 @@ public class Door : MonoBehaviour
         animator = GetComponent<Animator>();
         audioSource = GetComponent<AudioSource>();
 
-        if (destination) {
+        if (destination)
+        {
             otherDoor = destination.GetComponent<Door>();
         }
     }
@@ -134,9 +137,12 @@ public class Door : MonoBehaviour
         playerAnimator.SetBool("isSkidding", false);
 
         // disable all scripts
-        foreach (MonoBehaviour script in player.GetComponents<MonoBehaviour>()) {
-            // Still allow inputs, or else controller inputs will be dropped if you hold them through the freeze
-            if (script.GetType() != typeof(PlayerInput)) {  
+        foreach (MonoBehaviour script in player.GetComponents<MonoBehaviour>())
+        {
+            Type[] allowedTypes = { typeof(PlayerInput), typeof(SpriteLibrary), typeof(SpriteResolver)};
+            // Still allow some scripts or else it will break input or animations
+            if (Array.IndexOf(allowedTypes, script.GetType()) < 0)
+            {
                 script.enabled = false;
             }
         }
