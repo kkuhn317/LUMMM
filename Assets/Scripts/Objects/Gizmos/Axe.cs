@@ -246,13 +246,20 @@ public class Axe : MonoBehaviour
         movement.FlipTo(dir > 0);
 
         // Move the player toward the target until close enough
-        while (Vector2.Distance(player.transform.position, playerTargetPosition.position) > 0.2f)
+        while (Vector2.Distance(player.transform.position, playerTargetPosition.position) > 0.1f)
         {
             // Apply horizontal velocity in the direction of the target while preserving current vertical velocity
             player.GetComponent<Rigidbody2D>().velocity = new Vector2(dir * autoMoveSpeed, player.GetComponent<Rigidbody2D>().velocity.y);
             yield return null; // Wait for the next frame
         }
-
+        
+        // Snap to exact position to avoid jitter or overshoot
+        player.transform.position = new Vector3(
+            playerTargetPosition.position.x,
+            player.transform.position.y,
+            player.transform.position.z
+        );
+        
         // Stop the player's movement once the destination is reached
         player.GetComponent<Rigidbody2D>().velocity = Vector2.zero;
 
