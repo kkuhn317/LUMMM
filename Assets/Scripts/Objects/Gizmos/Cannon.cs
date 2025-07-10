@@ -41,6 +41,8 @@ public class Cannon : MonoBehaviour
     }
 
     public void Shoot() {
+        Debug.Log("Shoot");
+        
         if (projectilePrefab == null || !isVisible)
         {
             return;

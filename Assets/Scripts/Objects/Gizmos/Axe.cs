@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Playables;
+using UnityEngine.Events;
 
 public class Axe : MonoBehaviour
 {
@@ -78,6 +79,14 @@ public class Axe : MonoBehaviour
         StopOnTouch,
         StopAfterBridgeDestroyed
     }
+
+    [Header("Player Auto Move")]
+    public Transform playerTargetPosition;
+    public float autoMoveSpeed = 3f;
+
+    [Header("Events During Auto Move")]
+    public UnityEvent onStartAutoMove;
+    public UnityEvent onReachTarget;
 
     private void Start()
     {
@@ -191,8 +200,65 @@ public class Axe : MonoBehaviour
         // If player is set, resume the player movement with a delay.
         if (player != null)
         {
-            Invoke(nameof(ResumePlayerAndTriggerCutscene), playerResumeDelay);
+            Invoke(nameof(StartPlayerAutoMove), playerResumeDelay);
         }
+    }
+
+    private void StartPlayerAutoMove()
+    {
+        if (player != null && playerTargetPosition != null)
+        {
+            StartCoroutine(MovePlayerToPosition());
+        }
+        else
+        {
+            // If there's no target, start the custscene
+            ResumePlayerAndTriggerCutscene();
+        }
+    }
+
+    /// <summary>
+    /// Moves the player automatically toward the defined target position, 
+    /// ensuring the player is grounded, uses correct facing direction, 
+    /// and triggers UnityEvents at appropriate stages. 
+    /// Once the player arrives, the ending cutscene is triggered.
+    /// </summary>
+    private IEnumerator MovePlayerToPosition()
+    {
+        // Cache the MarioMovement component for easy access
+        var movement = player.GetComponent<MarioMovement>();
+
+        // Disable player inputs so they can't interrupt the auto movement
+        movement.DisableInputs();
+
+        // Unfreeze the player so gravity and movement can apply normally
+        player.GetComponent<MarioMovement>().Unfreeze();
+
+        // Wait until the player is fully grounded before starting movement
+        yield return new WaitUntil(() => movement.onGround);
+
+        onStartAutoMove?.Invoke();
+
+        // Determine direction to the target (1 = right, -1 = left)
+        float dir = Mathf.Sign(playerTargetPosition.position.x - player.transform.position.x);
+
+        // Flip the player sprite to face the movement direction
+        movement.FlipTo(dir > 0);
+
+        // Move the player toward the target until close enough
+        while (Vector2.Distance(player.transform.position, playerTargetPosition.position) > 0.2f)
+        {
+            // Apply horizontal velocity in the direction of the target while preserving current vertical velocity
+            player.GetComponent<Rigidbody2D>().velocity = new Vector2(dir * autoMoveSpeed, player.GetComponent<Rigidbody2D>().velocity.y);
+            yield return null; // Wait for the next frame
+        }
+
+        // Stop the player's movement once the destination is reached
+        player.GetComponent<Rigidbody2D>().velocity = Vector2.zero;
+
+        onReachTarget?.Invoke();
+
+        ResumePlayerAndTriggerCutscene();
     }
 
     private void ResumePlayerAndTriggerCutscene()
