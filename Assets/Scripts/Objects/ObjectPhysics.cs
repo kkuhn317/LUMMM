@@ -71,6 +71,7 @@ public class ObjectPhysics : MonoBehaviour
 
     private bool firstframe = true;
     public bool lavaKill = true;
+    public bool forceSinkInLava = true;
     public float sinkSpeed = 20f;
     public LayerMask lavaMask;
     private GameObject touchedLava;
@@ -586,7 +587,7 @@ public class ObjectPhysics : MonoBehaviour
                 peakHeight = pos.y;
             }
             
-            if (objectState == ObjectState.onLava) {
+            if (objectState == ObjectState.onLava && forceSinkInLava) {
                 // sinking in lava
                 velocity.y = -sinkSpeed * adjDeltaTime;
             } else {

@@ -639,9 +639,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 238ea7a8abf0fa3408cb01dc00761263, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  masterVolumeSlider: {fileID: 6273335767623949115}
-  bgmVolumeSlider: {fileID: 1135713644636028449}
-  sfxVolumeSlider: {fileID: 7968747975812012133}
+  masterVolumeSlider: {fileID: 5502537310648656580}
+  bgmVolumeSlider: {fileID: 2298731718126919851}
+  sfxVolumeSlider: {fileID: 7361018946248878748}
   masterVolumeText: {fileID: 8197054198571246488}
   bgmVolumeText: {fileID: 7447976537071036043}
   sfxVolumeText: {fileID: 1447781963475427152}
@@ -1421,7 +1421,7 @@ MonoBehaviour:
   m_Navigation:
     m_Mode: 4
     m_WrapAround: 0
-    m_SelectOnUp: {fileID: 6273335767623949115}
+    m_SelectOnUp: {fileID: 0}
     m_SelectOnDown: {fileID: 0}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 4880599288922962661}
@@ -1594,7 +1594,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5221271025687664733}
-  - component: {fileID: 7968747975812012133}
+  - component: {fileID: 7361018946248878748}
   m_Layer: 0
   m_Name: 'SFXSlider '
   m_TagString: Untagged
@@ -1625,7 +1625,7 @@ RectTransform:
   m_AnchoredPosition: {x: 398.0002, y: 4.994789}
   m_SizeDelta: {x: 160, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &7968747975812012133
+--- !u!114 &7361018946248878748
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1634,7 +1634,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1310156893447851787}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 67db9e8f0e2ae9c40bc1e2b64352a6b4, type: 3}
+  m_Script: {fileID: 11500000, guid: 0327fd900a4e07948a37a14e8e14db38, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_Navigation:
@@ -1669,25 +1669,18 @@ MonoBehaviour:
   m_FillRect: {fileID: 2025256359481196926}
   m_HandleRect: {fileID: 3375782679924388858}
   m_Direction: 0
-  m_MinValue: 0.0001
+  m_MinValue: 0
   m_MaxValue: 1
   m_WholeNumbers: 0
-  m_Value: 0.0001
+  m_Value: 0
   m_OnValueChanged:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: AudioManager, Assembly-CSharp
-        m_MethodName: ChangeSFXVolume
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
+  stepSmall: 0.01
+  stepBig: 0.02
+  holdDelay: 0.5
+  holdRepeatRate: 0.05
+  snapModifiersToMultiples: 0
 --- !u!1 &1315004940825027858
 GameObject:
   m_ObjectHideFlags: 0
@@ -2143,7 +2136,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8986849163568993989}
-  - component: {fileID: 6273335767623949115}
+  - component: {fileID: 5502537310648656580}
   m_Layer: 0
   m_Name: 'MasterSlider '
   m_TagString: Untagged
@@ -2174,7 +2167,7 @@ RectTransform:
   m_AnchoredPosition: {x: 398.6, y: 10}
   m_SizeDelta: {x: 160, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &6273335767623949115
+--- !u!114 &5502537310648656580
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2183,7 +2176,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1377905395206230639}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 67db9e8f0e2ae9c40bc1e2b64352a6b4, type: 3}
+  m_Script: {fileID: 11500000, guid: 0327fd900a4e07948a37a14e8e14db38, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_Navigation:
@@ -2224,19 +2217,12 @@ MonoBehaviour:
   m_Value: 0
   m_OnValueChanged:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: AudioManager, Assembly-CSharp
-        m_MethodName: ChangeMasterVolume
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
+  stepSmall: 0.01
+  stepBig: 0.02
+  holdDelay: 0.5
+  holdRepeatRate: 0.05
+  snapModifiersToMultiples: 0
 --- !u!1 &1391438516497032297
 GameObject:
   m_ObjectHideFlags: 0
@@ -7771,6 +7757,7 @@ GameObject:
   - component: {fileID: 3572472823653591102}
   - component: {fileID: 1444816097977809421}
   - component: {fileID: 2458657723472384930}
+  - component: {fileID: 6967945403686164022}
   m_Layer: 0
   m_Name: NES controller
   m_TagString: Untagged
@@ -7868,9 +7855,9 @@ MonoBehaviour:
   m_Navigation:
     m_Mode: 4
     m_WrapAround: 0
-    m_SelectOnUp: {fileID: 6273335767623949115}
-    m_SelectOnDown: {fileID: 0}
-    m_SelectOnLeft: {fileID: 4880599288922962661}
+    m_SelectOnUp: {fileID: 5502537310648656580}
+    m_SelectOnDown: {fileID: 4880599288922962661}
+    m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
   m_Colors:
@@ -7933,6 +7920,60 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+--- !u!114 &6967945403686164022
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4650224893313968309}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cac50a197a57fa048946b0d5bb628170, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  smartOverrides:
+  - originButton: {fileID: 4650224893313968309}
+    triggerDirection: 0
+    ignorePrevious: 0
+    requiredPrevious: {fileID: 1377905395206230639}
+    fallbackTarget: {fileID: 1377905395206230639}
+  - originButton: {fileID: 4650224893313968309}
+    triggerDirection: 0
+    ignorePrevious: 0
+    requiredPrevious: {fileID: 6394993794235169177}
+    fallbackTarget: {fileID: 6394993794235169177}
+  - originButton: {fileID: 4650224893313968309}
+    triggerDirection: 0
+    ignorePrevious: 0
+    requiredPrevious: {fileID: 1310156893447851787}
+    fallbackTarget: {fileID: 1310156893447851787}
+  - originButton: {fileID: 4650224893313968309}
+    triggerDirection: 0
+    ignorePrevious: 0
+    requiredPrevious: {fileID: 8555915643350976782}
+    fallbackTarget: {fileID: 8555915643350976782}
+  - originButton: {fileID: 4650224893313968309}
+    triggerDirection: 0
+    ignorePrevious: 0
+    requiredPrevious: {fileID: 5520831410706393332}
+    fallbackTarget: {fileID: 5520831410706393332}
+  - originButton: {fileID: 4650224893313968309}
+    triggerDirection: 0
+    ignorePrevious: 0
+    requiredPrevious: {fileID: 6731946005019988389}
+    fallbackTarget: {fileID: 6731946005019988389}
+  - originButton: {fileID: 4650224893313968309}
+    triggerDirection: 0
+    ignorePrevious: 0
+    requiredPrevious: {fileID: 8613476753114615511}
+    fallbackTarget: {fileID: 8613476753114615511}
+  - originButton: {fileID: 4650224893313968309}
+    triggerDirection: 0
+    ignorePrevious: 0
+    requiredPrevious: {fileID: 1568413256603828475}
+    fallbackTarget: {fileID: 1568413256603828475}
+  navigateAction: {fileID: -1210495644695447150, guid: 19d541da515a17d4ab7b236a77c60708, type: 3}
 --- !u!1 &4718215864403891440
 GameObject:
   m_ObjectHideFlags: 0
@@ -29181,7 +29222,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5128383691199971142}
-  - component: {fileID: 1135713644636028449}
+  - component: {fileID: 2298731718126919851}
   m_Layer: 0
   m_Name: 'BGMSlider '
   m_TagString: Untagged
@@ -29212,7 +29253,7 @@ RectTransform:
   m_AnchoredPosition: {x: 398.00012, y: 8.5}
   m_SizeDelta: {x: 160, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1135713644636028449
+--- !u!114 &2298731718126919851
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -29221,7 +29262,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 6394993794235169177}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 67db9e8f0e2ae9c40bc1e2b64352a6b4, type: 3}
+  m_Script: {fileID: 11500000, guid: 0327fd900a4e07948a37a14e8e14db38, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_Navigation:
@@ -29256,25 +29297,18 @@ MonoBehaviour:
   m_FillRect: {fileID: 6822820278586794134}
   m_HandleRect: {fileID: 5921178746243946995}
   m_Direction: 0
-  m_MinValue: 0.0001
+  m_MinValue: 0
   m_MaxValue: 1
   m_WholeNumbers: 0
-  m_Value: 0.0001
+  m_Value: 0
   m_OnValueChanged:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: AudioManager, Assembly-CSharp
-        m_MethodName: ChangeBGMVolume
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
+  stepSmall: 0.01
+  stepBig: 0.02
+  holdDelay: 0.5
+  holdRepeatRate: 0.05
+  snapModifiersToMultiples: 0
 --- !u!1 &6604331511368995984
 GameObject:
   m_ObjectHideFlags: 0
@@ -32208,7 +32242,7 @@ MonoBehaviour:
   m_Navigation:
     m_Mode: 4
     m_WrapAround: 0
-    m_SelectOnUp: {fileID: 7968747975812012133}
+    m_SelectOnUp: {fileID: 7361018946248878748}
     m_SelectOnDown: {fileID: 578560016510459586}
     m_SelectOnLeft: {fileID: 6534486584881241544}
     m_SelectOnRight: {fileID: 2458657723472384930}

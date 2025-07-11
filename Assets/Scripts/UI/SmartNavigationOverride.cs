@@ -30,7 +30,7 @@ public class SmartNavigationOverride : MonoBehaviour
     protected GameObject previousSelected;
 
     // Marking Awake as virtual to allow overriding
-    protected virtual void Awake()
+    private void Awake()
     {
         if (smartOverrides == null)
             smartOverrides = new List<SmartOverrideRule>();
@@ -41,8 +41,16 @@ public class SmartNavigationOverride : MonoBehaviour
         }
     }
 
+    private void OnEnable() => navigateAction?.action.Enable();
+
+    private void OnDisable()
+    {
+        lastSelected = null;
+        previousSelected = null;
+    }
+
     // Marking Update as virtual to allow overriding
-    protected virtual void Update()
+    void Update()
     {
         input = navigateAction?.action.ReadValue<Vector2>() ?? Vector2.zero;
         var current = EventSystem.current.currentSelectedGameObject;
@@ -76,7 +84,7 @@ public class SmartNavigationOverride : MonoBehaviour
         }
     }
 
-    protected bool IsTracked(GameObject obj)
+    private bool IsTracked(GameObject obj)
     {
         foreach (var rule in smartOverrides)
         {
@@ -86,7 +94,7 @@ public class SmartNavigationOverride : MonoBehaviour
         return false;
     }
 
-    protected bool IsDirectionPressed(Direction dir)
+    private bool IsDirectionPressed(Direction dir)
     {
         return dir switch
         {
@@ -97,7 +105,4 @@ public class SmartNavigationOverride : MonoBehaviour
             _ => false
         };
     }
-
-    private void OnEnable() => navigateAction?.action.Enable();
-    private void OnDisable() => navigateAction?.action.Disable();
 }

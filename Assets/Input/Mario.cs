@@ -579,6 +579,33 @@ public partial class @Mario: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""StepModifier10"",
+                    ""type"": ""Button"",
+                    ""id"": ""e6935c41-6770-415e-971e-b994233060d7"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""StepModifier25"",
+                    ""type"": ""Button"",
+                    ""id"": ""ea0fb50b-6fa4-4488-9cd0-ddea2e783e9d"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""StepModifier50"",
+                    ""type"": ""Button"",
+                    ""id"": ""056ecb73-c96d-423c-a33b-4cdf6c7ea9ec"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -999,6 +1026,83 @@ public partial class @Mario: IInputActionCollection2, IDisposable
                     ""action"": ""TrackedDeviceOrientation"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""1dc6c810-fbc7-46f5-a445-8c658dc878f0"",
+                    ""path"": ""<Keyboard>/leftShift"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""StepModifier10"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""3239f3bd-8376-4325-87b9-e955f5465e58"",
+                    ""path"": ""<Gamepad>/leftShoulder"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Gamepad"",
+                    ""action"": ""StepModifier10"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""bf18e7cb-c8a2-4243-a54c-4bc2fda333f4"",
+                    ""path"": ""<Keyboard>/leftCtrl"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""StepModifier25"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""248ff797-c7d3-4d97-bac8-a2abeca6c56a"",
+                    ""path"": ""<Gamepad>/rightShoulder"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Gamepad"",
+                    ""action"": ""StepModifier25"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""8a8cea81-cb42-4344-b475-4b183b6c634b"",
+                    ""path"": ""<Keyboard>/leftAlt"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""StepModifier50"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""4b727419-b02f-43e4-8f95-5b15c437a151"",
+                    ""path"": ""<Gamepad>/leftTrigger"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Gamepad"",
+                    ""action"": ""StepModifier50"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""93458195-629a-4a13-bb5f-6b4e4ff71071"",
+                    ""path"": ""<Gamepad>/rightTrigger"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Gamepad"",
+                    ""action"": ""StepModifier50"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -1088,6 +1192,9 @@ public partial class @Mario: IInputActionCollection2, IDisposable
         m_UI_RightClick = m_UI.FindAction("RightClick", throwIfNotFound: true);
         m_UI_TrackedDevicePosition = m_UI.FindAction("TrackedDevicePosition", throwIfNotFound: true);
         m_UI_TrackedDeviceOrientation = m_UI.FindAction("TrackedDeviceOrientation", throwIfNotFound: true);
+        m_UI_StepModifier10 = m_UI.FindAction("StepModifier10", throwIfNotFound: true);
+        m_UI_StepModifier25 = m_UI.FindAction("StepModifier25", throwIfNotFound: true);
+        m_UI_StepModifier50 = m_UI.FindAction("StepModifier50", throwIfNotFound: true);
     }
 
     ~@Mario()
@@ -1352,6 +1459,9 @@ public partial class @Mario: IInputActionCollection2, IDisposable
     private readonly InputAction m_UI_RightClick;
     private readonly InputAction m_UI_TrackedDevicePosition;
     private readonly InputAction m_UI_TrackedDeviceOrientation;
+    private readonly InputAction m_UI_StepModifier10;
+    private readonly InputAction m_UI_StepModifier25;
+    private readonly InputAction m_UI_StepModifier50;
     /// <summary>
     /// Provides access to input actions defined in input action map "UI".
     /// </summary>
@@ -1403,6 +1513,18 @@ public partial class @Mario: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "UI/TrackedDeviceOrientation".
         /// </summary>
         public InputAction @TrackedDeviceOrientation => m_Wrapper.m_UI_TrackedDeviceOrientation;
+        /// <summary>
+        /// Provides access to the underlying input action "UI/StepModifier10".
+        /// </summary>
+        public InputAction @StepModifier10 => m_Wrapper.m_UI_StepModifier10;
+        /// <summary>
+        /// Provides access to the underlying input action "UI/StepModifier25".
+        /// </summary>
+        public InputAction @StepModifier25 => m_Wrapper.m_UI_StepModifier25;
+        /// <summary>
+        /// Provides access to the underlying input action "UI/StepModifier50".
+        /// </summary>
+        public InputAction @StepModifier50 => m_Wrapper.m_UI_StepModifier50;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -1459,6 +1581,15 @@ public partial class @Mario: IInputActionCollection2, IDisposable
             @TrackedDeviceOrientation.started += instance.OnTrackedDeviceOrientation;
             @TrackedDeviceOrientation.performed += instance.OnTrackedDeviceOrientation;
             @TrackedDeviceOrientation.canceled += instance.OnTrackedDeviceOrientation;
+            @StepModifier10.started += instance.OnStepModifier10;
+            @StepModifier10.performed += instance.OnStepModifier10;
+            @StepModifier10.canceled += instance.OnStepModifier10;
+            @StepModifier25.started += instance.OnStepModifier25;
+            @StepModifier25.performed += instance.OnStepModifier25;
+            @StepModifier25.canceled += instance.OnStepModifier25;
+            @StepModifier50.started += instance.OnStepModifier50;
+            @StepModifier50.performed += instance.OnStepModifier50;
+            @StepModifier50.canceled += instance.OnStepModifier50;
         }
 
         /// <summary>
@@ -1500,6 +1631,15 @@ public partial class @Mario: IInputActionCollection2, IDisposable
             @TrackedDeviceOrientation.started -= instance.OnTrackedDeviceOrientation;
             @TrackedDeviceOrientation.performed -= instance.OnTrackedDeviceOrientation;
             @TrackedDeviceOrientation.canceled -= instance.OnTrackedDeviceOrientation;
+            @StepModifier10.started -= instance.OnStepModifier10;
+            @StepModifier10.performed -= instance.OnStepModifier10;
+            @StepModifier10.canceled -= instance.OnStepModifier10;
+            @StepModifier25.started -= instance.OnStepModifier25;
+            @StepModifier25.performed -= instance.OnStepModifier25;
+            @StepModifier25.canceled -= instance.OnStepModifier25;
+            @StepModifier50.started -= instance.OnStepModifier50;
+            @StepModifier50.performed -= instance.OnStepModifier50;
+            @StepModifier50.canceled -= instance.OnStepModifier50;
         }
 
         /// <summary>
@@ -1739,5 +1879,26 @@ public partial class @Mario: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnTrackedDeviceOrientation(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "StepModifier10" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnStepModifier10(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "StepModifier25" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnStepModifier25(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "StepModifier50" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnStepModifier50(InputAction.CallbackContext context);
     }
 }
