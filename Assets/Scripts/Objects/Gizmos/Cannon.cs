@@ -27,8 +27,19 @@ public class Cannon : MonoBehaviour
     void Start()
     {
         audioSource = GetComponent<AudioSource>();
-        if (rateOfFire > 0f) {
+        if (rateOfFire > 0f)
+        {
             InvokeRepeating(nameof(AutoFire), initialDelay, rateOfFire);
+        }
+        
+        // Fix for editor bug where OnBecameVisible is not called on startup sometimes
+        Renderer renderer = GetComponent<Renderer>();
+        if (renderer != null)
+        {
+            if (renderer.isVisible)
+            {
+                OnBecameVisible();
+            }
         }
     }
 
@@ -41,7 +52,6 @@ public class Cannon : MonoBehaviour
     }
 
     public void Shoot() {
-        Debug.Log("Shoot");
         
         if (projectilePrefab == null || !isVisible)
         {

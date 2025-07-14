@@ -6,7 +6,7 @@ public class Arrow : BulletBill
 {
     [Header("Arrow")]
     public float stuckInWallTime = 1f;
-    public bool stuckInWall = false;
+    private bool stuckInWall = false;
     public int stuckOrderInLayer = -2;
     public float stickInOffset = 0.1f;
     public float fadeTime = 0.5f;
@@ -25,8 +25,8 @@ public class Arrow : BulletBill
     }
 
     // Don't do regular landing or wall touch. Instead, do our own behavior
-    public override void Land(GameObject other = null) {}
-    protected override void onTouchWall(GameObject wall){}
+    public override void Land(GameObject other = null) { }
+    protected override void onTouchWall(GameObject wall) { }
 
     protected override void FixedUpdate()
     {

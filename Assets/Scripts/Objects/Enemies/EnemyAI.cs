@@ -44,7 +44,6 @@ public class EnemyAI : ObjectPhysics
             
             if (renderer.isVisible)
             {
-                print("visible on start: " + gameObject.name);
                 OnBecameVisible();
             }
         }
