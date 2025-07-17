@@ -2,7 +2,19 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
+
+public enum NavigationDirection { Up, Down, Left, Right }
+
+[System.Serializable]
+public class NavigationRule
+{
+    public int page;
+    public GameObject currentButton;
+    public NavigationDirection direction;
+    public GameObject targetButton;
+}
 
 public class SwipeController : MonoBehaviour, IDragHandler, IEndDragHandler
 {
@@ -20,17 +32,22 @@ public class SwipeController : MonoBehaviour, IDragHandler, IEndDragHandler
     [System.Serializable]
     public class BarOption
     {
-        public List<Image> barImages; // Multiple bar icons
-        public List<Sprite> barClosed; // Each icon has a closed state
-        public List<Sprite> barOpen;   // Each icon has an open state
+        public List<Image> barImages;
+        public List<Sprite> barClosed;
+        public List<Sprite> barOpen;
     }
     [SerializeField] BarOption[] barOptions;
 
-    [SerializeField] List<CanvasGroup> pageCanvasGroups; // Add CanvasGroups for each page
+    [SerializeField] List<CanvasGroup> pageCanvasGroups;
     private Vector3 initialPosition;
 
     public delegate void PageChangedHandler(int newPage);
     public event PageChangedHandler OnPageChanged;
+
+    [SerializeField] private List<NavigationRule> navigationRules = new List<NavigationRule>();
+    private Dictionary<(int, GameObject, string), GameObject> navigationMap;
+
+    [SerializeField] private InputActionReference navigateAction;
 
     private void Awake()
     {
@@ -40,8 +57,50 @@ public class SwipeController : MonoBehaviour, IDragHandler, IEndDragHandler
         dragThreshold = Screen.width / 15;
         UpdateBar();
         UpdateCanvasGroups();
-        UpdateButtonStates(); // Ensure buttons are updated on initialization
-        LeanTween.reset(); // https://github.com/dentedpixel/LeanTween/issues/88
+        UpdateButtonStates();
+        LeanTween.reset();
+
+        navigationMap = new Dictionary<(int, GameObject, string), GameObject>();
+        foreach (var rule in navigationRules)
+        {
+            if (rule.currentButton != null && rule.targetButton != null)
+            {
+                navigationMap[(rule.page, rule.currentButton, rule.direction.ToString().ToLower())] = rule.targetButton;
+            }
+        }
+    }
+
+    private void OnEnable()
+    {
+        if (navigateAction != null)
+            navigateAction.action.performed += OnNavigate;
+    }
+
+    private void OnDisable()
+    {
+        if (navigateAction != null)
+            navigateAction.action.performed -= OnNavigate;
+    }
+
+    private void OnNavigate(InputAction.CallbackContext context)
+    {
+        Vector2 input = context.ReadValue<Vector2>();
+        if (input == Vector2.zero) return;
+
+        if (Mathf.Abs(input.y) > Mathf.Abs(input.x))
+        {
+            if (input.y > 0.5f)
+                NavigateFromCurrent("up");
+            else if (input.y < -0.5f)
+                NavigateFromCurrent("down");
+        }
+        else
+        {
+            if (input.x > 0.5f)
+                NavigateFromCurrent("right");
+            else if (input.x < -0.5f)
+                NavigateFromCurrent("left");
+        }
     }
 
     public void Next()
@@ -52,7 +111,7 @@ public class SwipeController : MonoBehaviour, IDragHandler, IEndDragHandler
             targetPos += pageStep;
             MovePage();
         }
-        UpdateButtonStates();  // Update button states after navigation
+        UpdateButtonStates();
     }
 
     public void Previous()
@@ -63,13 +122,13 @@ public class SwipeController : MonoBehaviour, IDragHandler, IEndDragHandler
             targetPos -= pageStep;
             MovePage();
         }
-        UpdateButtonStates();  // Update button states after navigation
+        UpdateButtonStates();
     }
 
     public void GoToPage(int targetPage)
     {
         if (targetPage == currentPage) return;
-        
+
         if (targetPage < 1 || targetPage > maxPage)
         {
             Debug.LogWarning($"Invalid page number: {targetPage}. Must be between 1 and {maxPage}.");
@@ -188,5 +247,35 @@ public class SwipeController : MonoBehaviour, IDragHandler, IEndDragHandler
                 EventSystem.current.SetSelectedGameObject(previousBtn.gameObject);
             }
         }
+    }
+
+    public void NavigateFromCurrent(string direction)
+    {
+        var current = EventSystem.current.currentSelectedGameObject;
+        if (current == null) return;
+
+        var key = (currentPage, current, direction.ToLower());
+        if (navigationMap.TryGetValue(key, out var target))
+        {
+            DisableNavigationEventsNextFrame();
+            EventSystem.current.SetSelectedGameObject(target);
+        }
+        else
+        {
+            Debug.Log($"No navigation rule from '{current.name}' with direction '{direction}' on page {currentPage}");
+        }
+    }
+
+    private void DisableNavigationEventsNextFrame()
+    {
+        StartCoroutine(DisableEventsCoroutine());
+    }
+
+    private IEnumerator DisableEventsCoroutine()
+    {
+        EventSystem.current.sendNavigationEvents = false;
+        yield return null;
+        yield return null; // Deactivate for two frames
+        EventSystem.current.sendNavigationEvents = true;
     }
 }
