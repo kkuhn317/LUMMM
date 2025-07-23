@@ -470,13 +470,20 @@ public class MarioMovement : MonoBehaviour
 
         RaycastHit2D? hitRayMaybe = null;
 
-        if (!climbing) {
+        // If climbing, check for ground if climbing down
+        if (!climbing || direction.y < 0f)
+        {
             hitRayMaybe = CheckGround();
         }
 
         bool wasOnMovingPlatform = onMovingPlatform;
 
         if (onGround && hitRayMaybe != null) {
+
+            if (climbing)
+            {
+                StopClimbing();
+            }
 
             RaycastHit2D hitRay = (RaycastHit2D)hitRayMaybe;
 
