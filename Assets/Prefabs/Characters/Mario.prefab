@@ -25,13 +25,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 817352168}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1771483343543010229}
-  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &817352171
 MonoBehaviour:
@@ -56,6 +56,25 @@ BoxCollider2D:
   m_Enabled: 1
   m_Density: 1
   m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
@@ -104,6 +123,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1771483343543010232}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -9.16, y: -2.9367, z: -0.040486585}
   m_LocalScale: {x: 1, y: 1, z: 1}
@@ -112,7 +132,6 @@ Transform:
   - {fileID: 4130259139167701840}
   - {fileID: 817352169}
   m_Father: {fileID: 0}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1771483343543010228
 MonoBehaviour:
@@ -240,6 +259,12 @@ Rigidbody2D:
   m_AngularDrag: 0
   m_GravityScale: 0
   m_Material: {fileID: 6200000, guid: 3605a6811aae3564bb7cf23d3bfa975e, type: 2}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
   m_Interpolate: 1
   m_SleepingMode: 1
   m_CollisionDetection: 1
@@ -437,6 +462,18 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: 6b06232f-07cd-4234-b9ca-514bea360799
     m_ActionName: Mariomove/New action
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: e6935c41-6770-415e-971e-b994233060d7
+    m_ActionName: UI/StepModifier10[/Keyboard/leftShift]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: ea0fb50b-6fa4-4488-9cd0-ddea2e783e9d
+    m_ActionName: UI/StepModifier25[/Keyboard/leftCtrl]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 056ecb73-c96d-423c-a33b-4cdf6c7ea9ec
+    m_ActionName: UI/StepModifier50[/Keyboard/leftAlt]
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Mariomove
@@ -452,6 +489,25 @@ BoxCollider2D:
   m_Enabled: 1
   m_Density: 1
   m_Material: {fileID: 6200000, guid: 3605a6811aae3564bb7cf23d3bfa975e, type: 2}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
@@ -618,7 +674,7 @@ SpriteRenderer:
   m_SpriteSortPoint: 0
 --- !u!95 &7590307370426838290
 Animator:
-  serializedVersion: 4
+  serializedVersion: 5
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -635,7 +691,8 @@ Animator:
   m_WarningMessage: 
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorControllerStateOnDisable: 0
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!114 &8353199181979657271
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -649,36 +706,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Library:
-  - m_Name: Push
-    m_Hash: 0
-    m_CategoryList:
-    - m_Name: Entry
-      m_Hash: 0
-      m_Sprite: {fileID: 211395905, guid: 6e3667f9dc3db2a45a148c4bed91e20f, type: 3}
-    - m_Name: Entry_0
-      m_Hash: 0
-      m_Sprite: {fileID: 117587464, guid: 6e3667f9dc3db2a45a148c4bed91e20f, type: 3}
-    - m_Name: Entry_1
-      m_Hash: 0
-      m_Sprite: {fileID: 211395905, guid: 6e3667f9dc3db2a45a148c4bed91e20f, type: 3}
-  - m_Name: FaceUp
-    m_Hash: 0
-    m_CategoryList:
-    - m_Name: Entry
-      m_Hash: 0
-      m_Sprite: {fileID: 1485851483, guid: 6e3667f9dc3db2a45a148c4bed91e20f, type: 3}
-  - m_Name: FaceDown
-    m_Hash: 0
-    m_CategoryList:
-    - m_Name: Entry
-      m_Hash: 0
-      m_Sprite: {fileID: -306562714, guid: 6e3667f9dc3db2a45a148c4bed91e20f, type: 3}
-  - m_Name: Fall
-    m_Hash: 0
-    m_CategoryList:
-    - m_Name: Entry
-      m_Hash: 0
-      m_Sprite: {fileID: -1324930942, guid: 3c8449786869e4c44b304a25bdbf2d87, type: 3}
   - m_Name: VictoryDance64
     m_Hash: 0
     m_CategoryList:
@@ -733,48 +760,6 @@ MonoBehaviour:
     - m_Name: Entry_15
       m_Hash: 0
       m_Sprite: {fileID: 396457743, guid: da4a268a2768c3c42ab043e4c637ae01, type: 3}
-  - m_Name: Hold
-    m_Hash: 0
-    m_CategoryList:
-    - m_Name: Entry
-      m_Hash: 0
-      m_Sprite: {fileID: -1187508430, guid: 450050db8ca65e74c9b66d15b83fa38d, type: 3}
-  - m_Name: Up
-    m_Hash: 0
-    m_CategoryList:
-    - m_Name: Entry
-      m_Hash: 0
-      m_Sprite: {fileID: 539876831, guid: 450050db8ca65e74c9b66d15b83fa38d, type: 3}
-  - m_Name: Cape
-    m_Hash: 0
-    m_CategoryList:
-    - m_Name: Entry
-      m_Hash: 0
-      m_Sprite: {fileID: 68976894, guid: 4797f3929292e3b41a6263500ca8f140, type: 3}
-    - m_Name: Entry_0
-      m_Hash: 0
-      m_Sprite: {fileID: -753589883, guid: 4797f3929292e3b41a6263500ca8f140, type: 3}
-    - m_Name: Entry_1
-      m_Hash: 0
-      m_Sprite: {fileID: 293080756, guid: 4797f3929292e3b41a6263500ca8f140, type: 3}
-    - m_Name: Entry_2
-      m_Hash: 0
-      m_Sprite: {fileID: 348576781, guid: 4797f3929292e3b41a6263500ca8f140, type: 3}
-    - m_Name: Entry_3
-      m_Hash: 0
-      m_Sprite: {fileID: -753589883, guid: 4797f3929292e3b41a6263500ca8f140, type: 3}
-    - m_Name: Entry_4
-      m_Hash: 0
-      m_Sprite: {fileID: -624932254, guid: 4797f3929292e3b41a6263500ca8f140, type: 3}
-    - m_Name: Entry_5
-      m_Hash: 0
-      m_Sprite: {fileID: 402927344, guid: 4797f3929292e3b41a6263500ca8f140, type: 3}
-    - m_Name: Entry_6
-      m_Hash: 0
-      m_Sprite: {fileID: 1679205676, guid: 4797f3929292e3b41a6263500ca8f140, type: 3}
-    - m_Name: Entry_7
-      m_Hash: 0
-      m_Sprite: {fileID: 299348463, guid: 4797f3929292e3b41a6263500ca8f140, type: 3}
   - m_Name: FistPump
     m_Hash: 0
     m_CategoryList:
@@ -836,9 +821,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ed8b1ae4e4e52b34ea557c1c11e076fc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_CategoryHash: 0
-  m_labelHash: 0
+  m_CategoryHash: 0.009161512
+  m_labelHash: 3.991422e-13
   m_SpriteKey: 1.2362407e-29
+  m_SpriteHash: 259702089
 --- !u!1 &4241799718361322995
 GameObject:
   m_ObjectHideFlags: 0
@@ -862,13 +848,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4241799718361322995}
+  serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0.3064003, y: -0.20700002, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 4130259139167701840}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &5421975347213982424
 GameObject:
@@ -893,6 +879,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5421975347213982424}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
@@ -900,5 +887,4 @@ Transform:
   m_Children:
   - {fileID: 187560863979875086}
   m_Father: {fileID: 1771483343543010229}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

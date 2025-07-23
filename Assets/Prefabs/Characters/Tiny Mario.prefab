@@ -32,6 +32,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1771483343543010232}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -9.16, y: -2.9367, z: -0.040486585}
   m_LocalScale: {x: 0.65, y: 0.65, z: 0.65}
@@ -39,7 +40,6 @@ Transform:
   m_Children:
   - {fileID: 4130259139167701840}
   m_Father: {fileID: 0}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1771483343543010228
 MonoBehaviour:
@@ -90,6 +90,7 @@ MonoBehaviour:
   swimGravity: 1
   swimDrag: 3
   swimTerminalVelocity: 2
+  climbSpeed: 2
   onGround: 0
   wasGrounded: 0
   groundLength: 0.3
@@ -148,7 +149,6 @@ MonoBehaviour:
   spinJumpPoofPrefab: {fileID: 6098009751153003477, guid: 4bffeb562d64dd4489d092ac30f57739, type: 3}
   groundPoundSound: {fileID: 8300000, guid: c5475d8541a7c38469c1d501e26f02c0, type: 3}
   groundPoundLandSound: {fileID: 8300000, guid: 72d5926657fc36643afc68851e923cf3, type: 3}
-  capeSound: {fileID: 8300000, guid: 31657360aa7af6642bdf934076b3d65e, type: 3}
   playerInput: {fileID: 0}
 --- !u!50 &1771483343543010230
 Rigidbody2D:
@@ -167,6 +167,12 @@ Rigidbody2D:
   m_AngularDrag: 0.05
   m_GravityScale: 0
   m_Material: {fileID: 6200000, guid: 3605a6811aae3564bb7cf23d3bfa975e, type: 2}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
   m_Interpolate: 1
   m_SleepingMode: 1
   m_CollisionDetection: 1
@@ -352,6 +358,18 @@ MonoBehaviour:
       m_Calls: []
     m_ActionId: 6b06232f-07cd-4234-b9ca-514bea360799
     m_ActionName: Mariomove/ExtraAction[/Keyboard/x]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: e6935c41-6770-415e-971e-b994233060d7
+    m_ActionName: UI/StepModifier10[/Keyboard/leftShift]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: ea0fb50b-6fa4-4488-9cd0-ddea2e783e9d
+    m_ActionName: UI/StepModifier25[/Keyboard/leftCtrl]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 056ecb73-c96d-423c-a33b-4cdf6c7ea9ec
+    m_ActionName: UI/StepModifier50[/Keyboard/leftAlt]
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Mariomove
@@ -367,6 +385,25 @@ BoxCollider2D:
   m_Enabled: 1
   m_Density: 1
   m_Material: {fileID: 6200000, guid: 3605a6811aae3564bb7cf23d3bfa975e, type: 2}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
@@ -533,7 +570,7 @@ SpriteRenderer:
   m_SpriteSortPoint: 0
 --- !u!95 &7590307370426838290
 Animator:
-  serializedVersion: 4
+  serializedVersion: 5
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -550,7 +587,8 @@ Animator:
   m_WarningMessage: 
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorControllerStateOnDisable: 0
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!114 &8353199181979657271
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -564,87 +602,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Library:
-  - m_Name: Crouch
-    m_Hash: 0
-    m_CategoryList:
-    - m_Name: Entry
-      m_Hash: 0
-      m_Sprite: {fileID: -1743142324, guid: c9b448e531d67da4f8acf998a69cc746, type: 3}
-  - m_Name: Climb
-    m_Hash: 0
-    m_CategoryList:
-    - m_Name: Entry
-      m_Hash: 0
-      m_Sprite: {fileID: -1564629824, guid: b9b3dc41858bd6549a09b88974462618, type: 3}
-    - m_Name: Entry_0
-      m_Hash: 0
-      m_Sprite: {fileID: -1938126632, guid: b9b3dc41858bd6549a09b88974462618, type: 3}
-  - m_Name: Crouch Move
-    m_Hash: 0
-    m_CategoryList:
-    - m_Name: Mario_crouchMove_0
-      m_Hash: 0
-      m_Sprite: {fileID: -104664251, guid: c9b448e531d67da4f8acf998a69cc746, type: 3}
-    - m_Name: Mario_crouchMove_1
-      m_Hash: 0
-      m_Sprite: {fileID: -1515493290, guid: c9b448e531d67da4f8acf998a69cc746, type: 3}
-    - m_Name: Mario_crouchMove_2
-      m_Hash: 0
-      m_Sprite: {fileID: 110887692, guid: c9b448e531d67da4f8acf998a69cc746, type: 3}
-    - m_Name: Mario_crouchMove_3
-      m_Hash: 0
-      m_Sprite: {fileID: -1515493290, guid: c9b448e531d67da4f8acf998a69cc746, type: 3}
-  - m_Name: Ground Pound
-    m_Hash: 0
-    m_CategoryList:
-    - m_Name: Entry
-      m_Hash: 0
-      m_Sprite: {fileID: 21300000, guid: 1f20b615f24f9644d90c1b50a9948bf2, type: 3}
-  - m_Name: Idle Grab
-    m_Hash: 0
-    m_CategoryList:
-    - m_Name: Entry
-      m_Hash: 0
-      m_Sprite: {fileID: 1357359343, guid: e6ef660a2c9ffd8458904fe7cca7fb71, type: 3}
-  - m_Name: Skid
-    m_Hash: 0
-    m_CategoryList:
-    - m_Name: Entry
-      m_Hash: 0
-      m_Sprite: {fileID: 21300000, guid: c9eaa9db1fe1c0b40974f344cd89fe85, type: 3}
-  - m_Name: Wall Slide
-    m_Hash: 0
-    m_CategoryList:
-    - m_Name: Entry
-      m_Hash: 0
-      m_Sprite: {fileID: -1838164992, guid: c9b448e531d67da4f8acf998a69cc746, type: 3}
-  - m_Name: Celebrate
-    m_Hash: 0
-    m_CategoryList:
-    - m_Name: MarioCelebrate_0
-      m_Hash: 0
-      m_Sprite: {fileID: 1514436085, guid: c9b448e531d67da4f8acf998a69cc746, type: 3}
-    - m_Name: MarioCelebrate_1
-      m_Hash: 0
-      m_Sprite: {fileID: 1514436085, guid: c9b448e531d67da4f8acf998a69cc746, type: 3}
-    - m_Name: MarioCelebrate_2
-      m_Hash: 0
-      m_Sprite: {fileID: 21300000, guid: 069a9fa9d90959c4286891696e5c5d27, type: 3}
-    - m_Name: MarioCelebrate_3
-      m_Hash: 0
-      m_Sprite: {fileID: 1514436085, guid: c9b448e531d67da4f8acf998a69cc746, type: 3}
-    - m_Name: MarioCelebrate_4
-      m_Hash: 0
-      m_Sprite: {fileID: 1514436085, guid: c9b448e531d67da4f8acf998a69cc746, type: 3}
-    - m_Name: MarioCelebrate_9
-      m_Hash: 0
-      m_Sprite: {fileID: 1514436085, guid: c9b448e531d67da4f8acf998a69cc746, type: 3}
-    - m_Name: MarioCelebrate_11
-      m_Hash: 0
-      m_Sprite: {fileID: -1395578743, guid: 591ee19daef112c49a37a4dae3db4616, type: 3}
-    - m_Name: MarioCelebrate_12
-      m_Hash: 0
-      m_Sprite: {fileID: -1395578743, guid: 591ee19daef112c49a37a4dae3db4616, type: 3}
   - m_Name: Yeah
     m_Hash: 0
     m_CategoryList:
@@ -693,63 +650,6 @@ MonoBehaviour:
     - m_Name: MarioYeah_14
       m_Hash: 0
       m_Sprite: {fileID: 913857547, guid: 591ee19daef112c49a37a4dae3db4616, type: 3}
-  - m_Name: Spin
-    m_Hash: 0
-    m_CategoryList:
-    - m_Name: Entry
-      m_Hash: 0
-      m_Sprite: {fileID: 1253624482, guid: c9b448e531d67da4f8acf998a69cc746, type: 3}
-    - m_Name: Entry_0
-      m_Hash: 0
-      m_Sprite: {fileID: -396385215, guid: c9b448e531d67da4f8acf998a69cc746, type: 3}
-    - m_Name: Entry_1
-      m_Hash: 0
-      m_Sprite: {fileID: -1760696796, guid: c9b448e531d67da4f8acf998a69cc746, type: 3}
-    - m_Name: Entry_2
-      m_Hash: 0
-      m_Sprite: {fileID: -814343289, guid: c9b448e531d67da4f8acf998a69cc746, type: 3}
-  - m_Name: Shrug
-    m_Hash: 0
-    m_CategoryList:
-    - m_Name: Entry
-      m_Hash: 0
-      m_Sprite: {fileID: 1514436085, guid: c9b448e531d67da4f8acf998a69cc746, type: 3}
-    - m_Name: Entry_0
-      m_Hash: 0
-      m_Sprite: {fileID: 1967558240, guid: c9b448e531d67da4f8acf998a69cc746, type: 3}
-    - m_Name: Entry_1
-      m_Hash: 0
-      m_Sprite: {fileID: -1725000677, guid: c9b448e531d67da4f8acf998a69cc746, type: 3}
-  - m_Name: Cape
-    m_Hash: 0
-    m_CategoryList:
-    - m_Name: Entry
-      m_Hash: 0
-      m_Sprite: {fileID: 411032886, guid: 483594bf78b97de45b781d59f140d2d5, type: 3}
-    - m_Name: Entry_0
-      m_Hash: 0
-      m_Sprite: {fileID: 1870688372, guid: 483594bf78b97de45b781d59f140d2d5, type: 3}
-    - m_Name: Entry_1
-      m_Hash: 0
-      m_Sprite: {fileID: -127204449, guid: 483594bf78b97de45b781d59f140d2d5, type: 3}
-    - m_Name: Entry_2
-      m_Hash: 0
-      m_Sprite: {fileID: -644966045, guid: 483594bf78b97de45b781d59f140d2d5, type: 3}
-    - m_Name: Entry_3
-      m_Hash: 0
-      m_Sprite: {fileID: 1870688372, guid: 483594bf78b97de45b781d59f140d2d5, type: 3}
-    - m_Name: Entry_4
-      m_Hash: 0
-      m_Sprite: {fileID: 861728398, guid: 483594bf78b97de45b781d59f140d2d5, type: 3}
-    - m_Name: Entry_5
-      m_Hash: 0
-      m_Sprite: {fileID: 1296477495, guid: 483594bf78b97de45b781d59f140d2d5, type: 3}
-    - m_Name: Entry_6
-      m_Hash: 0
-      m_Sprite: {fileID: -240876788, guid: 483594bf78b97de45b781d59f140d2d5, type: 3}
-    - m_Name: Entry_7
-      m_Hash: 0
-      m_Sprite: {fileID: 1230842588, guid: 483594bf78b97de45b781d59f140d2d5, type: 3}
   m_SpriteLibraryAsset: {fileID: 7108339969198208228, guid: df404416786646b40a9e9ef04c0458ee, type: 3}
 --- !u!114 &1563295794450405723
 MonoBehaviour:
@@ -763,9 +663,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ed8b1ae4e4e52b34ea557c1c11e076fc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_CategoryHash: 0
-  m_labelHash: 0
+  m_CategoryHash: 0.009161512
+  m_labelHash: 3.991422e-13
   m_SpriteKey: 1.2362407e-29
+  m_SpriteHash: 259702089
 --- !u!1 &4241799718361322995
 GameObject:
   m_ObjectHideFlags: 0
@@ -789,13 +690,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4241799718361322995}
+  serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0.3064003, y: -0.20700002, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 4130259139167701840}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &5421975347213982424
 GameObject:
@@ -820,6 +721,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5421975347213982424}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
@@ -827,5 +729,4 @@ Transform:
   m_Children:
   - {fileID: 187560863979875086}
   m_Father: {fileID: 1771483343543010229}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

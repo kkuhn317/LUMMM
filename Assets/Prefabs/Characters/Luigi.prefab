@@ -23,13 +23,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2004958127544242869}
+  serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0.3064003, y: -0.20700002, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 4564581661570481186}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2033414501769001052
 GameObject:
@@ -54,6 +54,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2033414501769001052}
+  serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
@@ -61,7 +62,6 @@ Transform:
   m_Children:
   - {fileID: 3448315632356656057}
   m_Father: {fileID: 7419182181435639182}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &7419182181435639192
 GameObject:
@@ -95,6 +95,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7419182181435639192}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 98.186, y: -1.411, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
@@ -102,7 +103,6 @@ Transform:
   m_Children:
   - {fileID: 4564581661570481186}
   m_Father: {fileID: 0}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &7419182181435639183
 MonoBehaviour:
@@ -153,6 +153,7 @@ MonoBehaviour:
   swimGravity: 1
   swimDrag: 3
   swimTerminalVelocity: 2.5
+  climbSpeed: 2
   onGround: 0
   wasGrounded: 0
   groundLength: 0.7
@@ -211,7 +212,6 @@ MonoBehaviour:
   spinJumpPoofPrefab: {fileID: 6098009751153003477, guid: 8c5860b76baa21744bb502dc76ff9896, type: 3}
   groundPoundSound: {fileID: 0}
   groundPoundLandSound: {fileID: 0}
-  capeSound: {fileID: 0}
   playerInput: {fileID: 0}
 --- !u!50 &7419182181435639168
 Rigidbody2D:
@@ -230,6 +230,12 @@ Rigidbody2D:
   m_AngularDrag: 0.05
   m_GravityScale: 0
   m_Material: {fileID: 6200000, guid: 3605a6811aae3564bb7cf23d3bfa975e, type: 2}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
   m_Interpolate: 1
   m_SleepingMode: 1
   m_CollisionDetection: 1
@@ -274,6 +280,25 @@ BoxCollider2D:
   m_Enabled: 1
   m_Density: 1
   m_Material: {fileID: 6200000, guid: 3605a6811aae3564bb7cf23d3bfa975e, type: 2}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
@@ -440,7 +465,7 @@ SpriteRenderer:
   m_SpriteSortPoint: 0
 --- !u!95 &7419182181435639173
 Animator:
-  serializedVersion: 4
+  serializedVersion: 5
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -457,7 +482,8 @@ Animator:
   m_WarningMessage: 
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorControllerStateOnDisable: 0
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!114 &7419182181435639174
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -471,42 +497,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Library:
-  - m_Name: Idle
-    m_Hash: 0
-    m_CategoryList:
-    - m_Name: Entry
-      m_Hash: 0
-      m_Sprite: {fileID: -575938463, guid: 705d681596b7ce04abcbb067cadc0fe6, type: 3}
-  - m_Name: Jump
-    m_Hash: 0
-    m_CategoryList:
-    - m_Name: Entry
-      m_Hash: 0
-      m_Sprite: {fileID: 70024684, guid: 705d681596b7ce04abcbb067cadc0fe6, type: 3}
-  - m_Name: Walk
-    m_Hash: 0
-    m_CategoryList:
-    - m_Name: Mario_1
-      m_Hash: 0
-      m_Sprite: {fileID: -162710952, guid: 705d681596b7ce04abcbb067cadc0fe6, type: 3}
-    - m_Name: Mario_2
-      m_Hash: 0
-      m_Sprite: {fileID: -508038655, guid: 705d681596b7ce04abcbb067cadc0fe6, type: 3}
-    - m_Name: Mario_3
-      m_Hash: 0
-      m_Sprite: {fileID: 815072756, guid: 705d681596b7ce04abcbb067cadc0fe6, type: 3}
-  - m_Name: Skid
-    m_Hash: 0
-    m_CategoryList:
-    - m_Name: Entry
-      m_Hash: 0
-      m_Sprite: {fileID: 401130583, guid: 705d681596b7ce04abcbb067cadc0fe6, type: 3}
-  - m_Name: Idle Grab
-    m_Hash: 0
-    m_CategoryList:
-    - m_Name: Entry
-      m_Hash: 0
-      m_Sprite: {fileID: 1732128270, guid: 705d681596b7ce04abcbb067cadc0fe6, type: 3}
   - m_Name: PushIdle
     m_Hash: 0
     m_CategoryList:
@@ -541,3 +531,4 @@ MonoBehaviour:
   m_CategoryHash: 0
   m_labelHash: 0
   m_SpriteKey: 0
+  m_SpriteHash: 0
