@@ -17,6 +17,10 @@ public class PositionTriggerEvent : MonoBehaviour
 
     public bool active = true;
 
+    public float EnterDelay = 0f;    // Delay before enter action happens
+    public float ExitDelay = 0f;    // Delay before exit action happens
+    
+
     private GameObject getPlayer()
     {
         if (player == null)
@@ -26,7 +30,8 @@ public class PositionTriggerEvent : MonoBehaviour
             if (playerscript != null)
             {
                 player = playerscript.gameObject;
-            } else
+            }
+            else
             {
                 return null;
             }
@@ -43,8 +48,8 @@ public class PositionTriggerEvent : MonoBehaviour
         {
             if (!playerInside)
             {
-                onPlayerEnter.Invoke();
                 playerInside = true;
+                StartCoroutine(DoAction(onPlayerEnter, EnterDelay));
 
                 if (autoDeactivate)
                 {
@@ -57,8 +62,8 @@ public class PositionTriggerEvent : MonoBehaviour
         {
             if (playerInside)
             {
-                onPlayerExit.Invoke();
                 playerInside = false;
+                StartCoroutine(DoAction(onPlayerExit, ExitDelay));
 
                 if (autoDeactivate)
                 {
@@ -67,6 +72,16 @@ public class PositionTriggerEvent : MonoBehaviour
                 }
             }
         }
+    }
+
+    IEnumerator DoAction(UnityEvent action, float delay)
+    {
+        if (delay > 0)
+        {
+            yield return new WaitForSeconds(delay);
+        }
+        
+        action.Invoke();
     }
 
     // For use by unity events
