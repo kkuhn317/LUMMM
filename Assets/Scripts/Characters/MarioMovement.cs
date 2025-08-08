@@ -1154,23 +1154,31 @@ public class MarioMovement : MonoBehaviour
             return;
         }
 
+
+        // TODO: Properly handle pushing underwater (animation and functionality) (Waterfall Caverns)
+        animator.SetBool("isPushing", pushing);
+
         // special swimming physics
-        if (swimming) {
+        if (swimming)
+        {
             rb.gravityScale = swimGravity;
             rb.drag = swimDrag;
             return;
         }
 
         // Special pushing physics
-        animator.SetBool("isPushing", pushing);
-        if (pushing && !changingDirections) {
+        if (pushing && !changingDirections)
+        {
             int pushDir = facingRight ? 1 : -1;
             rb.velocity = new Vector2(pushingSpeed * pushDir, rb.velocity.y);
-            if (onGround) {
+            if (onGround)
+            {
                 // Fix for falling inside moving platforms while pushing
                 rb.gravityScale = 0;
                 rb.drag = 0f;
-            } else {
+            }
+            else
+            {
                 rb.gravityScale = fallgravity;
                 rb.drag = 0f;
             }
@@ -2158,6 +2166,7 @@ public class MarioMovement : MonoBehaviour
     }
 
     public void StopPushing() {
+        print("Stopped pushing");
         pushing = false;
         pushingObject = null;
     }
