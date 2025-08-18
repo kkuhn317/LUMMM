@@ -91,6 +91,7 @@ public class LevelButton : MonoBehaviour
     public GameObject perfectLevelMark;
     public GameObject checkpointFlag;
     public GameObject obtainedRank;
+    public GameObject ComingSoonOverlay;
     public List<Image> greenCoinListImages;
     public LevelSelectionManager.MarioAnimator marioAnimator;
 
@@ -106,14 +107,16 @@ public class LevelButton : MonoBehaviour
         audioSource = GetComponent<AudioSource>();
 
         LevelSelectionManager.Instance.levelButtons.Add(this);
+        bool playable = LevelSelectionManager.IsLevelPlayable(this);
 
-        if (levelInfo.levelScene == "") // Unavailable level
+        if (!playable) // Unavailable level
         {
             foreach (Image coin in greenCoinListImages)
             {
                 // coin.sprite = GreenCoinsprite[2];
                 coin.gameObject.SetActive(false);
             }
+            ComingSoonOverlay.SetActive(true);
             return;
         }
 
