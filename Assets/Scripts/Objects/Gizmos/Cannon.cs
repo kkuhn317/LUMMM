@@ -47,13 +47,13 @@ public class Cannon : MonoBehaviour
     {
         if (isShooting)
         {
+            if (!isVisible) return; // Only auto-shoot if cannon is visible on the screen
             Shoot();
         }
     }
 
     public void Shoot() {
-        
-        if (projectilePrefab == null || !isVisible)
+        if (projectilePrefab == null)
         {
             return;
         }
