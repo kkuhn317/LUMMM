@@ -40,8 +40,11 @@ public static class GlobalVariables
     public static bool mobileRunButtonPressed = false;
 
     // Secret codes
-    public static bool enablePlushies = false;
-    public static bool enableBetaMode = false;
+    public static bool cheatPlushies = false;
+    public static bool cheatBetaMode = false;
+    public static bool cheatInvincibility = false;
+    public static bool cheatAllAbilities = false;
+    public static bool cheatStartTiny = false;
 
     // Speedrun Timer
     public static Stopwatch speedrunTimer = new();

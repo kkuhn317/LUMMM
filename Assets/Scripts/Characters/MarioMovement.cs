@@ -280,6 +280,27 @@ public class MarioMovement : MonoBehaviour
         // Store player's position at the beginning of the level (respawn)
         originalPosition = transform.position;
 
+        // Abilities cheat
+        if (GlobalVariables.cheatAllAbilities)
+        {
+            canCrawl = true;
+            canWallJump = true;
+            canSpinJump = true;
+            canGroundPound = true;
+            // Add cape attack script
+            if (GetComponent<CapeAttack>() == null)
+            {
+                CapeAttack capeAttack = gameObject.AddComponent<CapeAttack>();
+                abilities.Add(capeAttack);
+            }
+        }
+
+        // Start as tiny mario cheat
+        if (GlobalVariables.cheatStartTiny && powerupState != PowerupState.tiny)
+        {
+            ChangePowerup(GameManager.Instance.tinyMarioPrefab);
+        }
+
         StartCoroutine(SpawnBubbles());
     }
 
@@ -1342,21 +1363,32 @@ public class MarioMovement : MonoBehaviour
     }
 
     public void damageMario(bool force=false) {
-        if (invincetimeremain == 0f) {
-            if (damaged && !force) {
+        if (GlobalVariables.cheatInvincibility)
+        {
+            return;
+        }
+
+        if (invincetimeremain == 0f)
+        {
+            if (damaged && !force)
+            {
                 return;
             }
             // are we invincible mario?
-            if (starPower && !force) {
+            if (starPower && !force)
+            {
                 return;
             }
             damaged = true;
 
             // If you comment this, the tranformIntoPig will work without instantiating the deadMario with the pigMario
             // but the player will not be harmed by the enemies, only the wizard goomba's magic attack
-            if (PowerStates.IsSmall(powerupState)) {
+            if (PowerStates.IsSmall(powerupState))
+            {
                 toDead();
-            } else {
+            }
+            else
+            {
                 powerDown();
             }
         }
@@ -1486,8 +1518,14 @@ public class MarioMovement : MonoBehaviour
     }
 
     private void toDead() {
+        if (GlobalVariables.cheatInvincibility)
+        {
+            return;
+        }
+
         // print("death attempt");
-        if (!dead) {
+        if (!dead)
+        {
             // Drop the carried object
             if (carrying)
             {

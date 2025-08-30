@@ -9,7 +9,7 @@ public class CapeAttack : MarioAbility
     public AudioClip marioPrepareAttackSound;
     public bool canCape = true;
     public float capeCooldown = 0.75f;
-    public float capeAttackDelay = 0.25f; // Time after button press until attack is executed (should line up with animation)
+    public float capeAttackDelay = 0.3f; // Time after button press until attack is executed (should line up with animation)
     public AudioClip capeSound;
 
     public override void onExtraActionPressed()

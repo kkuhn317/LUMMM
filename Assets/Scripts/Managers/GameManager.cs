@@ -297,6 +297,9 @@ public class GameManager : MonoBehaviour
     public List<Image> greenCoinUIWin;
     public RawImage ObtainedRank;
 
+    [Header("Cheats")]
+    public GameObject tinyMarioPrefab;
+
     void Awake()
     {
         print("GameManager Awake");
@@ -442,7 +445,7 @@ public class GameManager : MonoBehaviour
             }
 
             // Check if enablePlushies is true, then activate "Plushie" objects.
-            if (GlobalVariables.enablePlushies)
+            if (GlobalVariables.cheatPlushies)
             {
                 ActivatePlushieObjects();
             }
@@ -1153,7 +1156,7 @@ public class GameManager : MonoBehaviour
     private void OnApplicationQuit()
     {
         // Set enablePlushies to false when the game exits.
-        GlobalVariables.enablePlushies = false;
+        GlobalVariables.cheatPlushies = false;
     }
     #endregion
 

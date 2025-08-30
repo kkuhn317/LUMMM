@@ -70,7 +70,7 @@ public class LevelSelectionManager : MonoBehaviour
 
     public static bool IsLevelPlayable(LevelButton button)
     {
-        return !string.IsNullOrEmpty(button.levelInfo.levelScene) && (!button.levelInfo.beta || GlobalVariables.enableBetaMode);
+        return !string.IsNullOrEmpty(button.levelInfo.levelScene) && (!button.levelInfo.beta || GlobalVariables.cheatBetaMode);
     }
 
     public void OnLevelButtonClick(LevelButton button)
