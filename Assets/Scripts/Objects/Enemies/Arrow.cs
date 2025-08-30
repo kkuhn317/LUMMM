@@ -38,8 +38,8 @@ public class Arrow : BulletBill
         }
 
         // Raycast to check if we hit a wall
-        float distance = velocity.magnitude * Time.fixedDeltaTime;
-        RaycastHit2D hit = Physics2D.Raycast(transform.position, velocity.normalized, distance, wallMask);
+        float distance = realVelocity.magnitude * Time.fixedDeltaTime;
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, realVelocity.normalized, distance, wallMask);
         if (hit)
         {
             stuckInWall = true;
@@ -48,7 +48,7 @@ public class Arrow : BulletBill
             // Set order in layer
             GetComponentInChildren<SpriteRenderer>().sortingOrder = stuckOrderInLayer;
 
-            float timeUntilStuck = (hit.distance + stickInOffset) / velocity.magnitude;
+            float timeUntilStuck = (hit.distance + stickInOffset) / realVelocity.magnitude;
 
             // wait a bit before sticking in the wall
             // This amount is probably not perfect, but it'll get fixed in StickInGround
@@ -59,7 +59,7 @@ public class Arrow : BulletBill
     private void StickInGround()
     {
         // Set position to hit position to correctly stick in wall
-        transform.position = hit.point + velocity.normalized * stickInOffset;
+        transform.position = hit.point + realVelocity.normalized * stickInOffset;
 
         // Stop moving
         velocity = Vector2.zero;
@@ -110,7 +110,7 @@ public class Arrow : BulletBill
 
         // Raycast
         Gizmos.color = Color.yellow;
-        float distance = velocity.magnitude * Time.fixedDeltaTime;
-        Gizmos.DrawRay(transform.position, velocity.normalized * distance);
+        float distance = realVelocity.magnitude * Time.fixedDeltaTime;
+        Gizmos.DrawRay(transform.position, realVelocity.normalized * distance);
     }
 }

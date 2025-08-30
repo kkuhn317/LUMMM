@@ -445,6 +445,11 @@ public class MarioMovement : MonoBehaviour
                     Swim();
                 }              
             } else if (wallSliding || wallJumpCheck) {
+                // Make sure Mario faces the wall before walljumping
+                if (wallJumpCheck)
+                {
+                    FlipTo(direction.x > 0);
+                }
                 audioSource.Play();
                 WallJump();
             } else if (spinJumpQueued) {
