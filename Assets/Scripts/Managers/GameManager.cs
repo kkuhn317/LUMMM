@@ -299,6 +299,8 @@ public class GameManager : MonoBehaviour
 
     [Header("Cheats")]
     public GameObject tinyMarioPrefab;
+    public GameObject iceMarioPrefab;
+    public GameObject fireMarioPrefab;
 
     void Awake()
     {
@@ -1451,7 +1453,27 @@ public class GameManager : MonoBehaviour
         {
             players.Add(null);
         }
+
+        // If the player is null, we know its the first time the player has been set (start of level hopefully??)
+        bool nullPrevPlayer = players[playerIndex] == null;
+
         players[playerIndex] = player;
+
+        if (nullPrevPlayer)
+        {
+            // Start as powerup cheat
+            if (GlobalVariables.cheatStartTiny)
+            {
+                player.ChangePowerup(tinyMarioPrefab);
+            }
+            else if (GlobalVariables.cheatStartIce)
+            {
+                player.ChangePowerup(iceMarioPrefab);
+            } else if (GlobalVariables.cheatFlamethrower)
+            {
+                player.ChangePowerup(fireMarioPrefab);
+            }
+        }
     }
 
     // Gets rid of all the dead players

@@ -32,6 +32,9 @@ public class CheatsMenu : MenuBase
             new Cheat("immortal", () => GlobalVariables.cheatInvincibility = true, "Enable invincibility"),
             new Cheat("abilityfreak", () => GlobalVariables.cheatAllAbilities = true, "Unlock all abilities"),
             new Cheat("minimushroom", () => GlobalVariables.cheatStartTiny = true, "Start as Tiny Mario"),
+            new Cheat("iceflower", () => GlobalVariables.cheatStartIce = true, "Start as Ice Mario"),
+            new Cheat("flamethrower", () => GlobalVariables.cheatFlamethrower = true, "Fire Mario, Inf Fireballs"),
+            new Cheat("midnight", () => GlobalVariables.cheatDarkness = true, "Darkness Effect"),
         };
 
     private AudioSource audioSource;

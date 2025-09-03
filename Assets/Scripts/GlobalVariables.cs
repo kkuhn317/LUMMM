@@ -45,6 +45,9 @@ public static class GlobalVariables
     public static bool cheatInvincibility = false;
     public static bool cheatAllAbilities = false;
     public static bool cheatStartTiny = false;
+    public static bool cheatStartIce = false;
+    public static bool cheatFlamethrower = false;
+    public static bool cheatDarkness = false;
 
     // Speedrun Timer
     public static Stopwatch speedrunTimer = new();

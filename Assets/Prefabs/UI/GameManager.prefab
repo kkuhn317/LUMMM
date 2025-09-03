@@ -2490,6 +2490,8 @@ MonoBehaviour:
   - {fileID: 5436977372441283758}
   ObtainedRank: {fileID: 1110516336153137234}
   tinyMarioPrefab: {fileID: 1771483343543010232, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
+  iceMarioPrefab: {fileID: 4120770202150125105, guid: 7f1aa09c80c15b647946f6f0282354f7, type: 3}
+  fireMarioPrefab: {fileID: 4120770202150125105, guid: 3afa229313db09e4889a9e91fc2824c3, type: 3}
 --- !u!82 &1209335749245954320
 AudioSource:
   m_ObjectHideFlags: 0
@@ -10427,7 +10429,19 @@ MonoBehaviour:
         m_CallState: 2
   onRelease:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 2718802781656626800}
+        m_TargetAssemblyTypeName: MobileControls, Assembly-CSharp
+        m_MethodName: onUseReleased
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   toggleButton: 0
   upSprite: {fileID: 690137025, guid: ae52385e3ca22a74a8e07d0016dc10a4, type: 3}
   downSprite: {fileID: 2145352436, guid: ae52385e3ca22a74a8e07d0016dc10a4, type: 3}

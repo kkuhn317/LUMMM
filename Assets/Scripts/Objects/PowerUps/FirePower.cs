@@ -12,7 +12,7 @@ public class FirePower : MarioAbility
     public AudioClip shootSound;
 
     private void ShootProjectile() {
-        if (fireballs < fireballsMax)
+        if (fireballs < fireballsMax || GlobalVariables.cheatFlamethrower)
             {
                 bool facingRight = GetComponent<MarioMovement>().facingRight;
                 int directionint = facingRight ? 1 : -1;
