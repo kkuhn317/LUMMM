@@ -1554,7 +1554,7 @@ public class MarioMovement : MonoBehaviour
     public void TransformIntoObject(GameObject newMario)
     {
         // Check for invincibility
-        if (invincetimeremain > 0f || starPower)
+        if (invincetimeremain > 0f || starPower || GlobalVariables.cheatInvincibility)
         {
             Debug.Log("Mario is invincible. Transformation ignored.");
             return;
