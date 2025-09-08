@@ -51,8 +51,19 @@ public class MenuManager : MonoBehaviour
         if (!string.IsNullOrEmpty(currentMenuId) && currentMenuId != menuId)
             menuStack.Push(currentMenuId);
 
+        // Disable input on all menus in the stack except the current one
+        foreach (var menu in menuStack)
+        {
+            if (menuById.TryGetValue(menu, out var m))
+                m.GetComponent<CanvasGroup>().interactable = false;
+        }
+        // Enable input on the menu being opened
+        if (menuById.TryGetValue(menuId, out var menuToOpen))
+            menuToOpen.GetComponent<CanvasGroup>().interactable = true;
+
         currentMenuId = menuId;
 
+        // Close all other menus and open the selected one
         foreach (var menu in menus)
         {
             if (menu.MenuId == menuId)
