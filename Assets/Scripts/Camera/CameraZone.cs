@@ -1,67 +1,156 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
+/// <summary>
+/// A rectangular camera region with optional lock axes and entry/clamp policies.
+/// </summary>
 public class CameraZone : MonoBehaviour
 {
+    [Header("Bounds (World Space)")]
     public Vector2 topLeft;
     public Vector2 bottomRight;
+
+    [Header("Lock Settings")] 
+    [Tooltip("Lock camera vertically to the green guide. When true, camera Y is fixed at verticalMiddle + lockOffset.y")] 
     public bool lockToHorizontal = false;
+    [Tooltip("Lock camera horizontally to the green guide. When true, camera X is fixed at horizontalMiddle + lockOffset.x")] 
     public bool lockToVertical = false;
 
-    // Ranges from (-1,-1) (bottom left) to (1,1) (top right).
-    // Sets where the middle of the camera is located. Used for stationary cameras so that aspect ratio is negated.
-    // NOTE: Bounds are NOT taken into account, so the camera could go outside of them in some situations
-    public Vector2 cameraPosOffset = new(0,0);
+    [Tooltip("Offset for stationary cameras or to bias where the camera centers within the zone. Ranges ~(-1,-1) bottom-left to (1,1) top-right.")]
+    public Vector2 cameraPosOffset = Vector2.zero;
+
+    [Header("Optional Lock Guide (World Space)")]
+    [Tooltip("Green guide center X (if 0, computed from bounds midpoint)")]
+    public float horizontalMiddle = 0f;
+    [Tooltip("Green guide center Y (if 0, computed from bounds midpoint)")]
+    public float verticalMiddle = 0f;
+    [Tooltip("Additional offset applied to the green guide position")]
     public Vector2 lockOffset = Vector2.zero;
-    public bool snapToBounds = false; // if true, it will never display anything outside of the bounds
+
+    [Header("Identity")] 
+    [Tooltip("Unique ID for routing-based entry behavior")] 
+    public string zoneId = "";
+
+    [Tooltip("When multiple zones overlap, the one with the higher priority wins.")]
+    public int priority = 0;
+
+    public enum EntryRule
+    {
+        Always,           // Always snap when entering this zone
+        Never,            // Never snap on entry
+        OnlyFromListed,   // Snap only if previous zone is in "snapFromZoneIds"
+        ExceptFromListed  // Snap unless previous zone is in "snapFromZoneIds"
+    }
+
+    [Tooltip("How this zone decides whether to snap ON ENTRY based on the previous zone.")]
+    public EntryRule entryRule = EntryRule.Always;
+
+    [Tooltip("Zone IDs used by OnlyFromListed / ExceptFromListed.")]
+    public string[] snapFromZoneIds = System.Array.Empty<string>();
+
+    public enum ClampPolicy
+    {
+        Always,            // Always clamp camera inside this zone while staying in it
+        Never,             // Never clamp while in this zone
+        FollowEntryRule    // Clamp only if the entry decision resulted in a snap
+    }
+
+    [Header("Stay Clamp Policy")]
+    [Tooltip("How camera clamping behaves while the camera remains inside this zone.")]
+    public ClampPolicy clampPolicy = ClampPolicy.FollowEntryRule;
+
+    // ------------------------------------------------------------------------------------------
     private CameraFollow cameraFollow;
 
-    float horizontalMiddle => (topLeft.x + bottomRight.x) / 2;
-    float verticalMiddle => (topLeft.y + bottomRight.y) / 2;
+    public float cameraMinX => lockToVertical ? (horizontalMiddle + lockOffset.x) : topLeft.x + (cameraFollow.camWidth / 2f);
+    public float cameraMaxX => lockToVertical ? (horizontalMiddle + lockOffset.x) : bottomRight.x - (cameraFollow.camWidth / 2f);
+    public float cameraMinY => lockToHorizontal ? (verticalMiddle + lockOffset.y) : bottomRight.y + (cameraFollow.camHeight / 2f);
+    public float cameraMaxY => lockToHorizontal ? (verticalMiddle + lockOffset.y) : topLeft.y - (cameraFollow.camHeight / 2f);
 
-    public int priority = 0;    // If Mario is in multiple CameraZones, the camera uses the one with the highest priority
+    private void Awake()
+    {
+        // Auto-compute guides if not manually set (common use)
+        if (Mathf.Approximately(horizontalMiddle, 0f))
+            horizontalMiddle = (topLeft.x + bottomRight.x) * 0.5f;
+        if (Mathf.Approximately(verticalMiddle, 0f))
+            verticalMiddle = (topLeft.y + bottomRight.y) * 0.5f;
+    }
 
-    // Start is called before the first frame update
-    void Start()
+    private void Start()
     {
         cameraFollow = GetComponent<CameraFollow>();
     }
 
-    // Update is called once per frame
-    void Update()
+    /// <summary>
+    /// Should we snap on entering THIS zone, given the previous zone?
+    /// </summary>
+    public bool ShouldSnapOnEnterFrom(CameraZone previous)
     {
-        
+        switch (entryRule)
+        {
+            case EntryRule.Always:
+                return true;
+            case EntryRule.Never:
+                return false;
+            case EntryRule.OnlyFromListed:
+                if (previous == null) return false;
+                return snapFromZoneIds != null && snapFromZoneIds.Contains(previous.zoneId);
+            case EntryRule.ExceptFromListed:
+                if (previous == null) return true;
+                return snapFromZoneIds == null || !snapFromZoneIds.Contains(previous.zoneId);
+        }
+        return false;
     }
 
-    public float cameraMinX => lockToVertical ? horizontalMiddle + lockOffset.x : topLeft.x + (cameraFollow.camWidth / 2);
-    public float cameraMaxX => lockToVertical ? horizontalMiddle + lockOffset.x : bottomRight.x - (cameraFollow.camWidth / 2);
-    public float cameraMinY => lockToHorizontal ? verticalMiddle + lockOffset.y : bottomRight.y + (cameraFollow.camHeight / 2);
-    public float cameraMaxY => lockToHorizontal ? verticalMiddle + lockOffset.y : topLeft.y - (cameraFollow.camHeight / 2);
-
-    private void OnDrawGizmos ()
+    /// <summary>
+    /// Decide clamping for the duration of staying inside this zone, based on policy and entry result.
+    /// </summary>
+    public bool ShouldClampForStay(bool snappedOnEntry)
     {
-        // draw a square around the camera bounds
-        Gizmos.color = Color.red;
-        Gizmos.DrawLine(topLeft, new Vector2(bottomRight.x, topLeft.y));
-        Gizmos.DrawLine(topLeft, new Vector2(topLeft.x, bottomRight.y));
-        Gizmos.DrawLine(bottomRight, new Vector2(bottomRight.x, topLeft.y));
-        Gizmos.DrawLine(bottomRight, new Vector2(topLeft.x, bottomRight.y));
+        switch (clampPolicy)
+        {
+            case ClampPolicy.Always: return true;
+            case ClampPolicy.Never: return false;
+            case ClampPolicy.FollowEntryRule: return snappedOnEntry;
+        }
+        return false;
+    }
 
-        // draw a line to show the horizontal lock position
+#if UNITY_EDITOR
+    private void OnDrawGizmos()
+    {
+        // Bounds (red rectangle)
+        Gizmos.color = Color.red;
+        Vector2 tl = topLeft;          
+        Vector2 br = bottomRight;     
+        Vector2 tr = new Vector2(br.x, tl.y);
+        Vector2 bl = new Vector2(tl.x, br.y);
+        Gizmos.DrawLine(tl, tr);
+        Gizmos.DrawLine(tl, bl);
+        Gizmos.DrawLine(br, tr);
+        Gizmos.DrawLine(br, bl);
+
+        // Guide(s) (green)
+        float hMid = Mathf.Approximately(horizontalMiddle, 0f) ? (topLeft.x + bottomRight.x) * 0.5f : horizontalMiddle;
+        float vMid = Mathf.Approximately(verticalMiddle, 0f) ? (topLeft.y + bottomRight.y) * 0.5f : verticalMiddle;
+
         if (lockToHorizontal && !lockToVertical)
         {
             Gizmos.color = Color.green;
-            Gizmos.DrawLine(new Vector2(topLeft.x, verticalMiddle + lockOffset.y), new Vector2(bottomRight.x, verticalMiddle + lockOffset.y));
-        } else if (lockToVertical && !lockToHorizontal)
+            Gizmos.DrawLine(new Vector2(topLeft.x, vMid + lockOffset.y), new Vector2(bottomRight.x, vMid + lockOffset.y));
+        }
+        else if (lockToVertical && !lockToHorizontal)
         {
             Gizmos.color = Color.green;
-            Gizmos.DrawLine(new Vector2(horizontalMiddle + lockOffset.x, topLeft.y), new Vector2(horizontalMiddle + lockOffset.x, bottomRight.y));
-        } else if (lockToHorizontal && lockToVertical)
+            Gizmos.DrawLine(new Vector2(hMid + lockOffset.x, topLeft.y), new Vector2(hMid + lockOffset.x, bottomRight.y));
+        }
+        else if (lockToHorizontal && lockToVertical)
         {
             Gizmos.color = Color.green;
-            // Draw dot at the lock position
-            Gizmos.DrawSphere(new Vector2(horizontalMiddle + lockOffset.x, verticalMiddle + lockOffset.y), 0.5f);
+            Gizmos.DrawSphere(new Vector2(hMid + lockOffset.x, vMid + lockOffset.y), 0.3f);
         }
     }
+#endif
 }

@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 // This script lets Mario enter a pipe
 public class Pipe : MonoBehaviour
@@ -33,6 +34,13 @@ public class Pipe : MonoBehaviour
     public bool snapCameraX = false;
     public bool snapCameraY = false;
 
+    public static System.Action<Pipe, Transform> OnAnyEnterStarted;
+    public static System.Action<Pipe, Transform> OnAnyExitFinished;
+
+    public UnityEvent onPlayerEnter;
+
+    private bool isMarioExited = false;
+
     private void Start()
     {
         audioSource = GetComponent<AudioSource>();
@@ -57,9 +65,22 @@ public class Pipe : MonoBehaviour
         return player.GetComponent<MarioMovement>().onGround;
     }
 
+    public bool IsMarioExited()
+    {
+        return isMarioExited;
+    }
+
+    public void MarioExitsPipe()
+    {
+        isMarioExited = true;
+    }
+
     private IEnumerator Enter(Transform player)
     {
         /* ENTERING */
+        OnAnyEnterStarted?.Invoke(this, player);
+        onPlayerEnter?.Invoke();
+
         MarioMovement marioMovement = player.GetComponent<MarioMovement>();
         // Wait until the player finishes the ground pound rotation phase
         while (marioMovement != null && marioMovement.groundPoundRotating)
@@ -97,7 +118,7 @@ public class Pipe : MonoBehaviour
         playerAnimator.SetFloat("Horizontal", enterDirection == Direction.Left || enterDirection == Direction.Right ? 1 : 0);
 
         // Reset ground pound state
-       
+
         if (marioMovement != null)
         {
             marioMovement.StopGroundPound();
@@ -214,8 +235,14 @@ public class Pipe : MonoBehaviour
             playerCollider.enabled = true;
         }
 
+        if (marioMovement != null)
+        {
+            marioMovement.swimming = false;
+        }
+
         player.GetComponent<MarioMovement>().enabled = true;
 
+        OnAnyExitFinished?.Invoke(this, player);
         isEnteringPipe = false; // Reset the flag for the next entry
     }
 
@@ -291,7 +318,6 @@ public class Pipe : MonoBehaviour
         }
     }
 
-
     private void PlayWarpEnterSound()
     {
         if (warpEnterSound != null && audioSource != null)
@@ -316,5 +342,69 @@ public class Pipe : MonoBehaviour
             Gizmos.DrawLine(connection.position, (Vector2)connection.position + exitDirectionVector);
             Gizmos.DrawRay(connection.position, exitDirectionVector); // Draw the arrow for the exit direction
         }
+    }
+    
+    public void StartRideFor(Transform rider)
+    {
+        if (connection == null) return;
+        StartCoroutine(EnterNPC(rider));
+    }
+    
+    // Generic entry for non-player riders (CheepCheep etc.)
+    private IEnumerator EnterNPC(Transform rider)
+    {
+        // Disable rider movement/collisions while traveling
+        var rb = rider.GetComponent<Rigidbody2D>();
+        var col = rider.GetComponent<Collider2D>();
+        var ai = rider.GetComponent<EnemyAI>();          // your enemies derive from this
+        var phys = rider.GetComponent<ObjectPhysics>();    // your custom physics
+
+        if (ai != null) ai.enabled = false;
+        if (phys != null) phys.enabled = false;
+
+        if (rb != null) { rb.velocity = Vector2.zero; rb.isKinematic = true; }
+        if (col != null) col.enabled = false;
+
+        // ENTER: align/slide just like Mario
+        Vector2 enterVec = DirectionToVector(enterDirection) * enterDistance;
+        Vector3 enterPos = transform.position + (Vector3)enterVec;
+
+        // If your pipe supports Slow/Fast/Instant, you can branch here like your player coroutine.
+        // For simplicity, we "Instant" align on the axis perpendicular to the movement:
+        Vector3 temp = rider.position;
+        switch (enterDirection)
+        {
+            case Direction.Down:
+            case Direction.Up: temp.x = enterPos.x; break;
+            case Direction.Left:
+            case Direction.Right: temp.y = enterPos.y; break;
+        }
+        rider.position = temp;
+
+        yield return Move(rider, enterPos, false);
+
+        yield return new WaitForSeconds(1f);
+
+        // EXIT: same offsets as player, just skip camera logic
+        if (!instantExit)
+        {
+            Vector2 outDir = DirectionToVector(exitDirection);
+            Vector3 inside = (Vector3)(outDir * -insideExitDistance);
+            Vector3 outside = (Vector3)(outDir * exitDistance);
+
+            rider.position = connection.position + inside;
+            yield return Move(rider, connection.position + outside, true);
+        }
+        else
+        {
+            rider.position = connection.position;
+        }
+
+        // Re-enable rider systems
+        if (rb != null) rb.isKinematic = false;
+        if (col != null) col.enabled = true;
+
+        if (phys != null) phys.enabled = true;
+        if (ai != null) ai.enabled = true;
     }
 }

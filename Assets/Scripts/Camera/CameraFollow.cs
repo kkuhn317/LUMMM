@@ -1,31 +1,36 @@
 using System.Collections;
 using UnityEngine;
+using System.Linq;
 
 public class CameraFollow : MonoBehaviour
 {
     private GameObject[] players;
+
+    [Header("Follow Smoothing")]
+    [Tooltip("Time constant used by SmoothDamp for panning.")]
     public float smoothDampTime = 0.15f;
-    private Vector3 smoothDampVelocity = Vector3.zero;
+    [Tooltip("Time constant used by SmoothDamp for zooming.")]
+    [SerializeField] private float zoomSmoothTime = 0.20f;
+    private Vector3 smoothDampVelocity = Vector3.zero; // x,y used for pan; z used for zoom
 
     private CameraZone[] zones;
-
     private CameraZone currentZone;
     private CameraZone previousZone;
     private bool justEnteredSnapZone = false;
 
+    private bool snappedOnEntry = false;
+    private bool clampInThisZoneStay = false;
+
     private Camera cam;
-    public float camHeight => cam.orthographicSize * 2;
-    public float camWidth => camHeight * cam.aspect;
+    public float camHeight => cam.orthographicSize * 2f;
+    public float camWidth  => camHeight * cam.aspect;
 
     private Vector3 originalPosition;
-
-    // Camera Shake variables
     private bool isShaking = false;
     private float shakeDuration = 0f;
     private float shakeIntensity = 0.1f;
     private float shakeDecreaseFactor = 1.0f;
 
-    // Camera moving up variables
     private bool isLookingUp = false;
     public Vector3 offset;
     private int ongoingShakes = 0;
@@ -33,73 +38,86 @@ public class CameraFollow : MonoBehaviour
     [Header("Change Camera Size")]
     private float originalOrthographicSize;
     private float targetOrthographicSize;
-    private float zoomSmoothTime = 0.2f;
 
     private Vector2 lastTargetPosition;
+
+    private void Awake()
+    {
+        cam = GetComponent<Camera>();
+    }
 
     void Start()
     {
         originalPosition = transform.position;
         offset = new Vector3(0f, 2f, 0f);
-        cam = GetComponent<Camera>();
 
         originalOrthographicSize = cam.orthographicSize;
         targetOrthographicSize = originalOrthographicSize;
 
-        zones = GetComponents<CameraZone>();
-
-        if (zones.Length == 0)
+        zones = FindObjectsOfType<CameraZone>(true);
+        if (zones == null || zones.Length == 0)
         {
-            Debug.LogWarning("No CameraZones found on camera. You should add at least one CameraZone to the camera.");
+            Debug.LogWarning("No CameraZones found in scene. Add at least one CameraZone.");
         }
     }
 
     void Update()
     {
         players = GameManager.Instance.GetPlayerObjects();
-        if (players.Length == 0) return;
+        if (players == null || players.Length == 0) return;
 
+        // 1) Compute target (players centroid) -----------------------------------------------
         Vector2 target = Vector2.zero;
         foreach (var player in players)
         {
-            target += (Vector2)player.transform.position;
+            if (player) target += (Vector2)player.transform.position;
         }
         target /= players.Length;
 
-        CameraZone zone = GetCurrentZone(target);
+        // 2) Select zone by target position
+        var zone = GetCurrentZone(target);
         currentZone = zone;
-
         if (zone == null) return;
 
-        // Detect entry into a new snap zone
+        // Detect zone change and decide entry snap + clamping for the stay
         justEnteredSnapZone = false;
         if (zone != previousZone)
         {
-            if (zone.snapToBounds)
-            {
-                justEnteredSnapZone = true;
-            }
+            snappedOnEntry = zone.ShouldSnapOnEnterFrom(previousZone);
+            justEnteredSnapZone = snappedOnEntry;
+            clampInThisZoneStay = zone.ShouldClampForStay(snappedOnEntry);
             previousZone = zone;
         }
 
-        float posOffsetX = -zone.cameraPosOffset.x * camWidth / 2;
-        float posOffsetY = -zone.cameraPosOffset.y * camHeight / 2;
+        // 3) Compute desired position (targetX, targetY)
+        // Compute min/max locally to avoid relying on CameraZone's internal camera reference
+        float minX = zone.lockToVertical ? (zone.horizontalMiddle + zone.lockOffset.x)
+                                         : zone.topLeft.x + (camWidth / 2f);
+        float maxX = zone.lockToVertical ? (zone.horizontalMiddle + zone.lockOffset.x)
+                                         : zone.bottomRight.x - (camWidth / 2f);
+        float minY = zone.lockToHorizontal ? (zone.verticalMiddle + zone.lockOffset.y)
+                                           : zone.bottomRight.y + (camHeight / 2f);
+        float maxY = zone.lockToHorizontal ? (zone.verticalMiddle + zone.lockOffset.y)
+                                           : zone.topLeft.y - (camHeight / 2f);
 
-        float targetX = Mathf.Max(zone.cameraMinX, Mathf.Min(zone.cameraMaxX, target.x)) + posOffsetX;
-        float targetY = Mathf.Max(zone.cameraMinY, Mathf.Min(zone.cameraMaxY, target.y)) + posOffsetY;
+        float posOffsetX = -zone.cameraPosOffset.x * camWidth / 2f;
+        float posOffsetY = -zone.cameraPosOffset.y * camHeight / 2f;
+
+        float targetX = Mathf.Clamp(target.x, minX, maxX) + posOffsetX;
+        float targetY = Mathf.Clamp(target.y, minY, maxY) + posOffsetY;
 
         bool tooSmallHorizontal = false;
         bool tooSmallVertical = false;
 
-        if (zone.bottomRight.x - zone.topLeft.x < camWidth && !zone.lockToVertical)
+        if ((zone.bottomRight.x - zone.topLeft.x) < camWidth && !zone.lockToVertical)
         {
             tooSmallHorizontal = true;
-            targetX = (zone.bottomRight.x + zone.topLeft.x) / 2;
+            targetX = (zone.bottomRight.x + zone.topLeft.x) * 0.5f;
         }
-        if (zone.topLeft.y - zone.bottomRight.y < camHeight && !zone.lockToHorizontal)
+        if ((zone.topLeft.y - zone.bottomRight.y) < camHeight && !zone.lockToHorizontal)
         {
             tooSmallVertical = true;
-            targetY = (zone.topLeft.y + zone.bottomRight.y) / 2;
+            targetY = (zone.topLeft.y + zone.bottomRight.y) * 0.5f;
         }
 
         if (isLookingUp)
@@ -107,7 +125,7 @@ public class CameraFollow : MonoBehaviour
             targetY += offset.y;
         }
 
-        // SNAP if entering a snap zone, else smooth
+        // 4) Snap vs Smooth -----------------------------------------------------------------
         Vector3 newPos;
         if (justEnteredSnapZone)
         {
@@ -124,23 +142,24 @@ public class CameraFollow : MonoBehaviour
         transform.position = newPos;
         lastTargetPosition = new Vector2(targetX, targetY);
 
-        // Smoothly zoom
-        cam.orthographicSize = Mathf.SmoothDamp(cam.orthographicSize, targetOrthographicSize, ref smoothDampVelocity.z, zoomSmoothTime);
+        // 5) Smooth zoom --------------------------------------------------------------------
+        cam.orthographicSize = Mathf.SmoothDamp(
+            cam.orthographicSize, targetOrthographicSize, ref smoothDampVelocity.z, zoomSmoothTime);
 
-        // Clamp position
-        if (zone.snapToBounds)
+        // 6) Clamp position for the stay (policy-driven) ------------------------------------
+        if (clampInThisZoneStay)
         {
             Vector2 clampedPos = new(
-                Mathf.Clamp(transform.position.x, zone.cameraMinX, zone.cameraMaxX),
-                Mathf.Clamp(transform.position.y, zone.cameraMinY, zone.cameraMaxY)
+                Mathf.Clamp(transform.position.x, minX, maxX),
+                Mathf.Clamp(transform.position.y, minY, maxY)
             );
             if (tooSmallHorizontal)
             {
-                clampedPos.x = (zone.bottomRight.x + zone.topLeft.x) / 2;
+                clampedPos.x = (zone.bottomRight.x + zone.topLeft.x) * 0.5f;
             }
             if (tooSmallVertical)
             {
-                clampedPos.y = (zone.topLeft.y + zone.bottomRight.y) / 2;
+                clampedPos.y = (zone.topLeft.y + zone.bottomRight.y) * 0.5f;
             }
             transform.position = new Vector3(clampedPos.x, clampedPos.y, transform.position.z);
         }
@@ -151,21 +170,28 @@ public class CameraFollow : MonoBehaviour
         }
     }
 
-    private CameraZone GetCurrentZone(Vector2 target)
+    private CameraZone GetCurrentZone(Vector2 worldPoint)
     {
-        CameraZone currentBestZone = null;
-        foreach (var zone in zones)
+        if (zones == null || zones.Length == 0) return null;
+
+        // Choose the smallest-area zone that contains the point (most specific)
+        CameraZone best = null;
+        float bestArea = float.MaxValue;
+
+        foreach (var z in zones)
         {
-            if (target.x >= zone.topLeft.x && target.x <= zone.bottomRight.x &&
-                target.y >= zone.bottomRight.y && target.y <= zone.topLeft.y)
+            if (worldPoint.x >= z.topLeft.x && worldPoint.x <= z.bottomRight.x &&
+                worldPoint.y >= z.bottomRight.y && worldPoint.y <= z.topLeft.y)
             {
-                if (currentBestZone == null || zone.priority > currentBestZone.priority)
+                float area = Mathf.Abs((z.bottomRight.x - z.topLeft.x) * (z.topLeft.y - z.bottomRight.y));
+                if (best == null || area < bestArea)
                 {
-                    currentBestZone = zone;
+                    best = z;
+                    bestArea = area;
                 }
             }
         }
-        return currentBestZone;
+        return best;
     }
 
     public void ChangeCameraSize(float newSize)
@@ -237,26 +263,26 @@ public class CameraFollow : MonoBehaviour
 
     public void SetLockOffsetX(float offset)
     {
-        currentZone.lockOffset.x = offset;
+        if (currentZone != null) currentZone.lockOffset.x = offset;
     }
 
     public void SetLockOffsetY(float offset)
     {
-        currentZone.lockOffset.y = offset;
+        if (currentZone != null) currentZone.lockOffset.y = offset;
     }
 
     public void SetLockedHorizontal(bool locked)
     {
-        currentZone.lockToHorizontal = locked;
+        if (currentZone != null) currentZone.lockToHorizontal = locked;
     }
 
     public void SetLockedVertical(bool locked)
     {
-        currentZone.lockToVertical = locked;
+        if (currentZone != null) currentZone.lockToVertical = locked;
     }
 
     public Vector2 GetLockOffset()
     {
-        return currentZone.lockOffset;
+        return currentZone != null ? currentZone.lockOffset : Vector2.zero;
     }
 }

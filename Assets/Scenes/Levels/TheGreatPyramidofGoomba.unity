@@ -20001,7 +20001,7 @@ Camera:
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
-    m_Bits: 2147483647
+    m_Bits: 4294967295
   m_RenderingPath: -1
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
@@ -20041,6 +20041,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   smoothDampTime: 0.15
+  zoomSmoothTime: 0.2
   offset: {x: 0, y: 0, z: 0}
 --- !u!95 &519420035
 Animator:
@@ -20080,9 +20081,15 @@ MonoBehaviour:
   lockToHorizontal: 1
   lockToVertical: 0
   cameraPosOffset: {x: 0, y: 0}
+  horizontalMiddle: 0
+  verticalMiddle: 0
   lockOffset: {x: 0, y: 1}
-  snapToBounds: 1
+  zoneId: ZoneB
   priority: 0
+  entryRule: 2
+  snapFromZoneIds:
+  - ZoneC
+  clampPolicy: 2
 --- !u!114 &519420037
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -20100,9 +20107,14 @@ MonoBehaviour:
   lockToHorizontal: 1
   lockToVertical: 0
   cameraPosOffset: {x: 0, y: 0}
+  horizontalMiddle: 0
+  verticalMiddle: 0
   lockOffset: {x: 0, y: 1}
-  snapToBounds: 0
+  zoneId: ZoneD
   priority: 0
+  entryRule: 0
+  snapFromZoneIds: []
+  clampPolicy: 2
 --- !u!114 &519420038
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -20120,9 +20132,14 @@ MonoBehaviour:
   lockToHorizontal: 1
   lockToVertical: 0
   cameraPosOffset: {x: 0, y: 0}
+  horizontalMiddle: 0
+  verticalMiddle: 0
   lockOffset: {x: 0, y: 0}
-  snapToBounds: 1
+  zoneId: ZoneC
   priority: 0
+  entryRule: 0
+  snapFromZoneIds: []
+  clampPolicy: 2
 --- !u!114 &519420039
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -20140,9 +20157,15 @@ MonoBehaviour:
   lockToHorizontal: 1
   lockToVertical: 1
   cameraPosOffset: {x: -1, y: 0}
+  horizontalMiddle: 0
+  verticalMiddle: 0
   lockOffset: {x: -3, y: 0}
-  snapToBounds: 0
+  zoneId: ZoneA
   priority: 0
+  entryRule: 1
+  snapFromZoneIds:
+  - ZoneB
+  clampPolicy: 2
 --- !u!1001 &519718717
 PrefabInstance:
   m_ObjectHideFlags: 0

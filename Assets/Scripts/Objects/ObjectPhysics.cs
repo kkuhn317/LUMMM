@@ -9,6 +9,7 @@ using UnityEngine.Events;
 // It is a custom simplified physics engine that handles collisions and movement
 // Objects move at a constant velocity horizontally and bounce off walls
 // These objects can also be carried by mario
+[System.Diagnostics.DebuggerDisplay("{" + nameof(GetDebuggerDisplay) + "(),nq}")]
 public class ObjectPhysics : MonoBehaviour
 {
     [Header("Object Physics")]
@@ -38,7 +39,11 @@ public class ObjectPhysics : MonoBehaviour
     public float gravity = 60f;
     public float width = 1;
     public float height = 1;
+    public Vector2 boundsOffset = Vector2.zero; // shifts the virtual box center
+    public Vector2 sizePadding = Vector2.zero; // adds to width/height (can be negative)
+    [HideInInspector] public bool ignoreRaycastFlip = false;
     protected Rigidbody2D rb; // If this exists on the object, then the movement can be interpolated (smoothed out)
+    private SpriteRenderer spriteRenderer;
 
     // THIS IS DISTANCE AWAY FROM SIDES
     public float floorRaycastSpacing = 0.2f;
@@ -57,7 +62,7 @@ public class ObjectPhysics : MonoBehaviour
     private Transform ogParent;    // for stacks of enemies
 
     public bool flipObject = true;  // if true, the object will flip when moving right
-    private Vector2 normalScale;
+    [HideInInspector] public Vector2 normalScale;
     protected float adjDeltaTime;
 
     public enum UpdateType
@@ -75,6 +80,8 @@ public class ObjectPhysics : MonoBehaviour
     public float sinkSpeed = 20f;
     public LayerMask lavaMask;
     private GameObject touchedLava;
+    public bool isInWater = false;
+    public LayerMask waterMask;
 
     [Header("Carrying")]
 
@@ -135,6 +142,7 @@ public class ObjectPhysics : MonoBehaviour
     {
         normalScale = transform.localScale;
         adjDeltaTime = Time.fixedDeltaTime;
+        waterMask = LayerMask.GetMask("Water");
         lavaMask = LayerMask.GetMask("Lava");
         peakHeight = transform.position.y;
         ogParent = transform.parent;
@@ -151,11 +159,20 @@ public class ObjectPhysics : MonoBehaviour
             updateType = UpdateType.EveryPhysicsUpdate;
         }
 
+        spriteRenderer = GetComponent<SpriteRenderer>();
+        if (spriteRenderer == null)
+        {
+            spriteRenderer = GetComponentInChildren<SpriteRenderer>();
+        }
+
         // temporary fix for objects that don't have the sprite renderer in the parent
         // TODO: change this so all sprite renderers are affected by carrying
-        if (GetComponent<SpriteRenderer>() != null) {
+        if (GetComponent<SpriteRenderer>() != null)
+        {
             oldOrderInLayer = GetComponent<SpriteRenderer>().sortingOrder;
-        } else {
+        }
+        else
+        {
             oldOrderInLayer = 69;
         }
         //oldOrderInLayer = GetComponent<SpriteRenderer>().sortingOrder;
@@ -306,6 +323,14 @@ public class ObjectPhysics : MonoBehaviour
             }
         }
 
+        if (objectState != ObjectState.knockedAway && objectState != ObjectState.onLava)
+        {
+            if (velocity.y <= 0) { pos = CheckGround(pos); }
+            if (velocity.y > 0 && ceilingDetection) { pos = CheckCeiling(pos); }
+            if (lavaKill) { CheckLava(pos); }
+            if (DontFallOffLedges && objectState == ObjectState.grounded) { CheckLedges(pos); }
+        }
+
         Vector3 scale = transform.localScale;
 
         // flipping object sprite
@@ -337,18 +362,17 @@ public class ObjectPhysics : MonoBehaviour
 
     Vector3 CheckGround(Vector3 pos)
     {
+        float halfWidth, halfHeight;
+        Vector2 c;
+        GetBounds(pos, out c, out halfWidth, out halfHeight);
 
-        float halfHeight = height / 2;
-        float halfWidth = width / 2;
+        Vector2 originLeft   = new Vector2(c.x - halfWidth + floorRaycastSpacing, c.y - halfHeight + 0.02f);
+        Vector2 originMiddle = new Vector2(c.x,                               c.y - halfHeight + 0.02f);
+        Vector2 originRight  = new Vector2(c.x + halfWidth - floorRaycastSpacing, c.y - halfHeight + 0.02f);
 
-        Vector2 originLeft = new Vector2(pos.x - halfWidth + floorRaycastSpacing, pos.y - halfHeight + 0.02f);
-        Vector2 originMiddle = new Vector2(pos.x, pos.y - halfHeight + 0.02f);
-        Vector2 originRight = new Vector2(pos.x + halfWidth - floorRaycastSpacing, pos.y - halfHeight + 0.02f);
-        //print("adjDeltaTime is:" + (adjDeltaTime));
-        //print("Velocity is:" + velocity);
-        RaycastHit2D[] groundLeft = Physics2D.RaycastAll(originLeft, Vector2.down, -velocity.y * adjDeltaTime + .04f, floorMask);
+        RaycastHit2D[] groundLeft   = Physics2D.RaycastAll(originLeft,   Vector2.down, -velocity.y * adjDeltaTime + .04f, floorMask);
         RaycastHit2D[] groundMiddle = Physics2D.RaycastAll(originMiddle, Vector2.down, -velocity.y * adjDeltaTime + .04f, floorMask);
-        RaycastHit2D[] groundRight = Physics2D.RaycastAll(originRight, Vector2.down, -velocity.y * adjDeltaTime + .04f, floorMask);
+        RaycastHit2D[] groundRight  = Physics2D.RaycastAll(originRight,  Vector2.down, -velocity.y * adjDeltaTime + .04f, floorMask);
 
 
         RaycastHit2D[][] groundCollides = { groundLeft, groundMiddle, groundRight };
@@ -386,7 +410,7 @@ public class ObjectPhysics : MonoBehaviour
         {
             // We hit the ground
 
-            pos.y = shortestRay.point.y + halfHeight;
+            pos.y = shortestRay.point.y + halfHeight - boundsOffset.y; 
             velocity.y = 0;
 
             GameObject groundObject = shortestRay.transform.gameObject;
@@ -446,7 +470,6 @@ public class ObjectPhysics : MonoBehaviour
             if (objectState != ObjectState.falling)
             {
                 // We were grounded, but now we're not
-
                 Fall();
 
             }
@@ -460,17 +483,28 @@ public class ObjectPhysics : MonoBehaviour
         // override me for custom behavior after bouncing
     }
 
+    private void GetBounds(Vector3 pos, out Vector2 center, out float halfW, out float halfH)
+    {
+        float effW = Mathf.Max(0f, width  + sizePadding.x);
+        float effH = Mathf.Max(0f, height + sizePadding.y);
+
+        halfW = effW * 0.5f;
+        halfH = effH * 0.5f;
+        center = new Vector2(pos.x + boundsOffset.x, pos.y + boundsOffset.y);
+    }
+
     Vector3 CheckCeiling(Vector3 pos)
     {
         // combine floor and wall masks
         int ceilingMask = floorMask | wallMask;
 
-        float halfHeight = height / 2;
-        float halfWidth = width / 2;
+        float halfWidth, halfHeight;
+        Vector2 c;
+        GetBounds(pos, out c, out halfWidth, out halfHeight);
 
-        Vector2 originLeft = new Vector2(pos.x - halfWidth + floorRaycastSpacing, pos.y + halfHeight - 0.02f);
-        Vector2 originMiddle = new Vector2(pos.x, pos.y + halfHeight - 0.02f);
-        Vector2 originRight = new Vector2(pos.x + halfWidth - floorRaycastSpacing, pos.y + halfHeight - 0.02f);
+        Vector2 originLeft   = new Vector2(c.x - halfWidth + floorRaycastSpacing, c.y + halfHeight - 0.02f);
+        Vector2 originMiddle = new Vector2(c.x,                                    c.y + halfHeight - 0.02f);
+        Vector2 originRight  = new Vector2(c.x + halfWidth - floorRaycastSpacing,  c.y + halfHeight - 0.02f);
 
         RaycastHit2D[] ceilingLeft = Physics2D.RaycastAll(originLeft, Vector2.up, velocity.y * adjDeltaTime, ceilingMask);
         RaycastHit2D[] ceilingMiddle = Physics2D.RaycastAll(originMiddle, Vector2.up, velocity.y * adjDeltaTime, ceilingMask);
@@ -509,7 +543,7 @@ public class ObjectPhysics : MonoBehaviour
         if (shortestRay)
         {
             // We hit the ceiling
-            pos.y = shortestRay.point.y - halfHeight;
+            pos.y = shortestRay.point.y - halfHeight - boundsOffset.y;
             HitCeiling(shortestRay.collider.gameObject);
         }
 
@@ -519,12 +553,13 @@ public class ObjectPhysics : MonoBehaviour
     RaycastHit2D RaycastWalls(Vector3 pos, float direction)
     {
         // use raycast all and don't count itself
-        float halfHeight = height / 2;
-        float halfWidth = width / 2;
+        float halfWidth, halfHeight;
+        Vector2 c;
+        GetBounds(pos, out c, out halfWidth, out halfHeight);
 
-        Vector2 originTop = new Vector2(pos.x + direction * halfWidth, pos.y + halfHeight - wallRaycastSpacing);
-        Vector2 originMiddle = new Vector2(pos.x + direction * halfWidth, pos.y);
-        Vector2 originBottom = new Vector2(pos.x + direction * halfWidth, pos.y - halfHeight + wallRaycastSpacing);
+        Vector2 originTop    = new Vector2(c.x + direction * halfWidth, c.y + halfHeight - wallRaycastSpacing);
+        Vector2 originMiddle = new Vector2(c.x + direction * halfWidth, c.y);
+        Vector2 originBottom = new Vector2(c.x + direction * halfWidth, c.y - halfHeight + wallRaycastSpacing);
 
         RaycastHit2D[] wallTop = Physics2D.RaycastAll(originTop, new Vector2(direction, 0), velocity.x * adjDeltaTime, wallMask);
         RaycastHit2D[] wallMiddle = Physics2D.RaycastAll(originMiddle, new Vector2(direction, 0), velocity.x * adjDeltaTime, wallMask);
@@ -616,10 +651,11 @@ public class ObjectPhysics : MonoBehaviour
 
     void CheckLava(Vector3 pos)
     {
-        float halfHeight = height / 2;
+        float halfWidth, halfHeight;
+        Vector2 c;
+        GetBounds(pos, out c, out halfWidth, out halfHeight);
 
-        // Raycast downward to check for the "Lava" layer
-        Vector2 originMiddle = new Vector2(pos.x, pos.y - halfHeight + 0.02f);
+        Vector2 originMiddle = new Vector2(c.x, c.y - halfHeight + 0.02f);
         RaycastHit2D[] lavaHits = Physics2D.RaycastAll(originMiddle, Vector2.down, -velocity.y * adjDeltaTime + 0.04f, lavaMask);
 
         if (lavaHits.Length > 0)
@@ -666,7 +702,8 @@ public class ObjectPhysics : MonoBehaviour
     {
         if (bounceOffWalls) {
             // flip direction
-            movingLeft = !movingLeft;
+            if (!ignoreRaycastFlip)
+                movingLeft = !movingLeft;
         } else {
             velocity.x = 0;
         }
@@ -676,21 +713,20 @@ public class ObjectPhysics : MonoBehaviour
 
     void CheckLedges(Vector3 pos)
     {
-        float halfHeight = height / 2;
-        float halfWidth = width / 2;
+        float halfWidth, halfHeight;
+        Vector2 c;
+        GetBounds(pos, out c, out halfWidth, out halfHeight);
 
-        Vector2 origin;
-
-        if (movingLeft)
-            origin = new Vector2(pos.x - halfWidth, pos.y - halfHeight);
-        else
-            origin = new Vector2(pos.x + halfWidth, pos.y - halfHeight);
+        Vector2 origin = movingLeft
+            ? new Vector2(c.x - halfWidth, c.y - halfHeight)
+            : new Vector2(c.x + halfWidth, c.y - halfHeight);
 
         RaycastHit2D ground = Physics2D.Raycast(origin, Vector2.down, 0.5f, floorMask);
 
         if (!ground)
         {
-            movingLeft = !movingLeft;
+            if (!ignoreRaycastFlip)
+                movingLeft = !movingLeft;
         }
     }
 
@@ -804,57 +840,61 @@ public class ObjectPhysics : MonoBehaviour
 
     protected virtual void OnDrawGizmosSelected()
     {
-        if (movement == ObjectMovement.still)
-        {
-            return;
-        }
+        if (movement == ObjectMovement.still) return;
 
-        float distance;
+        // effective bounds (offset + padding)
+        float halfWidth, halfHeight;
+        Vector2 c;
+        GetBounds(transform.position, out c, out halfWidth, out halfHeight);
+
         Gizmos.color = Color.red;
-        
-        Vector2 pos = transform.position;
-        float halfHeight = height / 2;
-        float halfWidth = width / 2;
+        float distance;
 
-        // Floor Raycasts
-        if (!Application.isPlaying || velocity.y <= 0) {
-            Vector2 originLeft = new Vector2(pos.x - halfWidth + floorRaycastSpacing, pos.y - halfHeight + 0.02f);
-            Vector2 originMiddle = new Vector2(pos.x, pos.y - halfHeight + 0.02f);
-            Vector2 originRight = new Vector2(pos.x + halfWidth - floorRaycastSpacing, pos.y - halfHeight + 0.02f);
+        // floor Raycasts
+        if (!Application.isPlaying || velocity.y <= 0)
+        {
+            Vector2 originLeftFloor   = new Vector2(c.x - halfWidth + floorRaycastSpacing, c.y - halfHeight + 0.02f);
+            Vector2 originMiddleFloor = new Vector2(c.x,                                   c.y - halfHeight + 0.02f);
+            Vector2 originRightFloor  = new Vector2(c.x + halfWidth - floorRaycastSpacing, c.y - halfHeight + 0.02f);
 
-            distance = Application.isPlaying ? -velocity.y * adjDeltaTime + .04f : 0.2f;
+            distance = Application.isPlaying ? -velocity.y * adjDeltaTime + 0.04f : 0.2f;
 
-            Gizmos.DrawLine(originLeft, originLeft + new Vector2(0, -distance));
-            Gizmos.DrawLine(originMiddle, originMiddle + new Vector2(0, -distance));
-            Gizmos.DrawLine(originRight, originRight + new Vector2(0, -distance));
+            Gizmos.DrawLine(originLeftFloor,   originLeftFloor   + Vector2.down * distance);
+            Gizmos.DrawLine(originMiddleFloor, originMiddleFloor + Vector2.down * distance);
+            Gizmos.DrawLine(originRightFloor,  originRightFloor  + Vector2.down * distance);
         }
 
-        // Wall Raycasts
-        float direction = movingLeft ? -1 : 1;
+        // wall Raycasts
+        float dir = movingLeft ? -1 : 1;
 
-        Vector2 originTop = new Vector2(pos.x + direction * halfWidth, pos.y + halfHeight - wallRaycastSpacing);
-        Vector2 originMiddleSide = new Vector2(pos.x + direction * halfWidth, pos.y);
-        Vector2 originBottom = new Vector2(pos.x + direction * halfWidth, pos.y - halfHeight + wallRaycastSpacing);
+        Vector2 originTopWall    = new Vector2(c.x + dir * halfWidth, c.y + halfHeight - wallRaycastSpacing);
+        Vector2 originMiddleWall = new Vector2(c.x + dir * halfWidth, c.y);
+        Vector2 originBottomWall = new Vector2(c.x + dir * halfWidth, c.y - halfHeight + wallRaycastSpacing);
 
         distance = Application.isPlaying ? velocity.x * adjDeltaTime : velocity.x * 0.02f;
+        Vector2 step = Vector2.right * distance * dir;
 
-        Gizmos.DrawLine(originTop, originTop + new Vector2(distance * direction, 0));
-        Gizmos.DrawLine(originMiddleSide, originMiddleSide + new Vector2(distance * direction, 0));
-        Gizmos.DrawLine(originBottom, originBottom + new Vector2(distance * direction, 0));
+        Gizmos.DrawLine(originTopWall,    originTopWall    + step);
+        Gizmos.DrawLine(originMiddleWall, originMiddleWall + step);
+        Gizmos.DrawLine(originBottomWall, originBottomWall + step);
 
-        // Ceiling Raycasts
+        // ceiling Raycasts
         if (ceilingDetection && (!Application.isPlaying || velocity.y > 0))
         {
-            Vector2 originLeftCeiling = new Vector2(pos.x - halfWidth + floorRaycastSpacing, pos.y + halfHeight - 0.02f);
-            Vector2 originMiddleCeiling = new Vector2(pos.x, pos.y + halfHeight - 0.02f);
-            Vector2 originRightCeiling = new Vector2(pos.x + halfWidth - floorRaycastSpacing, pos.y + halfHeight - 0.02f);
+            Vector2 originLeftCeil   = new Vector2(c.x - halfWidth + floorRaycastSpacing, c.y + halfHeight - 0.02f);
+            Vector2 originMiddleCeil = new Vector2(c.x,                                   c.y + halfHeight - 0.02f);
+            Vector2 originRightCeil  = new Vector2(c.x + halfWidth - floorRaycastSpacing, c.y + halfHeight - 0.02f);
 
-            distance = Application.isPlaying ? velocity.y * adjDeltaTime + .04f : 0.2f;
+            distance = Application.isPlaying ? velocity.y * adjDeltaTime + 0.04f : 0.2f;
 
-            Gizmos.DrawLine(originLeftCeiling, originLeftCeiling + new Vector2(0, distance));
-            Gizmos.DrawLine(originMiddleCeiling, originMiddleCeiling + new Vector2(0, distance));
-            Gizmos.DrawLine(originRightCeiling, originRightCeiling + new Vector2(0, distance));
+            Gizmos.DrawLine(originLeftCeil,   originLeftCeil   + Vector2.up * distance);
+            Gizmos.DrawLine(originMiddleCeil, originMiddleCeil + Vector2.up * distance);
+            Gizmos.DrawLine(originRightCeil,  originRightCeil  + Vector2.up * distance);
         }
+
+        // visualize effective bounding box (offset + padding)
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireCube(c, new Vector3(halfWidth * 2f, halfHeight * 2f, 0f));
     }
 
     // call this after mario picks up the object
@@ -893,6 +933,17 @@ public class ObjectPhysics : MonoBehaviour
     
    private void OnTriggerEnter2D(Collider2D collision)
     {
+        // Ensure we are detecting the water layer
+        if (((1 << collision.gameObject.layer) & waterMask) != 0) 
+        {
+            // Check if the object is fully inside the water collider
+            if (IsCompletelyInsideWater(collision))
+            {
+                isInWater = true;
+                velocity.y = 0f; // Stop vertical velocity when in water
+            }
+        }
+        
         // Check if the enemy has been thrown before handling the collision
         if (collision.gameObject.CompareTag("Enemy"))
         {
@@ -922,6 +973,47 @@ public class ObjectPhysics : MonoBehaviour
         //}    
     }
 
+    void OnTriggerStay2D(Collider2D collision)
+    {
+        // Ensure we are detecting the water layer
+        if (((1 << collision.gameObject.layer) & waterMask) != 0) 
+        {
+            // Check if the object is fully inside the water collider
+            if (IsCompletelyInsideWater(collision))
+            {
+                isInWater = true;
+                velocity.y = 0f; // Stop vertical velocity when in water
+            }
+        }
+    }
+
+    private void OnTriggerExit2D(Collider2D other)
+    {
+        if (((1 << other.gameObject.layer) & waterMask) != 0)
+        {
+            // exit water, transition to falling or grounded state
+            Debug.Log("I exited the water");
+            isInWater = false;
+            velocity.y = 0f; // reset velocity on exit
+        }
+    }
+
+    // Check if the object is completely inside the water collider
+    private bool IsCompletelyInsideWater(Collider2D waterCollider)
+    {
+        // Get the bounds of both the object and the water collider
+        Bounds objectBounds = GetComponent<Collider2D>().bounds;
+        Bounds waterBounds = waterCollider.bounds;
+
+        // Check if the object's bounds are completely inside the water's bounds
+        if (waterBounds.Contains(objectBounds.min) && waterBounds.Contains(objectBounds.max))
+        {
+            return true;
+        }
+
+        return false;
+    }
+
     public virtual void escapeMario()
     {
         // find mario's script (mario is 2 levels up hopefully lol)
@@ -930,7 +1022,7 @@ public class ObjectPhysics : MonoBehaviour
         {
             marioScript.dropCarry();
         }
-        
+
     }
 
     public virtual void Flip()
@@ -977,5 +1069,10 @@ public class ObjectPhysics : MonoBehaviour
         {
             transform.position = pos;
         }
+    }
+
+    private string GetDebuggerDisplay()
+    {
+        return ToString();
     }
 }

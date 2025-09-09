@@ -81,33 +81,46 @@ public class EnemyAI : ObjectPhysics
             return;
         }
 
-        if (other.gameObject.CompareTag("Player")) {
+        if (other.gameObject.CompareTag("Player"))
+        {
             hitByPlayer(other.gameObject);
-        } else {
+        }
+        else
+        {
             touchNonPlayer(other.gameObject);
         }
     }
 
-    protected virtual void hitByPlayer(GameObject player) {
+    protected virtual void hitByPlayer(GameObject player)
+    {
         MarioMovement playerscript = player.GetComponent<MarioMovement>();
-        if (playerscript.starPower) {
+        if (playerscript.starPower)
+        {
             hitByStarPower(player);
             return;
         }
 
         Rigidbody2D rb = player.GetComponent<Rigidbody2D>();
 
-        float playerHeightSubtract = player.GetComponent<Collider2D>().bounds.size.y / 2 * (PowerStates.IsSmall(playerscript.powerupState) ?  0.4f : 0.7f);
+        float playerHeightSubtract = player.GetComponent<Collider2D>().bounds.size.y / 2 * (PowerStates.IsSmall(playerscript.powerupState) ? 0.4f : 0.7f);
 
-        if (rb.position.y - playerHeightSubtract > transform.position.y + stompHeight) {
-            if (playerscript.spinning) {
+        if (rb.position.y - playerHeightSubtract > transform.position.y + stompHeight)
+        {
+            if (playerscript.spinning)
+            {
                 hitBySpinJump(playerscript);
-            } else if (playerscript.groundPounding) {
+            }
+            else if (playerscript.groundPounding)
+            {
                 hitByGroundPound(playerscript);
-            } else {
+            }
+            else
+            {
                 hitByStomp(player);
             }
-        } else {
+        }
+        else
+        {
             hitOnSide(player);
         }
 
