@@ -30,6 +30,7 @@ public class MarioMovement : MonoBehaviour
     private bool jumpPressed = false;
     private bool runPressed = false;
     private bool spinPressed = false;
+    private bool shootPressed = false;
 
     [Header("Horizontal Movement")]
     public float moveSpeed = 10f;
@@ -273,7 +274,6 @@ public class MarioMovement : MonoBehaviour
         animator = GetComponent<Animator>();
         animator.SetInteger("grabMethod", (int)carryMethod);
         originalScale = transform.lossyScale;
-        GameManager.Instance.SetPlayer(this, playerNumber);
         abilities.AddRange(GetComponents<MarioAbility>());
         normalSpriteLibrary = GetComponent<SpriteLibrary>().spriteLibraryAsset;
 
@@ -295,11 +295,8 @@ public class MarioMovement : MonoBehaviour
             }
         }
 
-        // Start as tiny mario cheat
-        if (GlobalVariables.cheatStartTiny && powerupState != PowerupState.tiny)
-        {
-            ChangePowerup(GameManager.Instance.tinyMarioPrefab);
-        }
+        // Should happen after everything else so that the player transformation cheats work
+        GameManager.Instance.SetPlayer(this, playerNumber);
 
         StartCoroutine(SpawnBubbles());
     }
@@ -958,6 +955,15 @@ public class MarioMovement : MonoBehaviour
             }
         }
 
+        // Infinite fireballs cheat
+        if (GlobalVariables.cheatFlamethrower && shootPressed)
+        {
+            foreach (MarioAbility ability in abilities)
+            {
+                ability.onShootPressed();
+            }
+        }
+
         // Animation
         animator.SetFloat("Horizontal", Mathf.Abs(rb.velocity.x) * walkAnimatorSpeed);
         animator.SetBool("isRunning", Mathf.Abs(rb.velocity.x) > 0.2f);
@@ -1548,7 +1554,7 @@ public class MarioMovement : MonoBehaviour
     public void TransformIntoObject(GameObject newMario)
     {
         // Check for invincibility
-        if (invincetimeremain > 0f || starPower)
+        if (invincetimeremain > 0f || starPower || GlobalVariables.cheatInvincibility)
         {
             Debug.Log("Mario is invincible. Transformation ignored.");
             return;
@@ -2022,11 +2028,23 @@ public class MarioMovement : MonoBehaviour
         {
             onShootPressed();
         }
+        if (context.canceled)
+        {
+            onShootReleased();
+        }
     }
     public void onShootPressed() {
         foreach (MarioAbility ability in abilities)
         {
+            shootPressed = true;
             ability.onShootPressed();
+        }
+    }
+    public void onShootReleased() {
+        foreach (MarioAbility ability in abilities)
+        {
+            shootPressed = false;
+            //ability.onShootReleased();    // Add when needed
         }
     }
 

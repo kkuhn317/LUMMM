@@ -117,6 +117,10 @@ public class MobileControls : MonoBehaviour
         //getPlayer1().onUsePressed();
         getPlayer1().onShootPressed();
     }
+    public void onUseReleased()
+    {
+        getPlayer1().onShootReleased();
+    }
     public void onSpinPressed()
     {
         getPlayer1().onSpinPressed();

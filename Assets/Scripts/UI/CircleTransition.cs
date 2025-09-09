@@ -11,11 +11,13 @@ public class CircleTransition : MonoBehaviour
 
     private Vector2 _playerCanvasPos;
 
-    private readonly float duration = 4f;   // How long the transition should take
+    private float duration = 4f;   // How long the transition should take
+    private float maxSize = 2f;     // Max size of the circle (should be bigger than the whole screen)
 
     private static readonly int RADIUS = Shader.PropertyToID("_Radius");
     private static readonly int CENTER_X = Shader.PropertyToID("_CenterX");
     private static readonly int CENTER_Y = Shader.PropertyToID("_CenterY");
+
 
     private void Awake()
     {
@@ -25,6 +27,11 @@ public class CircleTransition : MonoBehaviour
 
     private void Start()
     {
+        if (GlobalVariables.cheatDarkness)
+        {
+            maxSize = 0.1f;
+            duration = 0.5f;
+        }
         OpenBlackScreen();
     }
 
@@ -36,13 +43,13 @@ public class CircleTransition : MonoBehaviour
     public void OpenBlackScreen()
     {
         DrawBlackScreen();
-        StartCoroutine(Transition(0, 2));
+        StartCoroutine(Transition(0, maxSize));
     }
 
     public void CloseBlackScreen()
     {
         DrawBlackScreen();
-        StartCoroutine(Transition(2, 0));
+        StartCoroutine(Transition(maxSize, 0));
     }
 
     private void DrawBlackScreen()
