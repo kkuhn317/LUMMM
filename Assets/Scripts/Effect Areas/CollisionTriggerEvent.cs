@@ -17,9 +17,6 @@ public class CollisionTriggerEvent : MonoBehaviour
     // check if player enters the trigger
     void OnTriggerEnter2D(Collider2D other)
     {
-        if (!active) return;
-        if (onPlayerEnter == null) return;
-
         if (other.gameObject.tag == "Player")
         {
             if (onPlayerEnter != null) 

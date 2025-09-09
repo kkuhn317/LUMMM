@@ -58,21 +58,19 @@ public class CheepCheep : EnemyAI
     private bool scriptedChaseExecuted = false;
 
     [Header("Chase fail-safe")]
-    public float wallProbeDistance = 0.25f;  // ray length to detect a hard wall in front
-    public float wallGiveUpTime = 1.0f;      // how long blocked before giving up chase
-    public float reengageCooldown = 1.5f;    // wait time before trying to chase again
-    private float _blockedTimer = 0f;
-    private float _reengageUntil = -1f;
-    private bool  _edgeHovering = false;
-    private Coroutine _edgeHoverCo = null;
+    public float wallProbeDistance = 0.25f; // ray length to detect a hard wall in front
+    public float wallGiveUpTime = 1.0f; // how long blocked before giving up chase
+    public float reengageCooldown = 1.5f; // wait time before trying to chase again
+    private float blockedTimer = 0f;
+    private float reengageUntil = -1f;
+    private bool  edgeHovering = false;
+    private Coroutine edgeHoverCo = null;
 
     // visuals, physics
     private Vector3 originalScale;
     public Transform pivot;
-    public SpriteRenderer spriteRenderer;
-    public Animator animator;
-
-    // cutscene helpers
+    [SerializeField] private SpriteRenderer spriteRenderer;
+    [SerializeField] private Animator animator;
     private bool suppressBounce = false;
 
     private void OnDisable()
@@ -118,7 +116,6 @@ public class CheepCheep : EnemyAI
         SuppressRaycastFlip(false);
     }
 
-    // ---------------- BUBBLES ----------------
     private void StartChaseBubbles()
     {
         nextBubbleTime = (isInWater && bubble) ? Time.time + bubbleIntervalSeconds : -1f;
@@ -144,7 +141,6 @@ public class CheepCheep : EnemyAI
             nextBubbleTime = Time.time + bubbleIntervalSeconds;
         }
     }
-    // -----------------------------------------
 
     protected override void Update()
     {
@@ -200,10 +196,10 @@ public class CheepCheep : EnemyAI
             TickBubbles();
         }
 
-        // --- chase fail-safe: detect prolonged wall block and gracefully give up ---
+        // chase fail-safe: detect prolonged wall block and gracefully give up
         if (isChasing && target)
         {
-            if (Time.time < _reengageUntil)
+            if (Time.time < reengageUntil)
             {
                 StopChasing();
                 EnterEdgeHover();
@@ -211,14 +207,14 @@ public class CheepCheep : EnemyAI
             else
             {
                 if (IsHardBlocked())
-                    _blockedTimer += Time.deltaTime;
+                    blockedTimer += Time.deltaTime;
                 else
-                    _blockedTimer = 0f;
+                    blockedTimer = 0f;
 
-                if (_blockedTimer >= wallGiveUpTime)
+                if (blockedTimer >= wallGiveUpTime)
                 {
-                    _blockedTimer = 0f;
-                    _reengageUntil = Time.time + reengageCooldown;
+                    blockedTimer = 0f;
+                    reengageUntil = Time.time + reengageCooldown;
 
                     StopChasing();
                     EnterEdgeHover();
@@ -227,7 +223,7 @@ public class CheepCheep : EnemyAI
         }
 
         // idle swim/bob or ground behavior
-        if (isInWater && !isChasing && !isScriptedChasing && !_edgeHovering)
+        if (isInWater && !isChasing && !isScriptedChasing && !edgeHovering)
         {
             velocity.x = swimSpeed;
             SwimAndBob();
@@ -262,19 +258,19 @@ public class CheepCheep : EnemyAI
 
     private void EnterEdgeHover()
     {
-        if (_edgeHovering) return;
-        _edgeHovering = true;
+        if (edgeHovering) return;
+        edgeHovering = true;
 
         SetZeroVelocity();
         gravity = 0f;
 
-        if (_edgeHoverCo != null) StopCoroutine(_edgeHoverCo);
-        _edgeHoverCo = StartCoroutine(EdgeHoverCR());
+        if (edgeHoverCo != null) StopCoroutine(edgeHoverCo);
+        edgeHoverCo = StartCoroutine(EdgeHoverCR());
     }
 
     private IEnumerator EdgeHoverCR()
     {
-        while (_edgeHovering && Time.time < _reengageUntil)
+        while (edgeHovering && Time.time < reengageUntil)
         {
             if (target) UpdateFacingToward(target.position);
             velocity.x = 0f;
@@ -282,8 +278,8 @@ public class CheepCheep : EnemyAI
             yield return null;
         }
 
-        _edgeHovering = false;
-        _edgeHoverCo = null;
+        edgeHovering = false;
+        edgeHoverCo = null;
     }
 
     // Prevent ping-ponging on walls while chasing; let the fail-safe handle it
@@ -466,17 +462,22 @@ public class CheepCheep : EnemyAI
         isChasing = false;
 
         // cancel edge hover if active
-        if (_edgeHovering)
+        if (edgeHovering)
         {
-            _edgeHovering = false;
-            if (_edgeHoverCo != null) StopCoroutine(_edgeHoverCo);
-            _edgeHoverCo = null;
+            edgeHovering = false;
+            if (edgeHoverCo != null) StopCoroutine(edgeHoverCo);
+            edgeHoverCo = null;
         }
 
         if (isInWater) velocity.x = 0;
 
         // stop bubbles when chase ends
         StopBubbles();
+    }
+
+    public void SetGroundSpeed(float newGroundSpeed)
+    {
+        groundSpeed = newGroundSpeed;
     }
 
     public void Celebrate()
@@ -681,7 +682,7 @@ public class CheepCheep : EnemyAI
         gravity = 0f;
     }
 
-    private void ApplyGravity() => gravity = 10f;
+    private void ApplyGravity() => gravity = 20f;
 
     private void Bounce()
     {

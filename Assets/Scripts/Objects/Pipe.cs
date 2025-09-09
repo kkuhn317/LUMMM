@@ -77,173 +77,132 @@ public class Pipe : MonoBehaviour
 
     private IEnumerator Enter(Transform player)
     {
+        // helpers
+        bool AnimatorHas(Animator a, string p){ if(!a) return false; foreach (var x in a.parameters) if (x.name==p) return true; return false; }
+
         /* ENTERING */
         OnAnyEnterStarted?.Invoke(this, player);
         onPlayerEnter?.Invoke();
 
-        MarioMovement marioMovement = player.GetComponent<MarioMovement>();
-        // Wait until the player finishes the ground pound rotation phase
-        while (marioMovement != null && marioMovement.groundPoundRotating)
-        {
-            Debug.Log("Waiting for ground pound rotation to finish...");
-            yield return null; // Wait for the next frame
-        }
+        var marioMovement  = player.GetComponent<MarioMovement>();
+        var playerRb = player.GetComponent<Rigidbody2D>();
+        var playerCol = player.GetComponent<Collider2D>();
+        var playerAnim = player.GetComponent<Animator>();
+        var playerSprite = player.GetComponent<SpriteRenderer>();
 
-        isEnteringPipe = true; // Set the flag to prevent re-entry
+        while (marioMovement && marioMovement.groundPoundRotating) yield return null;
 
+        isEnteringPipe = true;
         PlayWarpEnterSound();
 
-        // Disable the player's movement and gravity
-        Rigidbody2D playerRigidbody = player.GetComponent<Rigidbody2D>();
-        if (playerRigidbody != null)
+        if (playerRb){ playerRb.velocity = Vector2.zero; playerRb.isKinematic = true; }
+        if (playerCol) playerCol.enabled = false;
+
+        if (playerAnim)
         {
-            playerRigidbody.velocity = Vector2.zero;
-            playerRigidbody.isKinematic = true;
+            playerAnim.SetBool("onGround", enterDirection != Direction.Up);
+            playerAnim.SetBool("isSkidding", false);
+            playerAnim.SetBool("isCrouching", enterDirection == Direction.Down);
+            bool horizEnter = (enterDirection == Direction.Left || enterDirection == Direction.Right);
+            playerAnim.SetBool("isRunning", horizEnter);
+            playerAnim.SetFloat("Horizontal", horizEnter ? 1f : 0f);
         }
+        if (marioMovement) marioMovement.StopGroundPound();
+        if (playerSprite && (enterDirection == Direction.Left || enterDirection == Direction.Right))
+            playerSprite.flipX = (enterDirection == Direction.Left);
 
-        // Disable the player's collider
-        Collider2D playerCollider = player.GetComponent<Collider2D>();
-        if (playerCollider != null)
-        {
-            playerCollider.enabled = false;
-        }
+        if (marioMovement) marioMovement.enabled = false;
 
-        // Set animation
-        Animator playerAnimator = player.GetComponent<Animator>();
-        SpriteRenderer playerSprite = player.GetComponent<SpriteRenderer>();
-        playerAnimator.SetBool("onGround", enterDirection != Direction.Up);
-        playerAnimator.SetBool("isSkidding", false);
-        playerAnimator.SetBool("isCrouching", enterDirection == Direction.Down);
-        playerAnimator.SetBool("isRunning", enterDirection == Direction.Left || enterDirection == Direction.Right);
-        playerAnimator.SetFloat("Horizontal", enterDirection == Direction.Left || enterDirection == Direction.Right ? 1 : 0);
-
-        // Reset ground pound state
-
-        if (marioMovement != null)
-        {
-            marioMovement.StopGroundPound();
-        }
-        if (enterDirection == Direction.Left || enterDirection == Direction.Right)
-        {
-            playerSprite.flipX = enterDirection == Direction.Left;
-        }
-
-        // Disable player's movement
-        marioMovement.enabled = false;
-
-        Vector2 enterDirectionVector = DirectionToVector(enterDirection) * enterDistance; // Get the direction vector based on the enter direction
-
-        Vector3 enteredPosition = transform.position + (Vector3)enterDirectionVector; // We get the place where the player will move based on the pipe position and the enter position
+        // enter movement
+        Vector2 enterDirVec = DirectionToVector(enterDirection) * enterDistance;
+        Vector3 enteredPosition = transform.position + (Vector3)enterDirVec;
         switch (enterAlignType)
         {
             case AlignType.None:
-                Vector3 tempPosition = transform.position;
-                switch (enterDirection)
-                {
-                    case Direction.Down:
-                    case Direction.Up:
-                        tempPosition.x = player.position.x;
-                        break;
-                    case Direction.Right:
-                    case Direction.Left:
-                        tempPosition.y = player.position.y;
-                        break;
-                }
-                enteredPosition = tempPosition + (Vector3)enterDirectionVector;  // The end position is based on the player's current position
-                break;
-            case AlignType.Slow:
-                break;
-            case AlignType.Fast:
+                var t = transform.position;
+                if (enterDirection == Direction.Up || enterDirection == Direction.Down) t.x = player.position.x; else t.y = player.position.y;
+                enteredPosition = t + (Vector3)enterDirVec;
                 break;
             case AlignType.Instant:
-                Vector3 tempPosition2 = player.position;
-                switch (enterDirection)
-                {
-                    case Direction.Down:
-                    case Direction.Up:
-                        tempPosition2.x = enteredPosition.x;
-                        break;
-                    case Direction.Right:
-                    case Direction.Left:
-                        tempPosition2.y = enteredPosition.y;
-                        break;
-                }
-                player.position = tempPosition2;
+                var p2 = player.position;
+                if (enterDirection == Direction.Up || enterDirection == Direction.Down) p2.x = enteredPosition.x; else p2.y = enteredPosition.y;
+                player.position = p2;
                 break;
         }
-
-        yield return Move(player, enteredPosition, false); // To enter the pipe, player moves based on the enteredPosition
-        // Move the camera
+        yield return Move(player, enteredPosition, false);
 
         yield return new WaitForSeconds(1f);
 
         /* EXITING */
-
         PlayWarpEnterSound();
 
-        // Move the camera
-        Vector3 camPos = Camera.main.transform.position;
-        if (snapCameraX)
-        {
-            camPos.x = connection.position.x;
-        }
-        if (snapCameraY)
-        {
-            camPos.y = connection.position.y;
-        }
+        var camPos = Camera.main.transform.position;
+        if (snapCameraX) camPos.x = connection.position.x;
+        if (snapCameraY) camPos.y = connection.position.y;
         Camera.main.transform.position = camPos;
 
         if (!instantExit)
         {
-            // Set animation for exiting
-            playerAnimator.SetBool("onGround", true);
-            playerAnimator.SetBool("isSkidding", false);
-            playerAnimator.SetBool("isCrouching", false);
-            playerAnimator.SetBool("isRunning", exitDirection == Direction.Left || exitDirection == Direction.Right);
-            playerAnimator.SetFloat("Horizontal", exitDirection == Direction.Left || exitDirection == Direction.Right ? 1 : 0);
-            if (exitDirection == Direction.Left || exitDirection == Direction.Right)
+            // common setup that doesn't force swim/ground yet
+            if (playerAnim)
             {
-                playerSprite.flipX = exitDirection == Direction.Left;
+                playerAnim.SetBool("isSkidding", false);
+                playerAnim.SetBool("isCrouching", false);
+                bool horizExit = exitDirection == Direction.Left || exitDirection == Direction.Right;
+                playerAnim.SetBool("isRunning", horizExit);
+                playerAnim.SetFloat("Horizontal", horizExit ? 1f : 0f);
+                if (playerSprite && horizExit) playerSprite.flipX = exitDirection == Direction.Left;
             }
 
-            Vector2 exitDirectionVector = DirectionToVector(exitDirection);
-            Vector2 insidePipeOffset = exitDirectionVector * -insideExitDistance; // Get the inside position based on the exit direction
-            Vector2 exitPipeOffset = exitDirectionVector * exitDistance; // Get the exit position based on the exit direction
-            // If Mario is big and moving up or down, we need to move him a little bit more
-            if (PowerStates.IsBig(player.GetComponent<MarioMovement>().powerupState) &&
+            Vector2 outDir = DirectionToVector(exitDirection);
+            Vector2 insideOff = outDir * -insideExitDistance;
+            Vector2 exitOff = outDir *  exitDistance;
+
+            if (PowerStates.IsBig(marioMovement.powerupState) &&
                 (exitDirection == Direction.Down || exitDirection == Direction.Up))
             {
-                exitPipeOffset += exitDirectionVector * 0.5f;
+                exitOff += outDir * 0.5f;
             }
-            player.position = connection.position + (Vector3)insidePipeOffset;   // Move the player to the exit position
-            yield return Move(player, connection.position + (Vector3)exitPipeOffset, true);
+
+            // position just before pipe mouth
+            player.position = connection.position + (Vector3)insideOff;
+
+            // decide destination environment BEFORE moving out
+            // sample a little *past* the final exit point to avoid being inside the pipe collider
+            Vector3 finalExitPos = connection.position + (Vector3)exitOff + (Vector3)(outDir * 0.02f);
+            bool exitingIntoWater = Physics2D.OverlapPoint(finalExitPos, LayerMask.GetMask("Water"));
+
+            // sync gameplay + animator NOW so the tween shows the correct pose
+            if (marioMovement) marioMovement.swimming = exitingIntoWater;
+            if (playerAnim)
+            {
+                playerAnim.SetBool("onGround", !exitingIntoWater);
+                if (AnimatorHas(playerAnim,"swim")) playerAnim.SetBool("swim", exitingIntoWater);
+                if (AnimatorHas(playerAnim,"enterWater")) playerAnim.SetBool("enterWater", exitingIntoWater);
+                if (AnimatorHas(playerAnim,"exitWater")) playerAnim.SetBool("exitWater", !exitingIntoWater);
+            }
+
+            // now move out while already in the correct state
+            yield return Move(player, connection.position + (Vector3)exitOff, true);
         }
         else
         {
             player.position = connection.position;
+
+            // instant exit: still decide env at the final spot
+            bool inWater = Physics2D.OverlapPoint(player.position, LayerMask.GetMask("Water"));
+            if (marioMovement) marioMovement.swimming = inWater;
+            var a = player.GetComponent<Animator>();
+            if (a) a.SetBool("onGround", !inWater);
         }
 
-        // Re-enable the player's movement and gravity
-        if (playerRigidbody != null)
-        {
-            playerRigidbody.isKinematic = false;
-        }
-
-        // Re-enable the player's collider
-        if (playerCollider != null)
-        {
-            playerCollider.enabled = true;
-        }
-
-        if (marioMovement != null)
-        {
-            marioMovement.swimming = false;
-        }
-
-        player.GetComponent<MarioMovement>().enabled = true;
+        // unfreeze
+        if (playerRb)  playerRb.isKinematic = false;
+        if (playerCol) playerCol.enabled    = true;
+        if (marioMovement) marioMovement.enabled = true;
 
         OnAnyExitFinished?.Invoke(this, player);
-        isEnteringPipe = false; // Reset the flag for the next entry
+        isEnteringPipe = false;
     }
 
     private Vector2 DirectionToVector(Direction direction)
