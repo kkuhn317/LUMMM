@@ -8913,6 +8913,9 @@ MonoBehaviour:
   requireGroundToEnter: 1
   snapCameraX: 0
   snapCameraY: 0
+  onPlayerEnter:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &433444852
 GameObject:
   m_ObjectHideFlags: 0
@@ -9387,6 +9390,9 @@ MonoBehaviour:
   requireGroundToEnter: 1
   snapCameraX: 0
   snapCameraY: 1
+  onPlayerEnter:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!82 &475147595
 AudioSource:
   m_ObjectHideFlags: 0
@@ -9653,6 +9659,9 @@ MonoBehaviour:
   requireGroundToEnter: 1
   snapCameraX: 0
   snapCameraY: 1
+  onPlayerEnter:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!82 &491288028
 AudioSource:
   m_ObjectHideFlags: 0
@@ -10270,9 +10279,14 @@ MonoBehaviour:
   lockToHorizontal: 0
   lockToVertical: 0
   cameraPosOffset: {x: 0, y: 0}
+  horizontalMiddle: 0
+  verticalMiddle: 0
   lockOffset: {x: 0, y: 0}
-  snapToBounds: 0
+  zoneId: 
   priority: 0
+  entryRule: 0
+  snapFromZoneIds: []
+  clampPolicy: 2
 --- !u!114 &495973910
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10286,6 +10300,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   smoothDampTime: 0.15
+  zoomSmoothTime: 0.2
   offset: {x: 0, y: 0, z: 0}
 --- !u!81 &495973911
 AudioListener:
@@ -10378,9 +10393,14 @@ MonoBehaviour:
   lockToHorizontal: 0
   lockToVertical: 0
   cameraPosOffset: {x: 0, y: 0}
+  horizontalMiddle: 0
+  verticalMiddle: 0
   lockOffset: {x: 0, y: 0}
-  snapToBounds: 1
+  zoneId: 
   priority: 0
+  entryRule: 0
+  snapFromZoneIds: []
+  clampPolicy: 2
 --- !u!114 &495973915
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10398,9 +10418,14 @@ MonoBehaviour:
   lockToHorizontal: 1
   lockToVertical: 0
   cameraPosOffset: {x: 0, y: 0}
+  horizontalMiddle: 0
+  verticalMiddle: 0
   lockOffset: {x: 0, y: 0}
-  snapToBounds: 1
+  zoneId: 
   priority: 0
+  entryRule: 0
+  snapFromZoneIds: []
+  clampPolicy: 2
 --- !u!114 &495973917
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10418,9 +10443,14 @@ MonoBehaviour:
   lockToHorizontal: 0
   lockToVertical: 0
   cameraPosOffset: {x: 0, y: 0}
+  horizontalMiddle: 0
+  verticalMiddle: 0
   lockOffset: {x: 0, y: 0}
-  snapToBounds: 1
+  zoneId: 
   priority: 0
+  entryRule: 1
+  snapFromZoneIds: []
+  clampPolicy: 2
 --- !u!114 &495973918
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10438,9 +10468,14 @@ MonoBehaviour:
   lockToHorizontal: 0
   lockToVertical: 0
   cameraPosOffset: {x: 0, y: 0}
+  horizontalMiddle: 0
+  verticalMiddle: 0
   lockOffset: {x: 0, y: 0}
-  snapToBounds: 0
+  zoneId: 
   priority: 0
+  entryRule: 1
+  snapFromZoneIds: []
+  clampPolicy: 2
 --- !u!114 &497665739 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 3767392053862824103, guid: 2eddae923b3b0e44abde5f8282ae4754, type: 3}
@@ -12456,7 +12491,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1771483343543010229, guid: 0ed8634130540ee49afd6a10ccb53bf6, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -1.49997
+      value: 4.38
       objectReference: {fileID: 0}
     - target: {fileID: 1771483343543010229, guid: 0ed8634130540ee49afd6a10ccb53bf6, type: 3}
       propertyPath: m_LocalPosition.z
@@ -55707,6 +55742,9 @@ MonoBehaviour:
   requireGroundToEnter: 1
   snapCameraX: 0
   snapCameraY: 0
+  onPlayerEnter:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!82 &955909800
 AudioSource:
   m_ObjectHideFlags: 0
@@ -61260,6 +61298,9 @@ MonoBehaviour:
   requireGroundToEnter: 1
   snapCameraX: 0
   snapCameraY: 1
+  onPlayerEnter:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!82 &1438879873
 AudioSource:
   m_ObjectHideFlags: 0
@@ -66302,11 +66343,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1771483343543010229, guid: 0ed8634130540ee49afd6a10ccb53bf6, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -10.73
+      value: 9.5
       objectReference: {fileID: 0}
     - target: {fileID: 1771483343543010229, guid: 0ed8634130540ee49afd6a10ccb53bf6, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 4.21
+      value: -0.26
       objectReference: {fileID: 0}
     - target: {fileID: 1771483343543010229, guid: 0ed8634130540ee49afd6a10ccb53bf6, type: 3}
       propertyPath: m_LocalPosition.z
@@ -67921,6 +67962,9 @@ MonoBehaviour:
   requireGroundToEnter: 1
   snapCameraX: 0
   snapCameraY: 0
+  onPlayerEnter:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!4 &1982814049 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1104027325654879534, guid: a286635ae5bff1c4ca47a020ca4722f3, type: 3}

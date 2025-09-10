@@ -21,11 +21,6 @@ public class CameraZone : MonoBehaviour
     [Tooltip("Offset for stationary cameras or to bias where the camera centers within the zone. Ranges ~(-1,-1) bottom-left to (1,1) top-right.")]
     public Vector2 cameraPosOffset = Vector2.zero;
 
-    [Header("Optional Lock Guide (World Space)")]
-    [Tooltip("Green guide center X (if 0, computed from bounds midpoint)")]
-    public float horizontalMiddle = 0f;
-    [Tooltip("Green guide center Y (if 0, computed from bounds midpoint)")]
-    public float verticalMiddle = 0f;
     [Tooltip("Additional offset applied to the green guide position")]
     public Vector2 lockOffset = Vector2.zero;
 
@@ -63,20 +58,12 @@ public class CameraZone : MonoBehaviour
 
     // ------------------------------------------------------------------------------------------
     private CameraFollow cameraFollow;
-
+    public float horizontalMiddle => (topLeft.x + bottomRight.x) * 0.5f;
+    public float verticalMiddle => (topLeft.y + bottomRight.y) * 0.5f;
     public float cameraMinX => lockToVertical ? (horizontalMiddle + lockOffset.x) : topLeft.x + (cameraFollow.camWidth / 2f);
     public float cameraMaxX => lockToVertical ? (horizontalMiddle + lockOffset.x) : bottomRight.x - (cameraFollow.camWidth / 2f);
     public float cameraMinY => lockToHorizontal ? (verticalMiddle + lockOffset.y) : bottomRight.y + (cameraFollow.camHeight / 2f);
     public float cameraMaxY => lockToHorizontal ? (verticalMiddle + lockOffset.y) : topLeft.y - (cameraFollow.camHeight / 2f);
-
-    private void Awake()
-    {
-        // Auto-compute guides if not manually set (common use)
-        if (Mathf.Approximately(horizontalMiddle, 0f))
-            horizontalMiddle = (topLeft.x + bottomRight.x) * 0.5f;
-        if (Mathf.Approximately(verticalMiddle, 0f))
-            verticalMiddle = (topLeft.y + bottomRight.y) * 0.5f;
-    }
 
     private void Start()
     {

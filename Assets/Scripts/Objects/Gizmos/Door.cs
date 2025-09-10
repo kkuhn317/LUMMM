@@ -23,8 +23,10 @@ public class Door : MonoBehaviour
     // Used for positioning the particles
     public float doorWidth = 1.0f;
     public float doorHeight = 2.0f;
-
     protected AudioSource audioSource;
+
+    public bool snapCameraX;
+    public bool snapCameraY;
 
     // Start is called before the first frame update
     protected virtual void Start()
@@ -226,6 +228,11 @@ public class Door : MonoBehaviour
                 player.transform.position -= new Vector3(0, 0.5f, 0);
             }
         }
+
+        var camPos = Camera.main.transform.position;
+        if (snapCameraX) camPos.x = player.transform.position.x;
+        if (snapCameraY) camPos.y = player.transform.position.y;
+        Camera.main.transform.position = camPos;
 
         UnfreezePlayer();
     }

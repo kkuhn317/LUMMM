@@ -6769,8 +6769,11 @@ MonoBehaviour:
   lockToVertical: 0
   cameraPosOffset: {x: 0, y: 0}
   lockOffset: {x: 0, y: 2}
-  snapToBounds: 0
+  zoneId: 
   priority: 0
+  entryRule: 0
+  snapFromZoneIds: []
+  clampPolicy: 1
 --- !u!114 &495973910
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6784,6 +6787,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   smoothDampTime: 0.15
+  zoomSmoothTime: 0.2
   offset: {x: 0, y: 0, z: 0}
 --- !u!81 &495973911
 AudioListener:
@@ -6877,8 +6881,11 @@ MonoBehaviour:
   lockToVertical: 0
   cameraPosOffset: {x: 0, y: 0}
   lockOffset: {x: 0, y: 2.5}
-  snapToBounds: 0
+  zoneId: 
   priority: 0
+  entryRule: 0
+  snapFromZoneIds: []
+  clampPolicy: 1
 --- !u!1 &501691207
 GameObject:
   m_ObjectHideFlags: 0
@@ -69719,6 +69726,9 @@ MonoBehaviour:
   requireGroundToEnter: 1
   snapCameraX: 0
   snapCameraY: 0
+  onPlayerEnter:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!82 &1010478909
 AudioSource:
   m_ObjectHideFlags: 0
@@ -78075,6 +78085,9 @@ MonoBehaviour:
   gravity: 10
   width: 0.6
   height: 1
+  boundsOffset: {x: 0, y: 0}
+  sizePadding: {x: 0, y: 0}
+  ignoreRaycastFlip: 0
   floorRaycastSpacing: 0.1
   wallRaycastSpacing: 0.2
   floorMask:
@@ -78088,6 +78101,7 @@ MonoBehaviour:
   DontFallOffLedges: 0
   bounceOffWalls: 0
   flipObject: 0
+  normalScale: {x: 0, y: 0}
   updateType: 0
   lavaKill: 1
   forceSinkInLava: 1
@@ -78095,6 +78109,10 @@ MonoBehaviour:
   lavaMask:
     serializedVersion: 2
     m_Bits: 8192
+  isInWater: 0
+  waterMask:
+    serializedVersion: 2
+    m_Bits: 0
   carryable: 0
   carried: 0
   throwVelocity: {x: 12, y: 10}
@@ -79366,6 +79384,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: spike
       objectReference: {fileID: 0}
+    - target: {fileID: 1591931049565920763, guid: 6c0198104a9ea2947a028ce775b091bc, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 3598641509939611619, guid: 6c0198104a9ea2947a028ce775b091bc, type: 3}
       propertyPath: m_Sprite
       value: 
@@ -79745,6 +79767,9 @@ MonoBehaviour:
   gravity: 30
   width: 0
   height: 0
+  boundsOffset: {x: 0, y: 0}
+  sizePadding: {x: 0, y: 0}
+  ignoreRaycastFlip: 0
   floorRaycastSpacing: 0
   wallRaycastSpacing: 0
   floorMask:
@@ -79758,11 +79783,16 @@ MonoBehaviour:
   DontFallOffLedges: 0
   bounceOffWalls: 0
   flipObject: 0
+  normalScale: {x: 0, y: 0}
   updateType: 0
   lavaKill: 1
   forceSinkInLava: 1
   sinkSpeed: 20
   lavaMask:
+    serializedVersion: 2
+    m_Bits: 0
+  isInWater: 0
+  waterMask:
     serializedVersion: 2
     m_Bits: 0
   carryable: 0
@@ -83593,6 +83623,9 @@ MonoBehaviour:
   gravity: 30
   width: 0
   height: 0
+  boundsOffset: {x: 0, y: 0}
+  sizePadding: {x: 0, y: 0}
+  ignoreRaycastFlip: 0
   floorRaycastSpacing: 0
   wallRaycastSpacing: 0
   floorMask:
@@ -83606,11 +83639,16 @@ MonoBehaviour:
   DontFallOffLedges: 0
   bounceOffWalls: 0
   flipObject: 0
+  normalScale: {x: 0, y: 0}
   updateType: 0
   lavaKill: 1
   forceSinkInLava: 1
   sinkSpeed: 20
   lavaMask:
+    serializedVersion: 2
+    m_Bits: 0
+  isInWater: 0
+  waterMask:
     serializedVersion: 2
     m_Bits: 0
   carryable: 0
@@ -84512,6 +84550,9 @@ MonoBehaviour:
   requireGroundToEnter: 1
   snapCameraX: 0
   snapCameraY: 0
+  onPlayerEnter:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
