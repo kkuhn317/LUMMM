@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting.Dependencies.Sqlite;
 using UnityEngine;
 using UnityEngine.Playables;
 
@@ -19,10 +20,14 @@ public class CheepCheep : EnemyAI
     public float jumpForceOutOfWater = 5f;
     public float rotationSpeed = 200f;
 
+    [Header("Rotation Limits")]
+    [Range(0, 90)] [SerializeField] private float maxAimPitchDeg = 60f; // max up/down from forward 
+    [SerializeField] private float aimHysteresisDeg = 3f; // small buffer to avoid edge jitter
+
     [Header("Bubbles")]
     public GameObject bubble;
     public GameObject dashParticles;
-    public float bubbleIntervalSeconds = 3f; // fixed interval spawn
+    public float bubbleIntervalSeconds = 3f;
     private float nextBubbleTime = -1f;
 
     [Header("Facing Smoothing")]
@@ -31,7 +36,7 @@ public class CheepCheep : EnemyAI
     [SerializeField] private float minFlipInterval = 0.20f;
 
     private float lastFlipTime = -999f;
-    private int facingSign = 0; // -1 = L, +1 = R, 0 = undecided
+    private int facingSign = 0;
 
     // runtime flags
     private bool isRotating = false;
@@ -59,12 +64,12 @@ public class CheepCheep : EnemyAI
     private bool scriptedChaseExecuted = false;
 
     [Header("Chase fail-safe")]
-    public float wallProbeDistance = 0.25f; // ray length to detect a hard wall in front
-    public float wallGiveUpTime = 1.0f; // how long blocked before giving up chase
-    public float reengageCooldown = 1.5f; // wait time before trying to chase again
+    public float wallProbeDistance = 0.25f;
+    public float wallGiveUpTime = 1.0f;
+    public float reengageCooldown = 1.5f;
     private float blockedTimer = 0f;
     private float reengageUntil = -1f;
-    private bool  edgeHovering = false;
+    private bool edgeHovering = false;
     private Coroutine edgeHoverCo = null;
 
     // visuals, physics
@@ -73,6 +78,7 @@ public class CheepCheep : EnemyAI
     [SerializeField] private SpriteRenderer spriteRenderer;
     [SerializeField] private Animator animator;
     private bool suppressBounce = false;
+    private Coroutine angryCo;
 
     private void OnDisable()
     {
@@ -129,8 +135,8 @@ public class CheepCheep : EnemyAI
 
     private void TickBubbles()
     {
-        if (nextBubbleTime < 0f) return;       // not active
-        if (!isInWater || !bubble)             // pause if out of water or no prefab
+        if (nextBubbleTime < 0f) return;
+        if (!isInWater || !bubble)
         {
             nextBubbleTime = -1f;
             return;
@@ -145,7 +151,7 @@ public class CheepCheep : EnemyAI
 
     protected override void Update()
     {
-        // CELEBRATE state short-circuit (keep existing behavior)
+        // Celebrate state
         if (isCelebrating)
         {
             if (isInWater)
@@ -157,7 +163,6 @@ public class CheepCheep : EnemyAI
             }
             else
             {
-                // slide/fall naturally; stop X on ground
                 stopAfterLand = true;
                 ApplyGravity();
                 base.Update();
@@ -179,25 +184,20 @@ public class CheepCheep : EnemyAI
             return;
         }
 
-        // chase radius check
         if (target && Vector3.Distance(transform.position, target.position) > followRadius)
             StopChasing();
 
-        // smooth face during chase
         if (isChasing && target)
             UpdateFacingToward(target.position);
 
         SetVisualFacing();
 
-        // main chase movement
         if (isChasing && target)
         {
             Chase(target);
-            // bubbles only during normal chase; scripted chase ticks inside its coroutine
             TickBubbles();
         }
 
-        // chase fail-safe: detect prolonged wall block and gracefully give up
         if (isChasing && target)
         {
             if (Time.time < reengageUntil)
@@ -223,7 +223,6 @@ public class CheepCheep : EnemyAI
             }
         }
 
-        // idle swim/bob or ground behavior
         if (isInWater && !isChasing && !isScriptedChasing && !edgeHovering)
         {
             velocity.x = swimSpeed;
@@ -241,19 +240,12 @@ public class CheepCheep : EnemyAI
         }
     }
 
-    // Hard-block probe straight ahead into wallMask
     private bool IsHardBlocked()
     {
         float dir = movingLeft ? -1f : 1f;
-
-        // use ObjectPhysics bounds helpers/fields
         Vector2 c = (Vector2)transform.position + boundsOffset;
         float halfW = Mathf.Max(0f, width + sizePadding.x) * 0.5f;
-
-        // a point at the "nose"
         Vector2 origin = new Vector2(c.x + dir * (halfW - 0.01f), c.y);
-
-        // raycast ahead
         return Physics2D.Raycast(origin, new Vector2(dir, 0f), wallProbeDistance, wallMask);
     }
 
@@ -283,16 +275,14 @@ public class CheepCheep : EnemyAI
         edgeHoverCo = null;
     }
 
-    // Prevent ping-ponging on walls while chasing; let the fail-safe handle it
     protected override void onTouchWall(GameObject other)
     {
         if (isChasing)
         {
-            velocity.x = 0f; // don't flip; just stop pushing
+            velocity.x = 0f;
             return;
         }
 
-        // default bounce behavior (respecting ignoreRaycastFlip)
         if (bounceOffWalls)
         {
             if (!ignoreRaycastFlip)
@@ -339,7 +329,6 @@ public class CheepCheep : EnemyAI
         if (target) UpdateFacingToward(target.position);
         SetVisualFacing();
 
-        // start bubble cadence for normal chase
         StartChaseBubbles();
 
         chaseSequenceCo = StartCoroutine(RotateAndChase());
@@ -359,15 +348,9 @@ public class CheepCheep : EnemyAI
         float targetAngle = 0f;
         if (target && pivot)
         {
-            Vector3 dir3 = target.position - pivot.position;
-            if (dir3.sqrMagnitude > 1e-6f)
-            {
-                targetAngle = Mathf.Atan2(dir3.y, dir3.x) * Mathf.Rad2Deg;
-                if (movingLeft) targetAngle += 180f;
-            }
+            targetAngle = GetCappedPitchDeg(target.position);
         }
 
-        // rotate during "shocked"
         while (animator && animator.GetCurrentAnimatorStateInfo(0).IsName("shocked") &&
                animator.GetCurrentAnimatorStateInfo(0).normalizedTime < 1f)
         {
@@ -393,7 +376,6 @@ public class CheepCheep : EnemyAI
 
         isRotating = false;
 
-        // handoff to scripted if requested
         if (forceScriptedAfterRotate && forcedWaypoint)
         {
             if (scriptedChaseCo != null) StopCoroutine(scriptedChaseCo);
@@ -408,10 +390,33 @@ public class CheepCheep : EnemyAI
             yield break;
         }
 
-        // proceed with normal chase
         isChasing = true;
         isChaseSequenceRunning = false;
         chaseSequenceCo = null;
+    }
+
+    // Signed pitch in degrees, clamped to ±maxAimPitchDeg.
+    // Handles flipX by inverting the sign when movingLeft.
+    private float GetCappedPitchDeg(Vector3 worldTarget)
+    {
+        if (!pivot) return 0f;
+
+        Vector2 to = (Vector2)(worldTarget - pivot.position);
+        if (to.sqrMagnitude < Mathf.Epsilon) return 0f;
+
+        bool left = movingLeft;
+
+        // Mirror so forward is always +X for the measurement
+        if (left) to.x = -to.x;
+
+        // Measure signed pitch relative to +X, clamp it
+        float pitch = Vector2.SignedAngle(Vector2.right, to.normalized); // [-180, 180]
+        pitch = Mathf.Clamp(pitch, -maxAimPitchDeg, +maxAimPitchDeg); // example: ±60
+
+        // flipX (negative X scale) reverses visible Z rotation
+        if (left) pitch = -pitch;
+
+        return pitch; // apply directly to pivot.localRotation.z
     }
 
     private void Chase(Transform player)
@@ -479,6 +484,29 @@ public class CheepCheep : EnemyAI
     public void SetGroundSpeed(float newGroundSpeed)
     {
         groundSpeed = newGroundSpeed;
+    }
+
+    public void ChangeGroundSpeedEvent(float newGroundSpeed)
+    {
+        SetGroundSpeed(newGroundSpeed);
+        if (angryCo != null) StopCoroutine(angryCo);
+        angryCo = StartCoroutine(AngryFlash());
+    }
+
+    private IEnumerator AngryFlash()
+    {
+        // Enter angry
+        animator.ResetTrigger("normal");
+        animator.SetTrigger("angry");
+        
+        yield return null;
+        yield return new WaitForSeconds(0.5f);
+
+        // Exit angry
+        animator.ResetTrigger("angry");
+        animator.SetTrigger("normal");
+
+        angryCo = null;
     }
 
     public void ShowDashParticles()
