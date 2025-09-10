@@ -4341,6 +4341,9 @@ MonoBehaviour:
   gravity: 30
   width: 0
   height: 0
+  boundsOffset: {x: 0, y: 0}
+  sizePadding: {x: 0, y: 0}
+  ignoreRaycastFlip: 0
   floorRaycastSpacing: 0
   wallRaycastSpacing: 0
   floorMask:
@@ -4354,11 +4357,16 @@ MonoBehaviour:
   DontFallOffLedges: 0
   bounceOffWalls: 1
   flipObject: 1
+  normalScale: {x: 0, y: 0}
   updateType: 0
   lavaKill: 1
   forceSinkInLava: 1
   sinkSpeed: 20
   lavaMask:
+    serializedVersion: 2
+    m_Bits: 0
+  isInWater: 0
+  waterMask:
     serializedVersion: 2
     m_Bits: 0
   carryable: 0
@@ -4884,6 +4892,9 @@ MonoBehaviour:
   gravity: 30
   width: 0
   height: 0
+  boundsOffset: {x: 0, y: 0}
+  sizePadding: {x: 0, y: 0}
+  ignoreRaycastFlip: 0
   floorRaycastSpacing: 0
   wallRaycastSpacing: 0
   floorMask:
@@ -4897,11 +4908,16 @@ MonoBehaviour:
   DontFallOffLedges: 0
   bounceOffWalls: 1
   flipObject: 1
+  normalScale: {x: 0, y: 0}
   updateType: 0
   lavaKill: 1
   forceSinkInLava: 1
   sinkSpeed: 20
   lavaMask:
+    serializedVersion: 2
+    m_Bits: 0
+  isInWater: 0
+  waterMask:
     serializedVersion: 2
     m_Bits: 0
   carryable: 0
@@ -6595,6 +6611,9 @@ MonoBehaviour:
   gravity: 30
   width: 0
   height: 0
+  boundsOffset: {x: 0, y: 0}
+  sizePadding: {x: 0, y: 0}
+  ignoreRaycastFlip: 0
   floorRaycastSpacing: 0
   wallRaycastSpacing: 0
   floorMask:
@@ -6608,11 +6627,16 @@ MonoBehaviour:
   DontFallOffLedges: 0
   bounceOffWalls: 1
   flipObject: 1
+  normalScale: {x: 0, y: 0}
   updateType: 0
   lavaKill: 1
   forceSinkInLava: 1
   sinkSpeed: 20
   lavaMask:
+    serializedVersion: 2
+    m_Bits: 0
+  isInWater: 0
+  waterMask:
     serializedVersion: 2
     m_Bits: 0
   carryable: 0
@@ -6858,6 +6882,9 @@ MonoBehaviour:
   gravity: 30
   width: 0
   height: 0
+  boundsOffset: {x: 0, y: 0}
+  sizePadding: {x: 0, y: 0}
+  ignoreRaycastFlip: 0
   floorRaycastSpacing: 0
   wallRaycastSpacing: 0
   floorMask:
@@ -6871,11 +6898,16 @@ MonoBehaviour:
   DontFallOffLedges: 0
   bounceOffWalls: 1
   flipObject: 1
+  normalScale: {x: 0, y: 0}
   updateType: 0
   lavaKill: 1
   forceSinkInLava: 1
   sinkSpeed: 20
   lavaMask:
+    serializedVersion: 2
+    m_Bits: 0
+  isInWater: 0
+  waterMask:
     serializedVersion: 2
     m_Bits: 0
   carryable: 0
@@ -7692,6 +7724,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   smoothDampTime: 0.15
+  zoomSmoothTime: 0.2
   offset: {x: 0, y: 0, z: 0}
 --- !u!114 &552982288
 MonoBehaviour:
@@ -7711,8 +7744,11 @@ MonoBehaviour:
   lockToVertical: 0
   cameraPosOffset: {x: 0, y: 0}
   lockOffset: {x: 0, y: -3.5}
-  snapToBounds: 1
+  zoneId: 
   priority: 0
+  entryRule: 0
+  snapFromZoneIds: []
+  clampPolicy: 2
 --- !u!114 &552982289
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7731,8 +7767,12 @@ MonoBehaviour:
   lockToVertical: 0
   cameraPosOffset: {x: 0, y: 0}
   lockOffset: {x: 0, y: -3.5}
-  snapToBounds: 0
+  zoneId: 
   priority: 0
+  entryRule: 3
+  snapFromZoneIds:
+  - giantsaw
+  clampPolicy: 2
 --- !u!114 &552982290
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7751,8 +7791,11 @@ MonoBehaviour:
   lockToVertical: 0
   cameraPosOffset: {x: 0, y: 0}
   lockOffset: {x: 0, y: 0}
-  snapToBounds: 0
+  zoneId: 
   priority: 0
+  entryRule: 1
+  snapFromZoneIds: []
+  clampPolicy: 2
 --- !u!114 &552982291
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7771,8 +7814,11 @@ MonoBehaviour:
   lockToVertical: 0
   cameraPosOffset: {x: 0, y: 0}
   lockOffset: {x: 0, y: -2.4}
-  snapToBounds: 0
+  zoneId: giantsaw
   priority: 1
+  entryRule: 1
+  snapFromZoneIds: []
+  clampPolicy: 2
 --- !u!95 &552982292
 Animator:
   serializedVersion: 5
@@ -10445,11 +10491,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1771483343543010229, guid: 0ed8634130540ee49afd6a10ccb53bf6, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 141.5
+      value: 138.35
       objectReference: {fileID: 0}
     - target: {fileID: 1771483343543010229, guid: 0ed8634130540ee49afd6a10ccb53bf6, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -1.6
+      value: 1.28
       objectReference: {fileID: 0}
     - target: {fileID: 1771483343543010229, guid: 0ed8634130540ee49afd6a10ccb53bf6, type: 3}
       propertyPath: m_LocalPosition.z
@@ -10959,6 +11005,9 @@ MonoBehaviour:
   gravity: 30
   width: 0
   height: 0
+  boundsOffset: {x: 0, y: 0}
+  sizePadding: {x: 0, y: 0}
+  ignoreRaycastFlip: 0
   floorRaycastSpacing: 0
   wallRaycastSpacing: 0
   floorMask:
@@ -10972,11 +11021,16 @@ MonoBehaviour:
   DontFallOffLedges: 0
   bounceOffWalls: 1
   flipObject: 1
+  normalScale: {x: 0, y: 0}
   updateType: 0
   lavaKill: 1
   forceSinkInLava: 1
   sinkSpeed: 20
   lavaMask:
+    serializedVersion: 2
+    m_Bits: 0
+  isInWater: 0
+  waterMask:
     serializedVersion: 2
     m_Bits: 0
   carryable: 0
@@ -21153,6 +21207,9 @@ MonoBehaviour:
   gravity: 60
   width: 1
   height: 1
+  boundsOffset: {x: 0, y: 0}
+  sizePadding: {x: 0, y: 0}
+  ignoreRaycastFlip: 0
   floorRaycastSpacing: 0.2
   wallRaycastSpacing: 0.2
   floorMask:
@@ -21166,11 +21223,16 @@ MonoBehaviour:
   DontFallOffLedges: 0
   bounceOffWalls: 0
   flipObject: 1
+  normalScale: {x: 0, y: 0}
   updateType: 0
   lavaKill: 1
   forceSinkInLava: 1
   sinkSpeed: 20
   lavaMask:
+    serializedVersion: 2
+    m_Bits: 0
+  isInWater: 0
+  waterMask:
     serializedVersion: 2
     m_Bits: 0
   carryable: 0
@@ -30154,6 +30216,9 @@ MonoBehaviour:
   gravity: 30
   width: 0
   height: 0
+  boundsOffset: {x: 0, y: 0}
+  sizePadding: {x: 0, y: 0}
+  ignoreRaycastFlip: 0
   floorRaycastSpacing: 0
   wallRaycastSpacing: 0
   floorMask:
@@ -30167,11 +30232,16 @@ MonoBehaviour:
   DontFallOffLedges: 0
   bounceOffWalls: 1
   flipObject: 1
+  normalScale: {x: 0, y: 0}
   updateType: 0
   lavaKill: 1
   forceSinkInLava: 1
   sinkSpeed: 20
   lavaMask:
+    serializedVersion: 2
+    m_Bits: 0
+  isInWater: 0
+  waterMask:
     serializedVersion: 2
     m_Bits: 0
   carryable: 0
@@ -33431,6 +33501,9 @@ MonoBehaviour:
   gravity: 0
   width: 1
   height: 1
+  boundsOffset: {x: 0, y: 0}
+  sizePadding: {x: 0, y: 0}
+  ignoreRaycastFlip: 0
   floorRaycastSpacing: 0.2
   wallRaycastSpacing: 0.2
   floorMask:
@@ -33444,11 +33517,16 @@ MonoBehaviour:
   DontFallOffLedges: 0
   bounceOffWalls: 1
   flipObject: 1
+  normalScale: {x: 0, y: 0}
   updateType: 0
   lavaKill: 1
   forceSinkInLava: 1
   sinkSpeed: 20
   lavaMask:
+    serializedVersion: 2
+    m_Bits: 0
+  isInWater: 0
+  waterMask:
     serializedVersion: 2
     m_Bits: 0
   carryable: 0
