@@ -21,6 +21,7 @@ public class CheepCheep : EnemyAI
 
     [Header("Bubbles")]
     public GameObject bubble;
+    public GameObject dashParticles;
     public float bubbleIntervalSeconds = 3f; // fixed interval spawn
     private float nextBubbleTime = -1f;
 
@@ -478,6 +479,11 @@ public class CheepCheep : EnemyAI
     public void SetGroundSpeed(float newGroundSpeed)
     {
         groundSpeed = newGroundSpeed;
+    }
+
+    public void ShowDashParticles()
+    {
+        Instantiate(dashParticles, transform.position, Quaternion.identity);
     }
 
     public void Celebrate()

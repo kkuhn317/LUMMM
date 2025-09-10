@@ -10,9 +10,9 @@ public class Pipe : MonoBehaviour
     public enum Direction { Up, Down, Left, Right }
     public enum AlignType
     {
-        None,   // Don't align the player at all. He will just move in the direction of the pipe
-        Slow,   // Slowly align the player with the pipe by moving him directly towards the enter position
-        Fast,   // Quickly align the player with the pipe while he is still moving
+        None, // Don't align the player at all. He will just move in the direction of the pipe
+        Slow, // Slowly align the player with the pipe by moving him directly towards the enter position
+        Fast, // Quickly align the player with the pipe while he is still moving
         Instant // Instantly teleport the player to be aligned with the pipe
     }
     public Direction enterDirection = Direction.Down;
@@ -20,9 +20,9 @@ public class Pipe : MonoBehaviour
 
     // How far in/out of the pipe the player should be when they enter/exit
     // Should be smaller for tiny pipes
-    public float enterDistance = 1f;    // How far into the pipe the player should go (relative to the position of the pipe)
+    public float enterDistance = 1f; // How far into the pipe the player should go (relative to the position of the pipe)
     public AlignType enterAlignType = AlignType.Slow; // How the player should align when entering the pipe
-    public float insideExitDistance = 1f;   // How far the player should be inside the pipe when they start to exit (relative to the position of the exit)
+    public float insideExitDistance = 1f; // How far the player should be inside the pipe when they start to exit (relative to the position of the exit)
     public float exitDistance = 1f; // How far out of the pipe the player should be when they exit
 
     public bool instantExit = false; // If true, don't animate the player exiting the pipe (like 1-1 Underground)
@@ -315,8 +315,8 @@ public class Pipe : MonoBehaviour
         // Disable rider movement/collisions while traveling
         var rb = rider.GetComponent<Rigidbody2D>();
         var col = rider.GetComponent<Collider2D>();
-        var ai = rider.GetComponent<EnemyAI>();          // your enemies derive from this
-        var phys = rider.GetComponent<ObjectPhysics>();    // your custom physics
+        var ai = rider.GetComponent<EnemyAI>();
+        var phys = rider.GetComponent<ObjectPhysics>();
 
         if (ai != null) ai.enabled = false;
         if (phys != null) phys.enabled = false;
