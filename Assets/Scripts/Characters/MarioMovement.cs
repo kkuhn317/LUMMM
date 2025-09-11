@@ -14,7 +14,7 @@ public class MarioMovement : MonoBehaviour
 {
     public int playerNumber = 0;    // 0 = player 1, 1 = player 2, etc.
     private Vector3 originalPosition;
-    
+
     /* Input System */
     // Other scripts can access these variables to get the player's input
     // Do not use the old input system or raw keyboard input anywhere in the game
@@ -36,7 +36,7 @@ public class MarioMovement : MonoBehaviour
     public float moveSpeed = 10f;
     public float runSpeed = 20f;
     public float slowDownForce = 5f;
-    
+
     public Vector2 direction;
     public bool facingRight = true;
     private bool inCrouchState = false;
@@ -75,8 +75,10 @@ public class MarioMovement : MonoBehaviour
     public float airtime = 1f;  // Max time you can rise in the air after jumping
     public float walkJumpAirtime = 1.5f; // Max time you can rise in the air after a walk jump
     private float airtimer = 0;
-    private bool changingDirections {
-        get {
+    private bool changingDirections
+    {
+        get
+        {
             return (direction.x > 0 && rb.velocity.x < 0) || (direction.x < 0 && rb.velocity.x > 0);
         }
     }
@@ -127,12 +129,21 @@ public class MarioMovement : MonoBehaviour
 
     public Vector2 groundPos;
 
-
     [Header("Animation Events")]
+
+    /// <summary>
+    /// <para>This value is changed by animations to change Mario's scale.</para>
+    /// <para>Because of this, you cannot change it via the inspector or code.</para>
+    /// </summary>
     public Vector3 animationScale = new(1, 1, 1);   // animate this instead of the scale directly
-    public Vector3 originalScale;
+
+    /// <summary>
+    /// <para>The base scale that's treated as default.</para>
+    /// <para>It's set at the start to the initial scale of the player.</para>
+    /// <para>Since the actual scale is overriden every frame, change this instead.</para>
+    /// </summary>
+    public Vector3 baseScale;
     public float animationRotation = 0;  // If not 0, his z rotation will be set to this
-    public bool wasScaledNormal = true;
     private bool isYeahAnimationPlaying = false;
     private bool hasEnteredAnimationYeahTrigger = false;
 
@@ -183,7 +194,8 @@ public class MarioMovement : MonoBehaviour
     public bool carrying = false;
     public bool pressRunToGrab = false;
     public bool crouchToGrab = false;
-    public enum CarryMethod {
+    public enum CarryMethod
+    {
         inFront,
         onHand
     }
@@ -198,7 +210,7 @@ public class MarioMovement : MonoBehaviour
 
     [Header("Additional Abilities")]
     public bool canCrawl = false;       // Only small Mario has an animation for crawling right now, so it will not be transferred after powerup
-    public bool canWallJump = false; 
+    public bool canWallJump = false;
     public bool canWallJumpWhenHoldingObject = false;
     private const float wallJumpHoldTime = 0.25f;
     private float wallJumpHoldTimer;
@@ -230,8 +242,10 @@ public class MarioMovement : MonoBehaviour
     private List<UseableObject> useableObjects = new();
 
     // use this in other scripts to check if mario is moving (walking or jumping)
-    public bool isMoving {
-        get {
+    public bool isMoving
+    {
+        get
+        {
             return rb.velocity.x > 0.01 || !onGround;
         }
     }
@@ -273,7 +287,7 @@ public class MarioMovement : MonoBehaviour
         relPosObj = transform.GetChild(0).gameObject;
         animator = GetComponent<Animator>();
         animator.SetInteger("grabMethod", (int)carryMethod);
-        originalScale = transform.lossyScale;
+        baseScale = transform.lossyScale;
         abilities.AddRange(GetComponents<MarioAbility>());
         normalSpriteLibrary = GetComponent<SpriteLibrary>().spriteLibraryAsset;
 
@@ -317,16 +331,8 @@ public class MarioMovement : MonoBehaviour
         // set GLOBAL scale
         Transform myParent = transform.parent;
         transform.parent = null;
-        if (animationScale != Vector3.one)
-        {
-            if (wasScaledNormal)
-            {
-                originalScale = transform.localScale;
-                wasScaledNormal = false;
-            }
-            // set my scale to the animation scale (relative to the original scale)
-            transform.localScale = Vector3.Scale(originalScale, animationScale);
-        }
+        // set my scale to the animation scale (relative to the original scale)
+        transform.localScale = Vector3.Scale(baseScale, animationScale);
         transform.parent = myParent;
 
         // Set rotation based on animation
@@ -334,12 +340,16 @@ public class MarioMovement : MonoBehaviour
         animationRotation = facingRight ? -Mathf.Abs(animationRotation) : Mathf.Abs(animationRotation); // Update rotation based on where the player is facing
         transform.rotation = Quaternion.Euler(0, 0, animationRotation);
 
-        if (invincetimeremain > 0f) {
+        if (invincetimeremain > 0f)
+        {
             invincetimeremain -= Time.deltaTime;
-            if (!flashing) {
+            if (!flashing)
+            {
                 StartCoroutine(FlashDuringInvincibility());
             }
-        } else {
+        }
+        else
+        {
             invincetimeremain = 0f;
         }
 
@@ -353,37 +363,47 @@ public class MarioMovement : MonoBehaviour
         }
 
         // Picking up item
-        if (!pressRunToGrab && runPressed && (!crouchToGrab || crouchPressed) && !carrying) {
+        if (!pressRunToGrab && runPressed && (!crouchToGrab || crouchPressed) && !carrying)
+        {
             checkForCarry();
         }
 
         // Throwing item
-        if (carrying && !runPressed) {
-            if (crouchPressed) {
+        if (carrying && !runPressed)
+        {
+            if (crouchPressed)
+            {
                 dropCarry();
-            } else {
+            }
+            else
+            {
                 throwCarry();
             }
         }
 
-        if (onGround){
+        if (onGround)
+        {
             crouchPressedInAir = false;
         }
     }
 
-    private void OnCollisionEnter2D(Collision2D other) {
-        if (groundLayer == (groundLayer | (1 << other.gameObject.layer))) {
+    private void OnCollisionEnter2D(Collision2D other)
+    {
+        if (groundLayer == (groundLayer | (1 << other.gameObject.layer)))
+        {
             Vector2 impulse = Vector2.zero;
 
             int contactCount = other.contactCount;
-            for (int i = 0; i < contactCount; i++) {
+            for (int i = 0; i < contactCount; i++)
+            {
                 var contact = other.GetContact(i);
                 impulse += contact.normal * contact.normalImpulse;
                 impulse.x += contact.tangentImpulse * contact.normal.y;
                 impulse.y -= contact.tangentImpulse * contact.normal.x;
             }
 
-            if (impulse.y < 0) {
+            if (impulse.y < 0)
+            {
                 audioSource.PlayOneShot(bonkSound, 0.5f);
             }
         }
@@ -403,7 +423,8 @@ public class MarioMovement : MonoBehaviour
         }
     }
 
-    public void startStarPower(float time) {
+    public void startStarPower(float time)
+    {
         // stop any current star power
         CancelInvoke(nameof(stopStarPower));
         CancelInvoke(nameof(changeRainbowColor));
@@ -412,12 +433,14 @@ public class MarioMovement : MonoBehaviour
         InvokeRepeating(nameof(changeRainbowColor), 0, 0.1f);
         starPower = true;
         starPowerRemainingTime = time;
-        if (time != -1) {
+        if (time != -1)
+        {
             Invoke(nameof(stopStarPower), time);
         }
     }
 
-    public void stopStarPower() {
+    public void stopStarPower()
+    {
         CancelInvoke(nameof(changeRainbowColor));
         starPower = false;
         starPowerRemainingTime = 0f; // Reset remaining time
@@ -433,36 +456,47 @@ public class MarioMovement : MonoBehaviour
         }
     }
 
-    private void FixedUpdate() 
-    {   
-        if (frozen) {
+    private void FixedUpdate()
+    {
+        if (frozen)
+        {
             return;
         }
 
         // Movement
-        if (climbing) {
+        if (climbing)
+        {
             ClimbMove(direction);
-        } else {
+        }
+        else
+        {
             MoveCharacter(direction.x);
         }
-        
+
 
         // Jumping/Swimming
         bool jumpBlocked = false;
-        foreach (MarioAbility ability in abilities) {
-            if (ability.isBlockingJump) {
+        foreach (MarioAbility ability in abilities)
+        {
+            if (ability.isBlockingJump)
+            {
                 jumpBlocked = true;
             }
         }
         bool wallJumpCheck = direction.x != 0 && CheckWall(direction.x > 0);
-        if (Time.time < jumpTimer && (onGround || swimming || wallSliding || wallJumpCheck || climbing) && !jumpBlocked && !groundPoundLanded) {
+        if (Time.time < jumpTimer && (onGround || swimming || wallSliding || wallJumpCheck || climbing) && !jumpBlocked && !groundPoundLanded)
+        {
 
-            if (swimming) {
-                if (!groundPounding){
+            if (swimming)
+            {
+                if (!groundPounding)
+                {
                     audioSource.PlayOneShot(swimSound);
                     Swim();
-                }              
-            } else if (wallSliding || wallJumpCheck) {
+                }
+            }
+            else if (wallSliding || wallJumpCheck)
+            {
                 // Make sure Mario faces the wall before walljumping
                 if (wallJumpCheck)
                 {
@@ -470,9 +504,13 @@ public class MarioMovement : MonoBehaviour
                 }
                 audioSource.Play();
                 WallJump();
-            } else if (spinJumpQueued) {
+            }
+            else if (spinJumpQueued)
+            {
                 SpinJump();
-            } else {
+            }
+            else
+            {
                 audioSource.Play();
                 Jump(1, false);
             }
@@ -485,7 +523,8 @@ public class MarioMovement : MonoBehaviour
         }
 
         // Ground Pound
-        if (canGroundPound && !onGround && crouchPressedInAir && !groundPounding && !wallSliding && !climbing) {
+        if (canGroundPound && !onGround && crouchPressedInAir && !groundPounding && !wallSliding && !climbing)
+        {
             GroundPound();
         }
 
@@ -501,7 +540,8 @@ public class MarioMovement : MonoBehaviour
 
         bool wasOnMovingPlatform = onMovingPlatform;
 
-        if (onGround && hitRayMaybe != null) {
+        if (onGround && hitRayMaybe != null)
+        {
 
             if (climbing)
             {
@@ -511,8 +551,10 @@ public class MarioMovement : MonoBehaviour
             RaycastHit2D hitRay = (RaycastHit2D)hitRayMaybe;
 
             bool firstFrameMovingPlatform = false;
-            if (hitRay.transform.gameObject.tag == "MovingPlatform") {
-                if (!onMovingPlatform) {
+            if (hitRay.transform.gameObject.tag == "MovingPlatform")
+            {
+                if (!onMovingPlatform)
+                {
                     firstFrameMovingPlatform = true;
                 }
                 onMovingPlatform = true;
@@ -520,14 +562,17 @@ public class MarioMovement : MonoBehaviour
 
             groundPos = hitRay.point;
 
-            if (onMovingPlatform) {
+            if (onMovingPlatform)
+            {
                 //onMovingPlatform = true;
                 //transform.parent = hitRay.transform;
-                if (transform.parent != hitRay.transform) 
+                if (transform.parent != hitRay.transform)
                 {
                     transform.parent = hitRay.transform; // Only set parent if not already the moving platform
                 }
-            } else {
+            }
+            else
+            {
                 /*if (wasOnMovingPlatform) {
                     // Transfer momentum to mario
                     TransferMovingPlatformMomentum();
@@ -535,7 +580,7 @@ public class MarioMovement : MonoBehaviour
                 onMovingPlatform = false;
                 transform.parent = null;*/
 
-                if (wasOnMovingPlatform && transform.parent != null && transform.parent.CompareTag("MovingPlatform")) 
+                if (wasOnMovingPlatform && transform.parent != null && transform.parent.CompareTag("MovingPlatform"))
                 {
                     // Transfer momentum to mario only when detaching from a moving platform
                     TransferMovingPlatformMomentum();
@@ -547,18 +592,23 @@ public class MarioMovement : MonoBehaviour
             // Slope detection
             float newAngle;
             GameObject groundObject = hitRay.transform.gameObject;
-            if (groundObject.CompareTag("Slope") && groundObject.TryGetComponent(out Slope slope)) {
+            if (groundObject.CompareTag("Slope") && groundObject.TryGetComponent(out Slope slope))
+            {
                 newAngle = slope.angle;
-            } else {
+            }
+            else
+            {
                 newAngle = 0f;
             }
 
             Vector2 slopeVector = new Vector2(Mathf.Cos(newAngle * Mathf.Deg2Rad), Mathf.Sin(newAngle * Mathf.Deg2Rad)).normalized;
 
             // if the angle has changed, change mario's velocity to match the slope
-            if (newAngle != floorAngle && !wasInAir) {
+            if (newAngle != floorAngle && !wasInAir)
+            {
                 float moveMag = rb.velocity.magnitude;
-                if (rb.velocity.x < 0) {
+                if (rb.velocity.x < 0)
+                {
                     moveMag *= -1;
                 }
                 rb.velocity = slopeVector * moveMag;
@@ -566,7 +616,8 @@ public class MarioMovement : MonoBehaviour
 
             // If landing on a slope, also change mario's velocity so he doesn't slide down the slope immediately
             // TODO: Make this not slow you down if you jump onto a slope while moving downhill
-            if (newAngle != 0 && wasInAir) {
+            if (newAngle != 0 && wasInAir)
+            {
                 float moveMag = rb.velocity.x;
                 rb.velocity = slopeVector * moveMag;
             }
@@ -574,7 +625,8 @@ public class MarioMovement : MonoBehaviour
             floorAngle = newAngle;
 
             // Stick to ground (but not moving platforms, unless it's the first frame on the platform)
-            if (!onMovingPlatform || firstFrameMovingPlatform) {
+            if (!onMovingPlatform || firstFrameMovingPlatform)
+            {
                 transform.position = new Vector3(transform.position.x, groundPos.y + groundLength - groundSink, transform.position.z);    // Modified from 0.01f to 0.1f
             }
 
@@ -582,27 +634,32 @@ public class MarioMovement : MonoBehaviour
             // https://stackoverflow.com/questions/72494915/how-do-you-get-the-component-of-a-vector-in-the-direction-of-a-ray
             rb.velocity = Vector2.Dot(rb.velocity, slopeVector) * slopeVector;
 
-            if (hitRay.transform.gameObject.tag == "Damaging") {
+            if (hitRay.transform.gameObject.tag == "Damaging")
+            {
                 damageMario();
             }
 
             // Stop spinning, stop ground pounding
             spinning = false;
-            if (groundPounding && !groundPoundLanded) {
+            if (groundPounding && !groundPoundLanded)
+            {
                 GroundPoundLand(hitRay.transform.gameObject);
             }
 
             // If we landed AND we are not holding left or right, face the direction we are moving
-            if (direction.x == 0 && wasInAir && Mathf.Abs(rb.velocity.x) > 0.01f) {
+            if (direction.x == 0 && wasInAir && Mathf.Abs(rb.velocity.x) > 0.01f)
+            {
                 FlipTo(rb.velocity.x > 0);
-            } 
+            }
 
-        } else {
+        }
+        else
+        {
             /*if (wasOnMovingPlatform) {
                 // Transfer momentum to mario
                 TransferMovingPlatformMomentum();
             }*/
-            if (wasOnMovingPlatform && transform.parent != null && transform.parent.CompareTag("MovingPlatform")) 
+            if (wasOnMovingPlatform && transform.parent != null && transform.parent.CompareTag("MovingPlatform"))
             {
                 // Transfer momentum to mario only when detaching from a moving platform
                 TransferMovingPlatformMomentum();
@@ -613,7 +670,8 @@ public class MarioMovement : MonoBehaviour
         }
 
         // Corner correction
-        if (rb.velocity.y > 0 && doCornerCorrection) {
+        if (rb.velocity.y > 0 && doCornerCorrection)
+        {
 
             // Get the height to start at which will be 1 physics frame ahead of the boxcollider top
             float startHeight = GetComponent<BoxCollider2D>().bounds.size.y / 2 + (rb.velocity.y * Time.fixedDeltaTime) + 0.01f;
@@ -630,7 +688,9 @@ public class MarioMovement : MonoBehaviour
             if (hitLeft.collider == null && hitRight.collider == null)
             {
                 // No gaps detected, do nothing
-            } else {
+            }
+            else
+            {
                 float distleft = hitLeft.collider == null ? 999 : hitLeft.distance;
                 float distright = hitRight.collider == null ? 999 : hitRight.distance;
                 float totalDistance = distleft + distright;
@@ -675,39 +735,53 @@ public class MarioMovement : MonoBehaviour
         RaycastHit2D ceilMid = Physics2D.Raycast(transform.position + HOffset, Vector2.up, ceilingLength, groundLayer);
         RaycastHit2D ceilRight = Physics2D.Raycast(transform.position + raycastRightOffset + HOffset, Vector2.up, updCeilingLength, groundLayer);
 
-        if (ceilLeft.collider != null || ceilMid.collider != null || ceilRight.collider != null) {
+        if (ceilLeft.collider != null || ceilMid.collider != null || ceilRight.collider != null)
+        {
 
             RaycastHit2D hitRay = ceilMid;
 
-            if (ceilMid) {
+            if (ceilMid)
+            {
                 hitRay = ceilMid;
-            } else if (ceilLeft) {
+            }
+            else if (ceilLeft)
+            {
                 hitRay = ceilLeft;
-            } else if (ceilRight) {
+            }
+            else if (ceilRight)
+            {
                 hitRay = ceilRight;
             }
         }
 
         // Wall detection (for wall sliding)
-        if ((direction.x != 0 || wallSliding) && rb.velocity.y < 0) {
+        if ((direction.x != 0 || wallSliding) && rb.velocity.y < 0)
+        {
             bool checkRight = wallSliding ? facingRight : direction.x > 0;
             bool hitWall = CheckWall(checkRight);
 
-            if (hitWall && !pushing && !spinning) {
-                if (!wallSliding) {
+            if (hitWall && !pushing && !spinning)
+            {
+                if (!wallSliding)
+                {
                     // flip mario to face the wall
                     FlipTo(checkRight);
                     wallSliding = true;
                 }
-            } else {
+            }
+            else
+            {
                 wallSliding = false;
             }
-        } else {
+        }
+        else
+        {
             wallSliding = false;
         }
 
         // Climbing
-        if (!climbing && canClimb && direction.y > 0.8f) {
+        if (!climbing && canClimb && direction.y > 0.8f)
+        {
             StartClimbing();
         }
 
@@ -744,7 +818,8 @@ public class MarioMovement : MonoBehaviour
         ModifyPhysics();
     }
 
-    private void StartClimbing() {
+    private void StartClimbing()
+    {
         climbing = true;
         rb.velocity = Vector2.zero; // Stop all movement
         rb.gravityScale = 0; // Disable gravity
@@ -752,7 +827,8 @@ public class MarioMovement : MonoBehaviour
         //rb.isKinematic = true; // Make the rigidbody kinematic
     }
 
-    private void StopClimbing() {
+    private void StopClimbing()
+    {
         climbing = false;
         rb.gravityScale = 1; // Enable gravity
         rb.drag = 0; // Disable drag
@@ -761,25 +837,32 @@ public class MarioMovement : MonoBehaviour
         FlipTo(rb.velocity.x > 0); // Face the direction of movement
     }
 
-    private void TransferMovingPlatformMomentum() {
+    private void TransferMovingPlatformMomentum()
+    {
         if (!doMovingPlatformMomentum) return;
-        if (onMovingPlatform) {
+        if (onMovingPlatform)
+        {
             // TODO!! Somehow group all kinds of moving platforms together so we don't need to check for each kind
             // Using an Interface for all moving platforms seems like a good solution
             // For now, just check for each kind of moving platform
-            if (transform.parent == null) {
+            if (transform.parent == null)
+            {
                 print("HMM... onMovingPlatform is true but transform.parent is null");
                 return;
             }
-            if (transform.parent.GetComponent<MovingPlatform>() != null) {
+            if (transform.parent.GetComponent<MovingPlatform>() != null)
+            {
                 rb.velocity += transform.parent.GetComponent<MovingPlatform>().velocity;
-            } else if (transform.parent.GetComponent<ConveyorBelt>() != null) {
+            }
+            else if (transform.parent.GetComponent<ConveyorBelt>() != null)
+            {
                 rb.velocity += transform.parent.GetComponent<ConveyorBelt>().velocity;
             }
         }
     }
 
-    public RaycastHit2D? CheckGround() {
+    public RaycastHit2D? CheckGround()
+    {
         // Vertical raycast offset (based on crouch state)
         float updGroundLength = inCrouchState ? groundLength / 2 : groundLength;
 
@@ -794,18 +877,24 @@ public class MarioMovement : MonoBehaviour
 
         onGround = (hit1Valid || hit2Valid) && (rb.velocity.y <= 0.01f || onGround);
 
-        if (onGround) {
+        if (onGround)
+        {
             RaycastHit2D hitRay = groundHit1;
 
             // print("ground1: " + groundHit1.transform.gameObject.tag);
             // print("ground2: " + groundHit2.transform.gameObject.tag);
 
             // instead, choose the higher of the two ground hits
-            if (hit1Valid && hit2Valid) {
+            if (hit1Valid && hit2Valid)
+            {
                 hitRay = groundHit1.point.y > groundHit2.point.y ? groundHit1 : groundHit2;
-            } else if (hit1Valid) {
+            }
+            else if (hit1Valid)
+            {
                 hitRay = groundHit1;
-            } else if (hit2Valid) {
+            }
+            else if (hit2Valid)
+            {
                 hitRay = groundHit2;
             }
             return hitRay;
@@ -813,9 +902,11 @@ public class MarioMovement : MonoBehaviour
         return null;
     }
 
-    bool CheckWall(bool right) {
+    bool CheckWall(bool right)
+    {
         // Wall detection (for wall jumping and wall sliding)
-        if (canWallJump && !onGround && !swimming && (!carrying || canWallJumpWhenHoldingObject)) {
+        if (canWallJump && !onGround && !swimming && (!carrying || canWallJumpWhenHoldingObject))
+        {
 
             float raycastlength = GetComponent<BoxCollider2D>().bounds.size.y / 2 + 0.03f;
 
@@ -823,18 +914,21 @@ public class MarioMovement : MonoBehaviour
             Vector2 raycastDirection = right ? Vector2.right : Vector2.left;
             RaycastHit2D wallHit = Physics2D.Raycast(transform.position, raycastDirection, raycastlength, groundLayer);
 
-            if (wallHit.collider != null) {
+            if (wallHit.collider != null)
+            {
                 return true;
             }
         }
         return false;
     }
 
-    void MoveCharacter(float horizontal) {
+    void MoveCharacter(float horizontal)
+    {
         bool crouch = crouchPressed && canCrouch;
 
         // Crouching
-        if (crouch && onGround && !carrying && !swimming) {
+        if (crouch && onGround && !carrying && !swimming)
+        {
 
             // Start Crouch
             animator.SetBool("isCrouching", true);
@@ -842,7 +936,9 @@ public class MarioMovement : MonoBehaviour
             GetComponent<BoxCollider2D>().size = new Vector2(GetComponent<BoxCollider2D>().size.x, crouchColHeight);
             GetComponent<BoxCollider2D>().offset = new Vector2(GetComponent<BoxCollider2D>().offset.x, crouchColOffset);
 
-        } else if ((!crouch && onGround) || carrying || groundPounding) {
+        }
+        else if ((!crouch && onGround) || carrying || groundPounding)
+        {
 
             // Stop Crouch
             animator.SetBool("isCrouching", false);
@@ -864,42 +960,58 @@ public class MarioMovement : MonoBehaviour
         // use the angle of the slope if on the ground
         Vector2 moveDir = onGround ? new Vector2(Mathf.Cos(floorAngle * Mathf.Deg2Rad), Mathf.Sin(floorAngle * Mathf.Deg2Rad)) : Vector2.right;
 
-        maxSpeedSkidding = (maxSpeedSkidding && changingDirections) || (Mathf.Abs(rb.velocity.x) >= (maxRunSpeed*0.9f) && changingDirections);
+        maxSpeedSkidding = (maxSpeedSkidding && changingDirections) || (Mathf.Abs(rb.velocity.x) >= (maxRunSpeed * 0.9f) && changingDirections);
 
         float speedMult = 1f;
         // If turning around, apply a speed multiplier
-        if (changingDirections) {
-            if (onGround) {
-                if (maxSpeedSkidding) {
+        if (changingDirections)
+        {
+            if (onGround)
+            {
+                if (maxSpeedSkidding)
+                {
                     speedMult = 0.7f;
-                } else {
+                }
+                else
+                {
                     speedMult = 1f;
                 }
-            } else {
+            }
+            else
+            {
                 speedMult = 1.5f;
             }
         }
         // If crawling, move faster so you speed up faster
-        if (isCrawling) {
+        if (isCrawling)
+        {
             speedMult = 2f;
         }
 
         float maxSpeedMult = 1f;
-        if (isCrawling) {
+        if (isCrawling)
+        {
             maxSpeedMult = 0.5f;
         }
 
         //print("moving in " + moveDir);
-        if (regularMoving || isCrawling) {
+        if (regularMoving || isCrawling)
+        {
             //print("regular moving");
-            if (runPressed && !swimming && !isCrawling) {
+            if (runPressed && !swimming && !isCrawling)
+            {
                 // Running
                 rb.AddForce(horizontal * runSpeed * moveDir * speedMult);
-            } else {
+            }
+            else
+            {
                 // Walking
-                if (Mathf.Abs(rb.velocity.x) <= (maxSpeed * maxSpeedMult) || (Mathf.Sign(horizontal) != Mathf.Sign(rb.velocity.x))) {
+                if (Mathf.Abs(rb.velocity.x) <= (maxSpeed * maxSpeedMult) || (Mathf.Sign(horizontal) != Mathf.Sign(rb.velocity.x)))
+                {
                     rb.AddForce(horizontal * moveSpeed * moveDir * speedMult);
-                } else if (onGround) {
+                }
+                else if (onGround)
+                {
                     // Slow down if you are going too fast (only on the ground)
                     rb.AddForce(Mathf.Sign(rb.velocity.x) * slowDownForce * -moveDir);
                 }
@@ -907,16 +1019,21 @@ public class MarioMovement : MonoBehaviour
         }
 
         // Wall slide horizontal movement
-        if (wallSliding) {
+        if (wallSliding)
+        {
             // Stop moving horizontally when wall sliding
             rb.velocity = new Vector2(0, rb.velocity.y);
 
             // If holding the direction of the wall or not at all, reset the timer
-            if (horizontal == 0 || (facingRight && horizontal > 0) || (!facingRight && horizontal < 0)) {
+            if (horizontal == 0 || (facingRight && horizontal > 0) || (!facingRight && horizontal < 0))
+            {
                 wallJumpHoldTimer = Time.time + wallJumpHoldTime;
-            } else {
+            }
+            else
+            {
                 // If holding the opposite direction of the wall for too long, stop wall sliding
-                if (Time.time > wallJumpHoldTimer) {
+                if (Time.time > wallJumpHoldTimer)
+                {
                     wallSliding = false;
                 }
             }
@@ -929,29 +1046,36 @@ public class MarioMovement : MonoBehaviour
         }
 
         // Max Speed (Horizontal)
-        if (runPressed) {
-            if (Mathf.Abs(rb.velocity.x) > maxRunSpeed) {
+        if (runPressed)
+        {
+            if (Mathf.Abs(rb.velocity.x) > maxRunSpeed)
+            {
                 rb.velocity = new Vector2(Mathf.Sign(rb.velocity.x) * maxRunSpeed, rb.velocity.y);
             }
         }
 
         // Max Speed (Vertical)
-        if (!onGround) {
+        if (!onGround)
+        {
             // Terminal Velocity
             float tvel = swimming ? swimTerminalVelocity : terminalvelocity;
 
-            if (wallSliding) {  // slide down wall slower
+            if (wallSliding)
+            {  // slide down wall slower
                 tvel /= 3;
             }
-            if (groundPounding) {  // fall faster during ground pound
+            if (groundPounding)
+            {  // fall faster during ground pound
                 tvel *= 1.5f;
             }
 
-            if (-rb.velocity.y > tvel) {
+            if (-rb.velocity.y > tvel)
+            {
                 rb.velocity = new Vector2(rb.velocity.x, -tvel);
             }
-            if (rb.velocity.y > (tvel*2) && swimming) { // swimming up speed limit
-                rb.velocity = new Vector2(rb.velocity.x, tvel*2);
+            if (rb.velocity.y > (tvel * 2) && swimming)
+            { // swimming up speed limit
+                rb.velocity = new Vector2(rb.velocity.x, tvel * 2);
             }
         }
 
@@ -968,12 +1092,16 @@ public class MarioMovement : MonoBehaviour
         animator.SetFloat("Horizontal", Mathf.Abs(rb.velocity.x) * walkAnimatorSpeed);
         animator.SetBool("isRunning", Mathf.Abs(rb.velocity.x) > 0.2f);
 
-        if (onGround) {
-            if (!inCrouchState && canSkid) {
+        if (onGround)
+        {
+            if (!inCrouchState && canSkid)
+            {
                 animator.SetBool("isSkidding", maxSpeedSkidding);
             }
             animator.SetBool("onGround", true);
-        } else {
+        }
+        else
+        {
             animator.SetBool("isSkidding", false);
             animator.SetBool("onGround", false);
         }
@@ -981,14 +1109,17 @@ public class MarioMovement : MonoBehaviour
         animator.SetBool("isCrawling", isCrawling);
     }
 
-    private void ClimbMove(Vector2 dir) {
+    private void ClimbMove(Vector2 dir)
+    {
         rb.velocity = new Vector2(dir.x * climbSpeed, dir.y * climbSpeed);
         animator.SetFloat("climbSpeed", rb.velocity.magnitude);
     }
 
     // for jumping and also stomping enemies (which always make mario use his walkJumpSpeed)
-    public void Jump(float jumpMultiplier = 1f, bool forceWalkJumpSpeed = true) {
-        if (climbing) {
+    public void Jump(float jumpMultiplier = 1f, bool forceWalkJumpSpeed = true)
+    {
+        if (climbing)
+        {
             StopClimbing();
         }
         rb.velocity = new Vector2(rb.velocity.x, 0);
@@ -1000,8 +1131,9 @@ public class MarioMovement : MonoBehaviour
     }
 
     // for swimming
-    public void Swim() {
-        if (groundPounding) return; 
+    public void Swim()
+    {
+        if (groundPounding) return;
 
         onGround = false;
         rb.AddForce(Vector2.up * swimForce, ForceMode2D.Impulse);
@@ -1010,7 +1142,8 @@ public class MarioMovement : MonoBehaviour
     }
 
     // jump out of water
-    public void JumpOutOfWater() {
+    public void JumpOutOfWater()
+    {
         rb.velocity = new Vector2(rb.velocity.x, 0);
         rb.AddForce(.75f * jumpSpeed * Vector2.up, ForceMode2D.Impulse);
         jumpTimer = 0;
@@ -1024,7 +1157,8 @@ public class MarioMovement : MonoBehaviour
     }
 
     // jumping off a wall
-    public void WallJump() {
+    public void WallJump()
+    {
         spinning = false;
         Jump(0.75f);
         // add horizontal force in the opposite direction of the wall (where you are facing)
@@ -1035,7 +1169,8 @@ public class MarioMovement : MonoBehaviour
     }
 
     // Spin Jump
-    public void SpinJump() {
+    public void SpinJump()
+    {
         audioSource.PlayOneShot(spinJumpSound);
         rb.velocity = new Vector2(rb.velocity.x, 0);
         rb.AddForce(Vector2.up * jumpSpeed * 1.1f, ForceMode2D.Impulse);
@@ -1046,7 +1181,8 @@ public class MarioMovement : MonoBehaviour
     }
 
     // Called from enemy script when mario spin bounces on an enemy
-    public void SpinJumpBounce(GameObject enemy) {
+    public void SpinJumpBounce(GameObject enemy)
+    {
         print("bouncing off");
         audioSource.PlayOneShot(spinJumpBounceSound);
         // Instantiate the spin jump bounce effect where they are colliding
@@ -1055,7 +1191,8 @@ public class MarioMovement : MonoBehaviour
         Jump();
     }
 
-    public void SpinJumpPoof(GameObject enemy) {
+    public void SpinJumpPoof(GameObject enemy)
+    {
         audioSource.PlayOneShot(spinJumpPoofSound);
         // Instantiate the spin jump poof effect where they are colliding
         Vector3 effectSpawnPos = enemy.GetComponentInChildren<Collider2D>().ClosestPoint(transform.position);
@@ -1065,14 +1202,15 @@ public class MarioMovement : MonoBehaviour
         Jump();
     }
 
-    private void GroundPound() {
+    private void GroundPound()
+    {
         spinning = false;   // No longer spinning
         groundPounding = true;
         groundPoundRotating = true;
 
         // Freeze mario in the air for a bit
         rb.velocity = new Vector2(0, 0);
-    
+
         // Start the ground pound animation
         animator.SetBool("isDropping", true);
         animator.SetBool("cancelDropping", false);
@@ -1084,27 +1222,31 @@ public class MarioMovement : MonoBehaviour
         Invoke(nameof(GroundPoundFall), groundPoundSpinTime);
     }
 
-    private void GroundPoundFall() {
+    private void GroundPoundFall()
+    {
         if (!groundPounding) return; // Skip if ground pound is canceled
-        
+
         // Start the ground pound fall
         groundPoundRotating = false;
         rb.velocity = new Vector2(rb.velocity.x, -jumpSpeed * 1.5f);
     }
 
-    private void GroundPoundLand(GameObject hitObject) {
+    private void GroundPoundLand(GameObject hitObject)
+    {
         //groundPounding = false;
         groundPoundLanded = true;
         groundPoundRotating = false;
-        groundPoundInWater = false; 
+        groundPoundInWater = false;
         waterGroundPoundStartTime = 0f; // Reset timer
         audioSource.PlayOneShot(groundPoundLandSound);
         IGroundPoundable groundPoundable = hitObject.GetComponent<IGroundPoundable>();
-        if (groundPoundable != null) {
+        if (groundPoundable != null)
+        {
             groundPoundable.OnGroundPound(this);
         }
 
-        if (groundPoundParticles != null) {
+        if (groundPoundParticles != null)
+        {
             Vector3 particlePosition = new Vector3(transform.position.x, transform.position.y - (colliderY / 2), transform.position.z);
             Instantiate(groundPoundParticles, particlePosition, Quaternion.identity);
         }
@@ -1116,7 +1258,8 @@ public class MarioMovement : MonoBehaviour
         Invoke(nameof(FinishGroundPoundLand), 0.25f);
     }
 
-    private void FinishGroundPoundLand() {
+    private void FinishGroundPoundLand()
+    {
         groundPounding = false;
         groundPoundLanded = false;
 
@@ -1130,7 +1273,7 @@ public class MarioMovement : MonoBehaviour
     private void CancelGroundPound()
     {
         if (!groundPounding || groundPoundRotating) // Only cancel during the fall phase
-        return;
+            return;
 
         groundPounding = false;  // Exit ground pound state
         groundPoundRotating = false;  // Stop rotation effect
@@ -1145,7 +1288,8 @@ public class MarioMovement : MonoBehaviour
         animator.SetBool("cancelDropping", true);
         animator.SetBool("isDropping", false);
 
-        if (swimming){
+        if (swimming)
+        {
             animator.SetTrigger("enterWater");
         }
     }
@@ -1169,18 +1313,23 @@ public class MarioMovement : MonoBehaviour
         rb.gravityScale = riseGravity; // Reset gravity to normal
 
         // Reset input flags (to prevent lingering input re-triggering the ground pound)
-        crouchPressedInAir = false; 
+        crouchPressedInAir = false;
         spinPressed = false;
     }
 
-    void ModifyPhysics() {
+    void ModifyPhysics()
+    {
         // Special ground pound physics
-        if (groundPounding) {
+        if (groundPounding)
+        {
             rb.drag = 0;
-            if (groundPoundRotating) {
+            if (groundPoundRotating)
+            {
                 rb.gravityScale = 0; // Freeze during rotation phase
                 rb.velocity = new Vector2(0, 0);
-            } else {
+            }
+            else
+            {
                 rb.gravityScale = fallgravity; // Normal gravity during fall phase
             }
             return;
@@ -1215,10 +1364,11 @@ public class MarioMovement : MonoBehaviour
                 rb.drag = 0f;
             }
             return;
-        }  
+        }
 
         // Special Climbing physics
-        if (climbing) {
+        if (climbing)
+        {
             rb.gravityScale = 0; // Disable gravity
             rb.drag = 0; // Disable drag
             return;
@@ -1226,7 +1376,8 @@ public class MarioMovement : MonoBehaviour
 
         Vector2 physicsInput = direction;   // So we can modify it without changing the direction variable
 
-        if (onGround) { // Regular physics for air or ground
+        if (onGround)
+        { // Regular physics for air or ground
             // no crazy crouch sliding (but do allow crawling)
             if (inCrouchState)
             {
@@ -1236,12 +1387,15 @@ public class MarioMovement : MonoBehaviour
             else
             {
                 animator.SetBool("isCrouching", false);
-            }             
+            }
 
             // If holding direction of movement
-            if ((Mathf.Abs(physicsInput.x) > 0 && !changingDirections) || isCrawling) {
+            if ((Mathf.Abs(physicsInput.x) > 0 && !changingDirections) || isCrawling)
+            {
                 rb.drag = 0f;
-            } else {
+            }
+            else
+            {
                 // Changing directions, not holding any direction, or crouching
                 float spd = Mathf.Abs(rb.velocity.x);
                 float newDrag = 100000000;
@@ -1249,7 +1403,8 @@ public class MarioMovement : MonoBehaviour
                 //     newDrag = 10f / spd * (inCrouchState ? 1.5f : 1f);
                 // }
 
-                switch (spd) {
+                switch (spd)
+                {
                     case float n when n < 0.5f:
                         newDrag = 100000000;
                         break;
@@ -1262,52 +1417,67 @@ public class MarioMovement : MonoBehaviour
                 }
 
                 float dragMult = 1f;
-                if (inCrouchState) {
+                if (inCrouchState)
+                {
                     // If crouching, set a drag multiplier
                     dragMult = 1.5f;
-                } else if (facingRight != (rb.velocity.x > 0)) {
+                }
+                else if (facingRight != (rb.velocity.x > 0))
+                {
                     // If facing the opposite direction, apply a drag multiplier
                     dragMult = 1.5f;
                 }
-                
+
 
                 newDrag *= dragMult;
 
-                if (!float.IsInfinity(newDrag)) {
+                if (!float.IsInfinity(newDrag))
+                {
                     rb.drag = newDrag;
-                } else {
+                }
+                else
+                {
                     rb.drag = 100000000;
                 }
-            
+
             }
 
             // 0 gravity on the ground
             rb.gravityScale = 0;
 
-        } else {
+        }
+        else
+        {
             // in the air
             rb.gravityScale = riseGravity;  // Rising Gravity
             rb.drag = 0;
             //if(rb.velocity.y < startfallingspeed){
 
             // Falling
-            if (airtimer < Time.time || rb.velocity.y < startfallingspeed) {
-                if (rb.velocity.y > 0) {    // Still going up
+            if (airtimer < Time.time || rb.velocity.y < startfallingspeed)
+            {
+                if (rb.velocity.y > 0)
+                {    // Still going up
                     rb.gravityScale = peakGravity;
-                } else {
+                }
+                else
+                {
                     rb.gravityScale = fallgravity;
                 }
 
-            // Rising but not pressing jump/spin anymore
-            } else if (rb.velocity.y > 0 && !(jumpPressed || (spinPressed && spinning))) {
+                // Rising but not pressing jump/spin anymore
+            }
+            else if (rb.velocity.y > 0 && !(jumpPressed || (spinPressed && spinning)))
+            {
                 rb.gravityScale = fallgravity;
                 airtimer = Time.time - 1f;
                 //rb.gravityScale = gravity * fallMultiplier;
             }
         }
     }
-    
-    void Flip() {
+
+    void Flip()
+    {
         if (groundPounding || groundPoundRotating)
         {
             return; // Prevent flipping during ground pound phases
@@ -1315,28 +1485,35 @@ public class MarioMovement : MonoBehaviour
 
         facingRight = !facingRight;
         //transform.rotation = Quaternion.Euler(0, facingRight ? 0 : 180, 0);
-        if (sprite) {
+        if (sprite)
+        {
             sprite.flipX = !facingRight;
-        } else {
+        }
+        else
+        {
             // If flip is called before start, it might not be assigned yet
             // So we assign it here
             sprite = GetComponent<SpriteRenderer>();
-            if (sprite) {
+            if (sprite)
+            {
                 sprite.flipX = !facingRight;
             }
         }
         float relScaleX = facingRight ? 1 : -1;
 
         // flip might be called before start, this fixes that
-        if (relPosObj == null) {
+        if (relPosObj == null)
+        {
             relPosObj = transform.GetChild(0).gameObject;
         }
 
         relPosObj.transform.localScale = new Vector3(relScaleX, 1, 1);
     }
 
-    public void FlipTo(bool right) {
-        if (facingRight != right) {
+    public void FlipTo(bool right)
+    {
+        if (facingRight != right)
+        {
             Flip();
         }
     }
@@ -1350,7 +1527,7 @@ public class MarioMovement : MonoBehaviour
     private IEnumerator FlashDuringInvincibility()
     {
         flashing = true;
-        float flashSpeed = 1/20f;   // 20 fps flash speed
+        float flashSpeed = 1 / 20f;   // 20 fps flash speed
         while (invincetimeremain > 0f)
         {
             // Reduce alpha to half
@@ -1368,7 +1545,8 @@ public class MarioMovement : MonoBehaviour
         flashing = false;
     }
 
-    public void damageMario(bool force=false) {
+    public void damageMario(bool force = false)
+    {
         if (GlobalVariables.cheatInvincibility)
         {
             return;
@@ -1400,14 +1578,15 @@ public class MarioMovement : MonoBehaviour
         }
     }
 
-    private void powerDown() {
+    private void powerDown()
+    {
         invincetimeremain = damageinvinctime;
 
         GameObject newMario = Instantiate(transformMario, transform.position, Quaternion.identity);
-        
+
         var newMarioMovement = transferProperties(newMario);
         PlayerTransformation playerTransformation = newMario.GetComponent<PlayerTransformation>();
-        
+
         newMarioMovement.playDamageSound();
         playerTransformation.oldPlayer = gameObject;
         playerTransformation.newPlayer = powerDownMario;
@@ -1416,7 +1595,8 @@ public class MarioMovement : MonoBehaviour
         Destroy(gameObject);
     }
 
-    public void ChangePowerup(GameObject newMarioObject) {
+    public void ChangePowerup(GameObject newMarioObject)
+    {
         // NOTE: we will assume here that mario can always change powerups. The PowerUP.cs script will determine if mario can change powerups
         GameObject newMario = Instantiate(transformMario, transform.position, Quaternion.identity);
         transferProperties(newMario);
@@ -1434,7 +1614,8 @@ public class MarioMovement : MonoBehaviour
         Destroy(gameObject);
     }
 
-    public MarioMovement transferProperties(GameObject newMario) {
+    public MarioMovement transferProperties(GameObject newMario)
+    {
         newMario.GetComponent<Rigidbody2D>().velocity = gameObject.GetComponent<Rigidbody2D>().velocity;
         var newMarioMovement = newMario.GetComponent<MarioMovement>();
 
@@ -1480,12 +1661,15 @@ public class MarioMovement : MonoBehaviour
             var myDevices = GetComponent<PlayerInput>().devices;
             // set new mario's input device to the same as this mario's
             newMario.GetComponent<PlayerInput>().SwitchCurrentControlScheme(myDevices.ToArray());
-        } catch {
+        }
+        catch
+        {
             // this might error if only one controller is connected
             print("Could not transfer input device to new mario. This is probably fine.");
         }
-        
-        if (carrying && heldObjectPosition.transform.childCount > 0) {
+
+        if (carrying && heldObjectPosition.transform.childCount > 0)
+        {
             // We need to check if it actually exists because it might be a bomb that exploded while we were holding it
             // move carried object to new mario
             GameObject carriedObject = heldObjectPosition.transform.GetChild(0).gameObject;
@@ -1519,11 +1703,13 @@ public class MarioMovement : MonoBehaviour
         return newMarioMovement;
     }
 
-    public void playDamageSound() {
+    public void playDamageSound()
+    {
         GetComponent<AudioSource>().PlayOneShot(damageSound);
     }
 
-    private void toDead() {
+    private void toDead()
+    {
         if (GlobalVariables.cheatInvincibility)
         {
             return;
@@ -1587,7 +1773,7 @@ public class MarioMovement : MonoBehaviour
 
         // Destroy the current GameObject
         Destroy(gameObject);
-    } 
+    }
 
     public void PlayYeahAnimation()
     {
@@ -1662,7 +1848,7 @@ public class MarioMovement : MonoBehaviour
             }
         }
     }
-    
+
     private void OnTriggerEnter2D(Collider2D other)
     {
         // TODO!! The crush detector can trigger this method too!
@@ -1695,7 +1881,7 @@ public class MarioMovement : MonoBehaviour
         {
             canClimb = true;
         }
-        
+
         DetectDamagingObject(other);
     }
 
@@ -1752,7 +1938,8 @@ public class MarioMovement : MonoBehaviour
         if (other.gameObject.layer == LayerMask.NameToLayer("Vine"))
         {
             canClimb = false;
-            if (climbing) {
+            if (climbing)
+            {
                 StopClimbing();
             }
         }
@@ -1767,9 +1954,11 @@ public class MarioMovement : MonoBehaviour
         }
     }
 
-    private void OnDrawGizmos() {
+    private void OnDrawGizmos()
+    {
         // if this script is disabled, don't draw gizmos
-        if (!enabled) {
+        if (!enabled)
+        {
             return;
         }
 
@@ -1832,7 +2021,7 @@ public class MarioMovement : MonoBehaviour
 
         // Carry Raycast
         Gizmos.color = Color.blue;
-        
+
         start = transform.position + new Vector3(0, grabRaycastHeight, 0);
         Gizmos.DrawLine(start, start + (facingRight ? Vector3.right : Vector3.left) * 0.6f);
     }
@@ -1845,40 +2034,54 @@ public class MarioMovement : MonoBehaviour
     {
         Vector2 moveRawIn = context.ReadValue<Vector2>();
         // Deadzone (separate for x and y, taking direction into account)
-        if (Mathf.Abs(moveRawIn.x) < lowerDeadzone) {
+        if (Mathf.Abs(moveRawIn.x) < lowerDeadzone)
+        {
             moveRawIn.x = 0;
-        } else if (Mathf.Abs(moveRawIn.x) > upperDeadzone) {
+        }
+        else if (Mathf.Abs(moveRawIn.x) > upperDeadzone)
+        {
             moveRawIn.x = Mathf.Sign(moveRawIn.x);
         }
-        if (Mathf.Abs(moveRawIn.y) < lowerDeadzone) {
+        if (Mathf.Abs(moveRawIn.y) < lowerDeadzone)
+        {
             moveRawIn.y = 0;
-        } else if (Mathf.Abs(moveRawIn.y) > upperDeadzone) {
+        }
+        else if (Mathf.Abs(moveRawIn.y) > upperDeadzone)
+        {
             moveRawIn.y = Mathf.Sign(moveRawIn.y);
         }
         moveInput = moveRawIn;
     }
-    public void onMobileLeftPressed() {
+    public void onMobileLeftPressed()
+    {
         moveInput = new Vector2(-1, moveInput.y);
     }
-    public void onMobileLeftReleased() {
+    public void onMobileLeftReleased()
+    {
         moveInput = new Vector2(0, moveInput.y);
     }
-    public void onMobileRightPressed() {
+    public void onMobileRightPressed()
+    {
         moveInput = new Vector2(1, moveInput.y);
     }
-    public void onMobileRightReleased() {
+    public void onMobileRightReleased()
+    {
         moveInput = new Vector2(0, moveInput.y);
     }
-    public void onMobileUpPressed() {
+    public void onMobileUpPressed()
+    {
         moveInput = new Vector2(moveInput.x, 1);
     }
-    public void onMobileUpReleased() {
+    public void onMobileUpReleased()
+    {
         moveInput = new Vector2(moveInput.x, 0);
     }
-    public void onMobileDownPressed() {
+    public void onMobileDownPressed()
+    {
         moveInput = new Vector2(moveInput.x, -1);
     }
-    public void onMobileDownReleased() {    // might not be needed because of crouch button
+    public void onMobileDownReleased()
+    {    // might not be needed because of crouch button
         moveInput = new Vector2(moveInput.x, 0);
     }
 
@@ -1894,15 +2097,18 @@ public class MarioMovement : MonoBehaviour
             onRunReleased();
         }
     }
-    public void onRunPressed() {
+    public void onRunPressed()
+    {
         //print("run");
         runPressed = true;
 
-        if (pressRunToGrab && (!crouchToGrab || crouchPressed) && !carrying) {
+        if (pressRunToGrab && (!crouchToGrab || crouchPressed) && !carrying)
+        {
             checkForCarry();
         }
     }
-    public void onRunReleased() {
+    public void onRunReleased()
+    {
         runPressed = false;
     }
 
@@ -1916,14 +2122,16 @@ public class MarioMovement : MonoBehaviour
         if (context.canceled)
         {
             onJumpReleased();
-        }     
+        }
     }
-    public void onJumpPressed() {
+    public void onJumpPressed()
+    {
         jumpTimer = Time.time + jumpDelay;
         jumpPressed = true;
         spinJumpQueued = false;
     }
-    public void onJumpReleased() {
+    public void onJumpReleased()
+    {
         jumpPressed = false;
     }
 
@@ -1933,7 +2141,8 @@ public class MarioMovement : MonoBehaviour
         // TODO: find better way to do this
         // If the crouch is pressed using a stick, we need to check if it's pressed all the way
         float crouchValue;
-        try {
+        try
+        {
             crouchValue = context.ReadValue<float>();   // Error if it's not a float (like from keyboard)
             print("crouch value: " + crouchValue);
             if (crouchValue > 0.5f)
@@ -1949,12 +2158,15 @@ public class MarioMovement : MonoBehaviour
                 crouchPressed = false;
             }
             return;
-        } catch {
+        }
+        catch
+        {
             // do nothing
         }
-       
+
         // Fallback for keyboard (or other non-float inputs)
-        if (context.started){
+        if (context.started)
+        {
             if (!onGround && !climbing)
             {
                 crouchPressedInAir = true; // Set if crouch started while in the air
@@ -1969,13 +2181,16 @@ public class MarioMovement : MonoBehaviour
             crouchPressed = false;
         }
     }
-    public void onMobileCrouchPressed() {
-        if (!onGround) {
+    public void onMobileCrouchPressed()
+    {
+        if (!onGround)
+        {
             crouchPressedInAir = true;
         }
         crouchPressed = true;
     }
-    public void onMobileCrouchReleased() {
+    public void onMobileCrouchReleased()
+    {
         crouchPressed = false;
     }
 
@@ -1992,7 +2207,8 @@ public class MarioMovement : MonoBehaviour
         }
     }
 
-    public void onSpinPressed() {
+    public void onSpinPressed()
+    {
         if (!canSpinJump) return;
 
         print("spin!");
@@ -2001,7 +2217,8 @@ public class MarioMovement : MonoBehaviour
         spinJumpQueued = true;
     }
 
-    public void onSpinReleased() {
+    public void onSpinReleased()
+    {
         spinPressed = false;
     }
 
@@ -2009,13 +2226,16 @@ public class MarioMovement : MonoBehaviour
     public void Use(InputAction.CallbackContext context)
     {
         // use lever
-        if (context.performed) {
+        if (context.performed)
+        {
             onUsePressed();
         }
     }
-    public void onUsePressed() {
+    public void onUsePressed()
+    {
         // for right now, use the NEWEST lever we entered
-        if (useableObjects.Count > 0) {
+        if (useableObjects.Count > 0)
+        {
             useableObjects[^1].Use(this);
         }
     }
@@ -2033,14 +2253,16 @@ public class MarioMovement : MonoBehaviour
             onShootReleased();
         }
     }
-    public void onShootPressed() {
+    public void onShootPressed()
+    {
         foreach (MarioAbility ability in abilities)
         {
             shootPressed = true;
             ability.onShootPressed();
         }
     }
-    public void onShootReleased() {
+    public void onShootReleased()
+    {
         foreach (MarioAbility ability in abilities)
         {
             shootPressed = false;
@@ -2056,36 +2278,41 @@ public class MarioMovement : MonoBehaviour
             onExtraActionPressed();
         }
     }
-    public void onExtraActionPressed() {
+    public void onExtraActionPressed()
+    {
         foreach (MarioAbility ability in abilities)
         {
             ability.onExtraActionPressed();
         }
     }
 
-    public void Freeze() {
+    public void Freeze()
+    {
         // pause animations
         animator.enabled = false;
         // pause physics
         rb.velocity = Vector2.zero;
-        rb.bodyType = RigidbodyType2D.Kinematic; 
+        rb.bodyType = RigidbodyType2D.Kinematic;
 
         frozen = true;
     }
 
-    public void Unfreeze() {
+    public void Unfreeze()
+    {
         // unpause animations
         animator.enabled = true;
         // unpause physics
-        rb.bodyType = RigidbodyType2D.Dynamic; 
+        rb.bodyType = RigidbodyType2D.Dynamic;
 
         frozen = false;
     }
 
-    void checkForCarry() {
+    void checkForCarry()
+    {
         //print("Check carry");
 
-        if (dead) {
+        if (dead)
+        {
             return; // Fixes issue of picking an object back up on the frame you die
         }
 
@@ -2093,12 +2320,15 @@ public class MarioMovement : MonoBehaviour
         RaycastHit2D[] hit = Physics2D.RaycastAll(transform.position + new Vector3(0, grabRaycastHeight, 0), facingRight ? Vector2.right : Vector2.left, 0.6f);
 
 
-        foreach(RaycastHit2D h in hit) {
+        foreach (RaycastHit2D h in hit)
+        {
             // if object has objectphysics script
-            if (h.collider.gameObject.GetComponent<ObjectPhysics>() != null) {
+            if (h.collider.gameObject.GetComponent<ObjectPhysics>() != null)
+            {
                 ObjectPhysics obj = h.collider.gameObject.GetComponent<ObjectPhysics>();
                 // not carried and carryable
-                if (!obj.carried && obj.carryable) {
+                if (!obj.carried && obj.carryable)
+                {
                     carry(obj);
                     return;
                 }
@@ -2106,12 +2336,13 @@ public class MarioMovement : MonoBehaviour
         }
     }
 
-    void carry(ObjectPhysics obj) {
+    void carry(ObjectPhysics obj)
+    {
         //print("carry!");
         carrying = true;
 
         animator.SetTrigger("grab");
-        
+
         // set object to be child of mario's object holder
         obj.transform.parent = heldObjectPosition.transform;
 
@@ -2122,12 +2353,13 @@ public class MarioMovement : MonoBehaviour
         obj.getCarried();
     }
 
-    public void dropCarry() {
+    public void dropCarry()
+    {
         //print("drop!");
         carrying = false;
 
         animator.SetTrigger("grab");
-        
+
         // get object from mario's object holder
         ObjectPhysics obj = heldObjectPosition.transform.GetChild(0).gameObject.GetComponent<ObjectPhysics>();
         obj.transform.parent = null;
@@ -2136,11 +2368,14 @@ public class MarioMovement : MonoBehaviour
         float halfwidth = obj.width / 2;
         float offset = powerupState == PowerupState.small ? 0f : -0.5f;
         Vector2? raycastPoint = ThrowRaycast(offset, 1f + halfwidth, obj.wallMask);
-        if (raycastPoint != null) {
+        if (raycastPoint != null)
+        {
             obj.transform.position = (Vector2)raycastPoint + new Vector2(facingRight ? -halfwidth : halfwidth, 0);
             // move mario back (todo: mario might get stuck in a wall if he throws an object in a one block gap)
             transform.position = new Vector3(facingRight ? (raycastPoint.Value.x - obj.width - 0.5f) : (raycastPoint.Value.x + obj.width + 0.5f), transform.position.y, transform.position.z);
-        } else {
+        }
+        else
+        {
             obj.transform.position = transform.position + new Vector3(facingRight ? 1 : -1, offset, 0);
         }
 
@@ -2151,13 +2386,15 @@ public class MarioMovement : MonoBehaviour
         obj.getDropped(facingRight);
     }
 
-    void throwCarry() {
+    void throwCarry()
+    {
         //print("throw!");
 
         carrying = false;
 
         // check if heldObjectPosition has an object
-        if (heldObjectPosition.transform.childCount == 0) {
+        if (heldObjectPosition.transform.childCount == 0)
+        {
             return;
         }
 
@@ -2170,11 +2407,14 @@ public class MarioMovement : MonoBehaviour
         float halfwidth = obj.width / 2;
         float offset = powerupState == PowerupState.small ? 0.1f : -0.1f;
         Vector2? raycastPoint = ThrowRaycast(offset, 1f + halfwidth, obj.wallMask);
-        if (raycastPoint != null) {
+        if (raycastPoint != null)
+        {
             obj.transform.position = (Vector2)raycastPoint + new Vector2(facingRight ? -halfwidth : halfwidth, 0);
             // move mario back (todo: mario might get stuck in a wall if he throws an object in a one block gap)
             transform.position = new Vector3(facingRight ? (raycastPoint.Value.x - obj.width - 0.5f) : (raycastPoint.Value.x + obj.width + 0.5f), transform.position.y, transform.position.z);
-        } else {
+        }
+        else
+        {
             obj.transform.position = transform.position + new Vector3(facingRight ? 1 : -1, offset, 0);
         }
 
@@ -2187,48 +2427,60 @@ public class MarioMovement : MonoBehaviour
 
     // Raycasts from the specified vertical offset and returns the point of contact (if any)
     // TODO: maybe change it to 2 raycasts (one on top, one on bottom) to make sure that the object wont go inside a wall
-    Vector2? ThrowRaycast(float offset, float distance, int layerMask) {
+    Vector2? ThrowRaycast(float offset, float distance, int layerMask)
+    {
         layerMask &= ~(1 << gameObject.layer);  // remove mario's layer from the layermask
         Vector3 start = transform.position + new Vector3(0, offset, 0);
         RaycastHit2D hit = Physics2D.Raycast(start, facingRight ? Vector2.right : Vector2.left, distance, layerMask);
 
-        if (hit.collider != null) {
+        if (hit.collider != null)
+        {
             return hit.point;
-        } else {
+        }
+        else
+        {
             return null;
         }
     }
 
-    public void resetSpriteLibrary() {
+    public void resetSpriteLibrary()
+    {
         GetComponent<SpriteLibrary>().spriteLibraryAsset = normalSpriteLibrary;
     }
 
     /* Useable Objects */
     // Objects like levers use these to let Mario know that they are near him
     // When the Use button is pressed, Mario will activate one of these objects
-    public void AddUseableObject(UseableObject obj) {
-        if (!useableObjects.Contains(obj)) {
+    public void AddUseableObject(UseableObject obj)
+    {
+        if (!useableObjects.Contains(obj))
+        {
             useableObjects.Add(obj);
         }
     }
 
-    public void RemoveUseableObject(UseableObject obj) {
-        if (useableObjects.Contains(obj)) {
+    public void RemoveUseableObject(UseableObject obj)
+    {
+        if (useableObjects.Contains(obj))
+        {
             useableObjects.Remove(obj);
         }
     }
 
     /* Pushing */
     // Pushable objects use these to let Mario know that he is pushing them
-    public void StartPushing(ObjectPhysics pushObject, float speed) {
+    public void StartPushing(ObjectPhysics pushObject, float speed)
+    {
         pushing = true;
         pushingObject = pushObject;
         pushingSpeed = speed;
     }
 
-    public void StopPushing() {
+    public void StopPushing()
+    {
         print("Stopped pushing");
         pushing = false;
         pushingObject = null;
     }
+
 }

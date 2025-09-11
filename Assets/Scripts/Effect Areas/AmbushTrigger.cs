@@ -27,6 +27,7 @@ public class AmbushTrigger : MonoBehaviour
     public UnityEvent onAmbushBefore;
     public UnityEvent onAmbushStart;
     public UnityEvent onAmbushEnd;
+    private bool isPlayerInTrigger = false;
 
     private void Start()
     {
@@ -54,16 +55,19 @@ public class AmbushTrigger : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (hasTriggered) return; // Prevent multiple triggers
-
         if (other.CompareTag("Player"))
         {
+            isPlayerInTrigger = true;
+
+            if (hasTriggered)
+                return; // Prevent retriggering if ambush is completed or already triggered
+
             hasTriggered = true;
             if (spikeygoombasgodown != null)
             {
                 spikeygoombasgodown.Play();
             }
-
+            
             StartCoroutine(TriggerAmbush(other.gameObject));
         }
     }
@@ -73,6 +77,7 @@ public class AmbushTrigger : MonoBehaviour
         Animator playerAnimator = other.GetComponent<Animator>();
         if (playerAnimator != null)
         {
+            isPlayerInTrigger = false;
             playerAnimator.SetBool("isScared", false);
         }
     }
@@ -84,21 +89,20 @@ public class AmbushTrigger : MonoBehaviour
         if (player == null)
             yield break;
 
-        onAmbushStart.Invoke();
-
         // Set the "isScared" parameter of the player's animator
         Animator playerAnimator = player.GetComponent<Animator>();
-        if (playerAnimator != null)
+        if (playerAnimator != null && isPlayerInTrigger)
         {
+            onAmbushStart.Invoke(); // I'm assuming this only deals with Mario's sprite library change
             playerAnimator.SetBool("isScared", true);
-        }
 
-        // Play the Mariowhoaaa audio clip
-        if (!hasPlayedMariowhoaaa)
-        {
-            AudioSource playerAudioSource = player.GetComponent<AudioSource>();
-            playerAudioSource.PlayOneShot(Mariowhoaaa);
-            hasPlayedMariowhoaaa = true;
+            // Play the Mariowhoaaa audio clip
+            if (!hasPlayedMariowhoaaa)
+            {
+                AudioSource playerAudioSource = player.GetComponent<AudioSource>();
+                playerAudioSource.PlayOneShot(Mariowhoaaa);
+                hasPlayedMariowhoaaa = true;
+            }
         }
 
         StartCoroutine(EnemyAudio());
@@ -132,13 +136,13 @@ public class AmbushTrigger : MonoBehaviour
 
     private IEnumerator CompleteAmbush(Animator playerAnimator)
     {
+        yield return new WaitForSeconds(1.5f);
+
         // Disable "isScared" animation
         if (playerAnimator != null)
         {
             playerAnimator.SetBool("isScared", false);
         }
-
-        yield return new WaitForSeconds(1.5f);
 
         // Now invoke the end of the ambush event
         onAmbushEnd.Invoke();

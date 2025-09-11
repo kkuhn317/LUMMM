@@ -141,9 +141,6 @@ AnimatorStateTransition:
   - m_ConditionMode: 2
     m_ConditionEvent: onGround
     m_EventTreshold: 0
-  - m_ConditionMode: 2
-    m_ConditionEvent: isScared
-    m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: -3744179288330803767}
   m_Solo: 0
@@ -1302,9 +1299,9 @@ AnimatorStateTransition:
   - m_ConditionMode: 2
     m_ConditionEvent: isScared
     m_EventTreshold: 0
-  - m_ConditionMode: 4
-    m_ConditionEvent: Horizontal
-    m_EventTreshold: 0.01
+  - m_ConditionMode: 2
+    m_ConditionEvent: isRunning
+    m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: -1796033589110310938}
   m_Solo: 0
@@ -1941,7 +1938,7 @@ AnimatorStateMachine:
     m_Position: {x: -210, y: 270, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 6782196532292628682}
-    m_Position: {x: -10, y: 340, z: 0}
+    m_Position: {x: -20, y: 340, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 3936519600923913957}
     m_Position: {x: 430, y: 340, z: 0}
@@ -3154,9 +3151,9 @@ AnimatorStateTransition:
   m_PrefabAsset: {fileID: 0}
   m_Name: 
   m_Conditions:
-  - m_ConditionMode: 3
-    m_ConditionEvent: Horizontal
-    m_EventTreshold: 0.01
+  - m_ConditionMode: 1
+    m_ConditionEvent: isRunning
+    m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: 5722869313222671810}
   m_Solo: 0

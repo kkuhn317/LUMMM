@@ -5,31 +5,11 @@ public class EnemyStateSpriteSwitcher : MonoBehaviour
 {
     private BoxCollider2D boxCollider2D;
     private SpriteSwapArea spriteSwapArea;
-    private List<FallingSpike> fallingSpikesInTrigger = new List<FallingSpike>();
+    public List<FallingSpike> fallingSpikesInTrigger = new List<FallingSpike>();
 
     private void Start()
     {
         boxCollider2D = GetComponent<BoxCollider2D>();
-    }
-
-    private void OnTriggerEnter2D(Collider2D other)
-    {
-        FallingSpike fallingSpike = other.GetComponent<FallingSpike>();
-        if (fallingSpike != null)
-        {
-            fallingSpikesInTrigger.Add(fallingSpike);
-            UpdateColliderState();
-        }
-    }
-
-    private void OnTriggerExit2D(Collider2D other)
-    {
-        FallingSpike fallingSpike = other.GetComponent<FallingSpike>();
-        if (fallingSpike != null)
-        {
-            fallingSpikesInTrigger.Remove(fallingSpike);
-            UpdateColliderState();
-        }
     }
 
     private void Update()

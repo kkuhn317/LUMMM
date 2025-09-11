@@ -13,10 +13,10 @@ public class PlayerDeathTrigger : MonoBehaviour
     {
         if (playerScript != null)
         {
-            Debug.Log($"{playerScript.Dead}");
+            //Debug.Log($"{playerScript.Dead}");
             if (playerScript.Dead)
             {
-                Debug.Log("Player is dead. Invoking OnPlayerDeath event.");
+                //Debug.Log("Player is dead. Invoking OnPlayerDeath event.");
                 HandlePlayerDeath(playerScript);
                 playerScript = null; // Prevent repeated invocations.
             }
@@ -27,7 +27,7 @@ public class PlayerDeathTrigger : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            Debug.Log($"Player entered trigger: {other.gameObject.name}");
+            //Debug.Log($"Player entered trigger: {other.gameObject.name}");
             playerScript = other.GetComponent<MarioMovement>();
         }
     }
@@ -36,7 +36,7 @@ public class PlayerDeathTrigger : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            Debug.Log("Player exited the trigger.");
+            //Debug.Log("Player exited the trigger.");
             playerScript = null;
         }
     }
@@ -45,6 +45,6 @@ public class PlayerDeathTrigger : MonoBehaviour
     {
         // Trigger the OnPlayerDeath event.
         OnPlayerDeath?.Invoke();
-        Debug.Log("OnPlayerDeath event invoked.");
+        //Debug.Log("OnPlayerDeath event invoked.");
     }
 }

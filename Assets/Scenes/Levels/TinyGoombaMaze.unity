@@ -1354,6 +1354,9 @@ MonoBehaviour:
   gravity: 0
   width: 0
   height: 0
+  boundsOffset: {x: 0, y: 0}
+  sizePadding: {x: 0, y: 0}
+  ignoreRaycastFlip: 0
   floorRaycastSpacing: 0
   wallRaycastSpacing: 0
   floorMask:
@@ -1367,11 +1370,16 @@ MonoBehaviour:
   DontFallOffLedges: 0
   bounceOffWalls: 1
   flipObject: 1
+  normalScale: {x: 0, y: 0}
   updateType: 0
   lavaKill: 1
   forceSinkInLava: 1
   sinkSpeed: 20
   lavaMask:
+    serializedVersion: 2
+    m_Bits: 0
+  isInWater: 0
+  waterMask:
     serializedVersion: 2
     m_Bits: 0
   carryable: 0
@@ -6305,6 +6313,9 @@ MonoBehaviour:
   requireGroundToEnter: 1
   snapCameraX: 0
   snapCameraY: 0
+  onPlayerEnter:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!82 &392404702
 AudioSource:
   m_ObjectHideFlags: 0
@@ -8491,6 +8502,9 @@ MonoBehaviour:
   requireGroundToEnter: 0
   snapCameraX: 0
   snapCameraY: 0
+  onPlayerEnter:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!82 &629034804
 AudioSource:
   m_ObjectHideFlags: 0
@@ -8729,6 +8743,9 @@ MonoBehaviour:
   requireGroundToEnter: 0
   snapCameraX: 0
   snapCameraY: 0
+  onPlayerEnter:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!82 &662486948
 AudioSource:
   m_ObjectHideFlags: 0
@@ -9736,6 +9753,9 @@ MonoBehaviour:
   requireGroundToEnter: 1
   snapCameraX: 0
   snapCameraY: 0
+  onPlayerEnter:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!82 &819763941
 AudioSource:
   m_ObjectHideFlags: 0
@@ -11616,6 +11636,9 @@ MonoBehaviour:
   requireGroundToEnter: 1
   snapCameraX: 0
   snapCameraY: 0
+  onPlayerEnter:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!82 &864079473
 AudioSource:
   m_ObjectHideFlags: 0
@@ -11933,6 +11956,9 @@ MonoBehaviour:
   requireGroundToEnter: 1
   snapCameraX: 0
   snapCameraY: 0
+  onPlayerEnter:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!82 &883921567
 AudioSource:
   m_ObjectHideFlags: 0
@@ -13811,6 +13837,9 @@ MonoBehaviour:
   requireGroundToEnter: 0
   snapCameraX: 0
   snapCameraY: 0
+  onPlayerEnter:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!82 &1093794904
 AudioSource:
   m_ObjectHideFlags: 0
@@ -14917,6 +14946,10 @@ PrefabInstance:
       propertyPath: m_SpriteTilingProperty.oldSize.y
       value: 0.625
       objectReference: {fileID: 0}
+    - target: {fileID: 1563295794450405723, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
+      propertyPath: m_SpriteHash
+      value: 259702089
+      objectReference: {fileID: 0}
     - target: {fileID: 1771483343543010228, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
       propertyPath: pigMario
       value: 
@@ -15901,6 +15934,9 @@ MonoBehaviour:
   requireGroundToEnter: 0
   snapCameraX: 0
   snapCameraY: 0
+  onPlayerEnter:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!82 &1249881524
 AudioSource:
   m_ObjectHideFlags: 0
@@ -20241,6 +20277,9 @@ MonoBehaviour:
   gravity: 0
   width: 0.37
   height: 0.13
+  boundsOffset: {x: 0, y: 0}
+  sizePadding: {x: 0, y: 0}
+  ignoreRaycastFlip: 0
   floorRaycastSpacing: 0
   wallRaycastSpacing: 0.12
   floorMask:
@@ -20254,6 +20293,7 @@ MonoBehaviour:
   DontFallOffLedges: 1
   bounceOffWalls: 1
   flipObject: 1
+  normalScale: {x: 0, y: 0}
   updateType: 0
   lavaKill: 1
   forceSinkInLava: 1
@@ -20261,6 +20301,10 @@ MonoBehaviour:
   lavaMask:
     serializedVersion: 2
     m_Bits: 8192
+  isInWater: 0
+  waterMask:
+    serializedVersion: 2
+    m_Bits: 0
   carryable: 0
   carried: 0
   throwVelocity: {x: 12, y: 10}
@@ -23247,6 +23291,9 @@ MonoBehaviour:
   gravity: 10
   width: 1
   height: 1
+  boundsOffset: {x: 0, y: 0}
+  sizePadding: {x: 0, y: 0}
+  ignoreRaycastFlip: 0
   floorRaycastSpacing: 0.2
   wallRaycastSpacing: 0.2
   floorMask:
@@ -23260,11 +23307,16 @@ MonoBehaviour:
   DontFallOffLedges: 0
   bounceOffWalls: 1
   flipObject: 0
+  normalScale: {x: 0, y: 0}
   updateType: 0
   lavaKill: 1
   forceSinkInLava: 1
   sinkSpeed: 20
   lavaMask:
+    serializedVersion: 2
+    m_Bits: 0
+  isInWater: 0
+  waterMask:
     serializedVersion: 2
     m_Bits: 0
   carryable: 0
@@ -23817,6 +23869,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   smoothDampTime: 0.15
+  zoomSmoothTime: 0.2
   offset: {x: 0, y: 0, z: 0}
 --- !u!95 &1730604529
 Animator:
@@ -23857,8 +23910,11 @@ MonoBehaviour:
   lockToVertical: 0
   cameraPosOffset: {x: 0, y: 0}
   lockOffset: {x: 0, y: 0}
-  snapToBounds: 1
+  zoneId: 
   priority: 0
+  entryRule: 0
+  snapFromZoneIds: []
+  clampPolicy: 2
 --- !u!1 &1739160475
 GameObject:
   m_ObjectHideFlags: 0
@@ -23962,6 +24018,9 @@ MonoBehaviour:
   gravity: 0
   width: 0.37
   height: 0.13
+  boundsOffset: {x: 0, y: 0}
+  sizePadding: {x: 0, y: 0}
+  ignoreRaycastFlip: 0
   floorRaycastSpacing: 0
   wallRaycastSpacing: 0.12
   floorMask:
@@ -23975,6 +24034,7 @@ MonoBehaviour:
   DontFallOffLedges: 0
   bounceOffWalls: 1
   flipObject: 1
+  normalScale: {x: 0, y: 0}
   updateType: 0
   lavaKill: 1
   forceSinkInLava: 1
@@ -23982,6 +24042,10 @@ MonoBehaviour:
   lavaMask:
     serializedVersion: 2
     m_Bits: 8192
+  isInWater: 0
+  waterMask:
+    serializedVersion: 2
+    m_Bits: 0
   carryable: 0
   carried: 0
   throwVelocity: {x: 12, y: 10}
@@ -26179,6 +26243,9 @@ MonoBehaviour:
   requireGroundToEnter: 1
   snapCameraX: 0
   snapCameraY: 0
+  onPlayerEnter:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!82 &1880079723
 AudioSource:
   m_ObjectHideFlags: 0
@@ -26462,6 +26529,9 @@ MonoBehaviour:
   requireGroundToEnter: 1
   snapCameraX: 0
   snapCameraY: 0
+  onPlayerEnter:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!82 &1902560008
 AudioSource:
   m_ObjectHideFlags: 0
@@ -26880,6 +26950,9 @@ MonoBehaviour:
   requireGroundToEnter: 0
   snapCameraX: 0
   snapCameraY: 0
+  onPlayerEnter:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!82 &1935950869
 AudioSource:
   m_ObjectHideFlags: 0
@@ -30370,6 +30443,9 @@ MonoBehaviour:
   requireGroundToEnter: 1
   snapCameraX: 0
   snapCameraY: 0
+  onPlayerEnter:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!4 &6546842578748500365 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6546842579594223817, guid: 1f29f202a327c3646b84975b2922be34, type: 3}
