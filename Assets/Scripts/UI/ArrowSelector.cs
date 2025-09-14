@@ -87,6 +87,8 @@ public class ArrowSelector : MonoBehaviour
         MoveIndicator(b);
         Debug.Log($"suppressFirstSound: {suppressFirstSound}");
 
+        print("selecting button " + b);
+
         // This is to avoid playing the audio when the scene loads, which it's the first time it is automatically selected
         if (suppressFirstSound)
         {

@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using System.Collections.Generic;
+using System;
 
 public class MenuManager : MonoBehaviour
 {
@@ -80,5 +81,10 @@ public class MenuManager : MonoBehaviour
             string previous = menuStack.Pop();
             OpenMenu(previous);
         }
+    }
+
+    public void OpenURL(string url)
+    {
+        Application.OpenURL(url);
     }
 }
