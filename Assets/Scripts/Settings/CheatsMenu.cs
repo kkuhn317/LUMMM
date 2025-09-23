@@ -98,7 +98,7 @@ public class CheatsMenu : MenuBase
             if (cheat.isActive())
             {
                 var item = Instantiate(cheatListItemPrefab, cheatList.transform);
-                item.GetComponentInChildren<TMP_Text>().text = LocalizationSettings.StringDatabase.GetLocalizedString($"Cheat_{cheat.code}");
+                item.GetComponentInChildren<TMP_Text>().text = GetCheatDescription(cheat.code);
                 item.GetComponentInChildren<Button>().onClick.AddListener(() => DeactivateCheat(cheat));
                 activeCheatObjects.Add(new CheatObject(cheat, item));
             }
@@ -146,7 +146,7 @@ public class CheatsMenu : MenuBase
         if (!activeCheatObjects.Exists(co => co.cheat.code == cheat.code))
         {
             var item = Instantiate(cheatListItemPrefab, cheatList.transform);
-            item.GetComponentInChildren<TMP_Text>().text = LocalizationSettings.StringDatabase.GetLocalizedString($"Cheat_{cheat.code}");
+            item.GetComponentInChildren<TMP_Text>().text = GetCheatDescription(cheat.code);
             item.GetComponentInChildren<Button>().onClick.AddListener(() => DeactivateCheat(cheat));
             activeCheatObjects.Add(new CheatObject(cheat, item));
         }
@@ -164,5 +164,12 @@ public class CheatsMenu : MenuBase
             activeCheatObjects.Remove(cheatObject);
             Destroy(cheatObject.listItem);
         }
+    }
+
+    private string GetCheatDescription(string code)
+    {
+        if (code == "club")
+            return "Enable Plushies";
+        return LocalizationSettings.StringDatabase.GetLocalizedString($"Cheat_{code}");
     }
 }
