@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Localization.Settings;
 using TMPro;
 
 public class CheatsMenu : MenuBase
@@ -14,18 +15,16 @@ public class CheatsMenu : MenuBase
     public class Cheat
     {
         public string code;
-        public string description;
         public System.Action applyCheat;
         public System.Action deactivateCheat;
         public System.Func<bool> isActive;
 
-        public Cheat(string code, System.Action applyCheat, System.Action deactivateCheat, System.Func<bool> isActive, string description)
+        public Cheat(string code, System.Action applyCheat, System.Action deactivateCheat, System.Func<bool> isActive)
         {
             this.code = code;
             this.applyCheat = applyCheat;
             this.deactivateCheat = deactivateCheat;
             this.isActive = isActive;
-            this.description = description;
         }
 
     }
@@ -33,14 +32,12 @@ public class CheatsMenu : MenuBase
     private class CheatBinding
     {
         public string code;
-        public string description;
         public System.Func<bool> getter;
         public System.Action<bool> setter;
 
-        public CheatBinding(string code, string description, System.Func<bool> getter, System.Action<bool> setter)
+        public CheatBinding(string code, System.Func<bool> getter, System.Action<bool> setter)
         {
             this.code = code;
-            this.description = description;
             this.getter = getter;
             this.setter = setter;
         }
@@ -48,14 +45,14 @@ public class CheatsMenu : MenuBase
 
     private static readonly CheatBinding[] cheatBindings = new CheatBinding[]
     {
-        new CheatBinding("club", "Unlock plushies", () => GlobalVariables.cheatPlushies, v => GlobalVariables.cheatPlushies = v),
-        new CheatBinding("supersecretbeta", "Enable beta mode", () => GlobalVariables.cheatBetaMode, v => GlobalVariables.cheatBetaMode = v),
-        new CheatBinding("immortal", "Enable invincibility", () => GlobalVariables.cheatInvincibility, v => GlobalVariables.cheatInvincibility = v),
-        new CheatBinding("abilityfreak", "Unlock all abilities", () => GlobalVariables.cheatAllAbilities, v => GlobalVariables.cheatAllAbilities = v),
-        new CheatBinding("minimushroom", "Start as Tiny Mario", () => GlobalVariables.cheatStartTiny, v => GlobalVariables.cheatStartTiny = v),
-        new CheatBinding("iceflower", "Start as Ice Mario", () => GlobalVariables.cheatStartIce, v => GlobalVariables.cheatStartIce = v),
-        new CheatBinding("flamethrower", "Fire Mario, Inf Fireballs", () => GlobalVariables.cheatFlamethrower, v => GlobalVariables.cheatFlamethrower = v),
-        new CheatBinding("midnight", "Darkness Effect", () => GlobalVariables.cheatDarkness, v => GlobalVariables.cheatDarkness = v),
+        new CheatBinding("club", () => GlobalVariables.cheatPlushies, v => GlobalVariables.cheatPlushies = v),
+        new CheatBinding("supersecretbeta", () => GlobalVariables.cheatBetaMode, v => GlobalVariables.cheatBetaMode = v),
+        new CheatBinding("immortal", () => GlobalVariables.cheatInvincibility, v => GlobalVariables.cheatInvincibility = v),
+        new CheatBinding("abilityfreak", () => GlobalVariables.cheatAllAbilities, v => GlobalVariables.cheatAllAbilities = v),
+        new CheatBinding("minimushroom", () => GlobalVariables.cheatStartTiny, v => GlobalVariables.cheatStartTiny = v),
+        new CheatBinding("iceflower", () => GlobalVariables.cheatStartIce, v => GlobalVariables.cheatStartIce = v),
+        new CheatBinding("flamethrower", () => GlobalVariables.cheatFlamethrower, v => GlobalVariables.cheatFlamethrower = v),
+        new CheatBinding("midnight", () => GlobalVariables.cheatDarkness, v => GlobalVariables.cheatDarkness = v),
     };
 
     private class CheatObject
@@ -84,8 +81,7 @@ public class CheatsMenu : MenuBase
                 binding.code,
                 () => binding.setter(true),
                 () => binding.setter(false),
-                binding.getter,
-                binding.description
+                binding.getter
             ));
         }
 
@@ -102,7 +98,7 @@ public class CheatsMenu : MenuBase
             if (cheat.isActive())
             {
                 var item = Instantiate(cheatListItemPrefab, cheatList.transform);
-                item.GetComponentInChildren<TMP_Text>().text = cheat.description;
+                item.GetComponentInChildren<TMP_Text>().text = LocalizationSettings.StringDatabase.GetLocalizedString($"Cheat_{cheat.code}");
                 item.GetComponentInChildren<Button>().onClick.AddListener(() => DeactivateCheat(cheat));
                 activeCheatObjects.Add(new CheatObject(cheat, item));
             }
@@ -136,7 +132,7 @@ public class CheatsMenu : MenuBase
         }
         else
         {
-            infoText.text = "Invalid cheat code!";
+            infoText.text = LocalizationSettings.StringDatabase.GetLocalizedString("Menu_CheatInfoInvalid");
             cheatInputField.Select();
         }
     }
@@ -145,12 +141,12 @@ public class CheatsMenu : MenuBase
     {
         cheat.applyCheat.Invoke();
         audioSource.Play();
-        infoText.text = $"Cheat activated!";
+        infoText.text = LocalizationSettings.StringDatabase.GetLocalizedString("Menu_CheatInfoActivated");
         // Add to the list if not already present
         if (!activeCheatObjects.Exists(co => co.cheat.code == cheat.code))
         {
             var item = Instantiate(cheatListItemPrefab, cheatList.transform);
-            item.GetComponentInChildren<TMP_Text>().text = cheat.description;
+            item.GetComponentInChildren<TMP_Text>().text = LocalizationSettings.StringDatabase.GetLocalizedString($"Cheat_{cheat.code}");
             item.GetComponentInChildren<Button>().onClick.AddListener(() => DeactivateCheat(cheat));
             activeCheatObjects.Add(new CheatObject(cheat, item));
         }
@@ -160,7 +156,7 @@ public class CheatsMenu : MenuBase
     {
         cheat.deactivateCheat.Invoke();
         audioSource.Play();
-        infoText.text = $"Cheat deactivated!";
+        infoText.text = LocalizationSettings.StringDatabase.GetLocalizedString("Menu_CheatInfoDeactivated");
         // Remove from the list
         var cheatObject = activeCheatObjects.Find(co => co.cheat.code == cheat.code);
         if (cheatObject != null)
