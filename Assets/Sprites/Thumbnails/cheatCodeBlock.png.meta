@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: d17a6868fb3868b4681c1b42e767993e
+guid: 52696a0dc4491e948a8c67da16196e3b
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -45,7 +45,7 @@ TextureImporter:
   compressionQuality: 50
   spriteMode: 2
   spriteExtrude: 1
-  spriteMeshType: 0
+  spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
   spritePixelsToUnits: 16
@@ -65,7 +65,7 @@ TextureImporter:
   ignorePngGamma: 0
   applyGammaDecoding: 0
   swizzle: 50462976
-  cookieLightType: 1
+  cookieLightType: 0
   platformSettings:
   - serializedVersion: 3
     buildTarget: DefaultTexturePlatform
@@ -94,7 +94,7 @@ TextureImporter:
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 3
-    buildTarget: Server
+    buildTarget: WebGL
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
@@ -107,24 +107,11 @@ TextureImporter:
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 3
-    buildTarget: WebGL
-    maxTextureSize: 2048
-    resizeAlgorithm: 0
-    textureFormat: -1
-    textureCompression: 0
-    compressionQuality: 50
-    crunchedCompression: 0
-    allowsAlphaSplitting: 0
-    overridden: 0
-    ignorePlatformSupport: 0
-    androidETC2FallbackOverride: 0
-    forceMaximumCompressionQuality_BC6H_BC7: 0
-  - serializedVersion: 3
     buildTarget: Android
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 0
+    textureCompression: 1
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -136,97 +123,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: levelpage_indicator_2
-      rect:
-        serializedVersion: 2
-        x: 26
-        y: 0
-        width: 13
-        height: 20
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: f091fedf4983236468aa3e3ab7fa11e0
-      internalID: -1931603470
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: levelpage_indicator_3
-      rect:
-        serializedVersion: 2
-        x: 39
-        y: 0
-        width: 13
-        height: 20
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 3aa2ffd2d9b712344a56d8846a58f49c
-      internalID: 1499598104
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: levelpage_indicator_0
+      name: cheatCodeButtonUnlocked
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 13
-        height: 20
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: d5620c84ecf601043bb2dd48fac3ce9f
-      internalID: -2004413193
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: levelpage_indicator_1
-      rect:
-        serializedVersion: 2
-        x: 13
-        y: 0
-        width: 13
-        height: 20
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: cdf40ffa3ee4d3d48a2c5b43dd8db527
-      internalID: 1659099890
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: levelpage_indicator_4
-      rect:
-        serializedVersion: 2
-        x: 52
-        y: 0
-        width: 13
-        height: 20
+        width: 16
+        height: 16
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -234,20 +137,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: b7072d6b18190ec4685c9bb68cda8058
-      internalID: -776094744
+      spriteID: d00537e66ad45584abb203fac2d7e0c3
+      internalID: 1689615753
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: levelpage_indicator_5
+      name: cheatCodeButtonLocked
       rect:
         serializedVersion: 2
-        x: 65
+        x: 16
         y: 0
-        width: 13
-        height: 20
+        width: 16
+        height: 16
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -255,8 +158,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 1c4774fee95f79942b545faabf1a64b1
-      internalID: 364968890
+      spriteID: 344490217e565b54398bba9cfbee7104
+      internalID: -1555921080
       vertices: []
       indices: 
       edges: []
@@ -272,12 +175,8 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      levelpage_indicator_0: -2004413193
-      levelpage_indicator_1: 1659099890
-      levelpage_indicator_2: -1931603470
-      levelpage_indicator_3: 1499598104
-      levelpage_indicator_4: -776094744
-      levelpage_indicator_5: 364968890
+      cheatCodeButtonLocked: -1555921080
+      cheatCodeButtonUnlocked: 1689615753
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

@@ -102,6 +102,14 @@ public class LevelButton : MonoBehaviour
 
     private AudioSource audioSource;
 
+    public bool beaten
+    {
+        get
+        {
+            return PlayerPrefs.GetInt("LevelCompleted_" + levelInfo.levelID, 0) == 1;
+        }
+    }
+
     void Start()
     {
         audioSource = GetComponent<AudioSource>();
