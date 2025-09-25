@@ -73,19 +73,26 @@ public class CheatsMenu : MenuBase
 
     private void OnEnable()
     {
-        // Build cheats list from bindings
-        cheats = new List<Cheat>();
-        foreach (var binding in cheatBindings)
+        // Build cheats list from bindings on first enable
+        if (cheats == null || cheats.Count == 0)
         {
-            cheats.Add(new Cheat(
-                binding.code,
-                () => binding.setter(true),
-                () => binding.setter(false),
-                binding.getter
-            ));
+            cheats = new List<Cheat>();
+            foreach (var binding in cheatBindings)
+            {
+                cheats.Add(new Cheat(
+                    binding.code,
+                    () => binding.setter(true),
+                    () => binding.setter(false),
+                    binding.getter
+                ));
+            }
         }
 
-
+        // The language could've changed, so refresh descriptions
+        foreach (var cheatObject in activeCheatObjects)
+        {
+            cheatObject.listItem.GetComponentInChildren<TMP_Text>().text = GetCheatDescription(cheatObject.cheat.code);
+        }
     }
 
     private void Start()
