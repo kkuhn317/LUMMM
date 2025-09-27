@@ -29,7 +29,7 @@ public class CheatsMenu : MenuBase
 
     }
 
-    private class CheatBinding
+    public class CheatBinding
     {
         public string code;
         public System.Func<bool> getter;
@@ -43,7 +43,7 @@ public class CheatsMenu : MenuBase
         }
     }
 
-    private static readonly CheatBinding[] cheatBindings = new CheatBinding[]
+    public static readonly CheatBinding[] cheatBindings = new CheatBinding[]
     {
         new CheatBinding("club", () => GlobalVariables.cheatPlushies, v => GlobalVariables.cheatPlushies = v),
         new CheatBinding("supersecretbeta", () => GlobalVariables.cheatBetaMode, v => GlobalVariables.cheatBetaMode = v),
@@ -173,7 +173,7 @@ public class CheatsMenu : MenuBase
         }
     }
 
-    private string GetCheatDescription(string code)
+    public static string GetCheatDescription(string code)
     {
         if (code == "club")
             return "Enable Plushies";
