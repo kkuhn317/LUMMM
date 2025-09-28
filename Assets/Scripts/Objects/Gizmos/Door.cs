@@ -40,9 +40,11 @@ public class Door : MonoBehaviour
         }
     }
 
-    void findPlayer() {
+    void findPlayer()
+    {
         MarioMovement playerScript = GameManager.Instance.GetPlayer(0);
-        if (playerScript) {
+        if (playerScript)
+        {
             player = playerScript.gameObject;
         }
 
@@ -51,20 +53,24 @@ public class Door : MonoBehaviour
     // Update is called once per frame
     protected virtual void Update()
     {
-        if (inUse) {
+        if (inUse)
+        {
             return;
         }
 
-        if (player == null) {
+        if (player == null)
+        {
             findPlayer();
-            if (player == null) {
+            if (player == null)
+            {
                 return;
             }
         }
 
         MarioMovement playerScript = player.GetComponent<MarioMovement>();
 
-        if (playerScript == null) {
+        if (playerScript == null)
+        {
             return;
         }
 
@@ -103,10 +109,12 @@ public class Door : MonoBehaviour
         }
     }
 
-    protected virtual bool PlayerAtDoor(MarioMovement playerScript) {
+    protected virtual bool PlayerAtDoor(MarioMovement playerScript)
+    {
         Vector2 playerPos = player.transform.position;
         // TODO: base off of player's actual height (this doesn't work for tiny mario)
-        if (playerScript.powerupState == PowerupState.small) {
+        if (playerScript.powerupState == PowerupState.small)
+        {
             playerPos.y += 0.5f;
         }
 
@@ -117,20 +125,24 @@ public class Door : MonoBehaviour
         return xdist < 0.4 && ydist < 0.1 && playerScript.onGround;
     }
 
-    protected virtual bool CheckForKey() {
-        if (GameManager.Instance.keys.Count > 0) {
+    protected virtual bool CheckForKey()
+    {
+        if (GameManager.Instance.keys.Count > 0)
+        {
             return true;
         }
         return false;
     }
 
-    protected virtual void SpendKey() {
+    protected virtual void SpendKey()
+    {
         GameObject usedKey = GameManager.Instance.keys[0];
         GameManager.Instance.keys.RemoveAt(0);
         Destroy(usedKey);
     }
 
-    protected virtual void FreezePlayer() {
+    protected virtual void FreezePlayer()
+    {
         player.GetComponent<Rigidbody2D>().simulated = false;
         player.GetComponent<Rigidbody2D>().velocity = Vector2.zero;
         Animator playerAnimator = player.GetComponent<Animator>();
@@ -141,7 +153,7 @@ public class Door : MonoBehaviour
         // disable all scripts
         foreach (MonoBehaviour script in player.GetComponents<MonoBehaviour>())
         {
-            Type[] allowedTypes = { typeof(PlayerInput), typeof(SpriteLibrary), typeof(SpriteResolver)};
+            Type[] allowedTypes = { typeof(PlayerInput), typeof(SpriteLibrary), typeof(SpriteResolver) };
             // Still allow some scripts or else it will break input or animations
             if (Array.IndexOf(allowedTypes, script.GetType()) < 0)
             {
@@ -149,17 +161,21 @@ public class Door : MonoBehaviour
             }
         }
     }
-    protected void UnfreezePlayer() {
-        player.GetComponent<Rigidbody2D>().simulated = true;      
+    protected void UnfreezePlayer()
+    {
+        player.GetComponent<Rigidbody2D>().simulated = true;
         // enable all scripts
-        foreach (MonoBehaviour script in player.GetComponents<MonoBehaviour>()) {
-            if (script.GetType() != typeof(PlayerInput)) {  
+        foreach (MonoBehaviour script in player.GetComponents<MonoBehaviour>())
+        {
+            if (script.GetType() != typeof(PlayerInput))
+            {
                 script.enabled = true;
             }
         }
     }
 
-    protected virtual void Unlock() {
+    protected virtual void Unlock()
+    {
         locked = false;
         SpendKey();
         audioSource.PlayOneShot(unlockSound);
@@ -170,8 +186,10 @@ public class Door : MonoBehaviour
         Invoke(nameof(Open), unlockTime);
 
         // Unlock other door if needed
-        if (otherDoor) {
-            if (otherDoor.locked) {
+        if (otherDoor)
+        {
+            if (otherDoor.locked)
+            {
                 otherDoor.locked = false;
                 destination.GetComponent<Animator>().SetTrigger("Unlock");
             }
@@ -192,7 +210,8 @@ public class Door : MonoBehaviour
         newParticle2.GetComponent<StarMoveOutward>().speed = 2f;
     }
 
-    void Open() {
+    void Open()
+    {
         audioSource.PlayOneShot(openSound);
         FreezePlayer();
         animator.SetTrigger("Open");
@@ -204,7 +223,8 @@ public class Door : MonoBehaviour
             blackFade.GetComponent<Animator>().SetTrigger("Fade");
 
         // Open and close the other door
-        if (otherDoor) {
+        if (otherDoor)
+        {
             otherDoor.inUse = true;
             destination.GetComponent<Animator>().SetTrigger("Open");
             otherDoor.Invoke(nameof(Close), 1);
@@ -212,7 +232,8 @@ public class Door : MonoBehaviour
 
     }
 
-    protected virtual void CenterPlayerAtDoor(){
+    protected virtual void CenterPlayerAtDoor()
+    {
         if (player != null)
         {
             Vector3 doorCenter = new(transform.position.x, player.transform.position.y, player.transform.position.z);
@@ -220,11 +241,14 @@ public class Door : MonoBehaviour
         }
     }
 
-    void Teleport() {
-        if (otherDoor) {
+    void Teleport()
+    {
+        if (otherDoor)
+        {
             player.transform.position = destination.transform.position;
             // TODO: base off of player's actual height (this doesn't work for tiny mario)
-            if (player.GetComponent<MarioMovement>().powerupState == PowerupState.small) {
+            if (player.GetComponent<MarioMovement>().powerupState == PowerupState.small)
+            {
                 player.transform.position -= new Vector3(0, 0.5f, 0);
             }
         }
@@ -237,13 +261,20 @@ public class Door : MonoBehaviour
         UnfreezePlayer();
     }
 
-    protected virtual void Close() {
+    protected virtual void Close()
+    {
         animator.SetTrigger("Close");
         audioSource.PlayOneShot(closeSound);
         Invoke(nameof(Ready), 0.5f);
     }
 
-    void Ready() {
+    void Ready()
+    {
         inUse = false;
+    }
+    
+    public void SetInUse(bool value)
+    {
+        inUse = value;
     }
 }

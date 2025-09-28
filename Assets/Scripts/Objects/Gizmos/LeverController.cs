@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.Events;
 using System.Collections;
+using Unity.VisualScripting;
 
 public class LeverController : UseableObject
 {
@@ -29,6 +30,7 @@ public class LeverController : UseableObject
     public AudioClip barriermoveAudioClip;
 
     [SerializeField] UnityEvent onLeverPull;
+    [SerializeField] UnityEvent onObjectTargetReached;
     [SerializeField] UnityEvent onLeverReset;
 
     private bool isLocked = false;
@@ -74,7 +76,7 @@ public class LeverController : UseableObject
     {
         Quaternion target = Quaternion.Euler(targetEuler);
 
-        // 🔊 Play only once, regardless of mode
+        // Play only once, regardless of mode
         if (audioSourcePullerRotate && pullerAudioClip)
             audioSourcePullerRotate.PlayOneShot(pullerAudioClip);
 
@@ -97,6 +99,7 @@ public class LeverController : UseableObject
         else
             yield return StartCoroutine(MoveSequentially(targetPositions));
 
+        onObjectTargetReached?.Invoke();
         isLocked = false;
     }
 
