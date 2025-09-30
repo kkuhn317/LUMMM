@@ -1359,6 +1359,22 @@ PrefabInstance:
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Arguments.m_BoolArgument
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6934493766031231242, guid: 6c3da054316607e43b17e4af15d611e6, type: 3}
+      propertyPath: tilemap
+      value: 
+      objectReference: {fileID: 911597685}
+    - target: {fileID: 6934493766031231242, guid: 6c3da054316607e43b17e4af15d611e6, type: 3}
+      propertyPath: groundTile
+      value: 
+      objectReference: {fileID: 11400000, guid: e673639f49573ac4987e0d70de71f829, type: 2}
+    - target: {fileID: 6934493766031231242, guid: 6c3da054316607e43b17e4af15d611e6, type: 3}
+      propertyPath: changeChance
+      value: 0.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6934493766031231242, guid: 6c3da054316607e43b17e4af15d611e6, type: 3}
+      propertyPath: removeTileChance
+      value: 0.5
+      objectReference: {fileID: 0}
     - target: {fileID: 7414580712052208517, guid: 6c3da054316607e43b17e4af15d611e6, type: 3}
       propertyPath: m_LocalPosition.x
       value: 32.568
@@ -4978,6 +4994,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   smoothDampTime: 0.15
+  zoomSmoothTime: 0.2
   offset: {x: 0, y: 0, z: 0}
 --- !u!114 &519420034
 MonoBehaviour:
@@ -4997,8 +5014,11 @@ MonoBehaviour:
   lockToVertical: 1
   cameraPosOffset: {x: 0, y: 0}
   lockOffset: {x: 0, y: 0}
-  snapToBounds: 1
+  zoneId: 
   priority: 0
+  entryRule: 0
+  snapFromZoneIds: []
+  clampPolicy: 2
 --- !u!114 &519420035
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5017,8 +5037,11 @@ MonoBehaviour:
   lockToVertical: 0
   cameraPosOffset: {x: 0, y: 0}
   lockOffset: {x: 0, y: 0}
-  snapToBounds: 1
+  zoneId: 
   priority: 0
+  entryRule: 0
+  snapFromZoneIds: []
+  clampPolicy: 2
 --- !u!1001 &548031717
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -15628,6 +15651,9 @@ MonoBehaviour:
   requireGroundToEnter: 1
   snapCameraX: 0
   snapCameraY: 0
+  onPlayerEnter:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1001 &1590610823
 PrefabInstance:
   m_ObjectHideFlags: 0
