@@ -19,4 +19,21 @@ public class ScrollingCloud : MonoBehaviour
             transform.position = new Vector3(startPosition + xOffset, transform.position.y, transform.position.z);
         }
     }
+
+    private void OnDrawGizmos()
+    {
+        // Draw reset position
+        Gizmos.color = Color.red;
+        Gizmos.DrawLine(new Vector3(resetPosition, transform.position.y - 5, transform.position.z),
+                        new Vector3(resetPosition, transform.position.y + 5, transform.position.z));
+
+        // Draw start position
+        Gizmos.color = Color.green;
+        Gizmos.DrawLine(new Vector3(startPosition, transform.position.y - 5, transform.position.z),
+                        new Vector3(startPosition, transform.position.y + 5, transform.position.z));
+
+        // Draw cloud's current position
+        Gizmos.color = Color.blue;
+        Gizmos.DrawSphere(transform.position, 0.3f);
+    }
 }
