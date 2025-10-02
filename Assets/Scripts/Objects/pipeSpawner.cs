@@ -44,6 +44,7 @@ public class pipeSpawner : MonoBehaviour
         if (enemies.Count < maxEnemies)
         {
             GameObject newEnemy = Instantiate(enemy, transform.position + (Vector3)spawnOffset, Quaternion.identity);
+            enemies.Add(newEnemy);
 
             // If no movement, don't do the animation
             if (movement == Vector2.zero)
@@ -74,7 +75,6 @@ public class pipeSpawner : MonoBehaviour
             }
 
             StartCoroutine(MoveOut(newEnemy, ogLayer));
-            enemies.Add(newEnemy);
         }
     }
 

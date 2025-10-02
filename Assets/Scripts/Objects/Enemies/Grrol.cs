@@ -93,7 +93,8 @@ public class Grrol : EnemyAI
             return;
         }
 
-        if (audioSource != null)
+        // Prevent a billion sounds playing when grrols get stuck due to randomizer
+        if (audioSource != null && !GlobalVariables.cheatRandomizer)
         {
             audioSource.Play();
         }

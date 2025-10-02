@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor.U2D.Aseprite;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -10,18 +9,32 @@ public class Randomizer : MonoBehaviour
     public TileBase groundTile; // Assign this in the Inspector
     public float removeTileChance = 0.1f; // Chance to remove an existing tile
     public float addTileChance = 0.1f; // Chance to add a tile where there isn't one
-
+    public float replaceEnemyChance = 0.7f; // Chance to replace enemy with different one
+    public GameObject[] enemies;
+    public Vector2 tilescale = Vector2.one;
 
     // Start is called before the first frame update
     void Start()
     {
-        return; // TODO: Remove this and instead check for cheat code
-        if (tilemap == null || groundTile == null)
+        if (!GlobalVariables.cheatRandomizer) return;
+
+        if (tilemap != null && groundTile != null)
         {
-            Debug.LogWarning("Tilemap or GroundTile not assigned in the inspector. Will not randomize tiles.");
-            return;
+            RandomizeTiles();
         }
-        RandomizeTiles();
+        else
+        {
+            Debug.Log("Tilemap or GroundTile not assigned in the inspector. Will not randomize tiles.");
+        }
+
+        if (enemies != null && enemies.Length > 0)
+        {
+            RandomizeEnemies();
+        }
+        else
+        {
+            Debug.Log("Enemies not assigned in the inspector. Will not randomize enemies.");
+        }
     }
 
 
@@ -46,6 +59,25 @@ public class Randomizer : MonoBehaviour
                 else if (rand < addTileChance)
                 {
                     tilemap.SetTile(tilePosition, groundTile);
+                    tilemap.SetTransformMatrix(tilePosition, Matrix4x4.TRS(Vector3.zero, Quaternion.identity, new Vector3(tilescale.x, tilescale.y, 1)));
+                }
+            }
+        }
+    }
+
+    void RandomizeEnemies()
+    {
+        EnemyAI[] enemiesInLevel = FindObjectsByType<EnemyAI>(FindObjectsSortMode.None);
+        foreach (var enemy in enemiesInLevel)
+        {
+            if (Random.value < replaceEnemyChance)
+            {
+                Vector3 position = enemy.transform.position;
+                Destroy(enemy.gameObject);
+                if (enemies != null && enemies.Length > 0)
+                {
+                    int randomIndex = Random.Range(0, enemies.Length);
+                    Instantiate(enemies[randomIndex], position, Quaternion.identity);
                 }
             }
         }

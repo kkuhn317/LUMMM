@@ -48,6 +48,7 @@ public static class GlobalVariables
     public static bool cheatStartIce = false;
     public static bool cheatFlamethrower = false;
     public static bool cheatDarkness = false;
+    public static bool cheatRandomizer = false;
 
     // Speedrun Timer
     public static Stopwatch speedrunTimer = new();

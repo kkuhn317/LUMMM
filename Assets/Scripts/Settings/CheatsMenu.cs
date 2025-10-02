@@ -53,6 +53,7 @@ public class CheatsMenu : MenuBase
         new CheatBinding("iceflower", () => GlobalVariables.cheatStartIce, v => GlobalVariables.cheatStartIce = v),
         new CheatBinding("flamethrower", () => GlobalVariables.cheatFlamethrower, v => GlobalVariables.cheatFlamethrower = v),
         new CheatBinding("midnight", () => GlobalVariables.cheatDarkness, v => GlobalVariables.cheatDarkness = v),
+        new CheatBinding("corruption", () => GlobalVariables.cheatRandomizer, v => GlobalVariables.cheatRandomizer = v)
     };
 
     private class CheatObject
