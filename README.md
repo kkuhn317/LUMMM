@@ -1,5 +1,5 @@
 # Level UP - Mario's Minigames Mayhem
-This is a Mario fangame that recreates animations by Level UP, made in Unity 2022.3.62f1
+This is a Mario fangame that recreates animations by Level UP, made in Unity 2022.3.62f2
 
 - Play the game here! https://bookwormkevin.itch.io/lummm
 
