@@ -39,7 +39,8 @@ public class DiscordManager : MonoBehaviour
         { "MarioWinMaze", ("Level: How Will Mario Win This Maze?", "April Fools!", "mariowinmaze", "") },
         { "Lives", ("Lost a life", "", "LUMMM_icon_512px", "") },
         { "LivesBadMario", ("Lost a life", "", "LUMMM_icon_512px", "") },
-        { "LivesTinyGoombaMaze", ("Lost a life", "", "LUMMM_icon_512px", "") }
+        { "LivesTinyGoombaMaze", ("Lost a life", "", "LUMMM_icon_512px", "") },
+        { "SecretPassagesMaze", ("Level: Secret Passages Maze", "Squeezing through tunnels!", "secretpassages", "")}
     };
 
     private void Awake()
