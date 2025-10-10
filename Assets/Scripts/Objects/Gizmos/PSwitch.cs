@@ -13,10 +13,11 @@ public class PSwitch : MonoBehaviour
     public float effectDuration = 10f; // Duration of the effect in seconds
 
     public AudioClip switchSound; // Sound to play when the switch is activated
-    private AudioSource audioSource; // Reference to the AudioSource component
+    public AudioSource soundSource;
+    public AudioSource musicSource;
 
     private void Start() {
-        audioSource = GetComponent<AudioSource>();
+
     }
     
     private void OnCollisionEnter2D(Collision2D other) {
@@ -51,13 +52,13 @@ public class PSwitch : MonoBehaviour
         GetComponent<SpriteRenderer>().enabled = false;
 
         // Play the sound
-        if (switchSound != null) {
-            audioSource.PlayOneShot(switchSound);
+        if (switchSound != null && soundSource != null) {
+            soundSource.Play();
         }
 
         // Play the music
-        if (audioSource != null)
-            audioSource.Play();
+        if (musicSource != null)
+            musicSource.Play();
 
         // Override the music
         GameManager.Instance.OverrideMusic(this.gameObject);
