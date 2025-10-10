@@ -48,7 +48,10 @@ public class AudioManager : MonoBehaviour
     public void ChangeBGMVolume()
     {
         float volume = bgmVolumeSlider.value;
-        musicMixer.SetFloat("MusicVolume", Mathf.Log10(volume) * 20f);
+        if (volume == 0)
+            musicMixer.SetFloat("MusicVolume", -80f); // To avoid -Infinity when volume is 0
+        else
+            musicMixer.SetFloat("MusicVolume", Mathf.Log10(volume) * 20f);
         PlayerPrefs.SetFloat(SettingsKeys.BGMVolumeKey, volume);
         UpdateVolumeText(bgmVolumeText, volume);
     }
@@ -56,7 +59,10 @@ public class AudioManager : MonoBehaviour
     public void ChangeSFXVolume()
     {
         float volume = sfxVolumeSlider.value;
-        sfxMixer.SetFloat("SFXVolume", Mathf.Log10(volume) * 20f);
+        if (volume == 0)
+            sfxMixer.SetFloat("SFXVolume", -80f); // To avoid -Infinity when volume is 0
+        else
+            sfxMixer.SetFloat("SFXVolume", Mathf.Log10(volume) * 20f);
         PlayerPrefs.SetFloat(SettingsKeys.SFXVolumeKey, volume);
         UpdateVolumeText(sfxVolumeText, volume);
     }
