@@ -32,13 +32,19 @@ public class SettingsApply : MonoBehaviour
     private void InitBGMVolume()
     {
         float volume = PlayerPrefs.GetFloat(SettingsKeys.BGMVolumeKey, 1f);
-        musicMixer.SetFloat("MusicVolume", Mathf.Log10(volume) * 20f);
+        if (volume == 0)
+            musicMixer.SetFloat("MusicVolume", -80f); // To avoid -Infinity when volume is 0
+        else
+            musicMixer.SetFloat("MusicVolume", Mathf.Log10(volume) * 20f);
     }
 
     private void InitSFXVolume()
     {
         float volume = PlayerPrefs.GetFloat(SettingsKeys.SFXVolumeKey, 1f);
-        sfxMixer.SetFloat("SFXVolume", Mathf.Log10(volume) * 20f);
+        if (volume == 0)
+            sfxMixer.SetFloat("SFXVolume", -80f); // To avoid -Infinity when volume is 0
+        else
+            sfxMixer.SetFloat("SFXVolume", Mathf.Log10(volume) * 20f);
     }
 
     private void InitResolution()
