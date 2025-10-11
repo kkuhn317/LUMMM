@@ -7902,7 +7902,6 @@ GameObject:
   - component: {fileID: 1277713840}
   - component: {fileID: 1277713838}
   - component: {fileID: 1277713837}
-  - component: {fileID: 1277713843}
   - component: {fileID: 1277713844}
   m_Layer: 5
   m_Name: Play Button
@@ -8116,22 +8115,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1277713835}
   m_CullTransparentMesh: 1
---- !u!114 &1277713843
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1277713835}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7f6367f26ca8e904badbab66ddc86ee6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  targetButton: {fileID: 1277713838}
-  inputButtonNames:
-  - Pause
-  - Confirm
 --- !u!95 &1277713844
 Animator:
   serializedVersion: 5
@@ -15593,8 +15576,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   targetButton: {fileID: 2125810633}
-  inputButtonNames:
-  - Select
+  inputActions:
+  - {fileID: -7258413612932411540, guid: 19d541da515a17d4ab7b236a77c60708, type: 3}
 --- !u!82 &2125810638
 AudioSource:
   m_ObjectHideFlags: 0

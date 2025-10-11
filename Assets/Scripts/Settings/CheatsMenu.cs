@@ -2,7 +2,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Localization.Settings;
+using UnityEngine.InputSystem;
 using TMPro;
+
 
 public class CheatsMenu : MenuBase
 {
@@ -10,6 +12,7 @@ public class CheatsMenu : MenuBase
     public TMP_Text infoText;
     public GameObject cheatList;
     public GameObject cheatListItemPrefab;
+    [SerializeField] private InputActionReference submitAction; // bind to Enter, gamepad South, etc.
 
     [System.Serializable]
     public class Cheat
@@ -94,7 +97,29 @@ public class CheatsMenu : MenuBase
         {
             cheatObject.listItem.GetComponentInChildren<TMP_Text>().text = GetCheatDescription(cheatObject.cheat.code);
         }
+
+        if (submitAction != null && submitAction.action != null)
+        {
+            submitAction.action.started += OnSubmitAction;
+            if (!submitAction.action.enabled) submitAction.action.Enable();
+        }
     }
+
+    private void OnDisable()
+    {
+        if (submitAction != null && submitAction.action != null)
+            submitAction.action.started -= OnSubmitAction;
+    }
+
+    private void OnSubmitAction(InputAction.CallbackContext ctx)
+    {
+        // Only when typing in this field
+        if (cheatInputField != null && cheatInputField.isFocused)
+        {
+            OnEnterButtonPressed();
+        }
+    }
+
 
     private void Start()
     {
@@ -111,15 +136,6 @@ public class CheatsMenu : MenuBase
                 activeCheatObjects.Add(new CheatObject(cheat, item));
             }
         }
-
-        cheatInputField.onSubmit.AddListener((string text) =>
-        {
-            // Only work on Enter key
-            if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
-            {
-                OnEnterButtonPressed();
-            }
-        });
     }
     
     public override void Open()

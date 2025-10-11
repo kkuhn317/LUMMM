@@ -1,10 +1,22 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem.EnhancedTouch; // new input system touch
+using Touch = UnityEngine.InputSystem.EnhancedTouch.Touch;
 
 public class HoverEffect : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, ISelectHandler, IDeselectHandler
 {
     public GameObject hoverPanel;
     private bool isHovering = false;
+
+    private void OnEnable()
+    {
+        EnhancedTouchSupport.Enable();
+    }
+
+    private void OnDisable()
+    {
+        EnhancedTouchSupport.Disable();
+    }
 
     // Called when the pointer enters the UI element or object
     public void OnPointerEnter(PointerEventData eventData)
@@ -37,12 +49,14 @@ public class HoverEffect : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
     private void Update()
     {
         // Handle touch input for mobile
-        if (Input.touchCount > 0)
+        // Only run if there are active touches
+        if (Touch.activeTouches.Count > 0)
         {
-            Touch touch = Input.GetTouch(0);
-            if (touch.phase == TouchPhase.Began)
+            var touch = Touch.activeTouches[0];
+
+            if (touch.phase == UnityEngine.InputSystem.TouchPhase.Began)
             {
-                Vector2 touchPosition = touch.position;
+                Vector2 touchPosition = touch.screenPosition;
                 if (RectTransformUtility.RectangleContainsScreenPoint(
                     GetComponent<RectTransform>(), touchPosition, Camera.main))
                 {
@@ -50,7 +64,8 @@ public class HoverEffect : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
                     StartHoverEffect();
                 }
             }
-            else if (touch.phase == TouchPhase.Ended || touch.phase == TouchPhase.Canceled)
+            else if (touch.phase == UnityEngine.InputSystem.TouchPhase.Ended ||
+                     touch.phase == UnityEngine.InputSystem.TouchPhase.Canceled)
             {
                 isHovering = false;
                 StopHoverEffect();

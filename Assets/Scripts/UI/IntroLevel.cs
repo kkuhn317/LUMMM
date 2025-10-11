@@ -6,8 +6,11 @@ using UnityEngine.Events;
 using UnityEngine.Localization;
 using UnityEngine.Localization.Settings;
 using UnityEngine.Localization.Tables;
+using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.Utilities;
 using TMPro;
 using System.Linq;
+using System;
 
 public class IntroLevel : MonoBehaviour
 {
@@ -26,6 +29,10 @@ public class IntroLevel : MonoBehaviour
     private bool canSkip = false;
     private bool startedTransition = false;
 
+    // We want to remove the event listener we install through InputSystem.onAnyButtonPress
+    // after we're done so remember it here.
+    private IDisposable m_EventListener;
+
     [System.Serializable]
     public class TargetData
     {
@@ -38,11 +45,25 @@ public class IntroLevel : MonoBehaviour
     private void OnEnable()
     {
         LocalizationSettings.SelectedLocaleChanged += OnLocaleChanged;
+
+        // Subscribe to global button presses
+        m_EventListener = InputSystem.onAnyButtonPress
+            .Call(ctrl =>
+            {
+                if (canSkip && !startedTransition && this != null)
+                {
+                    startTransition();
+                }
+            });
     }
 
     private void OnDisable()
     {
         LocalizationSettings.SelectedLocaleChanged -= OnLocaleChanged;
+
+        // Unsubscribe from global button presses
+        m_EventListener?.Dispose();
+        m_EventListener = null;
     }
 
     private void Start()
@@ -167,15 +188,6 @@ public class IntroLevel : MonoBehaviour
         wallJumpMove?.SetActive(moves.HasFlag(MarioMoves.WallJump));
         groundPoundMove?.SetActive(moves.HasFlag(MarioMoves.GroundPound));
         crawlMove?.SetActive(moves.HasFlag(MarioMoves.Crawl));
-    }
-
-    private void Update()
-    {
-        if (canSkip && (Input.anyKeyDown || Input.touchCount > 0))
-        {
-            print("Skip!");
-            startTransition();
-        }
     }
 
     private IEnumerator DelayedSceneTransition()

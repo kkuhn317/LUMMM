@@ -3,8 +3,9 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-// Solution implemented by mandarinx
-// https://gist.github.com/mandarinx/eae10c9e8d1a5534b7b19b74aeb2a665
+// New Input System
+using UnityEngine.InputSystem;
+
 [RequireComponent(typeof(ScrollRect))]
 public class UIDropdownScroller : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
@@ -40,52 +41,88 @@ public class UIDropdownScroller : MonoBehaviour, IPointerEnterHandler, IPointerE
     {
         // Scroll via input.
         InputScroll();
+
         if (!mouseOver)
         {
             // Lerp scrolling code.
-            m_ScrollRect.normalizedPosition = Vector2.Lerp(m_ScrollRect.normalizedPosition, m_NextScrollPosition, scrollSpeed * Time.unscaledDeltaTime); // Time.unscaledDeltaTime is to work even if the game is paused
+            m_ScrollRect.normalizedPosition = Vector2.Lerp(
+                m_ScrollRect.normalizedPosition,
+                m_NextScrollPosition,
+                scrollSpeed * Time.unscaledDeltaTime); // unscaled so it works while paused
         }
         else
         {
             m_NextScrollPosition = m_ScrollRect.normalizedPosition;
         }
     }
+
     void InputScroll()
     {
-        if (m_Selectables.Count > 0)
+        if (m_Selectables.Count == 0) return;
+
+        if (IsNavPressed())
         {
-            if (Input.GetButtonDown("Horizontal") || Input.GetButtonDown("Vertical") || Input.GetButton("Horizontal") || Input.GetButton("Vertical"))
-            {
-                ScrollToSelected(false);
-            }
+            ScrollToSelected(false);
         }
     }
+
+    // TODO: Replace this with a proper InputAction reference
+    private bool IsNavPressed()
+    {
+        var kb = Keyboard.current;
+        var gp = Gamepad.current;
+
+        bool keyboardPressed =
+            kb != null && (
+                kb.upArrowKey.isPressed    || kb.downArrowKey.isPressed ||
+                kb.leftArrowKey.isPressed  || kb.rightArrowKey.isPressed ||
+                kb.wKey.isPressed          || kb.sKey.isPressed ||
+                kb.aKey.isPressed          || kb.dKey.isPressed
+            );
+
+        bool gamepadDpad =
+            gp != null && (
+                gp.dpad.up.isPressed || gp.dpad.down.isPressed ||
+                gp.dpad.left.isPressed || gp.dpad.right.isPressed
+            );
+
+        // Treat an actuated left stick as navigation too
+        const float stickThreshold = 0.5f;
+        bool gamepadStick =
+            gp != null && gp.leftStick.ReadValue().magnitude > stickThreshold;
+
+        return keyboardPressed || gamepadDpad || gamepadStick;
+    }
+
     void ScrollToSelected(bool quickScroll)
     {
         int selectedIndex = -1;
-        Selectable selectedElement = EventSystem.current.currentSelectedGameObject ? EventSystem.current.currentSelectedGameObject.GetComponent<Selectable>() : null;
+        Selectable selectedElement = EventSystem.current.currentSelectedGameObject
+            ? EventSystem.current.currentSelectedGameObject.GetComponent<Selectable>()
+            : null;
 
         if (selectedElement)
         {
             selectedIndex = m_Selectables.IndexOf(selectedElement);
         }
-        if (selectedIndex > -1)
+        if (selectedIndex > -1 && m_Selectables.Count > 1)
         {
+            var target = new Vector2(0, 1 - (selectedIndex / ((float)m_Selectables.Count - 1)));
+
             if (quickScroll)
             {
-                m_ScrollRect.normalizedPosition = new Vector2(0, 1 - (selectedIndex / ((float)m_Selectables.Count - 1)));
-                m_NextScrollPosition = m_ScrollRect.normalizedPosition;
+                m_ScrollRect.normalizedPosition = target;
+                m_NextScrollPosition = target;
             }
             else
             {
-                m_NextScrollPosition = new Vector2(0, 1 - (selectedIndex / ((float)m_Selectables.Count - 1)));
+                m_NextScrollPosition = target;
             }
         }
     }
-    public void OnPointerEnter(PointerEventData eventData)
-    {
-        mouseOver = true;
-    }
+
+    public void OnPointerEnter(PointerEventData eventData) => mouseOver = true;
+
     public void OnPointerExit(PointerEventData eventData)
     {
         mouseOver = false;

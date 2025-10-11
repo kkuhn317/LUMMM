@@ -1,6 +1,9 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Collections;
+using System;
+using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.Utilities;
 
 public class SceneChangerButtonDelay : MonoBehaviour
 { 
@@ -9,24 +12,37 @@ public class SceneChangerButtonDelay : MonoBehaviour
     private AudioSource audioSource;
     private bool buttonPressed = false;
 
+    // We want to remove the event listener we install through InputSystem.onAnyButtonPress
+    // after we're done so remember it here.
+    private IDisposable m_EventListener;
+
+    private void OnEnable()
+    {
+        // Subscribe to global button presses
+        m_EventListener = InputSystem.onAnyButtonPress
+            .Call(ctrl =>
+            {
+                if (!buttonPressed)
+                {
+                    ChangeScene();
+                }
+            });
+    }
+    
+    private void OnDisable()
+    {
+        // Unsubscribe from global button presses
+        if (m_EventListener != null)
+        {
+            m_EventListener.Dispose();
+            m_EventListener = null;
+        }
+    }
+
     private void Start()
     {
         audioSource = GetComponent<AudioSource>();
         StartCoroutine(ChangeSceneAfterDelay());
-    }
-
-    private void Update()
-    {
-        // Check for button press or touch input
-        if (!buttonPressed && (Input.GetButtonDown("Pause") || IsScreenTouched()))
-        {
-            ChangeScene();
-        }
-    }
-
-    private bool IsScreenTouched()
-    {
-        return Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began;
     }
 
     private void ChangeScene()

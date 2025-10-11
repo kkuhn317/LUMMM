@@ -1,8 +1,10 @@
-using UnityEngine;
 using System.Collections;
-using UnityEngine.EventSystems;
+using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
+using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.EnhancedTouch;
+using Touch = UnityEngine.InputSystem.EnhancedTouch.Touch;
 
 public class MobileControlButton : MonoBehaviour
 {
@@ -16,12 +18,21 @@ public class MobileControlButton : MonoBehaviour
     public Sprite downSprite;   // Default sprite when pressed 
     private Image image;
     public bool isRunButton = false;    // If true, this button will be used to run (state saved in GlobalVariables)
-
     public bool canPressIfPaused = false;   // Should only be used for the pause button in the rebind menu
-
     private float buttonPressedOpacity;
     private float buttonUnpressedOpacity;
     private RectTransform rectTransform;
+
+    private void OnEnable()
+    {
+        // Enable EnhancedTouch so Touch.activeTouches works
+        EnhancedTouchSupport.Enable();
+    }
+
+    private void OnDisable()
+    {
+        EnhancedTouchSupport.Disable();
+    }
 
     void Start()
     {
@@ -97,37 +108,36 @@ public class MobileControlButton : MonoBehaviour
         UpdateButtonAppearance();
     }
 
-    // public void OnPointerUp(PointerEventData eventData)
-    // {
-    //     // Make sure button releases when no touches/clicks remain
-    //     if (!toggleButton)
-    //     {
-    //         TurnOff();
-    //     }
-    // }
-
     void Update()
     {
         bool wasTouchingLastFrame = isTouchingNow;
         isTouchingNow = false;
 
-        // Check for touch input
-        if (Input.touchCount > 0)
+        foreach (var t in Touch.activeTouches)
         {
-            foreach (Touch touch in Input.touches)
+            // Only treat Began/Moved/Stationary as "held"
+            var p = t.phase;
+            if (p == UnityEngine.InputSystem.TouchPhase.Began ||
+                p == UnityEngine.InputSystem.TouchPhase.Moved ||
+                p == UnityEngine.InputSystem.TouchPhase.Stationary)
             {
-                if (RectTransformUtility.RectangleContainsScreenPoint(rectTransform, touch.position, null))
+                Vector2 touchPosition = t.screenPosition;
+                if (RectTransformUtility.RectangleContainsScreenPoint(
+                        rectTransform, touchPosition))
                 {
                     isTouchingNow = true;
-                    break; // At least one valid touch is inside, no need to check further
+                    break; // one finger inside is enough
                 }
             }
         }
 
-        // Check for mouse input
-        if (Input.GetMouseButton(0)) // Left mouse button held down
+        // 2) Mouse (left button)
+        var mouse = Mouse.current;
+        if (mouse != null && mouse.leftButton.isPressed)
         {
-            if (RectTransformUtility.RectangleContainsScreenPoint(rectTransform, Input.mousePosition, null))
+            Vector2 mousePos = mouse.position.ReadValue();
+            if (RectTransformUtility.RectangleContainsScreenPoint(
+                    rectTransform, mousePos))
             {
                 isTouchingNow = true;
             }
@@ -140,14 +150,8 @@ public class MobileControlButton : MonoBehaviour
             {
                 if (toggleButton)
                 {
-                    if (buttonPressed)
-                    {
-                        TurnOff();
-                    }
-                    else
-                    {
-                        TurnOn();
-                    }
+                    if (buttonPressed) TurnOff();
+                    else TurnOn();
                 }
                 else
                 {
@@ -157,7 +161,7 @@ public class MobileControlButton : MonoBehaviour
         }
         else
         {
-            // If no input is detected, release the button (if not a toggle button)
+            // If no input is detected on this control, release (if not a toggle button)
             if (!toggleButton && wasTouchingLastFrame)
             {
                 TurnOff();
