@@ -19,6 +19,7 @@ public class LivesCounter : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        Time.timeScale = 1f; // Ensure time scale is normal
         int livesNum = GlobalVariables.lives;
         if (oldNumber) livesNum += 1;
         GetComponent<TextMeshProUGUI>().text = livesNum.ToString();
