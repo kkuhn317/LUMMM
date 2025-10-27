@@ -1448,32 +1448,31 @@ public class GameManager : MonoBehaviour
 
     public void SetPlayer(MarioMovement player, int playerIndex)
     {
-        //print("Setting player " + playerIndex + " to " + player.name);
-        while (players.Count <= playerIndex)
-        {
-            players.Add(null);
-        }
+        while (players.Count <= playerIndex) players.Add(null);
 
-        // If the player is null, we know its the first time the player has been set (start of level hopefully??)
         bool nullPrevPlayer = players[playerIndex] == null;
-
         players[playerIndex] = player;
 
         if (nullPrevPlayer)
         {
-            // Start as powerup cheat
-            if (GlobalVariables.cheatStartTiny)
-            {
-                player.ChangePowerup(tinyMarioPrefab);
-            }
-            else if (GlobalVariables.cheatStartIce)
-            {
-                player.ChangePowerup(iceMarioPrefab);
-            } else if (GlobalVariables.cheatFlamethrower)
-            {
-                player.ChangePowerup(fireMarioPrefab);
-            }
+            // Defer start-powerup cheats until after checkpoints have placed Mario
+            StartCoroutine(ApplyStartPowerupCheatNextFrame(player));
         }
+    }
+
+    private IEnumerator ApplyStartPowerupCheatNextFrame(MarioMovement player)
+    {
+        // wait one frame so Checkpoint.Start(), then AddCheckpoint() can teleport the player
+        yield return null;
+
+        if (player == null) yield break; // player could have been swapped/destroyed
+
+        if (GlobalVariables.cheatStartTiny)
+            player.ChangePowerup(tinyMarioPrefab);
+        else if (GlobalVariables.cheatStartIce)
+            player.ChangePowerup(iceMarioPrefab);
+        else if (GlobalVariables.cheatFlamethrower)
+            player.ChangePowerup(fireMarioPrefab);
     }
 
     // Gets rid of all the dead players
