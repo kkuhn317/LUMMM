@@ -11,8 +11,8 @@ public class CircleTransition : MonoBehaviour
 
     private Vector2 _playerCanvasPos;
 
-    private float duration = 4f;   // How long the transition should take
-    private float maxSize = 2f;     // Max size of the circle (should be bigger than the whole screen)
+    private float duration = 4f; // How long the transition should take
+    private float maxSize = 2f; // Max size of the circle (should be bigger than the whole screen)
 
     private static readonly int RADIUS = Shader.PropertyToID("_Radius");
     private static readonly int CENTER_X = Shader.PropertyToID("_CenterX");
@@ -42,6 +42,7 @@ public class CircleTransition : MonoBehaviour
 
     public void OpenBlackScreen()
     {
+        _blackScreen.gameObject.SetActive(true);
         DrawBlackScreen();
         StartCoroutine(Transition(0, maxSize));
     }
@@ -120,6 +121,15 @@ public class CircleTransition : MonoBehaviour
             mat.SetFloat(RADIUS, radius);
 
             yield return null;
+        }
+
+        // Make sure we end exactly at target value
+        mat.SetFloat(RADIUS, endRadius);
+
+        // Then, disable the black screen when fully zoomed out
+        if (endRadius >= maxSize)
+        {
+            _blackScreen.gameObject.SetActive(false);
         }
     }
 
