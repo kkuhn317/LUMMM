@@ -19,6 +19,11 @@ public class Thwomp : EnemyAI
     private bool isRising = false;
     private bool isFalling = false;
     private AudioSource audioSource;
+    
+    // NEW: Track time-based movement instead of frame-based
+    private float riseStartTime;
+    private float targetRiseDuration;
+    private Vector3 riseStartPosition;
 
     protected override void Start()
     {
@@ -65,22 +70,40 @@ public class Thwomp : EnemyAI
         isRising = true;
         velocity.y = riseSpeed;
         gravity = 0f;
+        
+        // NEW: Calculate rise parameters for time-based movement
+        float distanceToTop = topY - transform.position.y;
+        targetRiseDuration = distanceToTop / riseSpeed;
+        riseStartTime = Time.time;
+        riseStartPosition = transform.position;
     }
 
     protected override void Update()
     {
         base.Update();
 
-        // Check if the thwomp is rising and has reached the top
-        if (isRising && transform.position.y >= topY)
+        // Now it's time-based rising instead of position-based
+        if (isRising)
         {
-            isRising = false;
-            velocity.y = 0f;
-            gravity = 0f;
+            float elapsedTime = Time.time - riseStartTime;
+            float progress = Mathf.Clamp01(elapsedTime / targetRiseDuration);
+            
+            // Move using Lerp for consistent time-based movement
+            Vector3 newPosition = riseStartPosition;
+            newPosition.y = Mathf.Lerp(riseStartPosition.y, topY, progress);
+            transform.position = newPosition;
 
-            // Wait at the top for a bit
-            Invoke(nameof(ThwompFall), waitAtTopTime);
+            // Check if we've reached the top
+            if (progress >= 1f)
+            {
+                isRising = false;
+                velocity.y = 0f;
+                gravity = 0f;
+                transform.position = new Vector3(transform.position.x, topY, transform.position.z); // Snap to exact position
+
+                // Wait at the top for a bit
+                Invoke(nameof(ThwompFall), waitAtTopTime);
+            }
         }
     }
-
 }

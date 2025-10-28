@@ -15,6 +15,7 @@ public class MarioAbility : MonoBehaviour
     }
 
     public virtual void onShootPressed() { }
+    public virtual void onSpinPressed() { } 
 
     public virtual void onExtraActionPressed() { }
 }

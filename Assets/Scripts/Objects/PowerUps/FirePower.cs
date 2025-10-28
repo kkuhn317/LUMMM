@@ -11,28 +11,47 @@ public class FirePower : MarioAbility
     public Vector2 shootOffset;
     public AudioClip shootSound;
 
-    private void ShootProjectile() {
+    private void ShootProjectile(bool movingLeft = false)
+    {
         if (fireballs < fireballsMax || GlobalVariables.cheatFlamethrower)
+        {
+            // Use parameter for direction, fall back to Mario's facing direction if not specified
+            if (!marioMovement) return;
+
+            bool isLeft = movingLeft;
+
+            // If no direction specified, use Mario's facing direction
+            if (!movingLeft && !marioMovement.facingRight)
             {
-                bool facingRight = GetComponent<MarioMovement>().facingRight;
-                int directionint = facingRight ? 1 : -1;
-
-                // instantiate fireball
-                GameObject newFireball = Instantiate(fireballObj, transform.position + (Vector3)shootOffset * directionint, transform.rotation);
-                Fireball fireballScript = newFireball.GetComponent<Fireball>();
-                ObjectPhysics fireballPhysics = newFireball.GetComponent<ObjectPhysics>();
-                fireballScript.firePowerScript = this;
-                fireballPhysics.movingLeft = !facingRight;
-
-                // increment fireball count
-                fireballs++;
-
-                // play shooting animation
-                GetComponent<Animator>().SetTrigger("shoot");
-
-                // play fireball sound
-                GetComponent<AudioSource>().PlayOneShot(shootSound);
+                isLeft = true;
             }
+
+            int directionInt = isLeft ? -1 : 1;
+
+            // instantiate fireball
+            Vector3 spawnPosition = transform.position + new Vector3(shootOffset.x * directionInt, shootOffset.y, 0);
+            GameObject newFireball = Instantiate(fireballObj, spawnPosition, transform.rotation);
+            Fireball fireballScript = newFireball.GetComponent<Fireball>();
+            ObjectPhysics fireballPhysics = newFireball.GetComponent<ObjectPhysics>();
+            fireballScript.firePowerScript = this;
+            fireballPhysics.movingLeft = isLeft;
+
+            // increment fireball count
+            fireballs++;
+
+            // play shooting animation
+            GetComponent<Animator>().SetTrigger("shoot");
+
+            // play fireball sound
+            GetComponent<AudioSource>().PlayOneShot(shootSound);
+        }
+    }
+    
+    private void ShootSpinningFireballs()
+    {        
+        // Shoot two fireballs simultaneously - one left, one right
+        ShootProjectile(true);   // Left fireball
+        ShootProjectile(false);  // Right fireball
     }
 
     public void onFireballDestroyed()
@@ -47,5 +66,10 @@ public class FirePower : MarioAbility
         {
             ShootProjectile();
         }
+    }
+
+    public override void onSpinPressed()
+    {
+        ShootSpinningFireballs();
     }
 }

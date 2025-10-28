@@ -1178,6 +1178,11 @@ public class MarioMovement : MonoBehaviour
         jumpTimer = 0;
         airtimer = Time.time + (airtime * 0.6f);
         spinning = true;
+
+        foreach (MarioAbility ability in abilities)
+        {
+            ability.onSpinPressed();
+        }
     }
 
     // Called from enemy script when mario spin bounces on an enemy
