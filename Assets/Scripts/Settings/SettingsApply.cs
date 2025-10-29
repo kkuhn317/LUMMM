@@ -1,26 +1,25 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Audio;
 
-// This script is in the MainMenu and initializes the settings values
 public class SettingsApply : MonoBehaviour
-{ 
-    [SerializeField] AudioMixer musicMixer;
-    [SerializeField] AudioMixer sfxMixer;
+{
+    [SerializeField] private AudioMixer musicMixer;
+    [SerializeField] private AudioMixer sfxMixer;
 
-    // Start is called before the first frame update
-    void Start()
+    private IEnumerator Start()
     {
         InitMasterVolume();
         InitBGMVolume();
         InitSFXVolume();
-        InitResolution();
         InitGraphicsQuality();
         InitInfiniteLives();
         InitCheckpoints();
         InitOnScreenControls();
         InitSpeedrunMode();
+
+        // Resolution & fullscreen: handled with a special case for WebGL
+        yield return InitResolutionAndFullscreen();
     }
 
     private void InitMasterVolume()
@@ -32,41 +31,49 @@ public class SettingsApply : MonoBehaviour
     private void InitBGMVolume()
     {
         float volume = PlayerPrefs.GetFloat(SettingsKeys.BGMVolumeKey, 1f);
-        if (volume == 0)
-            musicMixer.SetFloat("MusicVolume", -80f); // To avoid -Infinity when volume is 0
-        else
-            musicMixer.SetFloat("MusicVolume", Mathf.Log10(volume) * 20f);
+        // Map [0..1] to decibels (avoid -Infinity when 0)
+        musicMixer.SetFloat("MusicVolume", volume == 0 ? -80f : Mathf.Log10(volume) * 20f);
     }
 
     private void InitSFXVolume()
     {
         float volume = PlayerPrefs.GetFloat(SettingsKeys.SFXVolumeKey, 1f);
-        if (volume == 0)
-            sfxMixer.SetFloat("SFXVolume", -80f); // To avoid -Infinity when volume is 0
-        else
-            sfxMixer.SetFloat("SFXVolume", Mathf.Log10(volume) * 20f);
+        // Map [0..1] to decibels (avoid -Infinity when 0)
+        sfxMixer.SetFloat("SFXVolume", volume == 0 ? -80f : Mathf.Log10(volume) * 20f);
     }
 
-    private void InitResolution()
+    private IEnumerator InitResolutionAndFullscreen()
     {
-        string savedResolution = PlayerPrefs.GetString(SettingsKeys.ResolutionKey, Screen.currentResolution.width + "x" + Screen.currentResolution.height);
+        // Read saved resolution (use a sensible default per platform)
+        string savedResolution =
+#if UNITY_WEBGL && !UNITY_EDITOR
+            PlayerPrefs.GetString(SettingsKeys.ResolutionKey, "960x600");
+#else
+            PlayerPrefs.GetString(
+                SettingsKeys.ResolutionKey,
+                $"{Screen.currentResolution.width}x{Screen.currentResolution.height}"
+            );
+#endif
         bool savedFullscreen = PlayerPrefs.GetInt(SettingsKeys.FullscreenKey, 1) == 1;
 
-        // Force fullscreen to be true on web if needed
-        if (Application.platform == RuntimePlatform.WebGLPlayer)
-        {
-           if (!Screen.fullScreen)
-           {
-               Screen.fullScreen = true;
-           }
-           return;
-        }
-        
-        string[] resolutionParts = savedResolution.Split('x');
-        int savedWidth = int.Parse(resolutionParts[0]);
-        int savedHeight = int.Parse(resolutionParts[1]);
-        Resolution currentResolution = new Resolution { width = savedWidth, height = savedHeight };
-        Screen.SetResolution(currentResolution.width, currentResolution.height, savedFullscreen);
+        // Parse "WxH"
+        var parts = savedResolution.Split('x');
+        int w = int.Parse(parts[0]);
+        int h = int.Parse(parts[1]);
+
+#if UNITY_WEBGL && !UNITY_EDITOR
+        // WebGL:
+        // - Browsers only allow entering fullscreen from a user gesture.
+        // - Here we set the internal backbuffer size only.
+        // - Actual fullscreen will be applied when the user clicks a button (see method below).
+        Screen.SetResolution(w, h, false);
+        yield return null; // let the canvas/layout settle one frame
+#else
+        // Desktop platforms: we can apply fullscreen immediately.
+        Screen.SetResolution(w, h, savedFullscreen);
+        yield return null; // allow one frame for stabilization
+        Screen.fullScreen = savedFullscreen; // explicit for clarity
+#endif
     }
 
     private void InitGraphicsQuality()
@@ -77,25 +84,22 @@ public class SettingsApply : MonoBehaviour
 
     private void InitInfiniteLives()
     {
-        bool isInfiniteLivesEnabled = PlayerPrefs.GetInt(SettingsKeys.InfiniteLivesKey, 0) == 1;
-        GlobalVariables.infiniteLivesMode = isInfiniteLivesEnabled;
+        GlobalVariables.infiniteLivesMode = PlayerPrefs.GetInt(SettingsKeys.InfiniteLivesKey, 0) == 1;
     }
 
     private void InitCheckpoints()
     {
-        bool areCheckpointsEnabled = PlayerPrefs.GetInt(SettingsKeys.CheckpointsKey, 0) == 1;
-        GlobalVariables.enableCheckpoints = areCheckpointsEnabled;
-    }  
+        GlobalVariables.enableCheckpoints = PlayerPrefs.GetInt(SettingsKeys.CheckpointsKey, 0) == 1;
+    }
 
     private void InitOnScreenControls()
     {
-        bool areOnScreenControlsEnabled = PlayerPrefs.GetInt(SettingsKeys.OnScreenControlsKey, Application.isMobilePlatform ? 1 : 0) == 1;
-        GlobalVariables.OnScreenControls = areOnScreenControlsEnabled;
+        GlobalVariables.OnScreenControls =
+            PlayerPrefs.GetInt(SettingsKeys.OnScreenControlsKey, Application.isMobilePlatform ? 1 : 0) == 1;
     }
 
     private void InitSpeedrunMode()
     {
-        bool isSpeedrunModeEnabled = PlayerPrefs.GetInt(SettingsKeys.SpeedrunModeKey, 0) == 1;
-        GlobalVariables.SpeedrunMode = isSpeedrunModeEnabled;
+        GlobalVariables.SpeedrunMode = PlayerPrefs.GetInt(SettingsKeys.SpeedrunModeKey, 0) == 1;
     }
 }

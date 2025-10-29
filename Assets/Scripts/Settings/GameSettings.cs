@@ -4,8 +4,7 @@ using TMPro;
 using System.Linq;
 using System;
 using UnityEngine.Localization.Settings;
-using UnityEngine.Localization.Tables;
-using Unity.VisualScripting;
+using System.Collections;
 
 public class GameSettings : MonoBehaviour
 {
@@ -32,23 +31,83 @@ public class GameSettings : MonoBehaviour
     public Sprite enabledSpeedrunMode;
     public Sprite disabledSpeedrunMode;
 
+    private Resolution[] availableResolutions;
+    private bool isWebGL => Application.platform == RuntimePlatform.WebGLPlayer;
+    private Coroutine fullscreenCheckCoroutine;
+
     private void Start()
     {
         LocalizationSettings.InitializationOperation.WaitForCompletion();
         
+        availableResolutions = GetResolutions();
         ConfigureResolution();
         ConfigureFullscreenToggle();
         ConfigureGraphicsQuality();
         ConfigureOnScreenControls();
         ConfigureSpeedrunMode();
+
+        // For WebGL, start listening for fullscreen changes (ESC key detection)
+        if (isWebGL)
+        {
+            StartFullscreenMonitoring();
+            
+            // Set a reasonable default window size for WebGL when not in fullscreen
+            if (!Screen.fullScreen)
+            {
+                SetReasonableWebGLWindowSize();
+            }
+        }
+    }
+
+    private void OnDestroy()
+    {
+        // Stop the coroutine when this object is destroyed
+        if (fullscreenCheckCoroutine != null)
+        {
+            StopCoroutine(fullscreenCheckCoroutine);
+        }
+    }
+
+    private void StartFullscreenMonitoring()
+    {
+        if (fullscreenCheckCoroutine != null)
+        {
+            StopCoroutine(fullscreenCheckCoroutine);
+        }
+        fullscreenCheckCoroutine = StartCoroutine(CheckFullscreenChanges());
+    }
+
+    private void SetReasonableWebGLWindowSize()
+    {
+        // Use your canvas size (960x600) for WebGL
+        int targetWidth = 960;
+        int targetHeight = 600;
+        
+        // Only set if we're not already at the correct dimensions
+        if (Screen.width != targetWidth || Screen.height != targetHeight)
+        {
+            Screen.SetResolution(targetWidth, targetHeight, Screen.fullScreen);
+            resolutionText.text = targetWidth + "x" + targetHeight;
+            PlayerPrefs.SetString(SettingsKeys.ResolutionKey, targetWidth + "x" + targetHeight);
+        }
     }
 
     Resolution[] GetResolutions()
     {
+        if (isWebGL)
+        {
+            // For WebGL, provide your canvas resolution as the primary option
+            return new Resolution[]
+            {
+                new Resolution { width = 960, height = 600 }, // Your canvas size
+                new Resolution { width = 1280, height = 720 },
+                new Resolution { width = 1920, height = 1080 }
+            };
+        }
+        
         Resolution[] resolutions;
         if (Application.platform == RuntimePlatform.Android)
         {
-            // Swap ONLY if height is greater than width (on Kevin's android phone, the resolutions are in portrait mode which needs to be swapped)
             resolutions = Screen.resolutions.Select(resolution => new Resolution { width = Mathf.Max(resolution.width, resolution.height), height = Math.Min(resolution.width, resolution.height) }).Distinct().ToArray();
         }
         else
@@ -60,50 +119,60 @@ public class GameSettings : MonoBehaviour
 
     private void ConfigureResolution()
     {
-        // Get current screen resolution from PlayerPrefs or use the current screen resolution
+        if (isWebGL)
+        {
+            // For WebGL, use your canvas resolution as default
+            string defaultResolution = "960x600";
+            resolutionText.text = defaultResolution;
+            resolutionDropdown.interactable = false;
+            return;
+        }
+
         string savedResolution = PlayerPrefs.GetString(SettingsKeys.ResolutionKey, Screen.currentResolution.width + "x" + Screen.currentResolution.height);
         string[] resolutionParts = savedResolution.Split('x');
         int savedWidth = int.Parse(resolutionParts[0]);
         int savedHeight = int.Parse(resolutionParts[1]);
-        Resolution currentResolution = new Resolution { width = savedWidth, height = savedHeight };
-        resolutionText.text = currentResolution.width + "x" + currentResolution.height;
-
-        // Get all available resolutions
-        Resolution[] availableResolutions = GetResolutions();
+        
+        resolutionText.text = savedWidth + "x" + savedHeight;
 
         // Populate resolution dropdown
         resolutionDropdown.ClearOptions();
+        int selectedIndex = 0;
+        
         for (int i = 0; i < availableResolutions.Length; i++)
         {
-            string resolutionText = availableResolutions[i].width + "x" + availableResolutions[i].height;
-            TMP_Dropdown.OptionData option = new TMP_Dropdown.OptionData(resolutionText);
+            string resText = availableResolutions[i].width + "x" + availableResolutions[i].height;
+            TMP_Dropdown.OptionData option = new TMP_Dropdown.OptionData(resText);
             resolutionDropdown.options.Add(option);
 
             if (availableResolutions[i].width == savedWidth && availableResolutions[i].height == savedHeight)
             {
-                resolutionDropdown.value = i;
+                selectedIndex = i;
             }
         }
 
-        // Set the selected resolution
+        resolutionDropdown.value = selectedIndex;
         resolutionDropdown.RefreshShownValue();
         resolutionDropdown.onValueChanged.AddListener(ChangeResolution);
     }
 
     public void ChangeResolution(int index)
     {
-        // If web version, then don't change resolution or fullscreen setting
-        if (Application.platform == RuntimePlatform.WebGLPlayer)
+        if (isWebGL)
         {
             return;
         }
 
-        Resolution[] availableResolutions = GetResolutions();
-
         if (index >= 0 && index < availableResolutions.Length)
         {
             Resolution selectedResolution = availableResolutions[index];
-            Screen.SetResolution(selectedResolution.width, selectedResolution.height, Screen.fullScreen);
+            
+            // Get the saved fullscreen state
+            bool isFullscreen = PlayerPrefs.GetInt(SettingsKeys.FullscreenKey, 1) == 1;
+            
+            // Apply resolution and fullscreen together
+            Screen.SetResolution(selectedResolution.width, selectedResolution.height, isFullscreen);
+            
             resolutionText.text = selectedResolution.width + "x" + selectedResolution.height;
             PlayerPrefs.SetString(SettingsKeys.ResolutionKey, selectedResolution.width + "x" + selectedResolution.height);
         }
@@ -111,33 +180,151 @@ public class GameSettings : MonoBehaviour
 
     private void ConfigureFullscreenToggle()
     {
-        // If full screen is turned off on web, then it causes issues with the window
-        // TODO: Figure out how to make this actually work instead of disabling it
-        if (Application.platform == RuntimePlatform.WebGLPlayer)
-        {
-           fullscreenToggle.interactable = false;
-           fullscreenToggle.isOn = true;
-           fullscreenToggle.graphic.color = Color.gray;
-           return;
-        }
-
         bool isFullscreen = PlayerPrefs.GetInt(SettingsKeys.FullscreenKey, 1) == 1;
+        
+        // For WebGL, we need to sync with the actual screen state
+        if (isWebGL)
+        {
+            isFullscreen = Screen.fullScreen;
+            PlayerPrefs.SetInt(SettingsKeys.FullscreenKey, isFullscreen ? 1 : 0);
+        }
+        
         fullscreenToggle.isOn = isFullscreen;
         fullscreenImage.sprite = isFullscreen ? fullscreenOnSprite : fullscreenOffSprite;
         fullscreenToggle.onValueChanged.AddListener(OnFullscreenToggleValueChanged);
     }
 
-    private void OnFullscreenToggleValueChanged(bool isFullscreen)
+    private void OnFullscreenToggleValueChanged(bool wantFullscreen)
     {
-        fullscreenImage.sprite = isFullscreen ? fullscreenOnSprite : fullscreenOffSprite;
-        if (Application.platform == RuntimePlatform.WebGLPlayer)
+        if (isWebGL)
         {
-            return;
+            HandleWebGLFullscreen(wantFullscreen);
         }
-        Screen.fullScreen = isFullscreen;
-        PlayerPrefs.SetInt(SettingsKeys.FullscreenKey, isFullscreen ? 1 : 0);
+        else
+        {
+            HandleDesktopFullscreen(wantFullscreen);
+        }
     }
 
+    private void HandleDesktopFullscreen(bool wantFullscreen)
+    {
+        fullscreenImage.sprite = wantFullscreen ? fullscreenOnSprite : fullscreenOffSprite;
+        
+        string savedResolution = PlayerPrefs.GetString(SettingsKeys.ResolutionKey, Screen.currentResolution.width + "x" + Screen.currentResolution.height);
+        string[] resolutionParts = savedResolution.Split('x');
+        int width = int.Parse(resolutionParts[0]);
+        int height = int.Parse(resolutionParts[1]);
+        
+        Screen.SetResolution(width, height, wantFullscreen);
+        PlayerPrefs.SetInt(SettingsKeys.FullscreenKey, wantFullscreen ? 1 : 0);
+    }
+
+    private void HandleWebGLFullscreen(bool wantFullscreen)
+    {
+        bool currentlyFullscreen = Screen.fullScreen;
+
+        if (wantFullscreen && !currentlyFullscreen)
+        {
+            // Entering fullscreen
+            Screen.fullScreen = true;
+            PlayerPrefs.SetInt(SettingsKeys.FullscreenKey, 1);
+            UpdateFullscreenUI(true);
+        }
+        else if (!wantFullscreen && currentlyFullscreen)
+        {
+            // Exiting fullscreen - use coroutine for safety
+            StartCoroutine(ExitFullscreenSafely());
+        }
+        else
+        {
+            UpdateFullscreenUI(currentlyFullscreen);
+        }
+    }
+
+    private IEnumerator ExitFullscreenSafely()
+    {
+        // Exit fullscreen
+        Screen.fullScreen = false;
+        PlayerPrefs.SetInt(SettingsKeys.FullscreenKey, 0);
+        UpdateFullscreenUI(false);
+        
+        // Wait for fullscreen transition
+        yield return new WaitForSeconds(0.1f);
+        
+        // Set resolution safely
+        int targetWidth = 960;
+        int targetHeight = 600;
+        
+        if (Screen.width != targetWidth || Screen.height != targetHeight)
+        {
+            Screen.SetResolution(targetWidth, targetHeight, false);
+            resolutionText.text = targetWidth + "x" + targetHeight;
+            PlayerPrefs.SetString(SettingsKeys.ResolutionKey, targetWidth + "x" + targetHeight);
+        }
+        
+        // Wait for resolution to apply
+        yield return new WaitForEndOfFrame();
+    }
+
+    private IEnumerator SetReasonableSizeAfterFullscreen()
+    {
+        // Wait for fullscreen transition to complete
+        yield return new WaitForSeconds(0.1f);
+        
+        // Use your exact canvas size for WebGL windowed mode
+        int targetWidth = 960;
+        int targetHeight = 600;
+        
+        // Only resize if we're not already at the correct size
+        if (Screen.width != targetWidth || Screen.height != targetHeight)
+        {
+            Screen.SetResolution(targetWidth, targetHeight, false);
+            resolutionText.text = targetWidth + "x" + targetHeight;
+            PlayerPrefs.SetString(SettingsKeys.ResolutionKey, targetWidth + "x" + targetHeight);
+        }
+    }
+
+    private void UpdateFullscreenUI(bool isFullscreen)
+    {
+        // Use SetIsOnWithoutNotify to update the toggle without triggering the change event
+        fullscreenToggle.SetIsOnWithoutNotify(isFullscreen);
+        fullscreenImage.sprite = isFullscreen ? fullscreenOnSprite : fullscreenOffSprite;
+        
+        Debug.Log($"Updated fullscreen UI to: {isFullscreen}");
+    }
+
+    private IEnumerator CheckFullscreenChanges()
+    {
+        bool lastFullscreenState = Screen.fullScreen;
+        Debug.Log("Started monitoring fullscreen changes for ESC key. Initial state: " + lastFullscreenState);
+        
+        while (true)
+        {
+            yield return new WaitForSeconds(0.2f); // Check more frequently (0.2 seconds)
+            
+            bool currentFullscreenState = Screen.fullScreen;
+            
+            if (currentFullscreenState != lastFullscreenState)
+            {
+                Debug.Log($"ESC KEY DETECTED: Fullscreen changed from {lastFullscreenState} to {currentFullscreenState}");
+                
+                // Update the UI to match the new state
+                UpdateFullscreenUI(currentFullscreenState);
+                PlayerPrefs.SetInt(SettingsKeys.FullscreenKey, currentFullscreenState ? 1 : 0);
+                
+                // If we exited fullscreen via ESC, set reasonable size
+                if (!currentFullscreenState)
+                {
+                    Debug.Log("ESC detected - setting windowed mode with 960x600 resolution");
+                    StartCoroutine(SetReasonableSizeAfterFullscreen());
+                }
+                
+                lastFullscreenState = currentFullscreenState;
+            }
+        }
+    }
+
+    // ... rest of your existing methods (ConfigureGraphicsQuality, ConfigureOnScreenControls, etc.)
     private void ConfigureGraphicsQuality()
     {
         int currentQualityIndex = PlayerPrefs.GetInt(SettingsKeys.GraphicsQualityKey, QualitySettings.GetQualityLevel());
@@ -155,7 +342,6 @@ public class GameSettings : MonoBehaviour
             graphicsQualityDropdown.options.Add(option);
         }
 
-        // Set the selected graphics quality
         graphicsQualityDropdown.value = currentQualityIndex;
         graphicsQualityDropdown.RefreshShownValue();
         graphicsQualityText.text = LocalizationSettings.StringDatabase.GetLocalizedString("Quality_" + QualitySettings.names[currentQualityIndex]);
@@ -185,7 +371,6 @@ public class GameSettings : MonoBehaviour
 
         GlobalVariables.OnScreenControls = isOnScreenControlsEnabled;
 
-        // Update the mobile controls
         if (GameManager.Instance != null)
         {
             GameManager.Instance.UpdateMobileControls();
@@ -194,29 +379,20 @@ public class GameSettings : MonoBehaviour
 
     private void ConfigureSpeedrunMode()
     {
-        // Load saved setting, default to false
         bool isSpeedrunModeEnabled = PlayerPrefs.GetInt(SettingsKeys.SpeedrunModeKey, 0) == 1;
         
-        // Apply the setting
         SpeedrunModeToggle.isOn = isSpeedrunModeEnabled;
         SpeedrunModeImage.sprite = isSpeedrunModeEnabled ? enabledSpeedrunMode : disabledSpeedrunMode;
 
-        // Listen for changes
         SpeedrunModeToggle.onValueChanged.AddListener(OnSpeedrunModeToggleChanged);
     }
 
     private void OnSpeedrunModeToggleChanged(bool isSpeedrunModeEnabled)
     {
-        // Save the new setting
         PlayerPrefs.SetInt(SettingsKeys.SpeedrunModeKey, isSpeedrunModeEnabled ? 1 : 0);
-        
-        // Update the global variable
         GlobalVariables.SpeedrunMode = isSpeedrunModeEnabled;
-
-        // Update UI image
         SpeedrunModeImage.sprite = isSpeedrunModeEnabled ? enabledSpeedrunMode : disabledSpeedrunMode;
 
-        // Update immediately in-game
         if (GameManager.Instance != null)
         {
             GameManager.Instance.UpdateSpeedrunTimerVisiblity();

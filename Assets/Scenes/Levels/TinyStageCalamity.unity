@@ -11723,6 +11723,7 @@ GameObject:
   - component: {fileID: 481307461}
   - component: {fileID: 481307460}
   - component: {fileID: 481307459}
+  - component: {fileID: 481307462}
   m_Layer: 0
   m_Name: EventSystem
   m_TagString: Untagged
@@ -11791,6 +11792,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &481307462
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 481307458}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8fbfb77b568f9af40af3d3ff9d5525dc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  musicMixer: {fileID: 24100000, guid: 44648a194bc63354d827c6c13f697d72, type: 2}
+  sfxMixer: {fileID: 24100000, guid: 52d4409ed4d7bb645aad562fcfd87159, type: 2}
 --- !u!1001 &487166007
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -17099,6 +17114,9 @@ MonoBehaviour:
   requireGroundToEnter: 1
   snapCameraX: 0
   snapCameraY: 0
+  onPlayerEnter:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &1239796048
 GameObject:
   m_ObjectHideFlags: 0
@@ -23241,8 +23259,11 @@ MonoBehaviour:
   lockToVertical: 0
   cameraPosOffset: {x: 0, y: 0}
   lockOffset: {x: 0, y: 0}
-  snapToBounds: 1
+  zoneId: 
   priority: 0
+  entryRule: 0
+  snapFromZoneIds: []
+  clampPolicy: 2
 --- !u!114 &1813982765
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -23256,6 +23277,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   smoothDampTime: 0.15
+  zoomSmoothTime: 0.2
   offset: {x: 0, y: 0, z: 0}
 --- !u!114 &1813982766
 MonoBehaviour:
@@ -23275,8 +23297,11 @@ MonoBehaviour:
   lockToVertical: 0
   cameraPosOffset: {x: 0, y: 0}
   lockOffset: {x: 0, y: 0}
-  snapToBounds: 1
+  zoneId: 
   priority: 0
+  entryRule: 0
+  snapFromZoneIds: []
+  clampPolicy: 2
 --- !u!114 &1813982767
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -23295,8 +23320,11 @@ MonoBehaviour:
   lockToVertical: 0
   cameraPosOffset: {x: 0, y: 0}
   lockOffset: {x: 0, y: 0}
-  snapToBounds: 1
+  zoneId: 
   priority: 0
+  entryRule: 0
+  snapFromZoneIds: []
+  clampPolicy: 2
 --- !u!114 &1813982768
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -23315,8 +23343,11 @@ MonoBehaviour:
   lockToVertical: 0
   cameraPosOffset: {x: 0, y: 0}
   lockOffset: {x: 0, y: 0}
-  snapToBounds: 1
+  zoneId: 
   priority: 0
+  entryRule: 0
+  snapFromZoneIds: []
+  clampPolicy: 2
 --- !u!1001 &1840713416
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -47816,6 +47847,9 @@ MonoBehaviour:
   requireGroundToEnter: 1
   snapCameraX: 0
   snapCameraY: 0
+  onPlayerEnter:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!4 &5904308297865029921 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2265579913726363103, guid: cc7f150c31be50d488a3cb6eadbb4e97, type: 3}

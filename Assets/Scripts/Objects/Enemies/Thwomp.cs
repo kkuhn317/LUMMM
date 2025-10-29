@@ -71,7 +71,7 @@ public class Thwomp : EnemyAI
         velocity.y = riseSpeed;
         gravity = 0f;
         
-        // NEW: Calculate rise parameters for time-based movement
+        // Calculate rise parameters for time-based movement
         float distanceToTop = topY - transform.position.y;
         targetRiseDuration = distanceToTop / riseSpeed;
         riseStartTime = Time.time;

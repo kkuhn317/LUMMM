@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.Localization.Settings;
 
 public class FirstTimeCheck : MonoBehaviour
 {
@@ -27,12 +28,20 @@ public class FirstTimeCheck : MonoBehaviour
 
         // PlayerPrefs.SetInt(FirstTimeKey, 1);    // For testing purposes
 
+        // Wait for localization to initialize before proceeding
+        StartCoroutine(InitializeAndCheckFirstTime());
+    }
+
+    private IEnumerator InitializeAndCheckFirstTime()
+    {
+        // Wait for localization system to be ready
+        yield return LocalizationSettings.InitializationOperation;
+
         // Check if this is the first time the game is being opened
         if (PlayerPrefs.GetInt(FirstTimeKey, 1) == 1)
         {
             // First time opening the game
             Debug.Log("First Time Opening");
-            // First time opening the game
             ActivateObject();
             // Set PlayerPrefs to indicate the game has been opened
             PlayerPrefs.SetInt(FirstTimeKey, 0);

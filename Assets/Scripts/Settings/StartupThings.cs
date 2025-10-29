@@ -1,30 +1,37 @@
 using System.Collections;
-using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
+using UnityEngine.Localization;
 using UnityEngine.Localization.Settings;
-using Newtonsoft.Json;
 
 public class StartupThings : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
+    private IEnumerator Start()
     {
-        // Set the target frame rate to 60 on mobile instead of the default 30
-        if (Application.isMobilePlatform) {
-            Application.targetFrameRate = 60;   // Default is 30 (ew)
+        // Keep your existing 60 FPS cap on mobile
+        if (Application.isMobilePlatform)
+            Application.targetFrameRate = 60;
+
+        // Wait until Localization is ready (avoids race/fallback to English)
+        var init = LocalizationSettings.InitializationOperation;
+        if (!init.IsDone)
+            yield return init;
+
+        // Apply saved locale if present (exact -> prefix -> keep current)
+        string saved = PlayerPrefs.GetString("Language", string.Empty);
+        var locales = LocalizationSettings.AvailableLocales.Locales;
+
+        Locale locale = null;
+        if (!string.IsNullOrWhiteSpace(saved))
+        {
+            locale = locales.FirstOrDefault(l => l.Identifier.Code == saved)
+                  ?? locales.FirstOrDefault(l => l.Identifier.Code.StartsWith(saved));
         }
 
-        // Get the current language
-        string currentLanguage = PlayerPrefs.GetString("Language", "en");
-        LocalizationSettings.SelectedLocale = LocalizationSettings.AvailableLocales.GetLocale(currentLanguage);
+        if (locale != null)
+            LocalizationSettings.SelectedLocale = locale;
 
         // Load control layout (currently only needed for on-screen controls, since keyboard/controler layout is loaded automatically)
         RebindSaveLoad.OnGameStart();
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 }

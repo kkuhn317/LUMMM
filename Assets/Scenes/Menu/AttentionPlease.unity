@@ -855,6 +855,7 @@ GameObject:
   - component: {fileID: 1838874856}
   - component: {fileID: 1838874855}
   - component: {fileID: 1838874857}
+  - component: {fileID: 1838874858}
   m_Layer: 0
   m_Name: EventSystem
   m_TagString: Untagged
@@ -919,17 +920,31 @@ MonoBehaviour:
   m_ScrollWheelAction: {fileID: -2133472270647089862, guid: 19d541da515a17d4ab7b236a77c60708, type: 3}
   m_TrackedDevicePositionAction: {fileID: -2331584142777313154, guid: 19d541da515a17d4ab7b236a77c60708, type: 3}
   m_TrackedDeviceOrientationAction: {fileID: -8506388527695970393, guid: 19d541da515a17d4ab7b236a77c60708, type: 3}
-  m_DeselectOnBackgroundClick: 1
+  m_DeselectOnBackgroundClick: 0
   m_PointerBehavior: 0
   m_CursorLockBehavior: 0
   m_ScrollDeltaPerTick: 6
+--- !u!114 &1838874858
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1838874853}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8fbfb77b568f9af40af3d3ff9d5525dc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  musicMixer: {fileID: 24100000, guid: 44648a194bc63354d827c6c13f697d72, type: 2}
+  sfxMixer: {fileID: 24100000, guid: 52d4409ed4d7bb645aad562fcfd87159, type: 2}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 756091514}
   - {fileID: 885562899}
-  - {fileID: 1838874856}
   - {fileID: 1219572440}
   - {fileID: 835147695}
   - {fileID: 944996361}
+  - {fileID: 1838874856}
