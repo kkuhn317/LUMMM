@@ -72,6 +72,8 @@ public class GameManager : MonoBehaviour
     [Header("Players")]
     private List<MarioMovement> players = new();  // The players will tell the game manager who they are on start or when the player changes
 
+    public InputActionAsset playerInputActions; // Used to force update player input actions on resume from pause
+
     void SaveCollectedCoins()
     {
         foreach (GameObject coin in collectedGreenCoins)
@@ -1230,6 +1232,10 @@ public class GameManager : MonoBehaviour
         foreach (MarioMovement player in players)
         {
             player.EnableInputs();
+
+            // Stupid workaround for Mario's input actions not updating when you rebind them in the options menu
+            // Remove this if we ever update Unity and the issue is fixed
+            player.GetComponent<PlayerInput>().actions = playerInputActions;
         }
 
         if (pausemenu != null)
