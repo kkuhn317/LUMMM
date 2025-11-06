@@ -11,47 +11,42 @@ public class FirePower : MarioAbility
     public Vector2 shootOffset;
     public AudioClip shootSound;
 
-    private void ShootProjectile(bool movingLeft = false)
+    private void ShootProjectile(bool isLeft, bool explicitDirection)
     {
         if (fireballs < fireballsMax || GlobalVariables.cheatFlamethrower)
         {
-            // Use parameter for direction, fall back to Mario's facing direction if not specified
-            if (!marioMovement) return;
-
-            bool isLeft = movingLeft;
-
-            // If no direction specified, use Mario's facing direction
-            if (!movingLeft && !marioMovement.facingRight)
+            if (!explicitDirection)
             {
-                isLeft = true;
+                // Use Mario's facing direction
+                isLeft = !marioMovement.facingRight;
             }
 
             int directionInt = isLeft ? -1 : 1;
 
-            // instantiate fireball
-            Vector3 spawnPosition = transform.position + new Vector3(shootOffset.x * directionInt, shootOffset.y, 0);
-            GameObject newFireball = Instantiate(fireballObj, spawnPosition, transform.rotation);
+            Vector3 spawnPos = transform.position + new Vector3(shootOffset.x * directionInt, shootOffset.y, 0);
+            GameObject newFireball = Instantiate(fireballObj, spawnPos, Quaternion.identity);
+
             Fireball fireballScript = newFireball.GetComponent<Fireball>();
             ObjectPhysics fireballPhysics = newFireball.GetComponent<ObjectPhysics>();
+
             fireballScript.firePowerScript = this;
             fireballPhysics.movingLeft = isLeft;
 
-            // increment fireball count
             fireballs++;
-
-            // play shooting animation
             GetComponent<Animator>().SetTrigger("shoot");
-
-            // play fireball sound
             GetComponent<AudioSource>().PlayOneShot(shootSound);
         }
     }
     
     private void ShootSpinningFireballs()
-    {        
-        // Shoot two fireballs simultaneously - one left, one right
-        ShootProjectile(true);   // Left fireball
-        ShootProjectile(false);  // Right fireball
+    {
+        bool facingLeft = !marioMovement.facingRight;
+
+        // First fireball: in the direction Mario is facing
+        ShootProjectile(facingLeft, true);
+
+        // Second fireball: the opposite direction
+        ShootProjectile(!facingLeft, true);
     }
 
     public void onFireballDestroyed()
@@ -64,7 +59,8 @@ public class FirePower : MarioAbility
     {
         if (!marioMovement.carrying && !marioMovement.groundPounding)
         {
-            ShootProjectile();
+            bool isLeft = !marioMovement.facingRight;
+            ShootProjectile(isLeft, false);
         }
     }
 
