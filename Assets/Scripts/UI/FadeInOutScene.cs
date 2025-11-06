@@ -6,15 +6,13 @@ using System.Collections;
 public class FadeInOutScene : MonoBehaviour
 {
     public Image fadeImage;
-    public float fadeDuration = 0.5f; // Made shorter as requested
+    public float fadeDuration = 0.5f;
+    public bool isTransitioning = false;
     public static FadeInOutScene Instance;
 
-    // Separate states for better control
-    public bool isFadingIn { get; private set; }
-    public bool isFadingOut { get; private set; }
-    public bool isTransitioning => isFadingIn || isFadingOut;
-
     private Coroutine currentFadeCoroutine;
+    private string pendingSceneName = "";
+    private bool pendingFadeOut = true;
 
     private void Awake()
     {
@@ -27,65 +25,107 @@ public class FadeInOutScene : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(gameObject);
         
-        // Initialize fade image
+        // Ensure fade image starts in the correct state
         if (fadeImage != null)
         {
             fadeImage.gameObject.SetActive(false);
+            fadeImage.color = Color.clear;
         }
-    }
-
-    public void LoadSceneWithFade(int sceneIndex)
-    {
-        LoadSceneWithFade(sceneIndex.ToString());
     }
 
     public void LoadSceneWithFade(string sceneName)
     {
+        // If already transitioning, queue the new scene
         if (isTransitioning)
         {
-            Debug.LogWarning("Already transitioning, ignoring duplicate call");
+            Debug.Log("Queueing scene transition to: " + sceneName);
+            pendingSceneName = sceneName;
+            pendingFadeOut = true;
             return;
         }
-        
-        if (currentFadeCoroutine != null)
-            StopCoroutine(currentFadeCoroutine);
         
         currentFadeCoroutine = StartCoroutine(FadeAndLoadScene(sceneName, true));
     }
 
     public void LoadSceneWithoutFadeOut(string sceneName)
     {
+        // If already transitioning, queue the new scene
         if (isTransitioning)
         {
-            Debug.LogWarning("Already transitioning, ignoring duplicate call");
+            Debug.Log("Queueing scene transition to: " + sceneName);
+            pendingSceneName = sceneName;
+            pendingFadeOut = false;
             return;
         }
-        
-        if (currentFadeCoroutine != null)
-            StopCoroutine(currentFadeCoroutine);
         
         currentFadeCoroutine = StartCoroutine(FadeAndLoadScene(sceneName, false));
     }
 
+    public void LoadNextSceneWithFade()
+    {
+        int nextSceneIndex = SceneManager.GetActiveScene().buildIndex + 1;
+
+        if (nextSceneIndex < SceneManager.sceneCountInBuildSettings)
+        {
+            string scenePath = SceneUtility.GetScenePathByBuildIndex(nextSceneIndex);
+            string sceneName = System.IO.Path.GetFileNameWithoutExtension(scenePath);
+            LoadSceneWithFade(sceneName);
+        }
+        else
+        {
+            Debug.LogWarning("No next scene available.");
+        }
+    }
+
+    public void LoadSceneWithFade(int sceneIndex)
+    {
+        string scenePath = SceneUtility.GetScenePathByBuildIndex(sceneIndex);
+        string sceneName = System.IO.Path.GetFileNameWithoutExtension(scenePath);
+        LoadSceneWithFade(sceneName);
+    }
+
     private IEnumerator FadeAndLoadScene(string sceneName, bool fadeOutAfterLoad)
     {
-        // Fade in to black (block input during this phase)
-        isFadingIn = true;
+        isTransitioning = true;
+        
+        // Fade in to black
         yield return StartCoroutine(FadeToColor(Color.black, fadeDuration));
-        isFadingIn = false;
         
-        // Load scene
-        SceneManager.LoadScene(sceneName);
-        
-        // Fade out if requested (allow input during this phase)
-        if (fadeOutAfterLoad)
+        // Check if a new scene was requested during the fade-in
+        if (!string.IsNullOrEmpty(pendingSceneName))
         {
-            isFadingOut = true;
-            yield return StartCoroutine(FadeToColor(Color.clear, fadeDuration));
-            isFadingOut = false;
+            Debug.Log("Loading queued scene instead: " + pendingSceneName);
+            sceneName = pendingSceneName;
+            fadeOutAfterLoad = pendingFadeOut;
+            pendingSceneName = ""; // Clear the queue
         }
         
+        // Load the scene
+        SceneManager.LoadScene(sceneName);
+        
+        // Wait for scene to initialize (one frame, just in case)
+        yield return null;
+        
+        // Fade out if requested
+        if (fadeOutAfterLoad)
+        {
+            yield return StartCoroutine(FadeToColor(Color.clear, fadeDuration));
+        }
+        
+        // Transition complete
+        isTransitioning = false;
         currentFadeCoroutine = null;
+        
+        // Check if another transition was requested while we were finishing
+        if (!string.IsNullOrEmpty(pendingSceneName))
+        {
+            Debug.Log("Starting queued transition: " + pendingSceneName);
+            // Use the appropriate method based on the fadeOut setting
+            if (pendingFadeOut)
+                LoadSceneWithFade(pendingSceneName);
+            else
+                LoadSceneWithoutFadeOut(pendingSceneName);
+        }
     }
 
     private IEnumerator FadeToColor(Color targetColor, float duration)
@@ -96,41 +136,33 @@ public class FadeInOutScene : MonoBehaviour
 
         while (elapsed < duration)
         {
+            // If a new scene was queued during fade-out, we can break early
+            if (targetColor.a == 0f && !string.IsNullOrEmpty(pendingSceneName))
+            {
+                break;
+            }
+
             fadeImage.color = Color.Lerp(startColor, targetColor, elapsed / duration);
             elapsed += Time.deltaTime;
             yield return null;
         }
 
         fadeImage.color = targetColor;
-        
+
         // Hide the image if we're fully transparent
         if (targetColor.a == 0f)
             fadeImage.gameObject.SetActive(false);
     }
 
-    // Public methods to check specific states
-    public bool CanAcceptInput()
+    // This is just optional helper methods to check fade state
+    // they're not strictly necessary, I just added them for convenience in the future
+    public bool IsFadingIn()
     {
-        // Allow input when not fading OR when only fading out
-        return !isFadingIn; // Block during fade in, allow during fade out and no fade
+        return isTransitioning && fadeImage.color.a < 1f;
     }
 
-    // Force stop any ongoing fade (useful for debugging)
-    public void ForceStopFade()
+    public bool IsFadingOut()
     {
-        if (currentFadeCoroutine != null)
-        {
-            StopCoroutine(currentFadeCoroutine);
-            currentFadeCoroutine = null;
-        }
-        isFadingIn = false;
-        isFadingOut = false;
-        
-        // Ensure fade image is hidden
-        if (fadeImage != null)
-        {
-            fadeImage.gameObject.SetActive(false);
-            fadeImage.color = Color.clear;
-        }
+        return isTransitioning && fadeImage.color.a > 0f;
     }
 }
