@@ -204,7 +204,7 @@ public class IntroLevel : MonoBehaviour
             Debug.LogError("No FadeInOutScene instance found!");
             return;
         }
-        if (FadeInOutScene.Instance.transitioning) {
+        if (FadeInOutScene.Instance.isTransitioning) {
             Debug.Log("Scene transition already in progress (Like fading into the level intro). Fine if called by skip, but not if called by DelayedSceneTransition.");
             return;
         }

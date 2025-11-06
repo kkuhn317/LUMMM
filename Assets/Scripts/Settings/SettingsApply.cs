@@ -46,14 +46,14 @@ public class SettingsApply : MonoBehaviour
     {
         // Read saved resolution (use a sensible default per platform)
         string savedResolution =
-#if UNITY_WEBGL && !UNITY_EDITOR
+    #if UNITY_WEBGL && !UNITY_EDITOR
             PlayerPrefs.GetString(SettingsKeys.ResolutionKey, "960x600");
-#else
+    #else
             PlayerPrefs.GetString(
                 SettingsKeys.ResolutionKey,
                 $"{Screen.currentResolution.width}x{Screen.currentResolution.height}"
             );
-#endif
+    #endif
         bool savedFullscreen = PlayerPrefs.GetInt(SettingsKeys.FullscreenKey, 1) == 1;
 
         // Parse "WxH"
@@ -61,19 +61,23 @@ public class SettingsApply : MonoBehaviour
         int w = int.Parse(parts[0]);
         int h = int.Parse(parts[1]);
 
-#if UNITY_WEBGL && !UNITY_EDITOR
-        // WebGL:
-        // - Browsers only allow entering fullscreen from a user gesture.
-        // - Here we set the internal backbuffer size only.
-        // - Actual fullscreen will be applied when the user clicks a button (see method below).
-        Screen.SetResolution(w, h, false);
+    #if UNITY_WEBGL && !UNITY_EDITOR
+        // WebGL: Use the saved fullscreen state, not hardcoded false
+        Screen.SetResolution(w, h, savedFullscreen);
         yield return null; // let the canvas/layout settle one frame
-#else
+        
+        // Additional WebGL-specific fullscreen handling
+        if (savedFullscreen && !Screen.fullScreen)
+        {
+            // If we want fullscreen but aren't in it, try to enter fullscreen
+            Screen.fullScreen = true;
+        }
+    #else
         // Desktop platforms: we can apply fullscreen immediately.
         Screen.SetResolution(w, h, savedFullscreen);
         yield return null; // allow one frame for stabilization
         Screen.fullScreen = savedFullscreen; // explicit for clarity
-#endif
+    #endif
     }
 
     private void InitGraphicsQuality()

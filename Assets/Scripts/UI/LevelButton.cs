@@ -175,7 +175,7 @@ public class LevelButton : MonoBehaviour
 
     public void OnDoubleClick()
     {
-        if (!FadeInOutScene.Instance.transitioning)
+        if (!FadeInOutScene.Instance.isTransitioning)
         {
             LevelSelectionManager.Instance.OnPlayButtonClick();
             if (LevelSelectionManager.IsLevelPlayable(this)) {

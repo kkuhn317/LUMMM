@@ -610,7 +610,7 @@ public class GameManager : MonoBehaviour
                 SaveProgress();
 
                 // Load the LoseLife scene and restart the current level
-                if (!FadeInOutScene.Instance.transitioning)
+                if (!FadeInOutScene.Instance.isTransitioning)
                 {
                     SceneManager.LoadScene(loseLifeSceneName);
                 }
@@ -622,7 +622,7 @@ public class GameManager : MonoBehaviour
             SaveProgress();
 
             // Prevent reloading if a transition is already happening (e.g., quitting the level)
-            if (!FadeInOutScene.Instance.transitioning)
+            if (!FadeInOutScene.Instance.isTransitioning)
             {
                 ReloadScene();
             }

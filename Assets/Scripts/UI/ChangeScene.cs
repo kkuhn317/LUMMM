@@ -10,8 +10,22 @@ public class ChangeScene : MonoBehaviour
     }
 
     //Method to exit the application
-    public void ExitApplication() {
+    public void ExitApplication()
+    {
         Application.Quit();
         // Debug.Log("Exit Application");
+    }
+    
+    public void LoadSceneWithFade(string sceneName)
+    {
+        if (FadeInOutScene.Instance != null)
+        {
+            FadeInOutScene.Instance.LoadSceneWithFade(sceneName);
+        }
+        else
+        {
+            Debug.LogError("No FadeInOutScene instance found! Loading scene without fade.");
+            SceneManager.LoadScene(sceneName);
+        }
     }
 }
