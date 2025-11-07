@@ -15,6 +15,7 @@ public class Coin : MonoBehaviour
     Vector2 originalPosition;   // Set when the coin is going to bounce
 
     public string popUpAnimationName = "PopUp";
+    public bool isCollected = false;
 
     [Header("Audio")]
     public AudioClip coinSound;
@@ -77,6 +78,7 @@ public class Coin : MonoBehaviour
 
     protected virtual void OnCoinCollected()
     {
+        isCollected = true;
         PlayCoinSound();
         AddCoinAmount();
 

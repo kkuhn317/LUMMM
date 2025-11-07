@@ -106,11 +106,15 @@ public class PSwitch : MonoBehaviour
         // Change the coins back to bricks
         for (int i = 0; i < convertedCoins.Count; i++) {
             GameObject coin = convertedCoins[i];
-            if (coin != null) {
-                GameObject brick = Instantiate(brickPrefab, coin.transform.position, Quaternion.identity);
-                Destroy(coin);
-                bricks.Add(brick);
-            }
+            if (coin == null) continue;
+
+            Coin coinScript = coin.GetComponent<Coin>();
+            if (coinScript != null && coinScript.isCollected)
+                continue;
+
+            GameObject brick = Instantiate(brickPrefab, coin.transform.position, Quaternion.identity);
+            Destroy(coin);
+            bricks.Add(brick);
         }
         convertedCoins.Clear();
 

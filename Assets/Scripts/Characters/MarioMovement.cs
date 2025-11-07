@@ -462,6 +462,14 @@ public class MarioMovement : MonoBehaviour
         {
             return;
         }
+        
+        // cancel spin every frame while climbing, unless spin jump is queued
+        if (climbing && !spinJumpQueued)
+        {
+            spinning = false;
+            spinPressed = false;
+            animator.SetBool("isSpinning", false);
+        }
 
         // Movement
         if (climbing)
@@ -494,6 +502,12 @@ public class MarioMovement : MonoBehaviour
                     audioSource.PlayOneShot(swimSound);
                     Swim();
                 }
+            }
+            else if (climbing && spinJumpQueued)
+            {
+                // spin jump from climbing
+                StopClimbing();
+                SpinJump();
             }
             else if (wallSliding || wallJumpCheck)
             {
@@ -780,7 +794,8 @@ public class MarioMovement : MonoBehaviour
         }
 
         // Climbing
-        if (!climbing && canClimb && direction.y > 0.8f)
+        // if (!climbing && canClimb && direction.y > 0.8f)
+        if (!climbing && canClimb && direction.y > 0.5f)
         {
             StartClimbing();
         }
@@ -824,6 +839,23 @@ public class MarioMovement : MonoBehaviour
         rb.velocity = Vector2.zero; // Stop all movement
         rb.gravityScale = 0; // Disable gravity
         rb.drag = 0; // Disable drag
+
+        spinning = false;
+        spinJumpQueued = false;
+        spinPressed = false;
+
+        // Reset ground pound rotation states when starting to climb
+        groundPounding = false;
+        groundPoundRotating = false;
+        groundPoundLanded = false;
+        groundPoundInWater = false;
+        waterGroundPoundStartTime = 0f;
+
+        // Reset ground pound animations
+        animator.SetBool("isDropping", false);
+        animator.SetBool("cancelDropping", false);
+
+        animator.SetBool("isSpinning", false);
         //rb.isKinematic = true; // Make the rigidbody kinematic
     }
 
@@ -1171,6 +1203,16 @@ public class MarioMovement : MonoBehaviour
     // Spin Jump
     public void SpinJump()
     {
+        // If we're climbing, we need to exit climbing state first
+        if (climbing)
+        {
+            StopClimbing();
+            // Ensure physics are properly reset
+            rb.gravityScale = 1;
+            rb.drag = 0;
+            rb.bodyType = RigidbodyType2D.Dynamic;
+        }
+
         audioSource.PlayOneShot(spinJumpSound);
         rb.velocity = new Vector2(rb.velocity.x, 0);
         rb.AddForce(Vector2.up * jumpSpeed * 1.1f, ForceMode2D.Impulse);
@@ -1275,7 +1317,7 @@ public class MarioMovement : MonoBehaviour
         }
     }
 
-    private void CancelGroundPound()
+    public void CancelGroundPound()
     {
         if (!groundPounding || groundPoundRotating) // Only cancel during the fall phase
             return;

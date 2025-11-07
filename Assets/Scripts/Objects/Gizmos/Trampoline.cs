@@ -30,16 +30,24 @@ public class Trampoline : MonoBehaviour
         Vector2 impulse = Vector2.zero;
 
         int contactCount = other.contactCount;
-        for(int i = 0; i < contactCount; i++) {
+        for (int i = 0; i < contactCount; i++)
+        {
             var contact = other.GetContact(i);
             impulse += contact.normal * contact.normalImpulse;
-            #if !UNITY_ANDROID
+#if !UNITY_ANDROID
             impulse.x += contact.tangentImpulse * contact.normal.y;
             impulse.y -= contact.tangentImpulse * contact.normal.x;
-            #endif
+#endif
             // NOTE: The tiny spring could bounce mario up from the side on mobile if the above lines are uncommented
             // ALSO, on Web version, springs might have a chance to not work if those 2 lines are not present (at least that's my theory...)
             // So, for now we will only run those lines on Android and not on Web or Windows
+        }
+        
+        if (other.gameObject.tag == "Player") {
+            MarioMovement playerScript = other.gameObject.GetComponent<MarioMovement>();
+            if (playerScript != null)
+                // Cancel ground pound when bouncing on trampoline
+                playerScript.CancelGroundPound();
         }
 
         if (impulse.y < 0 && !sideways) {
@@ -80,6 +88,18 @@ public class Trampoline : MonoBehaviour
     }
 
     private void OnTriggerEnter2D(Collider2D other) {
+        // Check if the triggering object is the player
+        if (other.gameObject.tag == "Player")
+        {
+            MarioMovement playerScript = other.gameObject.GetComponent<MarioMovement>();
+
+            if (playerScript != null)
+            {
+                // Cancel ground pound when bouncing on trampoline (trigger version)
+                playerScript.CancelGroundPound();
+            }
+        }
+        
         if (objectBounce && other.GetComponent<ObjectPhysics>()) {
             if (other.transform.position.y > transform.position.y && other.transform.position.x > transform.position.x - 1 && other.transform.position.x < transform.position.x + 1 && !sideways) {
                 other.GetComponent<ObjectPhysics>().velocity = new Vector2(other.GetComponent<ObjectPhysics>().velocity.x, objectBouncePower);
