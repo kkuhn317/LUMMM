@@ -21,8 +21,6 @@ public class MarioMovement : MonoBehaviour
     [HideInInspector] public Vector2 moveInput; // The raw directional input from the player's controller
     private const float lowerDeadzone = 0.3f; // The lower limit of the deadzone
     private const float upperDeadzone = 0.9f; // The upper limit of the deadzone
-    [HideInInspector] public bool crouchPressed = false;
-    private bool crouchPressedInAir = false;
     [HideInInspector] public bool groundPoundInWater = false;
     private float waterGroundPoundDuration = 1f; // Duración permitida en el agua
     [HideInInspector] public float waterGroundPoundStartTime;
@@ -363,7 +361,7 @@ public class MarioMovement : MonoBehaviour
         }
 
         // Picking up item
-        if (!pressRunToGrab && runPressed && (!crouchToGrab || crouchPressed) && !carrying)
+        if (!pressRunToGrab && runPressed && (!crouchToGrab || direction.y < -0.5f) && !carrying)
         {
             checkForCarry();
         }
@@ -371,7 +369,7 @@ public class MarioMovement : MonoBehaviour
         // Throwing item
         if (carrying && !runPressed)
         {
-            if (crouchPressed)
+            if (direction.y < -0.5f)
             {
                 dropCarry();
             }
@@ -381,10 +379,6 @@ public class MarioMovement : MonoBehaviour
             }
         }
 
-        if (onGround)
-        {
-            crouchPressedInAir = false;
-        }
     }
 
     private void OnCollisionEnter2D(Collision2D other)
@@ -537,7 +531,7 @@ public class MarioMovement : MonoBehaviour
         }
 
         // Ground Pound
-        if (canGroundPound && !onGround && crouchPressedInAir && !groundPounding && !wallSliding && !climbing)
+        if (canGroundPound && !onGround && direction.y < -0.5f && !groundPounding && !wallSliding && !climbing)
         {
             GroundPound();
         }
@@ -795,7 +789,7 @@ public class MarioMovement : MonoBehaviour
 
         // Climbing
         // if (!climbing && canClimb && direction.y > 0.8f)
-        if (!climbing && canClimb && direction.y > 0.5f)
+        if (!climbing && canClimb && Mathf.Abs(direction.y) > 0.5f)
         {
             StartClimbing();
         }
@@ -854,6 +848,7 @@ public class MarioMovement : MonoBehaviour
         // Reset ground pound animations
         animator.SetBool("isDropping", false);
         animator.SetBool("cancelDropping", false);
+        animationRotation = 0f;
 
         animator.SetBool("isSpinning", false);
         //rb.isKinematic = true; // Make the rigidbody kinematic
@@ -956,7 +951,7 @@ public class MarioMovement : MonoBehaviour
 
     void MoveCharacter(float horizontal)
     {
-        bool crouch = crouchPressed && canCrouch;
+        bool crouch = direction.y < -0.5f && canCrouch && onGround;
 
         // Crouching
         if (crouch && onGround && !carrying && !swimming)
@@ -1324,7 +1319,6 @@ public class MarioMovement : MonoBehaviour
 
         groundPounding = false;  // Exit ground pound state
         groundPoundRotating = false;  // Stop rotation effect
-        crouchPressedInAir = false;
         groundPoundInWater = false;
         waterGroundPoundStartTime = 0f;
 
@@ -1360,7 +1354,6 @@ public class MarioMovement : MonoBehaviour
         rb.gravityScale = riseGravity; // Reset gravity to normal
 
         // Reset input flags (to prevent lingering input re-triggering the ground pound)
-        crouchPressedInAir = false;
         spinPressed = false;
     }
 
@@ -1726,13 +1719,9 @@ public class MarioMovement : MonoBehaviour
         }
 
         // transfer pressed buttons (for mobile controls)
-        newMarioMovement.crouchPressed = crouchPressed;
         newMarioMovement.jumpPressed = jumpPressed;
         newMarioMovement.runPressed = runPressed;
         newMarioMovement.moveInput = moveInput;
-
-        // Set crouchPressed to false to ensure new character doesn't start crouching
-        newMarioMovement.crouchPressed = false;
 
         // Set additional abilities to new Mario
         newMarioMovement.canCrawl = canCrawl;
@@ -2149,7 +2138,7 @@ public class MarioMovement : MonoBehaviour
         //print("run");
         runPressed = true;
 
-        if (pressRunToGrab && (!crouchToGrab || crouchPressed) && !carrying)
+        if (pressRunToGrab && (!crouchToGrab || direction.y < -0.5f) && !carrying)
         {
             checkForCarry();
         }
@@ -2180,65 +2169,6 @@ public class MarioMovement : MonoBehaviour
     public void onJumpReleased()
     {
         jumpPressed = false;
-    }
-
-    // Crouch
-    public void Crouch(InputAction.CallbackContext context)
-    {
-        // TODO: find better way to do this
-        // If the crouch is pressed using a stick, we need to check if it's pressed all the way
-        float crouchValue;
-        try
-        {
-            crouchValue = context.ReadValue<float>();   // Error if it's not a float (like from keyboard)
-            print("crouch value: " + crouchValue);
-            if (crouchValue > 0.5f)
-            {
-                if (!onGround && !climbing)
-                {
-                    crouchPressedInAir = true; // Set if crouch started while in the air
-                }
-                crouchPressed = true;
-            }
-            else
-            {
-                crouchPressed = false;
-            }
-            return;
-        }
-        catch
-        {
-            // do nothing
-        }
-
-        // Fallback for keyboard (or other non-float inputs)
-        if (context.started)
-        {
-            if (!onGround && !climbing)
-            {
-                crouchPressedInAir = true; // Set if crouch started while in the air
-            }
-        }
-        if (context.performed)
-        {
-            crouchPressed = true;
-        }
-        if (context.canceled)
-        {
-            crouchPressed = false;
-        }
-    }
-    public void onMobileCrouchPressed()
-    {
-        if (!onGround)
-        {
-            crouchPressedInAir = true;
-        }
-        crouchPressed = true;
-    }
-    public void onMobileCrouchReleased()
-    {
-        crouchPressed = false;
     }
 
     // Spin

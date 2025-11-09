@@ -88,6 +88,15 @@ public class MobileControls : MonoBehaviour
     {
         getPlayer1().onMobileUpReleased();
     }
+   public void onDownPressed()
+    {
+        getPlayer1().onMobileDownPressed();
+    }
+
+    public void onDownReleased()
+    {
+        getPlayer1().onMobileDownReleased();
+    }
     public void onJumpPress()
     {
         getPlayer1().onJumpPressed();
@@ -103,14 +112,6 @@ public class MobileControls : MonoBehaviour
     public void onRunRelease()
     {
         getPlayer1().onRunReleased();
-    }
-    public void onCrouchPressed()
-    {
-        getPlayer1().onMobileCrouchPressed();
-    }
-    public void onCrouchReleased()
-    {
-        getPlayer1().onMobileCrouchReleased();
     }
     public void onUsePressed()
     {

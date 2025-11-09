@@ -265,7 +265,7 @@ public class Pipe : MonoBehaviour
         switch (enterDirection)
         {
             case Direction.Down:
-                return playerMovement.crouchPressed; // Holding down
+                return moveInput.y < 0; // Holding down
             case Direction.Right:
                 return moveInput.x > 0; // Holding right
             case Direction.Up:
