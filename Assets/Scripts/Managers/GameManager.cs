@@ -16,7 +16,7 @@ using UnityEngine.InputSystem;
 
 public class GameManager : MonoBehaviour
 {
-    //It allows me to access other scripts
+    // It allows me to access other scripts
     public static GameManager Instance { get; private set; }
     private string levelID;
 

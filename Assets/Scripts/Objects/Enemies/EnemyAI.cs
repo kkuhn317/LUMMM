@@ -13,6 +13,9 @@ public class EnemyAI : ObjectPhysics
     public GameObject heldItem;
     public Vector3 itemSpawnOffset = new Vector3(0, 0, 0);
     public GameObject customDeath;
+    [Header("Score popup")]
+    [Tooltip("Offset from the enemy position where score popups will appear.")]
+    [SerializeField] protected Vector2 popupOffset = new Vector2(0f, 0.5f);
     [HideInInspector] public UnityEvent<GameObject> onPlayerDamaged;
 
     public enum SpinJumpEffect {
@@ -91,6 +94,118 @@ public class EnemyAI : ObjectPhysics
         }
     }
 
+    /// <summary>
+    /// Awards a flat score reward (no combo logic) and shows a popup with the points value.
+    /// Use this for simple kills like star-power, shell hits, or thrown objects.
+    /// </summary>
+    /// <param name="points">Amount of points to add to the global score.</param>
+    /// <param name="popupWorldPosition">World position where the popup sprite should appear.</param>
+    protected void AwardFlatScoreReward(int points, Vector3 popupWorldPosition)
+    {
+        GameManager.Instance.AddScorePoints(points);
+
+        if (ScorePopupManager.Instance != null)
+        {
+            // Use the numeric points value as the popup id, e.g. "100"
+            ScorePopupManager.Instance.ShowPopup(points.ToString(), popupWorldPosition);
+        }
+    }
+
+    /// <summary>
+    /// Awards a stomp combo reward using the current combo state.
+    /// It asks the StompComboManager for the next reward in the sequence,
+    /// then either adds score or grants a 1UP, and shows the proper popup.
+    /// </summary>
+    /// <param name="popupWorldPosition">World position where the popup sprite should appear (usually above the enemy).</param>
+    protected void AwardStompComboReward(Vector3 popupWorldPosition)
+    {
+        int scorePoints;
+        bool grantsOneUp;
+        string popupId;
+
+        if (StompComboManager.Instance != null)
+        {
+            popupId = StompComboManager.Instance.RegisterStompKill(out scorePoints, out grantsOneUp);
+        }
+        else
+        {
+            popupId = "100";
+            scorePoints = 100;
+            grantsOneUp = false;
+        }
+
+        if (grantsOneUp)
+            GameManager.Instance.AddLives();
+        else
+            GameManager.Instance.AddScorePoints(scorePoints);
+
+        if (!string.IsNullOrEmpty(popupId) && ScorePopupManager.Instance != null)
+            ScorePopupManager.Instance.ShowPopup(popupId, popupWorldPosition);
+    }
+
+    /// <summary>
+    /// Awards a shell combo reward (500 → 800 → 1000 → ... → 1UP)
+    /// for enemies killed by a moving shell.
+    /// </summary>
+    protected void AwardShellComboReward(Vector3 popupWorldPosition)
+    {
+        int scorePoints;
+        bool grantsOneUp;
+        string popupId;
+
+        if (StompComboManager.Instance != null)
+        {
+            popupId = StompComboManager.Instance.RegisterShellKill(out scorePoints, out grantsOneUp);
+        }
+        else
+        {
+            popupId = "500";
+            scorePoints = 500;
+            grantsOneUp = false;
+        }
+
+        if (grantsOneUp)
+            GameManager.Instance.AddLives();
+        else
+            GameManager.Instance.AddScorePoints(scorePoints);
+
+        if (!string.IsNullOrEmpty(popupId) && ScorePopupManager.Instance != null)
+            ScorePopupManager.Instance.ShowPopup(popupId, popupWorldPosition);
+    }
+
+    /// <summary>
+    /// Returns the world position where score popups for this enemy should appear.
+    /// Uses the enemy position plus the configured popupOffset.
+    /// </summary>
+    protected Vector3 GetPopupWorldPosition()
+    {
+        return (Vector2)transform.position + popupOffset;
+    }
+
+    /// <summary>
+    /// Awards a flat score reward (no combo logic) at this enemy's popup position.
+    /// </summary>
+    protected void AwardFlatScoreReward(int points)
+    {
+        AwardFlatScoreReward(points, GetPopupWorldPosition());
+    }
+
+    /// <summary>
+    /// Awards a stomp combo reward at this enemy's popup position.
+    /// </summary>
+    protected void AwardStompComboReward()
+    {
+        AwardStompComboReward(GetPopupWorldPosition());
+    }
+
+    /// <summary>
+    /// Awards a shell combo reward at this enemy's popup position.
+    /// </summary>
+    protected void AwardShellComboReward()
+    {
+        AwardShellComboReward(GetPopupWorldPosition());
+    }
+
     protected virtual void hitByPlayer(GameObject player)
     {
         MarioMovement playerscript = player.GetComponent<MarioMovement>();
@@ -128,7 +243,7 @@ public class EnemyAI : ObjectPhysics
 
     protected virtual void hitByStarPower(GameObject player) {
         KnockAway(player.transform.position.x > transform.position.x);
-        GameManager.Instance.AddScorePoints(100); // Gives a hundred points to the player
+        AwardStompComboReward();
     }
 
     protected virtual void hitByStomp(GameObject player) {
@@ -143,6 +258,7 @@ public class EnemyAI : ObjectPhysics
                 break;
             case SpinJumpEffect.poof:
                 player.SpinJumpPoof(gameObject);
+                AwardStompComboReward();
                 break;
             case SpinJumpEffect.stomp:
                 hitByStomp(player.gameObject);

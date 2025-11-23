@@ -55,7 +55,7 @@ public class KoopaController : EnemyAI
     {
         if (other.CompareTag("Enemy") && state == EnemyState.movingShell) {
             other.GetComponent<EnemyAI>().KnockAway(movingLeft);
-            GameManager.Instance.AddScorePoints(100); // Gives a hundred points to the player
+            AwardShellComboReward();
         }
     }
 
@@ -68,7 +68,7 @@ public class KoopaController : EnemyAI
             {
                 EnemyAI enemy = collision.gameObject.GetComponent<EnemyAI>();
                 enemy.KnockAway(movingLeft);
-                GameManager.Instance.AddScorePoints(100); // Gives a hundred points to the player
+                AwardShellComboReward();
             }
         }
     }
@@ -102,6 +102,11 @@ public class KoopaController : EnemyAI
         floorRaycastSpacing = 0.5f;
         checkObjectCollision = false;
         DontFallOffLedges = false;
+
+        if (StompComboManager.Instance != null)
+        {
+            StompComboManager.Instance.shellChainActive = true;
+        }
     }
 
     private bool HitCooldownCheck() {
@@ -110,6 +115,32 @@ public class KoopaController : EnemyAI
         }
         hitCooldownTimer = hitCooldown;
         return true;
+    }
+
+    private void KickShell(MarioMovement playerScript, Transform playerTransform)
+    {
+        audioSource.PlayOneShot(knockAwaySound);
+        ToMovingShell(playerTransform.position.x > transform.position.x);
+
+        int kickPoints = 400; // Default kick points
+
+        if (StompComboManager.Instance != null)
+        {
+            int last = StompComboManager.Instance.LastStompScore;
+
+            // If you come from higher stomp rewards, increase the kick
+            if (last >= 400 && last < 800)
+                kickPoints = 500;
+            else if (last >= 800)
+                kickPoints = 800;
+
+            // Start shell sequence from 0 and mark the shell chain as active
+            StompComboManager.Instance.ResetShellCombo();
+            StompComboManager.Instance.shellChainActive = true;
+        }
+
+        // Give the kick reward (400 / 500 / 800) and popup
+        AwardFlatScoreReward(kickPoints);
     }
 
     protected override void hitByStomp(GameObject player) {
@@ -123,18 +154,24 @@ public class KoopaController : EnemyAI
                 playerScript.Jump();
                 audioSource.Play();
                 ToInShell();
+                AwardStompComboReward();
                 break;
             case EnemyState.inShell:
-                audioSource.PlayOneShot(knockAwaySound);
-                ToMovingShell(player.transform.position.x > transform.position.x);
+                KickShell(playerScript, player.transform);
                 break;
             case EnemyState.movingShell:
                 playerScript.Jump();
                 audioSource.Play();
                 ToInShell();
+                AwardStompComboReward();
+
+                if (StompComboManager.Instance != null)
+                {
+                    StompComboManager.Instance.shellChainActive = false;
+                    StompComboManager.Instance.ResetShellCombo();
+                }
                 break;
         }
-
     }
 
     protected override void hitByGroundPound(MarioMovement player)
@@ -152,8 +189,7 @@ public class KoopaController : EnemyAI
                 playerScript.damageMario();
                 break;
             case EnemyState.inShell:
-                audioSource.PlayOneShot(knockAwaySound);
-                ToMovingShell(player.transform.position.x > transform.position.x);
+                KickShell(playerScript, player.transform);
                 break;
             case EnemyState.movingShell:
                 playerScript.damageMario();
@@ -183,6 +219,11 @@ public class KoopaController : EnemyAI
         if (state == EnemyState.movingShell)
         {
             ToInShell();
+            if (StompComboManager.Instance != null)
+            {
+                StompComboManager.Instance.shellChainActive = false;
+                StompComboManager.Instance.ResetShellCombo();
+            }
         }
     }
 

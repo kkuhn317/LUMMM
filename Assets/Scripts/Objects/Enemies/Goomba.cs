@@ -34,13 +34,13 @@ public class Goomba : EnemyAI
         MarioMovement playerscript = player.GetComponent<MarioMovement>();
         playerscript.Jump();
         Crush();
-        GameManager.Instance.AddScorePoints(100); // Gives a hundred points to the player
+        AwardStompComboReward();
     }
 
     protected override void hitByGroundPound(MarioMovement player)
     {
         Crush();
-        GameManager.Instance.AddScorePoints(100); // Gives a hundred points to the player
+        AwardStompComboReward();
     }
 
     public void Crush () {
@@ -95,7 +95,7 @@ public class Goomba : EnemyAI
                 
                 crushed = false;
 
-                Destroy(this.gameObject);
+                Destroy(gameObject);
             }
         }
     }

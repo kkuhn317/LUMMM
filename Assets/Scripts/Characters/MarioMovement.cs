@@ -439,6 +439,11 @@ public class MarioMovement : MonoBehaviour
         starPower = false;
         starPowerRemainingTime = 0f; // Reset remaining time
 
+        if (StompComboManager.Instance != null)
+        {
+            StompComboManager.Instance.ResetAllCombos();
+        }
+        
         SpriteRenderer sprite = GetComponent<SpriteRenderer>();
         if (sprite != null)
         {
@@ -822,6 +827,25 @@ public class MarioMovement : MonoBehaviour
                 cameraFollow.StopCameraMoveUp();
             }
         }
+
+        // Detect landing to reset stomp combo,
+        // but only if Mario is NOT in star power mode
+        if (onGround && !wasGrounded && !starPower)
+        {
+            if (StompComboManager.Instance != null)
+            {
+                // Stomp combo should ALWAYS reset when Mario touches the ground
+                StompComboManager.Instance.ResetStompCombo();
+
+                // Shell combo only resets if there is NO active moving shell chain
+                if (!StompComboManager.Instance.shellChainActive)
+                {
+                    StompComboManager.Instance.ResetShellCombo();
+                }
+            }
+        }
+
+        wasGrounded = onGround;
 
         // Physics
         ModifyPhysics();

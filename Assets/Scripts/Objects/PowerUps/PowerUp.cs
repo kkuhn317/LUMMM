@@ -80,17 +80,18 @@ public class PowerUp : ObjectPhysics
         GetComponent<Collider2D>().enabled = false;
         GetComponent<SpriteRenderer>().enabled = false;
         GetComponent<AudioSource>().PlayOneShot(extraLife);
+
+        // Grant life using GameManager so UI updates and animations play
         GameManager.Instance.AddLives();
-        Destroy(gameObject, 2);
 
-        if (oneupSpritePrefab != null)
+        // Show a "1UP" popup using the global popup system
+        if (ScorePopupManager.Instance != null)
         {
-            GameObject oneupSprite = Instantiate(oneupSpritePrefab, transform.position, Quaternion.identity);
-            Rigidbody2D upSpriteRigidbody = oneupSprite.GetComponent<Rigidbody2D>();
-            upSpriteRigidbody.velocity = Vector2.up * upSpeed;
-
-            Destroy(oneupSprite, 1.0f);
+            Vector3 popupPos = transform.position + Vector3.up * 0.5f;
+            ScorePopupManager.Instance.ShowPopup("1UP", popupPos);
         }
+
+        Destroy(gameObject, 2);
     }
 
     private void HandleStarPower(Collider2D other)
@@ -108,6 +109,14 @@ public class PowerUp : ObjectPhysics
     private void HandleStateTransition(Collider2D other)
     {
         GameManager.Instance.AddScorePoints(1000);
+
+        // Show "1000" popup at the power-up position
+        if (ScorePopupManager.Instance != null)
+        {
+            Vector3 popupPos = transform.position + Vector3.up * 0.5f;
+            ScorePopupManager.Instance.ShowPopup("1000", popupPos);
+        }
+        
         var marioMovement = other.GetComponent<MarioMovement>();
         if (marioMovement == null) return;
 

@@ -2322,6 +2322,8 @@ GameObject:
   - component: {fileID: 1209335749245954321}
   - component: {fileID: 1209335749245954322}
   - component: {fileID: 1209335749245954320}
+  - component: {fileID: 6800535215337309630}
+  - component: {fileID: 2720506809133960788}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -2590,6 +2592,66 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &6800535215337309630
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1209335749245954323}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 097617953e720734ea240d30cdf1a60c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  popupPrefab: {fileID: 1453296356520202917, guid: 8ac511aec3fd0164cbc523affb535b16, type: 3}
+  popupSprites:
+  - id: 100
+    sprite: {fileID: 1290575777, guid: a32db4a11095f9e468ae784bc51f5292, type: 3}
+  - id: 200
+    sprite: {fileID: -2084808494, guid: a32db4a11095f9e468ae784bc51f5292, type: 3}
+  - id: 400
+    sprite: {fileID: -1073161918, guid: a32db4a11095f9e468ae784bc51f5292, type: 3}
+  - id: 500
+    sprite: {fileID: 2080798267, guid: a32db4a11095f9e468ae784bc51f5292, type: 3}
+  - id: 800
+    sprite: {fileID: 1894136264, guid: a32db4a11095f9e468ae784bc51f5292, type: 3}
+  - id: 1000
+    sprite: {fileID: 2032235540, guid: a32db4a11095f9e468ae784bc51f5292, type: 3}
+  - id: 2000
+    sprite: {fileID: -1736705407, guid: a32db4a11095f9e468ae784bc51f5292, type: 3}
+  - id: 4000
+    sprite: {fileID: -1009389288, guid: a32db4a11095f9e468ae784bc51f5292, type: 3}
+  - id: 5000
+    sprite: {fileID: -971461010, guid: a32db4a11095f9e468ae784bc51f5292, type: 3}
+  - id: 8000
+    sprite: {fileID: -232752126, guid: a32db4a11095f9e468ae784bc51f5292, type: 3}
+  - id: 1UP
+    sprite: {fileID: -1426170229, guid: a32db4a11095f9e468ae784bc51f5292, type: 3}
+--- !u!114 &2720506809133960788
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1209335749245954323}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cb52c0b6e4458b94ea3f864f1e9f8376, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  stompSequenceIds:
+  - 100
+  - 200
+  - 400
+  - 500
+  - 800
+  - 1000
+  - 2000
+  - 4000
+  - 5000
+  - 8000
+  - 1UP
 --- !u!1 &1209335749307119686
 GameObject:
   m_ObjectHideFlags: 0
