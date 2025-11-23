@@ -71,7 +71,6 @@ public class StompComboManager : MonoBehaviour
         }
 
         Instance = this;
-        DontDestroyOnLoad(gameObject);
     }
 
     #region Public API

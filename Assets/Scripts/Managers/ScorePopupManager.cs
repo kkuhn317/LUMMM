@@ -4,7 +4,7 @@ public class ScorePopupManager : MonoBehaviour
 {
     public static ScorePopupManager Instance { get; private set; }
 
-    public GameObject popupPrefab;           // Prefab con ScorePopupSprite
+    public GameObject popupPrefab;
     public PopupSpriteEntry[] popupSprites;  // Tabla id → sprite
 
     private void Awake()
@@ -14,9 +14,7 @@ public class ScorePopupManager : MonoBehaviour
             Destroy(gameObject);
             return;
         }
-
         Instance = this;
-        DontDestroyOnLoad(gameObject);
     }
 
     public void ShowPopup(string id, Vector3 worldPosition)
