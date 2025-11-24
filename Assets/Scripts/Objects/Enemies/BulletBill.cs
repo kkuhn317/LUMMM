@@ -42,20 +42,22 @@ public class BulletBill : EnemyAI
     // knock away on stomp
     protected override void hitByStomp(GameObject player)
     {
-        MarioMovement playerscript = player.GetComponent<MarioMovement>();
-        playerscript.Jump();
+        var mario = player.GetComponent<MarioMovement>();
+        mario.Jump();
 
-        KnockAway(movingLeft, false, KnockAwayType.flip, new Vector2(1,0));
-
+        KnockAway(movingLeft, false, KnockAwayType.flip, new Vector2(1, 0));
         GetComponent<AudioSource>().Play();
-        
-        GameManager.Instance.AddScorePoints(100); // Gives a hundred points to the player
+
+        Vector3 popupPos = transform.position + Vector3.up * 0.5f;
+        AwardStompComboReward(popupPos);
     }
+
 
     protected override void hitByGroundPound(MarioMovement player)
     {
         KnockAway(movingLeft, false, KnockAwayType.flip, new Vector2(1,0));
-        GameManager.Instance.AddScorePoints(100); // Gives a hundred points to the player
+        Vector3 popupPos = transform.position + Vector3.up * 0.5f;
+        AwardStompComboReward(popupPos);
     }
 
     // When we hit a wall, we should die

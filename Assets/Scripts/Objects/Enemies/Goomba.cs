@@ -33,8 +33,15 @@ public class Goomba : EnemyAI
     {
         MarioMovement playerscript = player.GetComponent<MarioMovement>();
         playerscript.Jump();
+        
+        bool wasCrushed = stompable;
+
         Crush();
-        AwardStompComboReward();
+
+        if (wasCrushed)
+        {
+            AwardStompComboReward();
+        }
     }
 
     protected override void hitByGroundPound(MarioMovement player)

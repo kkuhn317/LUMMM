@@ -34,11 +34,11 @@ public class Fireball : ObjectPhysics
             Vector3 popupPos = enemy.transform.position + Vector3.up * 0.3f;
 
             // ALWAYS award 1000 points for fire kills
-            GameManager.Instance.AddScorePoints(1000);
+            GameManager.Instance.AddScorePoints(200);
 
             if (ScorePopupManager.Instance != null)
             {
-                ComboResult result = new ComboResult(RewardType.Score, PopupID.Score1000, 1000);
+                ComboResult result = new ComboResult(RewardType.Score, PopupID.Score200, 200);
                 ScorePopupManager.Instance.ShowPopup(result, popupPos);
             }
 

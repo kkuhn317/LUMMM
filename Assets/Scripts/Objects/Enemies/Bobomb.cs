@@ -102,7 +102,7 @@ public class Bobomb : EnemyAI
         switch (state) {
             case EnemyState.walking:
                 playerScript.Jump();
-                GameManager.Instance.AddScorePoints(100); // Gives a hundred points to the player
+                AwardStompComboReward();
                 audioSource.Play();
                 ToPrimed();
                 break;
@@ -153,14 +153,25 @@ public class Bobomb : EnemyAI
                     hitCollider.gameObject.GetComponent<MarioMovement>().damageMario();
                     break;
                 case "Enemy":
-                    hitCollider.gameObject.GetComponent<EnemyAI>().KnockAway(transform.position.x > hitCollider.transform.position.x);
+                    var enemy = hitCollider.gameObject.GetComponent<EnemyAI>();
+                    enemy.KnockAway(transform.position.x > enemy.transform.position.x);
+
+                    Vector3 enemyPos = enemy.transform.position;
+                    var mario = FindObjectOfType<MarioMovement>();
+
+                    int points = 100;
+                    GameManager.Instance.AddScorePoints(points);
+
+                    if (ScorePopupManager.Instance != null)
+                    {
+                        ComboResult result = new ComboResult(RewardType.Score, PopupID.Score100, points);
+                        ScorePopupManager.Instance.ShowPopup(result, enemyPos, mario.powerupState);
+                    }
                     break;
             }
-
         }
+
         Instantiate(explosionObject, transform.position, Quaternion.identity);
         Destroy(gameObject);
-
     }
-
 }

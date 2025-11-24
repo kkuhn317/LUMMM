@@ -139,7 +139,13 @@ public class EnemyAI : ObjectPhysics
 
         if (ScorePopupManager.Instance != null && result.popupID != PopupID.None)
         {
-            ScorePopupManager.Instance.ShowPopup(result, popupWorldPosition);
+            var mario = FindObjectOfType<MarioMovement>();
+
+            ScorePopupManager.Instance.ShowPopup(
+                result,
+                popupWorldPosition,
+                mario != null ? mario.powerupState : PowerStates.PowerupState.big
+            );
         }
     }
 
@@ -163,7 +169,13 @@ public class EnemyAI : ObjectPhysics
 
         if (ScorePopupManager.Instance != null && result.popupID != PopupID.None)
         {
-            ScorePopupManager.Instance.ShowPopup(result, popupWorldPosition);
+            var mario = FindObjectOfType<MarioMovement>();
+
+            ScorePopupManager.Instance.ShowPopup(
+                result,
+                popupWorldPosition,
+                mario != null ? mario.powerupState : PowerStates.PowerupState.big
+            );
         }
     }
 
