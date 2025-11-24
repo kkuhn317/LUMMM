@@ -1,0 +1,72 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &4846074275992161411
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 372083688145588121}
+  - component: {fileID: 6670919134577806686}
+  - component: {fileID: 1693201768511434040}
+  m_Layer: 0
+  m_Name: ScorePopupManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &372083688145588121
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4846074275992161411}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6670919134577806686
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4846074275992161411}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 097617953e720734ea240d30cdf1a60c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  popupPool: {fileID: 1693201768511434040}
+  popupDatabase: {fileID: 11400000, guid: 1d57d44201c899f4884847556124b85b, type: 2}
+  tinyScale: {x: 0.25, y: 0.25, z: 0.25}
+  smallScale: {x: 1, y: 1, z: 1}
+  bigScale: {x: 1, y: 1, z: 1}
+  powerScale: {x: 1, y: 1, z: 1}
+  tinyOffset: {x: 0, y: 0, z: 0}
+  smallOffset: {x: 0, y: 0.5, z: 0}
+  bigOffset: {x: 0, y: 0.5, z: 0}
+  powerOffset: {x: 0, y: 0.5, z: 0}
+--- !u!114 &1693201768511434040
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4846074275992161411}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f7840ade9ccc9aa43a4bdb860628d69a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  prefab: {fileID: 1453296356520202917, guid: 8ac511aec3fd0164cbc523affb535b16, type: 3}
+  initialSize: 20
+  expandable: 1

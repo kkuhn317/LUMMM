@@ -66,16 +66,25 @@ public class FallingSpike : EnemyAI
     {
         MarioMovement playerscript = player.GetComponent<MarioMovement>();
 
-        if (playerscript.starPower || !deadly)
+        if (playerscript.starPower)
         {
+            // Star power kill → counts as stomp combo kill
             KnockAway(player.transform.position.x > transform.position.x);
-            GameManager.Instance.AddScorePoints(100);
-            Die(); // Mark the spike as dead
+            AwardStompComboReward();
+            Die();
+            return;
         }
-        else
+
+        if (!deadly)
         {
-            playerscript.damageMario();
+            // Spike already fell and is safe → flat reward (not combo)
+            KnockAway(player.transform.position.x > transform.position.x);
+            GiveFlatScore(100);
+            Die();
+            return;
         }
+
+        playerscript.damageMario();
     }
 
     public void fallDown()

@@ -4,8 +4,23 @@ public class ScorePopupManager : MonoBehaviour
 {
     public static ScorePopupManager Instance { get; private set; }
 
-    public GameObject popupPrefab;
-    public PopupSpriteEntry[] popupSprites;  // Tabla id → sprite
+    [Header("Pool")]
+    public ObjectPool popupPool;
+
+    [Header("Sprite Database")]
+    public PopupDataSet popupDatabase;
+
+    [Header("Scale per Power State")]
+    public Vector3 tinyScale = Vector3.one * 0.6f;
+    public Vector3 smallScale = Vector3.one * 0.8f;
+    public Vector3 bigScale = Vector3.one * 1.0f;
+    public Vector3 powerScale = Vector3.one * 1.0f;
+
+    [Header("Offset per Power State")]
+    public Vector3 tinyOffset = new Vector3(0f, 0.5f, 0f);
+    public Vector3 smallOffset = new Vector3(0f, 0.5f, 0f);
+    public Vector3 bigOffset = new Vector3(0f, 1.0f, 0f);
+    public Vector3 powerOffset = new Vector3(0f, 1.0f, 0f);
 
     private void Awake()
     {
@@ -17,29 +32,63 @@ public class ScorePopupManager : MonoBehaviour
         Instance = this;
     }
 
-    public void ShowPopup(string id, Vector3 worldPosition)
+    public void ShowPopup(ComboResult result, Vector3 worldPosition)
     {
-        if (popupPrefab == null) return;
-
-        Sprite sprite = GetSpriteById(id);
-        if (sprite == null) return;
-
-        GameObject popupGO = Instantiate(popupPrefab, worldPosition, Quaternion.identity);
-
-        var popup = popupGO.GetComponent<ScorePopupSprite>();
-        if (popup != null)
-        {
-            popup.Init(sprite);
-        }
+        ShowPopup(result, worldPosition, PowerStates.PowerupState.big);
     }
 
-    private Sprite GetSpriteById(string id)
+    public void ShowPopup(ComboResult result, Vector3 worldPosition, PowerStates.PowerupState powerState)
     {
-        for (int i = 0; i < popupSprites.Length; i++)
+        if (popupPool == null || popupDatabase == null)
         {
-            if (popupSprites[i].id == id)
-                return popupSprites[i].sprite;
+            Debug.LogWarning("ScorePopupManager: popupPool or popupDatabase is not assigned.");
+            return;
         }
-        return null;
+
+        Sprite sprite = popupDatabase.GetSprite(result.popupID, powerState);
+        if (sprite == null)
+            return;
+
+        Vector3 finalPos = worldPosition + GetOffset(powerState);
+
+        GameObject go = popupPool.Get();
+        if (go == null)
+            return;
+
+        go.transform.position = finalPos;
+        go.transform.localScale = GetScale(powerState);
+
+        var popup = go.GetComponent<ScorePopupSprite>();
+        if (popup == null)
+        {
+            Debug.LogError("ScorePopupManager: popupPool prefab is missing ScorePopupSprite.");
+            return;
+        }
+
+        popup.Init(sprite);
+    }
+
+    private Vector3 GetScale(PowerStates.PowerupState state)
+    {
+        return state switch
+        {
+            PowerStates.PowerupState.tiny => tinyScale,
+            PowerStates.PowerupState.small => smallScale,
+            PowerStates.PowerupState.big => bigScale,
+            PowerStates.PowerupState.power => powerScale,
+            _ => Vector3.one
+        };
+    }
+
+    private Vector3 GetOffset(PowerStates.PowerupState state)
+    {
+        return state switch
+        {
+            PowerStates.PowerupState.tiny => tinyOffset,
+            PowerStates.PowerupState.small => smallOffset,
+            PowerStates.PowerupState.big => bigOffset,
+            PowerStates.PowerupState.power => powerOffset,
+            _ => Vector3.zero
+        };
     }
 }

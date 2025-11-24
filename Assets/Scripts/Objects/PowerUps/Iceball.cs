@@ -73,6 +73,7 @@ public class Iceball : Fireball
 
         deleteFireball();
     }
+    
     public override void deleteFireball()
     {
         // TODO: make explosion animation

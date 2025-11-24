@@ -94,83 +94,77 @@ public class EnemyAI : ObjectPhysics
         }
     }
 
-    /// <summary>
-    /// Awards a flat score reward (no combo logic) and shows a popup with the points value.
-    /// Use this for simple kills like star-power, shell hits, or thrown objects.
-    /// </summary>
-    /// <param name="points">Amount of points to add to the global score.</param>
-    /// <param name="popupWorldPosition">World position where the popup sprite should appear.</param>
     protected void AwardFlatScoreReward(int points, Vector3 popupWorldPosition)
     {
         GameManager.Instance.AddScorePoints(points);
 
         if (ScorePopupManager.Instance != null)
         {
-            // Use the numeric points value as the popup id, e.g. "100"
-            ScorePopupManager.Instance.ShowPopup(points.ToString(), popupWorldPosition);
+            PopupID popupId = points switch
+            {
+                100  => PopupID.Score100,
+                200  => PopupID.Score200,
+                400  => PopupID.Score400,
+                500  => PopupID.Score500,
+                800  => PopupID.Score800,
+                1000 => PopupID.Score1000,
+                2000 => PopupID.Score2000,
+                4000 => PopupID.Score4000,
+                8000 => PopupID.Score8000,
+                _ => PopupID.None
+            };
+
+            ComboResult result = new ComboResult(RewardType.Score, popupId, points);
+            ScorePopupManager.Instance.ShowPopup(result, popupWorldPosition);
         }
     }
 
-    /// <summary>
-    /// Awards a stomp combo reward using the current combo state.
-    /// It asks the StompComboManager for the next reward in the sequence,
-    /// then either adds score or grants a 1UP, and shows the proper popup.
-    /// </summary>
-    /// <param name="popupWorldPosition">World position where the popup sprite should appear (usually above the enemy).</param>
     protected void AwardStompComboReward(Vector3 popupWorldPosition)
     {
-        int scorePoints;
-        bool grantsOneUp;
-        string popupId;
+        ComboResult result;
 
-        if (StompComboManager.Instance != null)
-        {
-            popupId = StompComboManager.Instance.RegisterStompKill(out scorePoints, out grantsOneUp);
-        }
+        if (ComboManager.Instance != null)
+            result = ComboManager.Instance.RegisterStompKill();
         else
-        {
-            popupId = "100";
-            scorePoints = 100;
-            grantsOneUp = false;
-        }
+            result = new ComboResult(RewardType.Score, PopupID.Score100, 100);
 
-        if (grantsOneUp)
+        if (result.rewardType == RewardType.OneUp)
+        {
             GameManager.Instance.AddLives();
-        else
-            GameManager.Instance.AddScorePoints(scorePoints);
+        }
+        else if (result.amount > 0)
+        {
+            GameManager.Instance.AddScorePoints(result.amount);
+        }
 
-        if (!string.IsNullOrEmpty(popupId) && ScorePopupManager.Instance != null)
-            ScorePopupManager.Instance.ShowPopup(popupId, popupWorldPosition);
+        if (ScorePopupManager.Instance != null && result.popupID != PopupID.None)
+        {
+            ScorePopupManager.Instance.ShowPopup(result, popupWorldPosition);
+        }
     }
 
-    /// <summary>
-    /// Awards a shell combo reward (500 → 800 → 1000 → ... → 1UP)
-    /// for enemies killed by a moving shell.
-    /// </summary>
     protected void AwardShellComboReward(Vector3 popupWorldPosition)
     {
-        int scorePoints;
-        bool grantsOneUp;
-        string popupId;
+        ComboResult result;
 
-        if (StompComboManager.Instance != null)
-        {
-            popupId = StompComboManager.Instance.RegisterShellKill(out scorePoints, out grantsOneUp);
-        }
+        if (ComboManager.Instance != null)
+            result = ComboManager.Instance.RegisterShellKill();
         else
-        {
-            popupId = "500";
-            scorePoints = 500;
-            grantsOneUp = false;
-        }
+            result = new ComboResult(RewardType.Score, PopupID.Score500, 500);
 
-        if (grantsOneUp)
+        if (result.rewardType == RewardType.OneUp)
+        {
             GameManager.Instance.AddLives();
-        else
-            GameManager.Instance.AddScorePoints(scorePoints);
+        }
+        else if (result.amount > 0)
+        {
+            GameManager.Instance.AddScorePoints(result.amount);
+        }
 
-        if (!string.IsNullOrEmpty(popupId) && ScorePopupManager.Instance != null)
-            ScorePopupManager.Instance.ShowPopup(popupId, popupWorldPosition);
+        if (ScorePopupManager.Instance != null && result.popupID != PopupID.None)
+        {
+            ScorePopupManager.Instance.ShowPopup(result, popupWorldPosition);
+        }
     }
 
     /// <summary>
@@ -183,11 +177,30 @@ public class EnemyAI : ObjectPhysics
     }
 
     /// <summary>
-    /// Awards a flat score reward (no combo logic) at this enemy's popup position.
+    /// Public method for external objects (fireballs, iceballs, thrown blocks)
+    /// to give flat score using this enemy's popup position.
     /// </summary>
-    protected void AwardFlatScoreReward(int points)
+    public void GiveFlatScore(int points)
     {
         AwardFlatScoreReward(points, GetPopupWorldPosition());
+    }
+
+    /// <summary>
+    /// Public method for external objects to award flat score at a custom position.
+    /// Use this for projectiles or thrown objects so the popup spawns at impact.
+    /// </summary>
+    public void GiveFlatScore(int points, Vector3 worldPos)
+    {
+        AwardFlatScoreReward(points, worldPos);
+    }
+
+    /// <summary>
+    /// Public wrapper so external objects (like ice blocks or shells)
+    /// can award a shell combo properly.
+    /// </summary>
+    public void AwardShellCombo()
+    {
+        AwardShellComboReward(GetPopupWorldPosition());
     }
 
     /// <summary>
@@ -262,6 +275,7 @@ public class EnemyAI : ObjectPhysics
                 break;
             case SpinJumpEffect.stomp:
                 hitByStomp(player.gameObject);
+                AwardStompComboReward();
                 break;
         }
     }

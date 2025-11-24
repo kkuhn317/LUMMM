@@ -103,9 +103,9 @@ public class KoopaController : EnemyAI
         checkObjectCollision = false;
         DontFallOffLedges = false;
 
-        if (StompComboManager.Instance != null)
+        if (ComboManager.Instance != null)
         {
-            StompComboManager.Instance.shellChainActive = true;
+            ComboManager.Instance.StartShellChain();
         }
     }
 
@@ -124,9 +124,10 @@ public class KoopaController : EnemyAI
 
         int kickPoints = 400; // Default kick points
 
-        if (StompComboManager.Instance != null)
+        if (ComboManager.Instance != null)
         {
-            int last = StompComboManager.Instance.LastStompScore;
+            ComboResult result = ComboManager.Instance.RegisterStompKill();
+            int last = result.amount;
 
             // If you come from higher stomp rewards, increase the kick
             if (last >= 400 && last < 800)
@@ -135,12 +136,12 @@ public class KoopaController : EnemyAI
                 kickPoints = 800;
 
             // Start shell sequence from 0 and mark the shell chain as active
-            StompComboManager.Instance.ResetShellCombo();
-            StompComboManager.Instance.shellChainActive = true;
+            ComboManager.Instance.ResetShellChain();
+            ComboManager.Instance.StartShellChain();
         }
 
         // Give the kick reward (400 / 500 / 800) and popup
-        AwardFlatScoreReward(kickPoints);
+        GiveFlatScore(kickPoints);
     }
 
     protected override void hitByStomp(GameObject player) {
@@ -165,10 +166,10 @@ public class KoopaController : EnemyAI
                 ToInShell();
                 AwardStompComboReward();
 
-                if (StompComboManager.Instance != null)
+                if (ComboManager.Instance != null)
                 {
-                    StompComboManager.Instance.shellChainActive = false;
-                    StompComboManager.Instance.ResetShellCombo();
+                    ComboManager.Instance.EndShellChain();
+                    ComboManager.Instance.ResetShellChain();
                 }
                 break;
         }
@@ -219,10 +220,10 @@ public class KoopaController : EnemyAI
         if (state == EnemyState.movingShell)
         {
             ToInShell();
-            if (StompComboManager.Instance != null)
+            if (ComboManager.Instance != null)
             {
-                StompComboManager.Instance.shellChainActive = false;
-                StompComboManager.Instance.ResetShellCombo();
+                ComboManager.Instance.EndShellChain();
+                ComboManager.Instance.ResetShellChain();
             }
         }
     }

@@ -24,11 +24,27 @@ public class Fireball : ObjectPhysics
         }
     }
 
-    protected virtual void OnHitEnemy(GameObject enemy)
+    protected virtual void OnHitEnemy(GameObject enemyObj)
     {
         hitEnemy = true;
-        GameManager.Instance.AddScorePoints(100); // Gives a hundred points to the player
-        enemy.GetComponent<EnemyAI>().KnockAway(movingLeft);
+        EnemyAI enemy = enemyObj.GetComponent<EnemyAI>();
+        if (enemy != null)
+        {
+            // Popup position
+            Vector3 popupPos = enemy.transform.position + Vector3.up * 0.3f;
+
+            // ALWAYS award 1000 points for fire kills
+            GameManager.Instance.AddScorePoints(1000);
+
+            if (ScorePopupManager.Instance != null)
+            {
+                ComboResult result = new ComboResult(RewardType.Score, PopupID.Score1000, 1000);
+                ScorePopupManager.Instance.ShowPopup(result, popupPos);
+            }
+
+            // Knockback
+            enemy.KnockAway(movingLeft);
+        }
         deleteFireball();
     }
 

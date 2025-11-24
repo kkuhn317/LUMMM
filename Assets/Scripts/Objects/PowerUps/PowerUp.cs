@@ -16,12 +16,7 @@ public class PowerUp : ObjectPhysics
     public GameObject starMusicOverride;
     public PowerUpType powerUpType = PowerUpType.Destroy;
     public float temporalInactiveTime = 5.0f; // Time to remain inactive
-
-    [Header("1UP")]
     public bool is1Up = false;
-    public GameObject oneupSpritePrefab; // Reference to the sprite to move up
-    public float upSpeed = 2.0f; // Speed at which the sprite moves up
-    public AudioClip extraLife;
 
     // Start is called before the first frame update
     protected override void Start()
@@ -79,7 +74,7 @@ public class PowerUp : ObjectPhysics
     {
         GetComponent<Collider2D>().enabled = false;
         GetComponent<SpriteRenderer>().enabled = false;
-        GetComponent<AudioSource>().PlayOneShot(extraLife);
+        // GetComponent<AudioSource>().PlayOneShot(extraLife);
 
         // Grant life using GameManager so UI updates and animations play
         GameManager.Instance.AddLives();
@@ -88,7 +83,11 @@ public class PowerUp : ObjectPhysics
         if (ScorePopupManager.Instance != null)
         {
             Vector3 popupPos = transform.position + Vector3.up * 0.5f;
-            ScorePopupManager.Instance.ShowPopup("1UP", popupPos);
+            var marioMovement = FindObjectOfType<MarioMovement>();
+            ComboResult result = new ComboResult(RewardType.OneUp, PopupID.OneUp, 0);
+            
+            ScorePopupManager.Instance.ShowPopup(result, popupPos, marioMovement.powerupState);
+            ComboManager.Instance?.PlayOneUpSound();
         }
 
         Destroy(gameObject, 2);
@@ -96,8 +95,23 @@ public class PowerUp : ObjectPhysics
 
     private void HandleStarPower(Collider2D other)
     {
+        var marioMovement = other.GetComponent<MarioMovement>();
+        marioMovement.startStarPower(starTime);
+
         GameManager.Instance.AddScorePoints(1000);
-        other.GetComponent<MarioMovement>().startStarPower(starTime);
+        
+        if (ScorePopupManager.Instance != null)
+        {
+            Vector3 popupPos = transform.position + Vector3.up * 0.5f;
+
+            ComboResult result = new ComboResult(
+                RewardType.Score,
+                PopupID.Score1000,
+                1000
+            );
+
+            ScorePopupManager.Instance.ShowPopup(result, popupPos, marioMovement.powerupState);
+        }
 
         if (starMusicOverride != null)
         {
@@ -108,17 +122,24 @@ public class PowerUp : ObjectPhysics
 
     private void HandleStateTransition(Collider2D other)
     {
+        var marioMovement = other.GetComponent<MarioMovement>();
+        if (marioMovement == null) return;
+
         GameManager.Instance.AddScorePoints(1000);
 
         // Show "1000" popup at the power-up position
         if (ScorePopupManager.Instance != null)
         {
             Vector3 popupPos = transform.position + Vector3.up * 0.5f;
-            ScorePopupManager.Instance.ShowPopup("1000", popupPos);
+
+            ComboResult result = new ComboResult(
+                RewardType.Score,
+                PopupID.Score1000,
+                1000
+            );
+
+            ScorePopupManager.Instance.ShowPopup(result, popupPos, marioMovement.powerupState);
         }
-        
-        var marioMovement = other.GetComponent<MarioMovement>();
-        if (marioMovement == null) return;
 
         if (canGetPowerup(marioMovement.powerupState, marioMovement.currentPowerupType))
         {

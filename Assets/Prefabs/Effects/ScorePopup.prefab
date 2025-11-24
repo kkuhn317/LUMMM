@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 831583542521449989}
   - component: {fileID: 4053754679245553008}
   - component: {fileID: 8635173703328749858}
+  - component: {fileID: 477766511855918076}
   m_Layer: 0
   m_Name: ScorePopup
   m_TagString: Untagged
@@ -98,6 +99,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 1.5
+  moveDirection: {x: 0, y: 1, z: 0}
   lifetime: 0.8
-  fadeTime: 0
-  spriteRenderer: {fileID: 4053754679245553008}
+  fadeDuration: 0
+--- !u!114 &477766511855918076
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1453296356520202917}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2c645d7c7e6025f469bda21e4396c14d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  parentPool: {fileID: 0}

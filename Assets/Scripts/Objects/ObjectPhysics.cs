@@ -931,7 +931,7 @@ public class ObjectPhysics : MonoBehaviour
         hasBeenThrown = true;
     }
     
-   private void OnTriggerEnter2D(Collider2D collision)
+    private void OnTriggerEnter2D(Collider2D collision)
     {
         // Ensure we are detecting the water layer
         if (((1 << collision.gameObject.layer) & waterMask) != 0) 
@@ -944,20 +944,7 @@ public class ObjectPhysics : MonoBehaviour
             }
         }
         
-        // Check if the enemy has been thrown before handling the collision
-        if (collision.gameObject.CompareTag("Enemy"))
-        {
-            if (hasBeenThrown && objectState == ObjectState.falling)
-            {
-                EnemyAI enemy = collision.gameObject.GetComponent<EnemyAI>();
-                if (enemy != null)
-                {
-                    enemy.objectState = ObjectState.falling;
-                    enemy.KnockAway(transform.position.x > enemy.transform.position.x);
-                }
-                GameManager.Instance.AddScorePoints(100);
-            }
-        }  
+        TryApplyThrownObjectCombo(collision);
 
         // TODO: This was code for throwing a POW block. Move it to the POW block script probably
         //if (collision.gameObject.CompareTag("Ground") || collision.gameObject.CompareTag("Enemy") || collision.gameObject.CompareTag("Default"))
@@ -1014,6 +1001,33 @@ public class ObjectPhysics : MonoBehaviour
         return false;
     }
 
+    protected virtual void TryApplyThrownObjectCombo(Collider2D collision)
+    {
+        // Only allow this if object was thrown
+        if (!hasBeenThrown)
+            return;
+
+        // Object must be moving horizontally with intent
+        if (Mathf.Abs(velocity.x) < 1f)
+            return;
+
+        // Must hit an enemy
+        if (!collision.CompareTag("Enemy"))
+            return;
+
+        EnemyAI enemy = collision.GetComponent<EnemyAI>();
+        if (enemy == null)
+            return;
+
+        bool hitFromLeft = transform.position.x < enemy.transform.position.x;
+
+        // Knock the enemy
+        enemy.KnockAway(hitFromLeft);
+
+        // Register as shell chain kill
+        enemy.AwardShellCombo();
+    }
+
     public virtual void escapeMario()
     {
         // find mario's script (mario is 2 levels up hopefully lol)
@@ -1022,7 +1036,6 @@ public class ObjectPhysics : MonoBehaviour
         {
             marioScript.dropCarry();
         }
-
     }
 
     public virtual void Flip()

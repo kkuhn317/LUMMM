@@ -52,11 +52,13 @@ public class IceBlock : ObjectPhysics
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        //if it hits an enemy then knock away the enemy
-        if (collision.gameObject.CompareTag("Enemy") && velocity.x != 0)
+        if (collision.CompareTag("Enemy") && velocity.x != 0)
         {
-            collision.gameObject.GetComponent<EnemyAI>().KnockAway(movingLeft);
-            GameManager.Instance.AddScorePoints(100); // Gives a hundred points to the player
+            var enemy = collision.GetComponent<EnemyAI>();
+            enemy.KnockAway(movingLeft);
+
+            ComboManager.Instance.StartShellChain();
+            enemy.AwardShellCombo();
         }
     }
 
@@ -68,18 +70,23 @@ public class IceBlock : ObjectPhysics
         movement = ObjectMovement.still;
         audioSource.PlayOneShot(hitWallSound);
 
+        Vector3 popupPos = transform.position + Vector3.up * 0.5f;
+        GameManager.Instance.AddScorePoints(100);
+        if (ScorePopupManager.Instance != null)
+        {
+            ComboResult result = new ComboResult(RewardType.Score, PopupID.Score100, 100);
+            ScorePopupManager.Instance.ShowPopup(result, popupPos);
+        }
+        ComboManager.Instance.EndShellChain();
+
         //make the iceblock shoot out iceparticles by enabling all the sprite children of the iceblock and setting their velocity to shoot out all in random directions 
         for (int i = 0; i < transform.childCount; i++)
         {
             //enable the sprite renderer and gameobject
             transform.GetChild(i).GetComponent<SpriteRenderer>().enabled = true;
             transform.GetChild(i).gameObject.SetActive(true);
-
-
         }
 
-        //only set the direction if the child object has the script StarMoveOutward
-        GameManager.Instance.AddScorePoints(100); // Gives a hundred points to the player
         transform.GetChild(0).GetComponent<StarMoveOutward>().direction = new Vector2(1, 1);
         transform.GetChild(1).GetComponent<StarMoveOutward>().direction = new Vector2(-1, 1);
         transform.GetChild(2).GetComponent<StarMoveOutward>().direction = new Vector2(1, -1);
@@ -102,5 +109,4 @@ public class IceBlock : ObjectPhysics
         }
         BreakIce();
     }
-
 }
