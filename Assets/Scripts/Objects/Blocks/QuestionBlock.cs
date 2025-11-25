@@ -121,7 +121,7 @@ public class QuestionBlock : BumpableBlock
             SpawnItems();
         }
         
-        if (!IsUsed)
+        if (!brickBlock && !IsUsed)
         {
             IsUsed = true;
             ChangeToEmptySprite();

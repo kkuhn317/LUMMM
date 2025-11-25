@@ -80,7 +80,7 @@ public class PowerUp : ObjectPhysics
     {
         GetComponent<Collider2D>().enabled = false;
         GetComponent<SpriteRenderer>().enabled = false;
-        // GetComponent<AudioSource>().PlayOneShot(extraLife);
+        GetComponent<AudioSource>().Play();
 
         // Grant life using GameManager so UI updates and animations play
         GameManager.Instance.AddLives();
@@ -93,7 +93,6 @@ public class PowerUp : ObjectPhysics
             ComboResult result = new ComboResult(RewardType.OneUp, PopupID.OneUp, 0);
             
             ScorePopupManager.Instance.ShowPopup(result, popupPos, marioMovement.powerupState);
-            ComboManager.Instance?.PlayOneUpSound();
         }
 
         Destroy(gameObject, 2);
