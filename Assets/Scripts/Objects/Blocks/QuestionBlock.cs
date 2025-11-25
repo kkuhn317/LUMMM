@@ -1,389 +1,321 @@
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.Playables;
 using UnityEngine.Events;
-using PowerupState = PowerStates.PowerupState;
 
-public class QuestionBlock : MonoBehaviour, IGroundPoundable
+public class QuestionBlock : BumpableBlock
 {
-    [Header("Invisible Block Behavior")]
-    public bool isInvisible;
+    [Header("Question Block Settings")]
+    public bool isInvisible = false;
+    public bool brickBlock = false;
 
-    [Header("Block Behavior")]
-    public float bounceHeight = 0.5f;
-    public float bounceSpeed = 4f;
-    public bool brickBlock;
-
-    public GameObject[] spawnableItems; // Array to hold multiple spawnable items
+    [Header("Items")]
+    public GameObject[] spawnableItems;
 
     public float itemMoveHeight = 1f;
     public float itemMoveSpeed = 1f;
 
+    public AudioClip itemRiseSound;
     public UnityEvent onBlockActivated;
-
-    private Vector2 originalPosition;
 
     public Sprite emptyBlockSprite;
 
-    private bool canBounce = true;
-
-    public AudioClip itemRiseSound;
-
-    private AudioSource audioSource;
-
+    [Header("Coin Popup")]
     public string popUpCoinAnimationName = "";
 
-    private int originalLayer = 3; // Layer 3 = ground layer
-    private bool shouldContinueRiseUp = true; // Add a flag to control coroutine continuation
-    private BoxCollider2D boxCollider;
+    private bool shouldContinueRiseUp = true;
+    private const int GROUND_LAYER = 3;
+    private int originalLayer = GROUND_LAYER;
+    
+    // State to control if already used
+    public bool IsUsed { get; private set; } = false;
 
+    // Cache references
+    private SpriteRenderer spriteRenderer;
+    private PlatformEffector2D platformEffector;
+    private Animator animator;
 
-    // Start is called before the first frame update
-    void Start()
+    protected override void Awake()
     {
-        audioSource = GetComponent<AudioSource>();
-        boxCollider = GetComponent<BoxCollider2D>();
-        originalPosition = transform.position;
+        base.Awake();
+        
+        spriteRenderer = GetComponent<SpriteRenderer>();
+        platformEffector = GetComponent<PlatformEffector2D>();
+        animator = GetComponent<Animator>();
 
-        if (isInvisible) {
-            GetComponent<SpriteRenderer>().enabled = false;
-        }
+        if (isInvisible && spriteRenderer != null)
+            spriteRenderer.enabled = false;
     }
 
-    private void OnCollisionEnter2D(Collision2D other)
+    #region Activation
+    // Override activation checks for question block specific logic
+    protected override bool CanActivate(Collision2D other)
     {
-        if (other.gameObject.tag == "Player")
-        {
-            Vector2 impulse = Vector2.zero;
-
-            int contactCount = other.contactCount;
-            for (int i = 0; i < contactCount; i++)
-            {
-                var contact = other.GetContact(i);
-                impulse += contact.normal * contact.normalImpulse;
-                impulse.x += contact.tangentImpulse * contact.normal.y;
-                impulse.y -= contact.tangentImpulse * contact.normal.x;
-            }
-
-            //print(impulse);
-
-            // position comparison is to stop a weird bug where the player can hit the top corner of the block and activate it
-            if (impulse.y <= 0 || other.transform.position.y > transform.position.y)
-            {
-                return;
-            }
-
-            if (gameObject == null)
-            {
-                // The object has been destroyed
-                return;
-            }
-
-            // Brick Block and Question Block
-            if (!brickBlock) // When it's a question block
-            {
-                if (canBounce) // If the block bounces when the player collides
-                {
-                    DefeatEnemy(other.collider); // Defeat the enemy
-                }
-                QuestionBlockBounce();
-            }
-            else // When it's a brick block
-            {
-                MarioMovement playerScript = other.gameObject.GetComponent<MarioMovement>();
-                DefeatEnemy(other.collider);
-                if (PowerStates.IsSmall(playerScript.powerupState))
-                {
-                    QuestionBlockBounce();
-                }
-                else
-                {
-                    BrickBlockBreak();         
-                }
-            }
-
-            onBlockActivated.Invoke();
-        }
+        if (!base.CanActivate(other)) return false;
+        
+        // Question block specific: Don't activate if already used (except brick blocks)
+        return !IsUsed || brickBlock;
     }
 
-    public void OnGroundPound(MarioMovement player)
+    protected override bool CanActivateFromPlayer(MarioMovement player)
     {
-        if (brickBlock) 
+        if (!base.CanActivateFromPlayer(player)) return false;
+        
+        // Question block specific: Don't activate if already used (except brick blocks)
+        return !IsUsed || brickBlock;
+    }
+
+    public void ActivateFromSide(MarioMovement player = null)
+    {
+        // Question block specific side activation
+        if (!IsUsed || brickBlock)
         {
-            // Brick block behavior
-            if (PowerStates.IsSmall(player.powerupState))
+            Bump(BlockHitDirection.Side, player);
+        }
+    }
+    #endregion
+
+    #region Bounce Handling
+    protected override void OnBeforeBounce(BlockHitDirection direction, MarioMovement player)
+    {
+        if (IsUsed && !brickBlock)
+        {
+            skipBounceThisHit = true;
+            return;
+        }
+
+        onBlockActivated?.Invoke();
+
+        if (isInvisible)
+        {
+            isInvisible = false;
+            if (spriteRenderer != null)
+                spriteRenderer.enabled = true;
+            if (platformEffector != null)
+                platformEffector.useOneWay = false;
+            gameObject.layer = originalLayer;
+        }
+
+        if (brickBlock && player != null)
+        {
+            if (!PowerStates.IsSmall(player.powerupState))
             {
-                QuestionBlockBounce(); // Bounce for small Mario
+                BreakBrick();
+                skipBounceThisHit = true;
+                IsUsed = true;
+                return;
             }
             else
             {
-                BrickBlockBreak(); // Break for big Mario
+                skipBounceThisHit = false;
+                return;
             }
-        }
-        else
-        {
-            // Question block always bounces
-            QuestionBlockBounce();
         }
     }
 
-    private void DefeatEnemy(Collider2D blockCollider)
+    protected override void OnAfterBounce(BlockHitDirection direction, MarioMovement player)
     {
-        // When there's an enemy on the block the player hits
-        Collider2D[] hitEnemies = Physics2D.OverlapBoxAll(boxCollider.bounds.center, boxCollider.bounds.size, 0f, LayerMask.GetMask("Enemy"));
-
-        if (hitEnemies.Length > 0)
+        // If block has items, spawn them
+        if (!IsUsed && spawnableItems.Length > 0)
         {
-            foreach (Collider2D enemyCollider in hitEnemies)
-            {
-                EnemyAI enemy = enemyCollider.GetComponent<EnemyAI>();
-                if (enemy != null)
-                {
-                    // Use the KnockAway method to change the enemy's state
-                    enemy.KnockAway(blockCollider.transform.position.x > enemy.transform.position.x);
-                    GameManager.Instance.AddScorePoints(100);
-                }
-            }
+            SpawnItems();
+        }
+        
+        if (!IsUsed)
+        {
+            IsUsed = true;
+            ChangeToEmptySprite();
         }
     }
+    #endregion
 
-    // this is called when a koopa shell hits the block for example
-    public void Activate()
-    {
-        if (canBounce)
-        {
-            if (brickBlock)
-            {
-                BrickBlockBreak();
-            }
-            else
-            {
-                QuestionBlockBounce();
-            }
-        }
-    }
-
-    public void QuestionBlockBounce()
-    {
-        if (canBounce)
-        {
-            if (isInvisible) {
-                isInvisible = false;
-                GetComponent<SpriteRenderer>().enabled = true;
-                GetComponent<PlatformEffector2D>().useOneWay = false;
-
-                // change layer
-                gameObject.layer = originalLayer;
-            }
-
-            if (spawnableItems.Length > 0 || !brickBlock)
-            {
-                canBounce = false;
-            }
-
-            // do whatever timeline stuff here
-            if (GetComponent<PlayableDirector>() != null)
-            {
-                GetComponent<PlayableDirector>().Play();
-            }
-
-            StartCoroutine(Bounce());
-        }
-    }
-
-    public void BrickBlockBreak()
+    #region Brick Logic
+    private void BreakBrick()
     {
         if (spawnableItems.Length > 0)
         {
-            QuestionBlockBounce();
-        }
-        else
-        {
-            GetComponent<BreakableBlocks>().Break();
+            // Brick that contains item - spawn items before breaking
+            SpawnItems();
         }
 
+        var breakable = GetComponent<BreakableBlocks>();
+        if (breakable != null)
+            breakable.Break();
     }
+    #endregion
 
-    void ChangeSprite()
+    #region Item Spawning
+    private void SpawnItems()
     {
+        if (spawnableItems.Length == 0) return;
 
-        if (!brickBlock)
-            if (GetComponent<Animator>() != null)
-            {
-                GetComponent<Animator>().enabled = false;
-            }
-
-        GetComponent<SpriteRenderer>().sprite = emptyBlockSprite;
-
-    }
-
-    void PresentItems(List<GameObject> items)
-    {
-        audioSource.PlayOneShot(itemRiseSound);
-
-        foreach (GameObject itemPrefab in items)
-        {
-            GameObject spawnedItem = Instantiate(itemPrefab, transform.parent, true);
-            spawnedItem.transform.position = new Vector3(originalPosition.x, originalPosition.y, 0);
-            MonoBehaviour[] scripts = spawnedItem.GetComponents<MonoBehaviour>();
-            foreach (MonoBehaviour script in scripts)
-            {
-                script.enabled = false;
-            }
-
-            string ogTag = spawnedItem.tag;
-            int ogLayer = spawnedItem.GetComponent<SpriteRenderer>().sortingLayerID;
-            spawnedItem.tag = "RisingItem";
-            spawnedItem.transform.SetParent(this.transform.parent);
-            spawnedItem.GetComponent<SpriteRenderer>().sortingLayerID = 0;
-            spawnedItem.GetComponent<SpriteRenderer>().sortingOrder = -1;
-            spawnedItem.transform.position = new Vector3(originalPosition.x, originalPosition.y, 0);
-            StartCoroutine(RiseUp(spawnedItem, ogTag, ogLayer, scripts));
-        }
-
-    }
-
-    void PresentCoins(List<GameObject> coins) {
-
-        // audioSource.Play();
-        // Right now the Game Manager is playing the coin sound (called from Coin.cs)
-        // However, the pitch/sound will not be changed for a small question block for example
-        // If we need this functionality, we can rework some of the code to allow for it
-
-        float startHeight = originalPosition.y + boxCollider.size.y;
-
-        foreach (GameObject coinPrefab in coins)
-        {
-            GameObject spinningCoin = Instantiate(coinPrefab, transform.parent);
-            spinningCoin.transform.position = new Vector2(originalPosition.x, startHeight);
-
-            Coin coinScript = spinningCoin.GetComponent<Coin>();
-            if (coinScript != null)
-            {
-                coinScript.popUpAnimationName = popUpCoinAnimationName;
-                coinScript.PopUp(); // No delay required
-            }
-        }
-    }
-
-    IEnumerator Bounce()
-    {
-        //print(spawnItem != null);
-
-        // get all the items that are coins and make them pop up immediately
-        // The other items will rise up after the block bounces
         List<GameObject> coins = new List<GameObject>();
         List<GameObject> otherItems = new List<GameObject>();
-        if (spawnableItems.Length > 0)
+
+        foreach (GameObject item in spawnableItems)
         {
-            foreach (GameObject itemPrefab in spawnableItems)
-            {
-                if (itemPrefab.GetComponent<Coin>() != null)
-                {
-                    coins.Add(itemPrefab);
-                } else
-                {
-                    otherItems.Add(itemPrefab);
-                }
-            }
+            if (item.GetComponent<Coin>() != null)
+                coins.Add(item);
+            else
+                otherItems.Add(item);
         }
 
         if (coins.Count > 0)
-        {
             PresentCoins(coins);
-        }
-
-        while (true)
-        {
-            transform.position = new Vector2(transform.position.x, transform.position.y + bounceSpeed * Time.deltaTime);
-
-            if (transform.position.y >= originalPosition.y + bounceHeight)
-                break;
-
-            yield return null;
-        }
-
-        while (true)
-        {
-            transform.position = new Vector2(transform.position.x, transform.position.y - bounceSpeed * Time.deltaTime);
-
-            if (transform.position.y <= originalPosition.y)
-            {
-
-                transform.position = originalPosition;
-                break;
-            }
-
-            yield return null;
-        }
 
         if (otherItems.Count > 0)
-        {
             PresentItems(otherItems);
-        }
+    }
 
-        if (!brickBlock || spawnableItems.Length > 0)
+    private void ChangeToEmptySprite()
+    {
+        if (animator != null)
+            animator.enabled = false;
+
+        if (spriteRenderer != null && emptyBlockSprite != null)
+            spriteRenderer.sprite = emptyBlockSprite;
+    }
+
+    private void PresentCoins(List<GameObject> coins)
+    {
+        if (coins.Count == 0 || boxCollider == null) return;
+
+        float startY = originalPosition.y + boxCollider.size.y;
+
+        foreach (GameObject coinPrefab in coins)
         {
-            ChangeSprite();
+            if (coinPrefab == null) continue;
+
+            GameObject coin = Instantiate(coinPrefab, transform.parent);
+            coin.transform.position = new Vector2(originalPosition.x, startY);
+
+            Coin coinScript = coin.GetComponent<Coin>();
+            if (coinScript != null)
+            {
+                coinScript.popUpAnimationName = popUpCoinAnimationName;
+                coinScript.PopUp();
+            }
         }
-        
     }
 
-    public void StopRiseUp()
+    private void PresentItems(List<GameObject> items)
     {
-        shouldContinueRiseUp = false; // Method to stop the RiseUp coroutine prematurely
-    }
+        if (items.Count == 0) return;
 
-    IEnumerator RiseUp(GameObject item, string ogTag, int ogLayer, MonoBehaviour[] scripts)
+        if (audioSource != null && itemRiseSound != null)
+            audioSource.PlayOneShot(itemRiseSound);
+
+        foreach (GameObject prefab in items)
+        {
+            if (prefab == null) continue;
+
+            GameObject item = Instantiate(prefab, transform.parent, true);
+            item.transform.position = originalPosition;
+
+            // Disable scripts while rising
+            MonoBehaviour[] scripts = item.GetComponents<MonoBehaviour>();
+            foreach (MonoBehaviour script in scripts)
+            {
+                if (script != null && script != this)
+                    script.enabled = false;
+            }
+
+            string oldTag = item.tag;
+            SpriteRenderer itemSpriteRenderer = item.GetComponent<SpriteRenderer>();
+            int oldSortingLayerId = itemSpriteRenderer?.sortingLayerID ?? 0;
+
+            item.tag = "RisingItem";
+            
+            if (itemSpriteRenderer != null)
+            {
+                itemSpriteRenderer.sortingLayerID = 0;
+                itemSpriteRenderer.sortingOrder = -1;
+            }
+
+            StartCoroutine(RiseUpCoroutine(item, oldTag, oldSortingLayerId, scripts));
+        }
+    }
+    #endregion
+
+    #region Item Animation
+    private IEnumerator RiseUpCoroutine(GameObject item, string oldTag, int oldSortingLayerId, MonoBehaviour[] scripts)
     {
+        if (item == null) yield break;
+
         BoxCollider2D itemCollider = item.GetComponent<BoxCollider2D>();
         if (itemCollider != null)
-        {
-            itemCollider.enabled = false;  // Initially disable the collider
-        }
+            itemCollider.enabled = false;
 
-        float riseStartTime = Time.time;  // Record the time when rise starts
-        bool colliderEnabled = false;     // Track if the collider has been enabled
+        float startTime = Time.time;
+        bool colliderEnabled = false;
+        float targetY = originalPosition.y + itemMoveHeight;
 
         while (item != null && shouldContinueRiseUp)
         {
-            // Move the item up
-            item.transform.position = new Vector3(item.transform.position.x, item.transform.position.y + itemMoveSpeed * Time.deltaTime, 0);
+            // Use MoveTowards for smoother movement
+            float newY = Mathf.MoveTowards(item.transform.position.y, targetY, itemMoveSpeed * Time.deltaTime);
+            item.transform.position = new Vector3(item.transform.position.x, newY, item.transform.position.z);
 
-            // Enable the collider after a small delay from the start of the rise
-            if (!colliderEnabled && Time.time >= riseStartTime + 0.25f)
+            // Enable collider after short delay
+            if (!colliderEnabled && Time.time >= startTime + 0.25f)
             {
-                if (itemCollider != null)
-                {
+                if (itemCollider != null) 
                     itemCollider.enabled = true;
-                }
-                colliderEnabled = true;  // Mark collider as enabled to avoid re-enabling
+                colliderEnabled = true;
             }
 
-            // Check if the item has reached the target height
-            if (item.transform.position.y >= originalPosition.y + itemMoveHeight)
+            // Check if reached target height
+            if (item.transform.position.y >= targetY - 0.01f)
             {
-                foreach (MonoBehaviour script in scripts)
-                {
-                    script.enabled = true;
-                }
-                item.tag = ogTag;
-                item.GetComponent<SpriteRenderer>().sortingLayerID = ogLayer;
-                item.GetComponent<SpriteRenderer>().sortingOrder = 0;
+                RestoreItemProperties(item, oldTag, oldSortingLayerId, scripts);
                 break;
             }
 
             yield return null;
         }
-
-        // If the item GameObject is null or shouldContinueRiseUp is false, the coroutine will exit here.
     }
 
-    // Call this method when the player grabs the item
+    private void RestoreItemProperties(GameObject item, string oldTag, int oldSortingLayerId, MonoBehaviour[] scripts)
+    {
+        if (item == null) return;
+
+        // Re-enable scripts
+        foreach (MonoBehaviour script in scripts)
+        {
+            if (script != null && script != this)
+                script.enabled = true;
+        }
+
+        item.tag = oldTag;
+        
+        SpriteRenderer itemSpriteRenderer = item.GetComponent<SpriteRenderer>();
+        if (itemSpriteRenderer != null)
+        {
+            itemSpriteRenderer.sortingLayerID = oldSortingLayerId;
+            itemSpriteRenderer.sortingOrder = 0;
+        }
+    }
+    #endregion
+
+    #region Public Methods
+    public void StopRiseUp()
+    {
+        shouldContinueRiseUp = false;
+    }
+
     public void OnPlayerGrabItem()
     {
-        StopRiseUp(); // Stop the RiseUp coroutine when the player grabs the item
+        StopRiseUp();
     }
+
+    // Public method to reset block state if needed
+    public void ResetBlock()
+    {
+        IsUsed = false;
+        shouldContinueRiseUp = true;
+        
+        if (animator != null)
+            animator.enabled = true;
+    }
+    #endregion
 }

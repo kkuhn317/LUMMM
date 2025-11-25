@@ -198,7 +198,7 @@ public class KoopaController : EnemyAI
                 QuestionBlock questionBlock = player.GetComponent<QuestionBlock>();
                 if (questionBlock != null)
                 {
-                    questionBlock.QuestionBlockBounce();
+                    questionBlock.Bump(BlockHitDirection.Up, playerScript);
                 }
                 break;
         }  
@@ -210,8 +210,10 @@ public class KoopaController : EnemyAI
         
         if (state == EnemyState.movingShell) {
             // if the wall is a question block, hit it
-            if (other.GetComponent<QuestionBlock>()) {
-                other.GetComponent<QuestionBlock>().Activate();
+            QuestionBlock qb = other.GetComponent<QuestionBlock>();
+            if (qb != null)
+            {
+                qb.Bump(BlockHitDirection.Side, null);
             }
         }
     }

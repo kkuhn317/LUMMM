@@ -1,93 +1,162 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
-public class NoteBlockController : MonoBehaviour
+public class NoteBlockController : BumpableBlock
 {
+    [Header("Note Block Settings")]
+    public AudioClip[] noteSounds;
+    public float[] noteSoundProbabilities;
+    public float animationDistance = 0.5f;
     public float animationDuration = 0.2f;
-    public AudioClip[] noteSounds; //Allows you to add a sound clips in an array
-    public float[] noteSoundProbabilities; //Allows you to add percentage occurrence for each note sound
+    
+    [Header("Player Boost")]
+    public float jumpBoostForce = 5f;
+    public bool applyJumpBoost = true;
 
-    private Vector2 startPosition;
     private bool isAnimating = false;
 
-    void Start()
+    protected override void Awake()
     {
-        startPosition = transform.position;
+        base.Awake();
+        canBounce = true;
     }
 
-    void OnCollisionEnter2D(Collision2D other)
+    #region Bounce Handling
+    protected override void OnCollisionEnter2D(Collision2D other)
     {
-        if (other.gameObject.CompareTag("Player") && !isAnimating)
+        base.OnCollisionEnter2D(other); // keeps handling bump from below
+
+        // Detect if the player landed on top
+        MarioMovement player = GetPlayerFromCollision(other);
+        if (player == null) return;
+
+        foreach (var contact in other.contacts)
         {
-            //Choose random note sound effect based on probabilities
-            float totalProbability = 0f;
-            for (int i = 0; i < noteSoundProbabilities.Length; i++)
+            // If the normal points downwards, the player is on top
+            if (contact.normal.y < -0.5f)
             {
-                totalProbability += noteSoundProbabilities[i];
+                // downward bump
+                Bump(BlockHitDirection.Down, player);
+                return;
             }
+        }
+    }
+
+    protected override void OnBeforeBounce(BlockHitDirection direction, MarioMovement player)
+    {
+        PlayRandomNoteSound();
+        
+        if (applyJumpBoost && player != null)
+        {
+            ApplyJumpBoost(player);
+        }
+    }
+
+    protected override IEnumerator BounceRoutine(BlockHitDirection direction)
+    {
+        isAnimating = true;
+
+        float targetOffset = direction == BlockHitDirection.Down ? -animationDistance : animationDistance;
+        // Use Vector2 for all calculations to be consistent with base class
+        Vector2 targetPosition = originalPosition + Vector2.up * targetOffset;
+
+        // Move to target position
+        float elapsedTime = 0f;
+        while (elapsedTime < animationDuration)
+        {
+            float t = elapsedTime / animationDuration;
+            transform.position = Vector2.Lerp(originalPosition, targetPosition, t);
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+
+        transform.position = targetPosition;
+
+        // Return to original position
+        elapsedTime = 0f;
+        while (elapsedTime < animationDuration)
+        {
+            float t = elapsedTime / animationDuration;
+            transform.position = Vector2.Lerp(targetPosition, originalPosition, t);
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+
+        transform.position = originalPosition;
+        isAnimating = false;
+    }
+    #endregion
+
+    #region Audio
+    private void PlayRandomNoteSound()
+    {
+        if (noteSounds.Length == 0 || audioSource == null) return;
+
+        AudioClip selectedSound = noteSounds[0]; // Default to first sound
+
+        if (noteSoundProbabilities.Length > 0 && noteSoundProbabilities.Length == noteSounds.Length)
+        {
+            // Probability-based selection
+            float totalProbability = 0f;
+            foreach (float probability in noteSoundProbabilities)
+            {
+                totalProbability += probability;
+            }
+
             float randomValue = Random.Range(0f, totalProbability);
-            int soundIndex = 0;
             float probabilitySum = 0f;
+
             for (int i = 0; i < noteSoundProbabilities.Length; i++)
             {
                 probabilitySum += noteSoundProbabilities[i];
                 if (randomValue <= probabilitySum)
                 {
-                    soundIndex = i;
+                    selectedSound = noteSounds[i];
                     break;
                 }
             }
-            AudioClip noteSound = noteSounds[soundIndex];
-
-            //Play note sound effect
-            AudioSource audioSource = GetComponent<AudioSource>();
-            audioSource.clip = noteSound;
-            audioSource.Play();
-
-            //Add jump boost to player (still needs work)
-            MarioMovement playerController = other.gameObject.GetComponent<MarioMovement>();
-            //playerController.Jump(InputAction.CallbackContext);
-
-            //Trigger animation based on player position
-            Vector2 playerPosition = other.gameObject.transform.position;
-            Vector2 blockPosition = transform.position;
-            if (playerPosition.y < blockPosition.y) //If player's position when collide with block is lower than the block position, the block animation when goes up starts
-            {
-                StartCoroutine(AnimateBlock(transform.position, transform.position + Vector3.up * 0.5f, animationDuration));
-            }
-            else //If player's position is higher, then go down note block animation starts
-            {
-                StartCoroutine(AnimateBlock(transform.position, transform.position + Vector3.down * 0.5f, animationDuration));
-            }
         }
-    }
+        else
+        {
+            // Fallback: random selection
+            selectedSound = noteSounds[Random.Range(0, noteSounds.Length)];
+        }
 
-    IEnumerator AnimateBlock(Vector3 startPosition, Vector3 endPosition, float duration)
+        audioSource.PlayOneShot(selectedSound);
+    }
+    #endregion
+
+    #region Player Interaction
+    private void ApplyJumpBoost(MarioMovement player)
     {
-        isAnimating = true;
-
-        float elapsedTime = 0f;
-        while (elapsedTime < duration)
+        Rigidbody2D playerRb = player.GetComponent<Rigidbody2D>();
+        if (playerRb != null)
         {
-            float t = elapsedTime / duration;
-            transform.position = Vector3.Lerp(startPosition, endPosition, t);
-            elapsedTime += Time.deltaTime;
-            yield return null;
+            // Reset vertical velocity and apply boost
+            Vector2 velocity = playerRb.velocity;
+            velocity.y = Mathf.Max(velocity.y, 0f); // Only boost if not falling
+            playerRb.velocity = velocity;
+            playerRb.AddForce(Vector2.up * jumpBoostForce, ForceMode2D.Impulse);
         }
-
-        transform.position = endPosition;
-        elapsedTime = 0f;
-        while (elapsedTime < duration)
-        {
-            float t = elapsedTime / duration;
-            transform.position = Vector3.Lerp(endPosition, startPosition, t);
-            elapsedTime += Time.deltaTime;
-            yield return null;
-        }
-
-        transform.position = startPosition;
-        isAnimating = false;
     }
+    #endregion
+
+    #region Enemy Interaction
+    protected override void HandleEnemies(BlockHitDirection direction, MarioMovement player)
+    {
+        // Note blocks typically don't damage enemies, but you can enable this if needed but we might not need it
+        // base.HandleEnemies(direction, player);
+    }
+    #endregion
+
+    #region Public Methods
+    // Prevent multiple simultaneous activations
+    public new void Bump(BlockHitDirection direction, MarioMovement player)
+    {
+        if (!canBounce || isBouncing || isAnimating)
+            return;
+
+        base.Bump(direction, player);
+    }
+    #endregion
 }

@@ -1682,18 +1682,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0666ef16005fc244bab577124d5226c8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isInvisible: 0
   bounceHeight: 0.25
   bounceSpeed: 2
+  isInvisible: 0
   brickBlock: 1
   spawnableItems: []
   itemMoveHeight: 1
   itemMoveSpeed: 1
+  itemRiseSound: {fileID: 8300000, guid: 772ddf80295b4d74e9d96fb646aace10, type: 3}
   onBlockActivated:
     m_PersistentCalls:
       m_Calls: []
   emptyBlockSprite: {fileID: 1761723225, guid: c969912de6832e14baf152772b3b1ea0, type: 3}
-  itemRiseSound: {fileID: 8300000, guid: 772ddf80295b4d74e9d96fb646aace10, type: 3}
   popUpCoinAnimationName: 
 --- !u!61 &126782935
 BoxCollider2D:
@@ -5038,18 +5038,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0666ef16005fc244bab577124d5226c8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isInvisible: 0
   bounceHeight: 0.25
   bounceSpeed: 2
+  isInvisible: 0
   brickBlock: 1
   spawnableItems: []
   itemMoveHeight: 1
   itemMoveSpeed: 1
+  itemRiseSound: {fileID: 8300000, guid: 772ddf80295b4d74e9d96fb646aace10, type: 3}
   onBlockActivated:
     m_PersistentCalls:
       m_Calls: []
   emptyBlockSprite: {fileID: 1761723225, guid: c969912de6832e14baf152772b3b1ea0, type: 3}
-  itemRiseSound: {fileID: 8300000, guid: 772ddf80295b4d74e9d96fb646aace10, type: 3}
   popUpCoinAnimationName: 
 --- !u!61 &343575199
 BoxCollider2D:
@@ -14728,6 +14728,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a849c50e134262f49af8f068f561f5fd, type: 3}
+--- !u!114 &1143414005 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1771483343543010228, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
+  m_PrefabInstance: {fileID: 1194233340}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 28eaa5374a88177499ab0bf99563953a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &1153058928
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -15164,6 +15175,235 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 28eaa5374a88177499ab0bf99563953a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1001 &1194233340
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 2080700945, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
+      propertyPath: m_SpriteTilingProperty.pivot.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 2080700945, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
+      propertyPath: m_SpriteTilingProperty.newSize.x
+      value: 0.625
+      objectReference: {fileID: 0}
+    - target: {fileID: 2080700945, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
+      propertyPath: m_SpriteTilingProperty.newSize.y
+      value: 0.625
+      objectReference: {fileID: 0}
+    - target: {fileID: 2080700945, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
+      propertyPath: m_SpriteTilingProperty.oldSize.x
+      value: 0.625
+      objectReference: {fileID: 0}
+    - target: {fileID: 2080700945, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
+      propertyPath: m_SpriteTilingProperty.oldSize.y
+      value: 0.625
+      objectReference: {fileID: 0}
+    - target: {fileID: 1563295794450405723, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
+      propertyPath: m_SpriteHash
+      value: 259702089
+      objectReference: {fileID: 0}
+    - target: {fileID: 1771483343543010228, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
+      propertyPath: pigMario
+      value: 
+      objectReference: {fileID: 8282462989337860828, guid: feb8f576a6f092d4a91f09dde1560854, type: 3}
+    - target: {fileID: 1771483343543010228, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
+      propertyPath: groundSink
+      value: 0.05
+      objectReference: {fileID: 0}
+    - target: {fileID: 1771483343543010228, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
+      propertyPath: canSpinJump
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1771483343543010228, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
+      propertyPath: canWallJump
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1771483343543010228, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
+      propertyPath: cameraFollow
+      value: 
+      objectReference: {fileID: 1730604528}
+    - target: {fileID: 1771483343543010228, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
+      propertyPath: cornerLength
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1771483343543010228, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
+      propertyPath: groundLength
+      value: 0.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 1771483343543010228, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
+      propertyPath: yeahAudioClip
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 1771483343543010228, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
+      propertyPath: colliderOffset.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1771483343543010228, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
+      propertyPath: cornerXAlignment
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1771483343543010228, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
+      propertyPath: groundLayer.m_Bits
+      value: 25165832
+      objectReference: {fileID: 0}
+    - target: {fileID: 1771483343543010229, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
+      propertyPath: m_RootOrder
+      value: 14
+      objectReference: {fileID: 0}
+    - target: {fileID: 1771483343543010229, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.65
+      objectReference: {fileID: 0}
+    - target: {fileID: 1771483343543010229, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -5.77
+      objectReference: {fileID: 0}
+    - target: {fileID: 1771483343543010229, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 1.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 1771483343543010229, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1771483343543010229, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1771483343543010229, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1771483343543010229, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1771483343543010229, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1771483343543010229, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1771483343543010229, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1771483343543010229, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1771483343543010231, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
+      propertyPath: m_ActionEvents.Array.size
+      value: 18
+      objectReference: {fileID: 0}
+    - target: {fileID: 1771483343543010231, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
+      propertyPath: m_ActionEvents.Array.data[15].m_ActionId
+      value: 9fdee28a-7b0d-433e-a32c-e997016cf750
+      objectReference: {fileID: 0}
+    - target: {fileID: 1771483343543010231, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
+      propertyPath: m_ActionEvents.Array.data[16].m_ActionId
+      value: 6af6bceb-cea8-41cb-90a3-0138921f18f4
+      objectReference: {fileID: 0}
+    - target: {fileID: 1771483343543010231, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
+      propertyPath: m_ActionEvents.Array.data[17].m_ActionId
+      value: 6b06232f-07cd-4234-b9ca-514bea360799
+      objectReference: {fileID: 0}
+    - target: {fileID: 1771483343543010231, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
+      propertyPath: m_ActionEvents.Array.data[15].m_ActionName
+      value: Mariomove/Spin[/Keyboard/leftShift]
+      objectReference: {fileID: 0}
+    - target: {fileID: 1771483343543010231, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
+      propertyPath: m_ActionEvents.Array.data[16].m_ActionName
+      value: Mariomove/Use[/Keyboard/z,/XInputControllerWindows/rightShoulder,/XInputControllerWindows/leftShoulder]
+      objectReference: {fileID: 0}
+    - target: {fileID: 1771483343543010231, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
+      propertyPath: m_ActionEvents.Array.data[17].m_ActionName
+      value: Mariomove/ExtraAction[/Keyboard/x]
+      objectReference: {fileID: 0}
+    - target: {fileID: 1771483343543010231, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
+      propertyPath: m_ActionEvents.Array.data[15].m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1771483343543010231, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
+      propertyPath: m_ActionEvents.Array.data[17].m_PersistentCalls.m_Calls.Array.size
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1771483343543010231, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
+      propertyPath: m_ActionEvents.Array.data[15].m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1143414005}
+    - target: {fileID: 1771483343543010231, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
+      propertyPath: m_ActionEvents.Array.data[15].m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1771483343543010231, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
+      propertyPath: m_ActionEvents.Array.data[15].m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: Spin
+      objectReference: {fileID: 0}
+    - target: {fileID: 1771483343543010231, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
+      propertyPath: m_ActionEvents.Array.data[16].m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: Use
+      objectReference: {fileID: 0}
+    - target: {fileID: 1771483343543010231, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
+      propertyPath: m_ActionEvents.Array.data[15].m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: MarioMovement, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 1771483343543010231, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
+      propertyPath: m_ActionEvents.Array.data[15].m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
+    - target: {fileID: 1771483343543010232, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
+      propertyPath: m_Name
+      value: '[temporary] Tiny Mario'
+      objectReference: {fileID: 0}
+    - target: {fileID: 1771483343543010232, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4251355573957514376, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
+      propertyPath: m_Size.x
+      value: 0.625
+      objectReference: {fileID: 0}
+    - target: {fileID: 4251355573957514376, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
+      propertyPath: m_Size.y
+      value: 0.625
+      objectReference: {fileID: 0}
+    - target: {fileID: 4251355573957514376, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 1997580843, guid: c9b448e531d67da4f8acf998a69cc746, type: 3}
+    - target: {fileID: 4251355573957514376, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
+      propertyPath: m_SortingLayer
+      value: -1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4251355573957514376, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
+      propertyPath: m_SortingOrder
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4251355573957514376, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
+      propertyPath: m_SortingLayerID
+      value: 1497974571
+      objectReference: {fileID: 0}
+    - target: {fileID: 4251355573957514376, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
+      propertyPath: m_MaskInteraction
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4251355573957514376, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
+      propertyPath: m_WasSpriteAssigned
+      value: 1
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
 --- !u!1001 &1197017793
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -26196,7 +26436,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6477663924998199156, guid: daab92451a0f063498ec7dbc63283e55, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.34899998
+      value: 0.606
       objectReference: {fileID: 0}
     - target: {fileID: 6477663924998199156, guid: daab92451a0f063498ec7dbc63283e55, type: 3}
       propertyPath: m_LocalPosition.z
@@ -29076,18 +29316,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0666ef16005fc244bab577124d5226c8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isInvisible: 0
   bounceHeight: 0.25
   bounceSpeed: 2
+  isInvisible: 0
   brickBlock: 1
   spawnableItems: []
   itemMoveHeight: 1
   itemMoveSpeed: 1
+  itemRiseSound: {fileID: 8300000, guid: 772ddf80295b4d74e9d96fb646aace10, type: 3}
   onBlockActivated:
     m_PersistentCalls:
       m_Calls: []
   emptyBlockSprite: {fileID: 1761723225, guid: c969912de6832e14baf152772b3b1ea0, type: 3}
-  itemRiseSound: {fileID: 8300000, guid: 772ddf80295b4d74e9d96fb646aace10, type: 3}
   popUpCoinAnimationName: 
 --- !u!61 &2133844187
 BoxCollider2D:
@@ -30082,7 +30322,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6115455793969980363, guid: fb1f702c0eae34342aa7b8ed91180b12, type: 3}
       propertyPath: m_Layer
-      value: 23
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 6115455793969980363, guid: fb1f702c0eae34342aa7b8ed91180b12, type: 3}
       propertyPath: m_IsActive
@@ -31424,6 +31664,7 @@ SceneRoots:
   - {fileID: 1286294151}
   - {fileID: 1917459687}
   - {fileID: 1184302500}
+  - {fileID: 1194233340}
   - {fileID: 71431725}
   - {fileID: 1751007384}
   - {fileID: 1308918730}

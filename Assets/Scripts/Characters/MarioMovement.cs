@@ -18,6 +18,7 @@ public class MarioMovement : MonoBehaviour
     /* Input System */
     // Other scripts can access these variables to get the player's input
     // Do not use the old input system or raw keyboard input anywhere in the game
+    public bool inputLocked = false;
     [HideInInspector] public Vector2 moveInput; // The raw directional input from the player's controller
     private const float lowerDeadzone = 0.3f; // The lower limit of the deadzone
     private const float upperDeadzone = 0.9f; // The upper limit of the deadzone
@@ -2204,6 +2205,9 @@ public class MarioMovement : MonoBehaviour
     // Spin
     public void Spin(InputAction.CallbackContext context)
     {
+        if (inputLocked)
+            return;
+
         if (context.performed)
         {
             onSpinPressed();
@@ -2251,6 +2255,9 @@ public class MarioMovement : MonoBehaviour
     // Shoot
     public void Shoot(InputAction.CallbackContext context)
     {
+        if (inputLocked)
+            return;
+        
         if (context.performed)
         {
             onShootPressed();
@@ -2280,6 +2287,9 @@ public class MarioMovement : MonoBehaviour
     // ExtraAction
     public void ExtraAction(InputAction.CallbackContext context)
     {
+        if (inputLocked)
+            return;
+        
         if (context.performed)
         {
             onExtraActionPressed();
@@ -2370,6 +2380,7 @@ public class MarioMovement : MonoBehaviour
         // get object from mario's object holder
         ObjectPhysics obj = heldObjectPosition.transform.GetChild(0).gameObject.GetComponent<ObjectPhysics>();
         obj.transform.parent = null;
+        obj.transform.rotation = Quaternion.identity;
 
         //obj.transform.position = new Vector3(transform.position.x + (facingRight ? 1 : -1), transform.position.y + (powerupState == PowerupState.small ? 0f : -.5f), transform.position.z);
         float halfwidth = obj.width / 2;
@@ -2410,6 +2421,7 @@ public class MarioMovement : MonoBehaviour
         // get object from mario's object holder
         ObjectPhysics obj = heldObjectPosition.transform.GetChild(0).gameObject.GetComponent<ObjectPhysics>();
         obj.transform.parent = null;
+        obj.transform.rotation = Quaternion.identity;
 
         float halfwidth = obj.width / 2;
         float offset = powerupState == PowerupState.small ? 0.1f : -0.1f;

@@ -2,92 +2,139 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class POWBlock : MonoBehaviour
+public class POWBlock : BumpableBlock
 {
-    public bool changeVisibleEnemiesToKnockedAway = false;
-    public bool changeAllEnemiesToKnockedAway = false;
-    public bool playKickSounds = true;  // should all the enemies make a kick sound when they are knocked away? (WARNING: can be loud)
-    public AudioClip powblockSound;
-    private AudioSource audioSource;
+    [Header("POW Block Settings")]
+    public bool affectVisibleEnemies = true;
+    public bool affectAllEnemies = false;
+    public bool playKickSounds = true;
+    public int maxUses = 1;
+    public Sprite[] useStateSprites; // Sprites for different use states (3 uses, 2 uses, 1 use)
 
-    // Start is called before the first frame update
-    void Start()
+    [Header("Effects")]
+    public AudioClip powBlockSound;
+    public GameObject destructionEffect;
+
+    private int currentUses;
+    private SpriteRenderer spriteRenderer;
+    private Camera mainCamera;
+    private bool hasCachedCamera;
+
+    protected override void Awake()
     {
-        audioSource = GetComponent<AudioSource>();
+        base.Awake();
+        spriteRenderer = GetComponent<SpriteRenderer>();
+        currentUses = maxUses;
+        UpdateAppearance();
+        
+        // Cache camera reference
+        mainCamera = Camera.main;
+        hasCachedCamera = mainCamera != null;
+    }
+    
+    #region Activation
+    // Override activation checks for POW block specific logic
+    protected override bool CanActivate(Collision2D other)
+    {
+        if (!base.CanActivate(other)) return false;
+        
+        // POW block specific: Check if has uses remaining
+        return currentUses > 0;
     }
 
-    private void OnCollisionEnter2D(Collision2D other)
+    protected override bool CanActivateFromPlayer(MarioMovement player)
     {
-        if (other.gameObject.tag == "Player")
+        if (!base.CanActivateFromPlayer(player)) return false;
+        
+        // POW block specific: Check if has uses remaining
+        return currentUses > 0;
+    }
+    #endregion
+
+    #region Bounce Handling
+    protected override void OnBeforeBounce(BlockHitDirection direction, MarioMovement player)
+    {
+        if (currentUses <= 0)
         {
-            Vector2 impulse = Vector2.zero;
-
-            int contactCount = other.contactCount;
-            for (int i = 0; i < contactCount; i++)
-            {
-                var contact = other.GetContact(i);
-                impulse += contact.normal * contact.normalImpulse;
-                impulse.x += contact.tangentImpulse * contact.normal.y;
-                impulse.y -= contact.tangentImpulse * contact.normal.x;
-            }
-
-            // position comparison is to stop a weird bug where the player can hit the top corner of the block and activate it
-            if (impulse.y <= 0 || other.transform.position.y > transform.position.y)
-            {
-                return;
-            }
-
-            ActivatePOWBlock();
+            skipBounceThisHit = true;
+            return;
         }
+
+        ActivatePOWEffect();
+        currentUses--;
+        UpdateAppearance();
     }
 
-    public void ActivatePOWBlock()
+    protected override void OnAfterBounce(BlockHitDirection direction, MarioMovement player)
     {
-        List<EnemyAI> enemiesToKnockAway = new List<EnemyAI>();
-
-        // Check if the option to change visible enemies to Knocked Away is enabled
-        if (changeVisibleEnemiesToKnockedAway)
+        if (currentUses <= 0)
         {
-            enemiesToKnockAway.AddRange(GetVisibleEnemies());
+            DestroyPOWBlock();
+        }
+    }
+    #endregion
+
+    #region POW Effect
+    // Activate the POW block effect on enemies
+    // Making it public so it can be called from signal receiver
+    public void ActivatePOWEffect()
+    {
+        List<EnemyAI> enemiesToAffect = new List<EnemyAI>();
+
+        if (affectVisibleEnemies)
+        {
+            enemiesToAffect.AddRange(GetVisibleEnemies());
         }
 
-        // Check if the option to change all enemies to Knocked Away is enabled
-        if (changeAllEnemiesToKnockedAway)
+        if (affectAllEnemies)
         {
-            enemiesToKnockAway.AddRange(GetAllEnemies());
+            enemiesToAffect.AddRange(GetAllEnemies());
         }
 
-        // Knock away all enemies
-        foreach (EnemyAI enemy in enemiesToKnockAway)
+        // Remove duplicates
+        HashSet<EnemyAI> uniqueEnemies = new HashSet<EnemyAI>(enemiesToAffect);
+        
+        foreach (EnemyAI enemy in uniqueEnemies)
         {
-            // Generate a random direction between 1 and -1
-            float knockDirection = Random.Range(-1f, 1f); // -1 is false, 1 is true on boolean
-
-            // Change enemy's state to Knocked Away with the random direction
-            enemy.KnockAway(knockDirection > 0, sound: playKickSounds); // Pass true for right direction, false for left direction
+            if (enemy != null && enemy.isActiveAndEnabled)
+            {
+                bool knockRight = Random.value > 0.5f;
+                enemy.KnockAway(knockRight, playKickSounds);
+            }
         }
 
-        // Play POW Block effect 
-        //audioSource.PlayOneShot(powblockSound, 0.5f);
-        AudioSource.PlayClipAtPoint(powblockSound, Camera.main.transform.position, 1f);
+        // Play sound using the cached camera
+        if (powBlockSound != null)
+        {
+            AudioSource.PlayClipAtPoint(powBlockSound, mainCamera.transform.position, 1f);
+        }
 
-        // Destroy POW Block
-        Destroy(gameObject);
+        // Screen shake effect
+        StartCoroutine(ScreenShakeEffect());
     }
 
     private List<EnemyAI> GetVisibleEnemies()
     {
         List<EnemyAI> visibleEnemies = new List<EnemyAI>();
 
-        // Find all visible enemies in the camera's view
-        Collider2D[] colliders = Physics2D.OverlapAreaAll(Camera.main.ViewportToWorldPoint(Vector3.zero), Camera.main.ViewportToWorldPoint(Vector3.one), LayerMask.GetMask("Enemy"));
+        if (!hasCachedCamera) return visibleEnemies;
+
+        Vector3 bottomLeft = mainCamera.ViewportToWorldPoint(Vector3.zero);
+        Vector3 topRight = mainCamera.ViewportToWorldPoint(Vector3.one);
+
+        // Get all colliders in the camera view
+        Collider2D[] colliders = Physics2D.OverlapAreaAll(bottomLeft, topRight);
 
         foreach (Collider2D collider in colliders)
         {
-            EnemyAI enemy = collider.GetComponent<EnemyAI>();
-            if (enemy != null)
+            // Check if the object has the "Enemy" tag
+            if (collider.CompareTag("Enemy"))
             {
-                visibleEnemies.Add(enemy);
+                EnemyAI enemy = collider.GetComponent<EnemyAI>();
+                if (enemy != null)
+                {
+                    visibleEnemies.Add(enemy);
+                }
             }
         }
 
@@ -96,12 +143,61 @@ public class POWBlock : MonoBehaviour
 
     private List<EnemyAI> GetAllEnemies()
     {
-        List<EnemyAI> allEnemies = new List<EnemyAI>();
-
-        // Find all enemies in the scene
-        EnemyAI[] enemies = FindObjectsOfType<EnemyAI>();
-        allEnemies.AddRange(enemies);
-
-        return allEnemies;
+        EnemyAI[] enemies = FindObjectsOfType<EnemyAI>(true);
+        return new List<EnemyAI>(enemies);
     }
+    #endregion
+
+    #region Visual Effects
+    private void UpdateAppearance()
+    {
+        if (spriteRenderer != null && useStateSprites != null && useStateSprites.Length > 0)
+        {
+            int spriteIndex = Mathf.Clamp(currentUses - 1, 0, useStateSprites.Length - 1);
+            spriteRenderer.sprite = useStateSprites[spriteIndex];
+        }
+    }
+
+    private IEnumerator ScreenShakeEffect()
+    {
+        // Simple screen shake effect - use cached camera
+        if (!hasCachedCamera) yield break;
+
+        Vector3 originalPosition = mainCamera.transform.position;
+        float shakeDuration = 0.3f;
+        float shakeMagnitude = 0.1f;
+
+        float elapsed = 0f;
+        while (elapsed < shakeDuration)
+        {
+            float x = Random.Range(-1f, 1f) * shakeMagnitude;
+            float y = Random.Range(-1f, 1f) * shakeMagnitude;
+
+            mainCamera.transform.position = originalPosition + new Vector3(x, y, 0f);
+
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        mainCamera.transform.position = originalPosition;
+    }
+    #endregion
+
+    #region Destruction
+    private void DestroyPOWBlock()
+    {
+        // Play destruction effect
+        if (destructionEffect != null)
+        {
+            Instantiate(destructionEffect, transform.position, Quaternion.identity);
+        }
+
+        // Disable collider and renderer first
+        if (boxCollider != null) boxCollider.enabled = false;
+        if (spriteRenderer != null) spriteRenderer.enabled = false;
+
+        // Destroy after a delay to allow effects to play
+        Destroy(gameObject, 1f);
+    }
+    #endregion
 }

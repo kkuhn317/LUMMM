@@ -84,7 +84,7 @@ public class Trampoline : MonoBehaviour
                 otherObject.GetComponent<ObjectPhysics>().velocity = new Vector2(-objectBouncePower, otherObject.GetComponent<ObjectPhysics>().velocity.y);
                 Bounce();
             }
-        } 
+        }
     }
 
     private void OnTriggerEnter2D(Collider2D other) {

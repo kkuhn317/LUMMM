@@ -143,6 +143,7 @@ public class Door : MonoBehaviour
 
     protected virtual void FreezePlayer()
     {
+        player.GetComponent<MarioMovement>().inputLocked = true;
         player.GetComponent<Rigidbody2D>().simulated = false;
         player.GetComponent<Rigidbody2D>().velocity = Vector2.zero;
         Animator playerAnimator = player.GetComponent<Animator>();
@@ -163,6 +164,7 @@ public class Door : MonoBehaviour
     }
     protected void UnfreezePlayer()
     {
+        player.GetComponent<MarioMovement>().inputLocked = false;
         player.GetComponent<Rigidbody2D>().simulated = true;
         // enable all scripts
         foreach (MonoBehaviour script in player.GetComponents<MonoBehaviour>())
