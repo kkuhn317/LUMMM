@@ -38,8 +38,9 @@ public class MarioMovement : MonoBehaviour
     public Vector2 direction;
     public bool facingRight = true;
     private bool inCrouchState = false;
-    private bool isCrawling = false;    // Currently small mario only
-    private float floorAngle = 0f;  // -45 = \, 0 = _, 45 = /
+    private bool isCrawling = false; // Currently small mario only
+    private bool canTriggerGroundPound = false;
+    private float floorAngle = 0f; // -45 = \, 0 = _, 45 = /
 
     [Header("Vertical Movement")]
     public float jumpSpeed = 11f; // Standing jump speed (4 block jump)
@@ -225,7 +226,7 @@ public class MarioMovement : MonoBehaviour
     [HideInInspector] public bool groundPounding = false;
     [HideInInspector] public bool groundPoundRotating = false;
     private bool groundPoundLanded = false; // If the ground pound has landed but you are still in the animation and can't move
-
+    private bool wasPressingDown = false;
     // Made private to not clog inspector
     private float groundPoundSpinTime = 0.5f; // How long the player will be frozen in the air when ground pound starts
 
@@ -535,11 +536,16 @@ public class MarioMovement : MonoBehaviour
             CancelGroundPound();
         }
 
+        bool isPressingDown = direction.y < -0.5f;
+
         // Ground Pound
-        if (canGroundPound && !onGround && direction.y < -0.5f && !groundPounding && !wallSliding && !climbing)
+        if (canGroundPound && !onGround && isPressingDown && !wasPressingDown && !groundPounding && !wallSliding && !climbing)
         {
             GroundPound();
         }
+
+        // Update state for next frame
+        wasPressingDown = isPressingDown;
 
         bool wasInAir = !onGround;   // store if mario was in the air last frame
 
