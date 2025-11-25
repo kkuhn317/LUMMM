@@ -162,6 +162,7 @@ public class MarioMovement : MonoBehaviour
 
     public GameObject transformMario;   // The prefab for the transformation animation
     public GameObject powerDownMario;   // The mario that he will transform into when he gets hit
+    public bool isTransforming = false;
 
     // so that you can only hurt the player once per frame
     private bool damaged = false;
@@ -1668,6 +1669,11 @@ public class MarioMovement : MonoBehaviour
 
     public void ChangePowerup(GameObject newMarioObject)
     {
+        if (isTransforming)
+            return;
+        
+        isTransforming = true;
+        
         // NOTE: we will assume here that mario can always change powerups. The PowerUP.cs script will determine if mario can change powerups
         GameObject newMario = Instantiate(transformMario, transform.position, Quaternion.identity);
         transferProperties(newMario);

@@ -40,6 +40,12 @@ public class PowerUp : ObjectPhysics
 
     private void HandlePowerUp(Collider2D other)
     {
+        var mario = other.GetComponent<MarioMovement>();
+        if (mario == null) return;
+
+        if (mario.isTransforming)
+            return;
+
         if (is1Up)
         {
             Handle1Up();
