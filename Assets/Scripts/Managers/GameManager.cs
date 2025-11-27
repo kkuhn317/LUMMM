@@ -1370,6 +1370,7 @@ public class GameManager : MonoBehaviour
                     Destroy(player.gameObject);
                 }
             }
+            players.Clear(); // Clear the players list since all players have been destroyed, without this it causes a bug when trigger ending cutscenes
         }
         print("DestroyPlayersImmediately complete");
 
