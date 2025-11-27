@@ -690,8 +690,10 @@ public class MarioMovement : MonoBehaviour
             //transform.parent = null;
         }
 
+        bool didHorizontalCornerCorrection = TryHorizontalCornerCorrection();
+
         // Corner correction
-        if (rb.velocity.y > 0 && doCornerCorrection)
+        if (!didHorizontalCornerCorrection && rb.velocity.y > 0 && doCornerCorrection)
         {
 
             // Get the height to start at which will be 1 physics frame ahead of the boxcollider top
@@ -857,6 +859,97 @@ public class MarioMovement : MonoBehaviour
 
         // Physics
         ModifyPhysics();
+    }
+
+    /// <summary>
+    /// Try to slide Mario horizontally into a small gap when moving sideways in the air.
+    /// Returns true if we snapped Mario and vertical corner correction should be skipped.
+    /// </summary>
+    private bool TryHorizontalCornerCorrection()
+    {
+        // Only in air and only if we’re actually trying to move
+        if (onGround) return false;
+        if (!doCornerCorrection) return false;
+
+        float horizontalInput = direction.x;
+        if (Mathf.Abs(rb.velocity.x) < 0.01f && Mathf.Abs(horizontalInput) < 0.01f)
+            return false;
+
+        // Direction we’re “pushing into” (prefer velocity, fallback to input)
+        float dirX = Mathf.Abs(rb.velocity.x) > 0.01f
+            ? Mathf.Sign(rb.velocity.x)
+            : Mathf.Sign(horizontalInput);
+
+        if (dirX == 0f) return false;
+
+        var box = GetComponent<BoxCollider2D>();
+        float playerWidth = box.bounds.size.x;
+        float playerHeight = box.bounds.size.y;
+
+        // Predict a little bit ahead in the horizontal direction (like the vertical code does for Y)
+        float startWidth = playerWidth / 2f + (rb.velocity.x * Time.fixedDeltaTime) + 0.01f;
+
+        // Ray origin at the side we are moving towards, centered vertically
+        Vector2 origin = (Vector2)transform.position + new Vector2(dirX * startWidth, 0f);
+
+        // Ray length based on height
+        float rayLength = playerHeight / 2f * 1.1f;
+
+        // Two rays: one up, one down from the side
+        RaycastHit2D hitUp = Physics2D.Raycast(origin, Vector2.up,   rayLength, groundLayer);
+        RaycastHit2D hitDown = Physics2D.Raycast(origin, Vector2.down, rayLength, groundLayer);
+
+        if (hitUp.collider == null || hitDown.collider == null)
+        {
+            // No walls forming a "gap" on this side
+            return false;
+        }
+
+        float distUp = hitUp.distance;
+        float distDown = hitDown.distance;
+        float totalDistance = distUp + distDown;
+        float gapHeight = totalDistance - playerHeight;
+
+        // Not enough room to fit Mario vertically
+        if (gapHeight < 0f)
+            return false;
+
+        // Similar idea to vertical corner correction:
+        // Only correct if the corner we’re touching is very close to Mario’s top/bottom.
+        float playerTop = transform.position.y + playerHeight / 2f;
+        float playerBottom = transform.position.y - playerHeight / 2f;
+
+        float cornerMargin = cornerCorrection * playerHeight;
+
+        bool touchingTopCorner =
+            hitDown.point.y > playerBottom &&
+            hitDown.point.y < playerBottom + cornerMargin;
+
+        bool touchingBottomCorner =
+            hitUp.point.y < playerTop &&
+            hitUp.point.y > playerTop - cornerMargin;
+
+        if (!touchingTopCorner && !touchingBottomCorner)
+            return false;
+
+        Vector3 oldPos = transform.position;
+
+        // Center Mario vertically in the gap
+        float gapCenterY = (hitUp.point.y + hitDown.point.y) * 0.5f;
+        float newY = gapCenterY;
+
+        // Nudge him a little *into* the gap horizontally
+        float newX = transform.position.x + dirX * (playerWidth * 0.2f);
+
+        transform.position = new Vector3(newX, newY, transform.position.z);
+
+        Debug.Log(
+            $"[HorizontalCornerCorrection] Applied. dirX={dirX}, " +
+            $"oldPos={oldPos}, newPos={transform.position}, " +
+            $"distUp={distUp:F3}, distDown={distDown:F3}, gapHeight={gapHeight:F3}"
+        );
+
+        return true;
     }
 
     private void StartClimbing()
@@ -2075,6 +2168,56 @@ public class MarioMovement : MonoBehaviour
 
         // Draw right corner correction
         Gizmos.DrawLine(start, start + new Vector3(rayLength, 0, 0));
+
+        // Horizontal corner correction
+        if (doCornerCorrection && !onGround && rb != null)
+        {
+            // Figure out which side we are checking (prefer velocity, fall back to input)
+            float dirX = 0f;
+
+            if (Mathf.Abs(rb.velocity.x) > 0.01f)
+            {
+                dirX = Mathf.Sign(rb.velocity.x);
+            }
+            else if (Mathf.Abs(direction.x) > 0.01f)
+            {
+                dirX = Mathf.Sign(direction.x);
+            }
+
+            if (dirX != 0f)
+            {
+                BoxCollider2D box = GetComponent<BoxCollider2D>();
+                float playerHeight = box.bounds.size.y;
+
+                // start a little bit ahead of the collider on the side we're moving into
+                float startWidth = playerWidth / 2f + (rb.velocity.x * Time.fixedDeltaTime) + 0.01f;
+                Vector3 sideOrigin = transform.position + new Vector3(dirX * startWidth, 0f, 0f);
+
+                float vertRayLength = playerHeight / 2f * 1.1f;
+
+                // UP ray
+                Gizmos.color = Color.green;
+                RaycastHit2D upHit = Physics2D.Raycast(sideOrigin, Vector2.up, vertRayLength, groundLayer);
+                if (upHit.collider != null)
+                {
+                    Gizmos.color = Color.yellow;
+                }
+                Gizmos.DrawLine(sideOrigin, sideOrigin + Vector3.up * vertRayLength);
+
+                // DOWN ray
+                Gizmos.color = Color.cyan;
+                RaycastHit2D downHit = Physics2D.Raycast(sideOrigin, Vector2.down, vertRayLength, groundLayer);
+                if (downHit.collider != null)
+                {
+                    Gizmos.color = Color.yellow;
+                }
+                Gizmos.DrawLine(sideOrigin, sideOrigin + Vector3.down * vertRayLength);
+
+                // Optional: draw the origin as a small sphere so you can see the exact side point
+                Gizmos.color = Color.white;
+                Gizmos.DrawSphere(sideOrigin, 0.02f);
+            }
+        }
 
         // Ceiling
         Gizmos.color = Color.yellow;
