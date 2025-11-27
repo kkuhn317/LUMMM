@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class Coin : MonoBehaviour
 {
@@ -16,6 +17,9 @@ public class Coin : MonoBehaviour
 
     public string popUpAnimationName = "PopUp";
     public bool isCollected = false;
+
+    [Header("Events")]
+    public UnityEvent onCollected;
 
     [Header("Audio")]
     public AudioClip coinSound;
@@ -81,6 +85,8 @@ public class Coin : MonoBehaviour
         isCollected = true;
         PlayCoinSound();
         AddCoinAmount();
+
+        onCollected?.Invoke();
 
         if (type != Amount.green)
         {
@@ -150,9 +156,10 @@ public class Coin : MonoBehaviour
     void AddCoinAmountAndDestroy()
     {
         AddCoinAmount();
+        ComboResult result = new ComboResult(RewardType.Score, PopupID.Score100, 0);
+        ScorePopupManager.Instance.ShowPopup(result, transform.position);
         Destroy(gameObject, coinSound.length);
     }
-
 
     // Default coin movement
     IEnumerator MoveCoin()
