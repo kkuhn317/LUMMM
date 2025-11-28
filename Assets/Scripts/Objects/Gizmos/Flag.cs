@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Playables;
+using UnityEngine.SceneManagement;
 using UnityEngine.U2D.Animation;
 using PowerupState = PowerStates.PowerupState;
 
@@ -33,6 +34,9 @@ public class Flag : MonoBehaviour
     public float cutsceneTime = 10f; // how long the cutscene lasts before the level ends
     bool marioAtBottom = false;
     public bool flagOnRight = false;    // if the flag is on the right side of the pole
+
+    [Header("Cutscene System")]
+    [SerializeField] private CutsceneSelector cutsceneSelector;
 
     enum FlagState
     {
@@ -72,11 +76,31 @@ public class Flag : MonoBehaviour
             }
         }
     }
+
+    // might be of use later but for now it's useless (I was testing so this is why this is here)
+    private CutsceneContext BuildContext()
+    {
+        var gm = GameManager.Instance;
+        var mario = FindObjectOfType<MarioMovement>();
+
+        return new CutsceneContext
+        {
+            gameManager = gm,
+            scene = SceneManager.GetActiveScene(),
+            mainPlayer = mario,
+            playerPosition = mario.transform.position,
+            powerupState = mario.powerupState,
+            hasStarPower = mario.starPower,
+            isDead = mario.Dead,
+        };
+    }
     
     protected virtual void OnTriggerEnter2D(Collider2D other)
     {
         if (other.gameObject.CompareTag("Player") && state == FlagState.Idle)
         {
+            var mario = other.GetComponent<MarioMovement>();
+
             GameManager.Instance.StopTimer();
 
             csMario = cutsceneMario;
@@ -116,6 +140,15 @@ public class Flag : MonoBehaviour
         }
     }
 
+    private CutsceneContext BuildCutsceneContext()
+    {
+        return new CutsceneContext
+        {
+            gameManager = GameManager.Instance,
+            scene = SceneManager.GetActiveScene()
+        };
+    }
+
     private IEnumerator ToCutsceneState()
     {
         yield return new WaitForSeconds(slideTime);
@@ -123,15 +156,24 @@ public class Flag : MonoBehaviour
         state = FlagState.Cutscene; // Transition to cutscene state
         print("Transitioning to cutscene state.");
 
-        // Play the cutscene
-        StartCoroutine(GameManager.Instance.TriggerEndLevelCutscene(
-            GetComponent<PlayableDirector>(), // PlayableDirector
-            0f,                               // No additional delay for cutscene
-            cutsceneTime,                     // Duration of the cutscene
-            false,                            // Players are already destroyed
-            false,                            // Music is already stopped
-            true                              // Hide UI
-        ));
+        var ctx = BuildCutsceneContext();
+
+        if (cutsceneSelector != null)
+        {
+            StartCoroutine(cutsceneSelector.PlaySelectedCutscene(ctx));
+        }
+        else
+        {
+            // fallback
+            StartCoroutine(GameManager.Instance.TriggerEndLevelCutscene(
+                GetComponent<PlayableDirector>(), // PlayableDirector
+                0f, // No additional delay for cutscene
+                cutsceneTime, // Duration of the cutscene
+                false, // Players are already destroyed
+                false, // Music is already stopped
+                true // Hide UI
+            ));
+        }
     }
 
     // used in the editor to change the height of the entire flagpole easily
