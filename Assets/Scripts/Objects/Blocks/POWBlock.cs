@@ -1,6 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
+
+[System.Serializable]
+public class POWUseState
+{
+    public Sprite sprite;
+    public UnityEvent onUse; // fired when we transition into this state
+}
 
 public class POWBlock : BumpableBlock
 {
@@ -9,7 +17,12 @@ public class POWBlock : BumpableBlock
     public bool affectAllEnemies = false;
     public bool playKickSounds = true;
     public int maxUses = 1;
-    public Sprite[] useStateSprites; // Sprites for different use states (3 uses, 2 uses, 1 use)
+    public POWUseState[] useStates; // Per-use sprite + event
+
+    [Header("Events")]
+    public UnityEvent onPOWActivated;
+    public UnityEvent onPOWDepleted;
+    public UnityEvent onEnemyAffected;
 
     [Header("Effects")]
     public AudioClip powBlockSound;
@@ -19,6 +32,9 @@ public class POWBlock : BumpableBlock
     private SpriteRenderer spriteRenderer;
     private Camera mainCamera;
     private bool hasCachedCamera;
+
+    // To avoid firing onUse multiple times for the same state
+    private int lastUseStateIndex = -1;
 
     protected override void Awake()
     {
@@ -33,20 +49,15 @@ public class POWBlock : BumpableBlock
     }
     
     #region Activation
-    // Override activation checks for POW block specific logic
     protected override bool CanActivate(Collision2D other)
     {
         if (!base.CanActivate(other)) return false;
-        
-        // POW block specific: Check if has uses remaining
         return currentUses > 0;
     }
 
     protected override bool CanActivateFromPlayer(MarioMovement player)
     {
         if (!base.CanActivateFromPlayer(player)) return false;
-        
-        // POW block specific: Check if has uses remaining
         return currentUses > 0;
     }
     #endregion
@@ -69,16 +80,16 @@ public class POWBlock : BumpableBlock
     {
         if (currentUses <= 0)
         {
+            onPOWDepleted?.Invoke();
             DestroyPOWBlock();
         }
     }
     #endregion
 
     #region POW Effect
-    // Activate the POW block effect on enemies
-    // Making it public so it can be called from signal receiver
     public void ActivatePOWEffect()
     {
+        // Collect enemies to affect
         List<EnemyAI> enemiesToAffect = new List<EnemyAI>();
 
         if (affectVisibleEnemies)
@@ -93,41 +104,48 @@ public class POWBlock : BumpableBlock
 
         // Remove duplicates
         HashSet<EnemyAI> uniqueEnemies = new HashSet<EnemyAI>(enemiesToAffect);
-        
+
         foreach (EnemyAI enemy in uniqueEnemies)
         {
-            if (enemy != null && enemy.isActiveAndEnabled)
-            {
-                bool knockRight = Random.value > 0.5f;
-                enemy.KnockAway(knockRight, playKickSounds);
-            }
+            if (enemy == null)
+                continue;
+
+            bool knockRight = Random.value > 0.5f;
+            enemy.KnockAway(knockRight, playKickSounds);
+
+            // Per-enemy event
+            onEnemyAffected?.Invoke();
         }
 
         // Play sound using the cached camera
-        if (powBlockSound != null)
+        if (powBlockSound != null && hasCachedCamera && mainCamera != null)
         {
             AudioSource.PlayClipAtPoint(powBlockSound, mainCamera.transform.position, 1f);
         }
 
         // Screen shake effect
-        StartCoroutine(ScreenShakeEffect());
+        if (hasCachedCamera && mainCamera != null)
+        {
+            StartCoroutine(ScreenShakeEffect());
+        }
+
+        // Global POW activation event
+        onPOWActivated?.Invoke();
     }
 
     private List<EnemyAI> GetVisibleEnemies()
     {
         List<EnemyAI> visibleEnemies = new List<EnemyAI>();
 
-        if (!hasCachedCamera) return visibleEnemies;
+        if (!hasCachedCamera || mainCamera == null) return visibleEnemies;
 
         Vector3 bottomLeft = mainCamera.ViewportToWorldPoint(Vector3.zero);
         Vector3 topRight = mainCamera.ViewportToWorldPoint(Vector3.one);
 
-        // Get all colliders in the camera view
         Collider2D[] colliders = Physics2D.OverlapAreaAll(bottomLeft, topRight);
 
         foreach (Collider2D collider in colliders)
         {
-            // Check if the object has the "Enemy" tag
             if (collider.CompareTag("Enemy"))
             {
                 EnemyAI enemy = collider.GetComponent<EnemyAI>();
@@ -143,6 +161,7 @@ public class POWBlock : BumpableBlock
 
     private List<EnemyAI> GetAllEnemies()
     {
+        // Include inactive enemies as well
         EnemyAI[] enemies = FindObjectsOfType<EnemyAI>(true);
         return new List<EnemyAI>(enemies);
     }
@@ -151,17 +170,29 @@ public class POWBlock : BumpableBlock
     #region Visual Effects
     private void UpdateAppearance()
     {
-        if (spriteRenderer != null && useStateSprites != null && useStateSprites.Length > 0)
+        if (spriteRenderer == null || useStates == null || useStates.Length == 0)
+            return;
+
+        // Same mapping as before: currentUses - 1 -> index
+        int index = Mathf.Clamp(currentUses - 1, 0, useStates.Length - 1);
+        POWUseState state = useStates[index];
+
+        if (state.sprite != null)
         {
-            int spriteIndex = Mathf.Clamp(currentUses - 1, 0, useStateSprites.Length - 1);
-            spriteRenderer.sprite = useStateSprites[spriteIndex];
+            spriteRenderer.sprite = state.sprite;
+        }
+
+        // Only fire the onUse event when we actually transition into a new state
+        if (index != lastUseStateIndex)
+        {
+            lastUseStateIndex = index;
+            state.onUse?.Invoke();
         }
     }
 
     private IEnumerator ScreenShakeEffect()
     {
-        // Simple screen shake effect - use cached camera
-        if (!hasCachedCamera) yield break;
+        if (!hasCachedCamera || mainCamera == null) yield break;
 
         Vector3 originalPosition = mainCamera.transform.position;
         float shakeDuration = 0.3f;
@@ -186,17 +217,14 @@ public class POWBlock : BumpableBlock
     #region Destruction
     private void DestroyPOWBlock()
     {
-        // Play destruction effect
         if (destructionEffect != null)
         {
             Instantiate(destructionEffect, transform.position, Quaternion.identity);
         }
 
-        // Disable collider and renderer first
         if (boxCollider != null) boxCollider.enabled = false;
         if (spriteRenderer != null) spriteRenderer.enabled = false;
 
-        // Destroy after a delay to allow effects to play
         Destroy(gameObject, 1f);
     }
     #endregion
