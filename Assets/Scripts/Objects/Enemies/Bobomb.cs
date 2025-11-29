@@ -154,6 +154,9 @@ public class Bobomb : EnemyAI
                     break;
                 case "Enemy":
                     var enemy = hitCollider.gameObject.GetComponent<EnemyAI>();
+                    if (enemy == null || enemy == this)
+                        break; // ignore Bobomb himself
+                    
                     enemy.KnockAway(transform.position.x > enemy.transform.position.x);
 
                     Vector3 enemyPos = enemy.transform.position;
