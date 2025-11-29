@@ -227,6 +227,7 @@ GameObject:
   - component: {fileID: 178313822}
   - component: {fileID: 178313821}
   - component: {fileID: 178313827}
+  - component: {fileID: 178313829}
   - component: {fileID: 178313826}
   - component: {fileID: 178313828}
   m_Layer: 5
@@ -435,14 +436,9 @@ MonoBehaviour:
   xImage: {fileID: 716072241}
   conditionIconImage: {fileID: 2001506720}
   infiniteImage: {fileID: 806262379}
-  lives: {fileID: 972936180}
-  conditionText: {fileID: 1757754765}
   livesText: {fileID: 972936180}
-  capeMove: {fileID: 2002682761}
-  spinMove: {fileID: 1293379423}
-  wallJumpMove: {fileID: 1473444611}
-  groundPoundMove: {fileID: 698666458}
-  crawlMove: {fileID: 411328250}
+  conditionText: {fileID: 1757754765}
+  movesDisplay: {fileID: 178313829}
   targetDataList:
   - target: {fileID: 1724794066}
     targetPosition: {x: 0, y: 25, z: 0}
@@ -631,6 +627,29 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &178313829
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 178313820}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a449fa2cb246a5246b9ee0392fb6f1bd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  moveBindings:
+  - moveFlag: 1
+    uiObject: {fileID: 2002682761}
+  - moveFlag: 2
+    uiObject: {fileID: 1293379423}
+  - moveFlag: 4
+    uiObject: {fileID: 1473444611}
+  - moveFlag: 8
+    uiObject: {fileID: 698666458}
+  - moveFlag: 16
+    uiObject: {fileID: 411328250}
 --- !u!1 &387503063
 GameObject:
   m_ObjectHideFlags: 0

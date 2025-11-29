@@ -1229,13 +1229,28 @@ public class GameManager : MonoBehaviour
             CursorHelper.HideCursor();
         }
 
-        foreach (MarioMovement player in players)
+        /*foreach (MarioMovement player in players)
         {
             player.EnableInputs();
 
             // Stupid workaround for Mario's input actions not updating when you rebind them in the options menu
             // Remove this if we ever update Unity and the issue is fixed
             player.GetComponent<PlayerInput>().actions = playerInputActions;
+        }*/
+
+        foreach (MarioMovement player in ExistingPlayers())
+        {
+            if (player == null) // extra safety
+                continue;
+
+            player.EnableInputs();
+
+            // Workaround for input actions not updating on rebind
+            var input = player.GetComponent<PlayerInput>();
+            if (input != null)
+            {
+                input.actions = playerInputActions;
+            }
         }
 
         if (pausemenu != null)

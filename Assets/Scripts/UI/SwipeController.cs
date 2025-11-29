@@ -36,6 +36,7 @@ public class SwipeController : MonoBehaviour, IDragHandler, IEndDragHandler
         public List<Sprite> barClosed;
         public List<Sprite> barOpen;
     }
+
     [SerializeField] BarOption[] barOptions;
 
     [SerializeField] List<CanvasGroup> pageCanvasGroups;
@@ -48,6 +49,11 @@ public class SwipeController : MonoBehaviour, IDragHandler, IEndDragHandler
     private Dictionary<(int, GameObject, string), GameObject> navigationMap;
 
     [SerializeField] private InputActionReference navigateAction;
+
+    private Coroutine pageSequenceRoutine;
+
+    // NEW: track the active LeanTween id so we can cancel before starting a new tween
+    private int activeTweenId = -1;
 
     private void Awake()
     {
@@ -84,6 +90,8 @@ public class SwipeController : MonoBehaviour, IDragHandler, IEndDragHandler
 
     private void OnNavigate(InputAction.CallbackContext context)
     {
+        if (GlobalInputLock.IsLocked) return;
+
         Vector2 input = context.ReadValue<Vector2>();
         if (input == Vector2.zero) return;
 
@@ -105,6 +113,8 @@ public class SwipeController : MonoBehaviour, IDragHandler, IEndDragHandler
 
     public void Next()
     {
+        if (GlobalInputLock.IsLocked) return;
+
         if (currentPage < maxPage)
         {
             currentPage++;
@@ -116,6 +126,8 @@ public class SwipeController : MonoBehaviour, IDragHandler, IEndDragHandler
 
     public void Previous()
     {
+        if (GlobalInputLock.IsLocked) return;
+
         if (currentPage > 1)
         {
             currentPage--;
@@ -140,6 +152,108 @@ public class SwipeController : MonoBehaviour, IDragHandler, IEndDragHandler
         MovePage();
     }
 
+    /// <summary>
+    /// Applies UI updates and fires OnPageChanged.
+    /// Called by both normal MovePage() and sequential steps.
+    /// </summary>
+    private void ApplyPageVisualsAndEvents()
+    {
+        UpdateBar();
+        UpdateCanvasGroups();
+        UpdateButtonStates();
+        OnPageChanged?.Invoke(currentPage);
+    }
+
+    /// <summary>
+    /// NEW: Centralized helper for all page movement tweens.
+    /// Cancels any existing tween on levelPagesRect before starting a new one.
+    /// </summary>
+    private void StartPageTween(Vector3 newTargetPos, float duration)
+    {
+        targetPos = newTargetPos;
+
+        if (levelPagesRect == null || duration <= 0f)
+        {
+            // No tween: snap directly and still apply visuals
+            if (levelPagesRect != null)
+                levelPagesRect.localPosition = targetPos;
+            return;
+        }
+
+        // Cancel any previous tween on this rect
+        if (activeTweenId != -1)
+        {
+            LeanTween.cancel(activeTweenId);
+            activeTweenId = -1;
+        }
+
+        var tween = levelPagesRect
+            .LeanMoveLocal(targetPos, duration)
+            .setEase(tweenType)
+            .setIgnoreTimeScale(true);
+
+        activeTweenId = tween.id;
+    }
+
+    /// <summary>
+    /// Move to the current targetPos using standard tweenTime.
+    /// </summary>
+    void MovePage()
+    {
+        StartPageTween(targetPos, tweenTime);
+        ApplyPageVisualsAndEvents();
+    }
+
+    /// <summary>
+    /// Move page-by-page from currentPage to targetPage, visiting each
+    /// intermediate page, but keeping the total travel time fixed.
+    /// Used by CheatButton sequence.
+    /// </summary>
+    public void GoToPageSequentialFixed(int targetPage, float totalDuration)
+    {
+        targetPage = Mathf.Clamp(targetPage, 1, maxPage);
+
+        if (pageSequenceRoutine != null)
+            StopCoroutine(pageSequenceRoutine);
+
+        pageSequenceRoutine = StartCoroutine(GoToPageSequentialFixedRoutine(targetPage, totalDuration));
+    }
+
+    private IEnumerator GoToPageSequentialFixedRoutine(int targetPage, float totalDuration)
+    {
+        if (currentPage == targetPage || totalDuration <= 0f || levelPagesRect == null)
+        {
+            pageSequenceRoutine = null;
+            yield break;
+        }
+
+        int steps = Mathf.Abs(targetPage - currentPage);
+        float stepDuration = totalDuration / steps;
+
+        while (currentPage != targetPage)
+        {
+            // Step the logical page index by one
+            if (currentPage < targetPage)
+                currentPage++;
+            else
+                currentPage--;
+
+            // Compute the targetPos for this page
+            Vector3 stepPos = initialPosition + (currentPage - 1) * pageStep;
+
+            // Use centralized tween helper for each step
+            StartPageTween(stepPos, stepDuration);
+
+            // Update UI and fire page changed event for this page
+            ApplyPageVisualsAndEvents();
+
+            // Wait using realtime to match setIgnoreTimeScale(true)
+            yield return new WaitForSecondsRealtime(stepDuration);
+        }
+
+        pageSequenceRoutine = null;
+    }
+
     private bool preventSelection = false;
 
     public void PreventAutoSelection(bool state)
@@ -147,24 +261,18 @@ public class SwipeController : MonoBehaviour, IDragHandler, IEndDragHandler
         preventSelection = state;
     }
 
-    void MovePage()
-    {
-        levelPagesRect.LeanMoveLocal(targetPos, tweenTime).setEase(tweenType).setIgnoreTimeScale(true);
-        UpdateBar();
-        UpdateCanvasGroups();
-        UpdateButtonStates();
-
-        OnPageChanged?.Invoke(currentPage);
-    }
-
     public void OnDrag(PointerEventData eventData)
     {
+        if (GlobalInputLock.IsLocked) return;
+
         float dragAmount = eventData.position.x - eventData.pressPosition.x;
         int predictedPage = currentPage;
 
         if (Mathf.Abs(dragAmount) > dragThreshold)
         {
-            predictedPage = (dragAmount > 0) ? Mathf.Max(1, currentPage - 1) : Mathf.Min(maxPage, currentPage + 1);
+            predictedPage = (dragAmount > 0)
+                ? Mathf.Max(1, currentPage - 1)
+                : Mathf.Min(maxPage, currentPage + 1);
         }
 
         if (predictedPage != currentPage)
@@ -175,6 +283,8 @@ public class SwipeController : MonoBehaviour, IDragHandler, IEndDragHandler
 
     public void OnEndDrag(PointerEventData eventData)
     {
+        if (GlobalInputLock.IsLocked) return;
+
         if (Mathf.Abs(eventData.position.x - eventData.pressPosition.x) > dragThreshold)
         {
             if (eventData.position.x > eventData.pressPosition.x)
@@ -224,8 +334,9 @@ public class SwipeController : MonoBehaviour, IDragHandler, IEndDragHandler
     {
         for (int i = 0; i < pageCanvasGroups.Count; i++)
         {
-            pageCanvasGroups[i].interactable = (i == currentPage - 1);
-            pageCanvasGroups[i].blocksRaycasts = (i == currentPage - 1);
+            bool isActivePage = (i == currentPage - 1);
+            pageCanvasGroups[i].interactable   = isActivePage;
+            pageCanvasGroups[i].blocksRaycasts = isActivePage;
         }
     }
 
@@ -233,18 +344,44 @@ public class SwipeController : MonoBehaviour, IDragHandler, IEndDragHandler
     {
         if (predictedPage == -1) predictedPage = currentPage;
 
-        previousBtn.interactable = predictedPage > 1;
-        nextBtn.interactable = predictedPage < maxPage;
+        if (previousBtn != null)
+            previousBtn.interactable = predictedPage > 1;
 
-        if (!preventSelection)
+        if (nextBtn != null)
+            nextBtn.interactable = predictedPage < maxPage;
+
+        if (!preventSelection && EventSystem.current != null)
         {
-            if (predictedPage == 1)
+            int delta = predictedPage - currentPage; // page you are on *before* changing
+            GameObject toSelect = null;
+
+            // Clamp to edges first
+            if (predictedPage <= 1)
             {
-                EventSystem.current.SetSelectedGameObject(nextBtn.gameObject);
+                toSelect = nextBtn != null ? nextBtn.gameObject : null; // on first page, highlight Next
             }
-            else if (predictedPage == maxPage)
+            else if (predictedPage >= maxPage)
             {
-                EventSystem.current.SetSelectedGameObject(previousBtn.gameObject);
+                toSelect = previousBtn != null ? previousBtn.gameObject : null; // on last page, highlight Previous
+            }
+            else
+            {
+                // Middle pages, decide based on movement direction
+                if (delta > 0)
+                {
+                    // You moved forward
+                    toSelect = nextBtn != null ? nextBtn.gameObject : null;
+                }
+                else if (delta < 0)
+                {
+                    // You moved backward
+                    toSelect = previousBtn != null ? previousBtn.gameObject : null;
+                }
+            }
+
+            if (toSelect != null)
+            {
+                EventSystem.current.SetSelectedGameObject(toSelect);
             }
         }
     }
