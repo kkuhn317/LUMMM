@@ -493,10 +493,10 @@ public class MarioMovement : MonoBehaviour
                 jumpBlocked = true;
             }
         }
-        bool wallJumpCheck = direction.x != 0 && CheckWall(direction.x > 0);
+        
+        bool wallJumpCheck = (wallSliding || (spinning && direction.x != 0 && CheckWall(direction.x > 0))) && !onGround;
         if (Time.time < jumpTimer && (onGround || swimming || wallSliding || wallJumpCheck || climbing) && !jumpBlocked && !groundPoundLanded)
         {
-
             if (swimming)
             {
                 if (!groundPounding)
@@ -511,10 +511,10 @@ public class MarioMovement : MonoBehaviour
                 StopClimbing();
                 SpinJump();
             }
-            else if (wallSliding || wallJumpCheck)
+            else if (wallSliding || (spinning && wallJumpCheck))
             {
                 // Make sure Mario faces the wall before walljumping
-                if (wallJumpCheck)
+                if (wallJumpCheck && !wallSliding)
                 {
                     FlipTo(direction.x > 0);
                 }
@@ -783,13 +783,14 @@ public class MarioMovement : MonoBehaviour
             bool checkRight = wallSliding ? facingRight : direction.x > 0;
             bool hitWall = CheckWall(checkRight);
 
-            if (hitWall && !pushing && !spinning)
+            if (hitWall && !pushing)
             {
                 if (!wallSliding)
                 {
                     // flip mario to face the wall
                     FlipTo(checkRight);
-                    wallSliding = true;
+                    wallSliding = true; // cancel spinning when starting to wall slide
+                    spinning = false;
                 }
             }
             else
