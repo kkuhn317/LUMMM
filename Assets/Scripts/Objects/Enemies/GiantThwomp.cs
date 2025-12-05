@@ -32,7 +32,11 @@ public class GiantThwomp : EnemyAI, IGroundPoundable
     public GameObject hitEffect;
     private Animator animator;
 
-    // Sounds
+    [Header("UI")]
+    [SerializeField] private GameObject jumpInstruction;
+    private bool jumpHintAlreadyUsed = false;
+
+    [Header("Sounds")]
     private AudioSource audioSource;
     public AudioClip thwompLandSound;
     public AudioClip thwompHurtSound;
@@ -92,6 +96,9 @@ public class GiantThwomp : EnemyAI, IGroundPoundable
             materials.Add(renderer.material);
         }
         defaultColor = materials[0].GetColor("_Color");
+
+        if (jumpInstruction != null)
+            jumpInstruction.SetActive(false);
     }
 
     private void DetectPlayer() {
@@ -205,6 +212,18 @@ public class GiantThwomp : EnemyAI, IGroundPoundable
         currentState = newState;
         print("Changing state to " + newState + " from " + oldState);
 
+        if (newState == ThwompStates.Vulnerable)
+        {
+            // Show only if you haven't hit the thwomp yet
+            if (!jumpHintAlreadyUsed && jumpInstruction != null)
+                jumpInstruction.SetActive(true);
+        }
+        else
+        {
+            if (jumpInstruction != null)
+                jumpInstruction.SetActive(false);
+        }
+
         switch (newState)
         {
             case ThwompStates.Idle:
@@ -303,6 +322,14 @@ public class GiantThwomp : EnemyAI, IGroundPoundable
                 Invoke(nameof(FlipBack), vulnerableTime);
                 break;
             case ThwompStates.FallBack:
+                // Hard-stop all physics / movement
+                gravity = 0f;
+                velocity = Vector2.zero;
+                realVelocity = Vector2.zero;
+                movement = ObjectMovement.still;
+                objectState = ObjectState.grounded;
+
+                // deactivate all colliders except fallback
                 mainCollider.enabled = false;
                 vulnerableCollider.enabled = false;
                 fallBackCollider.enabled = true;
@@ -338,7 +365,6 @@ public class GiantThwomp : EnemyAI, IGroundPoundable
             audioSource.PlayOneShot(boomSound);
         }
     }
-
 
     private void InstantiateHitEffect()
     {
@@ -475,6 +501,31 @@ public class GiantThwomp : EnemyAI, IGroundPoundable
         }
     }
 
+    protected override void hitOnSide(GameObject player)
+    {
+        // While vulnerable or in fallback, don’t damage Mario on side contact
+        if (currentState == ThwompStates.Vulnerable || currentState == ThwompStates.FallBack)
+        {
+            // Optional: small knockback without damage
+            MarioMovement mario = player.GetComponent<MarioMovement>();
+            if (mario != null)
+            {
+                Rigidbody2D rb = mario.GetComponent<Rigidbody2D>();
+                if (rb != null)
+                {
+                    float dir = Mathf.Sign(player.transform.position.x - transform.position.x);
+                    if (dir == 0) dir = 1f; // fallback if perfectly aligned
+                    rb.velocity = new Vector2(4f * dir, rb.velocity.y);
+                }
+            }
+
+            return; // skip base logic (no damage)
+        }
+
+        // On normal states, use default “hurt Mario” behaviour
+        base.hitOnSide(player);
+    }
+
     protected override void hitByStomp(GameObject player)
     {
         switch (currentState)
@@ -486,27 +537,69 @@ public class GiantThwomp : EnemyAI, IGroundPoundable
                 {
                     ChangeState(ThwompStates.FallBack);
                 }
-                // Change the color of the Thwomp
+
                 foreach (Material material in materials)
                 {
                     material.SetColor("_Color", hitColor);
                 }
                 Invoke(nameof(StopTint), 0.2f);
-                // Play the hurt sound
+
                 if (thwompHurtSound != null)
                 {
                     audioSource.PlayOneShot(thwompHurtSound);
                 }
+
                 player.GetComponent<MarioMovement>().Jump();
 
-                // Spawn the hurt effect
+                // Spawn hurt effect using the proper collider (as we discussed before)
                 if (hurtEffectPrefab != null)
                 {
-                    Instantiate(hurtEffectPrefab, GetComponent<Collider2D>().ClosestPoint(player.transform.position), Quaternion.identity);
+                    Collider2D colliderForEffect = vulnerableCollider != null
+                        ? (Collider2D)vulnerableCollider
+                        : mainCollider;
+
+                    Vector2 pos = colliderForEffect != null
+                        ? colliderForEffect.ClosestPoint(player.transform.position)
+                        : (Vector2)player.transform.position;
+
+                    Instantiate(hurtEffectPrefab, pos, Quaternion.identity);
                 }
+
+                // first hit during this vulnerable phase, then hide instruction
+                if (!jumpHintAlreadyUsed)
+                {
+                    jumpHintAlreadyUsed = true;
+
+                    if (jumpInstruction != null)
+                        jumpInstruction.SetActive(false);
+                }
+
                 break;
+
             default:
                 base.hitByStomp(player);
+                break;
+        }
+    }
+
+    protected override void hitByGroundPound(MarioMovement player)
+    {
+        switch (currentState)
+        {
+            case ThwompStates.Vulnerable:
+                player.CancelGroundPound();
+                // Treat ground pound as a stomp when he is vulnerable
+                hitByStomp(player.gameObject);
+                break;
+
+            case ThwompStates.FallBack:
+                // In the fallback state, ground pound should finish him
+                OnGroundPound(player);
+                break;
+
+            default:
+                // All other states use normal dangerous behavior
+                base.hitByGroundPound(player);
                 break;
         }
     }
