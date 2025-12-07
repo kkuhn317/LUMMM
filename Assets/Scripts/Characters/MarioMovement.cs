@@ -185,6 +185,7 @@ public class MarioMovement : MonoBehaviour
     public AudioClip bonkSound;
     public AudioClip swimSound;
     public AudioClip spinJumpSound;
+    public AudioClip midAirSpinSound;
     public AudioClip yeahAudioClip;
     private AudioSource audioSource;
     private bool frozen = false;
@@ -216,14 +217,17 @@ public class MarioMovement : MonoBehaviour
     private float wallJumpHoldTimer;
     public bool canSpinJump = false;
 
-    [Header("Midair Spin")]
+    [Header("Midair Spin / Twirl (NSMBW-like)")]
     public bool canMidairSpin = true;
-    public float midairSpinDuration = 0.4f; // How long the twirl lasts
-    public float midairSpinFallSpeedCap = 3f; // Max fall speed during twirl
-    public float midairSpinGravityMult = 0.3f; // Gravity multiplier while twirling
+    public float midairSpinDuration = 0.55f; // Total duration of the twirl
+    public float midairSpinStallTime = 0.18f; // Initial stall time where Mario almost hangs in the air
+    public float midairSpinGravityMult = 0.35f; // Gravity multiplier during the gliding phase
+    public float midairSpinFallSpeedCap = 2.8f;  // Max fall speed while gliding
+    public float midairSpinUpwardBoost = 3.5f;  // Small upward boost when the twirl starts
 
     private bool isMidairSpinning = false;
     private bool midairSpinUsedThisJump = false;
+    private float midairSpinStartTime = 0f;
     private float midairSpinEndTime = 0f;
 
     [HideInInspector] public bool isCapeActive = false;
@@ -493,7 +497,6 @@ public class MarioMovement : MonoBehaviour
             MoveCharacter(direction.x);
         }
 
-
         // Jumping/Swimming
         bool jumpBlocked = false;
         foreach (MarioAbility ability in abilities)
@@ -670,8 +673,9 @@ public class MarioMovement : MonoBehaviour
                 damageMario();
             }
 
-            // Stop spinning, stop ground pounding
+            // Stop spinning, stop mid air spinning, stop ground pounding
             spinning = false;
+            isMidairSpinning = false;
             if (groundPounding && !groundPoundLanded)
             {
                 GroundPoundLand(hitRay.transform.gameObject);
@@ -822,6 +826,7 @@ public class MarioMovement : MonoBehaviour
 
         animator.SetBool("isWallSliding", wallSliding);
         animator.SetBool("isSpinning", spinning);
+        animator.SetBool("isMidairSpinning", isMidairSpinning);
         animator.SetBool("isLookingUp", isLookingUp);
         animator.SetBool("isClimbing", climbing);
 
@@ -1291,6 +1296,7 @@ public class MarioMovement : MonoBehaviour
         onGround = false;
         jumpTimer = 0;
         airtimer = Time.time + ((useWalkJumpSpeed ? walkJumpAirtime : airtime) * jumpMultiplier);
+        midairSpinUsedThisJump = false;
     }
 
     // for swimming
@@ -1625,6 +1631,50 @@ public class MarioMovement : MonoBehaviour
         else
         {
             // in the air
+
+            // midair spin / twirl physics
+            if (isMidairSpinning)
+            {
+                // Stop twirl if we land or the spin time has expired
+                if (onGround || Time.time >= midairSpinEndTime)
+                {
+                    EndMidairSpin();
+                }
+                else
+                {
+                    float elapsed = Time.time - midairSpinStartTime;
+
+                    // Phase 1: short stall at the start of the twirl
+                    if (elapsed < midairSpinStallTime)
+                    {
+                        // Turn off gravity during the stall
+                        rb.gravityScale = 0f;
+                        rb.drag = 0f;
+
+                        // If we're somehow moving downward, cancel that fall
+                        if (rb.velocity.y < 0f)
+                        {
+                            rb.velocity = new Vector2(rb.velocity.x, 0f);
+                        }
+                    }
+                    // Phase 2: glide with slower falling speed
+                    else
+                    {
+                        rb.gravityScale = fallgravity * midairSpinGravityMult;
+                        rb.drag = 0f;
+
+                        // Limit how fast we can fall while gliding
+                        if (rb.velocity.y < -midairSpinFallSpeedCap)
+                        {
+                            rb.velocity = new Vector2(rb.velocity.x, -midairSpinFallSpeedCap);
+                        }
+                    }
+
+                    // Don't run the normal in-air physics while twirling
+                    return;
+                }
+            }
+
             rb.gravityScale = riseGravity;  // Rising Gravity
             rb.drag = 0;
             //if(rb.velocity.y < startfallingspeed){
@@ -2382,7 +2432,18 @@ public class MarioMovement : MonoBehaviour
     {
         if (!canSpinJump) return;
 
-        print("spin!");
+        // 1) Midair twirl case
+        if (!onGround && !swimming && !groundPounding && !wallSliding && !climbing)
+        {
+            // Only one twirl per jump
+            if (canMidairSpin && !midairSpinUsedThisJump && !isMidairSpinning)
+            {
+                StartMidairSpin();
+            }
+            return;
+        }
+
+        // 2) Normal spin jump case (ground / climbing / wall)
         jumpTimer = Time.time + jumpDelay;
         spinPressed = true;
         spinJumpQueued = true;
@@ -2662,4 +2723,34 @@ public class MarioMovement : MonoBehaviour
         pushingObject = null;
     }
 
+    /* Midair jump */
+    private void StartMidairSpin()
+    {
+        midairSpinUsedThisJump = true;
+        isMidairSpinning = true;
+        spinning = true;
+        midairSpinStartTime = Time.time;
+        midairSpinEndTime = Time.time + midairSpinDuration;
+
+        if (rb.velocity.y <= 0f)
+        {
+            rb.velocity = new Vector2(rb.velocity.x, 0f);
+            rb.AddForce(Vector2.up * midairSpinUpwardBoost, ForceMode2D.Impulse);
+        }
+        audioSource.PlayOneShot(midAirSpinSound);
+
+        foreach (MarioAbility ability in abilities)
+        {
+            ability.onSpinPressed();
+        }
+    }
+
+    private void EndMidairSpin()
+    {
+        if (!isMidairSpinning)
+            return;
+
+        isMidairSpinning = false;
+        spinning = false;
+    }
 }

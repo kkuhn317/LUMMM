@@ -117,8 +117,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerNumber: 1
+  inputLocked: 0
   moveInput: {x: 0, y: 0}
-  crouchPressed: 0
   groundPoundInWater: 0
   waterGroundPoundStartTime: 0
   moveSpeed: 20
@@ -169,9 +169,8 @@ MonoBehaviour:
   invincetimeremain: 0
   groundPos: {x: 0, y: 0}
   animationScale: {x: 1, y: 1, z: 1}
-  originalScale: {x: 0, y: 0, z: 0}
+  baseScale: {x: 0, y: 0, z: 0}
   animationRotation: 0
-  wasScaledNormal: 1
   canSkid: 1
   canCrouch: 1
   crouchColOffset: -0.3
@@ -181,12 +180,14 @@ MonoBehaviour:
   powerupState: 1
   transformMario: {fileID: 0}
   powerDownMario: {fileID: 0}
+  isTransforming: 0
   starPower: 0
   deadMario: {fileID: 2690894693950398662, guid: d5166c8281f58a942831c88a5e39dd13, type: 3}
   damageSound: {fileID: 8300000, guid: 938d4a3d1a37b284c81c8c25379c86b4, type: 3}
   bonkSound: {fileID: 8300000, guid: 6db2c81fb3c026d40a90d8d52dc8384b, type: 3}
   swimSound: {fileID: 8300000, guid: e2bb1aa0b45968f4b898809f1533541a, type: 3}
   spinJumpSound: {fileID: 8300000, guid: 0b62da5c4bc0c4d4d8045a4396d9f6d6, type: 3}
+  midAirSpinSound: {fileID: 8300000, guid: c5475d8541a7c38469c1d501e26f02c0, type: 3}
   yeahAudioClip: {fileID: 8300000, guid: b4a5b5a191256034ca457e70e758ea5b, type: 3}
   carrying: 0
   pressRunToGrab: 0
@@ -199,6 +200,12 @@ MonoBehaviour:
   canWallJump: 1
   canWallJumpWhenHoldingObject: 0
   canSpinJump: 0
+  canMidairSpin: 1
+  midairSpinDuration: 0.55
+  midairSpinStallTime: 0.18
+  midairSpinGravityMult: 0.35
+  midairSpinFallSpeedCap: 2.8
+  midairSpinUpwardBoost: 3.5
   isCapeActive: 0
   wallSliding: 0
   spinning: 0
