@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.EventSystems;
 
 public class MobileControlRebinding : MonoBehaviour
 {
@@ -97,5 +98,10 @@ public class MobileControlRebinding : MonoBehaviour
 
         int percentage = Mathf.RoundToInt(scaleValue * 100);
         scalePercentageText.text = $"{percentage}%";
+    }
+
+    public void SetButtonAsSelected(GameObject buttonToSelect)
+    {
+        EventSystem.current.SetSelectedGameObject(buttonToSelect);
     }
 }

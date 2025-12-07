@@ -40,7 +40,6 @@ public class MarioMovement : MonoBehaviour
     public bool facingRight = true;
     private bool inCrouchState = false;
     private bool isCrawling = false; // Currently small mario only
-    private bool canTriggerGroundPound = false;
     private float floorAngle = 0f; // -45 = \, 0 = _, 45 = /
 
     [Header("Vertical Movement")]
@@ -216,6 +215,17 @@ public class MarioMovement : MonoBehaviour
     private const float wallJumpHoldTime = 0.25f;
     private float wallJumpHoldTimer;
     public bool canSpinJump = false;
+
+    [Header("Midair Spin")]
+    public bool canMidairSpin = true;
+    public float midairSpinDuration = 0.4f; // How long the twirl lasts
+    public float midairSpinFallSpeedCap = 3f; // Max fall speed during twirl
+    public float midairSpinGravityMult = 0.3f; // Gravity multiplier while twirling
+
+    private bool isMidairSpinning = false;
+    private bool midairSpinUsedThisJump = false;
+    private float midairSpinEndTime = 0f;
+
     [HideInInspector] public bool isCapeActive = false;
     [HideInInspector] public bool wallSliding = false;
     private bool pushing = false;
