@@ -28,6 +28,16 @@ public class CrushDetection : MonoBehaviour
         }
     }
 
+    void FixedUpdate()
+    {
+        // Move the crush detection collider inside the parent's box collider, so it doesn't stick out when you crouch
+        BoxCollider2D parentBox = transform.parent.GetComponent<BoxCollider2D>();
+        if (parentBox != null)
+        {
+            transform.localPosition = new Vector3(parentBox.offset.x, parentBox.offset.y, transform.localPosition.z);
+        }
+    }
+
 
     void OnCollisionEnter2D(Collision2D col)
     {

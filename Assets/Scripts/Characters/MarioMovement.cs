@@ -783,7 +783,7 @@ public class MarioMovement : MonoBehaviour
             bool checkRight = wallSliding ? facingRight : direction.x > 0;
             bool hitWall = CheckWall(checkRight);
 
-            if (hitWall && !pushing)
+            if (hitWall && !pushing && !inCrouchState && !isCrawling)
             {
                 if (!wallSliding)
                 {
@@ -1061,7 +1061,7 @@ public class MarioMovement : MonoBehaviour
         if (canWallJump && !onGround && !swimming && (!carrying || canWallJumpWhenHoldingObject))
         {
 
-            float raycastlength = GetComponent<BoxCollider2D>().bounds.size.y / 2 + 0.03f;
+            float raycastlength = GetComponent<BoxCollider2D>().bounds.size.x / 2 + 0.03f;
 
             // raycast in the direction the stick is pointing or the direction Mario is facing if already wall sliding
             Vector2 raycastDirection = right ? Vector2.right : Vector2.left;
