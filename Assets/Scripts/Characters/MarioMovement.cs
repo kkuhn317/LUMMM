@@ -1644,7 +1644,7 @@ public class MarioMovement : MonoBehaviour
                 {
                     float elapsed = Time.time - midairSpinStartTime;
 
-                    // Phase 1: short stall at the start of the twirl
+                    // Short stall at the start of the twirl
                     if (elapsed < midairSpinStallTime)
                     {
                         // Turn off gravity during the stall
@@ -1657,7 +1657,7 @@ public class MarioMovement : MonoBehaviour
                             rb.velocity = new Vector2(rb.velocity.x, 0f);
                         }
                     }
-                    // Phase 2: glide with slower falling speed
+                    // Glide with slower falling speed
                     else
                     {
                         rb.gravityScale = fallgravity * midairSpinGravityMult;
