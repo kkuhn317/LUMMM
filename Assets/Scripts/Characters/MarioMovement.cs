@@ -217,13 +217,26 @@ public class MarioMovement : MonoBehaviour
     private float wallJumpHoldTimer;
     public bool canSpinJump = false;
 
-    [Header("Midair Spin / Twirl (NSMBW-like)")]
+    [Header("Midair Spin / Twirl")]
+    [Tooltip("delays fall and provides extra air time")]
     public bool canMidairSpin = true;
-    public float midairSpinDuration = 0.55f; // Total duration of the twirl
-    public float midairSpinStallTime = 0.18f; // Initial stall time where Mario almost hangs in the air
-    public float midairSpinGravityMult = 0.35f; // Gravity multiplier during the gliding phase
-    public float midairSpinFallSpeedCap = 2.8f;  // Max fall speed while gliding
-    public float midairSpinUpwardBoost = 3.5f;  // Small upward boost when the twirl starts
+    [Tooltip("If true, allow several twirls per jump with a short cooldown")]
+    public bool allowMultipleMidairSpins = false;
+    [Tooltip("Time in seconds before you can twirl again in the same jump")]
+    public float midairSpinCooldown = 0.20f;
+    private float lastMidairSpinTime = -999f;
+    [Tooltip("Total duration of the twirl")]
+    public float midairSpinDuration = 0.40f;
+    [Tooltip("Stall time at the start (brief hang)")]
+    public float midairSpinStallTime = 0.15f;
+    [Tooltip("Gravity multiplier while gliding (lower = more floaty)")]
+    public float midairSpinGravityMult = 0.25f;
+    [Tooltip("Maximum fall speed during glide")]
+    public float midairSpinFallSpeedCap = 2.0f;
+    [Tooltip("Upward boost when triggered")]
+    public float midairSpinUpwardBoost = 2f;
+    [Tooltip("Horizontal speed multiplier when starting midair spin\n(1 = keep all, 0.5 = half, 0 = stop)")]
+    [Range(0f, 1f)] public float midairSpinHorizontalPreserve = 0.8f;
 
     private bool isMidairSpinning = false;
     private bool midairSpinUsedThisJump = false;
@@ -386,16 +399,32 @@ public class MarioMovement : MonoBehaviour
         // Throwing item
         if (carrying && !runPressed)
         {
-            if (direction.y < -0.5f)
+            if (!onGround)
             {
-                dropCarry();
+                // In the air:
+                // - If pressing down, do nothing here so ground pound can use the input
+                // - If NOT pressing down, allow a midair throw
+                if (direction.y >= -0.5f)
+                {
+                    throwCarry();
+                }
+                // If direction.y < -0.5f in the air, we just skip:
+                // object stays carried and GroundPound() will run later.
             }
             else
             {
-                throwCarry();
+                // On the ground:
+                // Down = drop, otherwise = throw
+                if (direction.y < -0.5f)
+                {
+                    dropCarry();
+                }
+                else
+                {
+                    throwCarry();
+                }
             }
         }
-
     }
 
     private void OnCollisionEnter2D(Collision2D other)
@@ -871,6 +900,18 @@ public class MarioMovement : MonoBehaviour
             }
         }
 
+        if (onGround && !wasGrounded)
+        {
+            // Just landed, then reset midair spin state
+            midairSpinUsedThisJump = false;
+            lastMidairSpinTime = -999f;
+        }
+        else if (!onGround && wasGrounded)
+        {
+            // Just walked off a ledge, then give airtimer like a walk jump
+            airtimer = Time.time + walkJumpAirtime;
+        }
+        
         wasGrounded = onGround;
 
         // Physics
@@ -1302,6 +1343,7 @@ public class MarioMovement : MonoBehaviour
         jumpTimer = 0;
         airtimer = Time.time + ((useWalkJumpSpeed ? walkJumpAirtime : airtime) * jumpMultiplier);
         midairSpinUsedThisJump = false;
+        lastMidairSpinTime = -999f;
     }
 
     // for swimming
@@ -1393,7 +1435,12 @@ public class MarioMovement : MonoBehaviour
 
     private void GroundPound()
     {
-        spinning = false;   // No longer spinning
+        if (isMidairSpinning)
+        {
+            EndMidairSpin();
+        }
+
+        spinning = false; // No longer spinning
         groundPounding = true;
         groundPoundRotating = true;
 
@@ -1652,17 +1699,16 @@ public class MarioMovement : MonoBehaviour
                     // Short stall at the start of the twirl
                     if (elapsed < midairSpinStallTime)
                     {
-                        // Turn off gravity during the stall
+                        // Brief stall at the start
                         rb.gravityScale = 0f;
                         rb.drag = 0f;
-
-                        // If we're somehow moving downward, cancel that fall
-                        if (rb.velocity.y < 0f)
-                        {
-                            rb.velocity = new Vector2(rb.velocity.x, 0f);
-                        }
+                        
+                        // During the stall, maintain the vertical velocity we set in StartMidairSpin()
+                        // This means if we gave an upward boost, we keep rising during the stall
+                        // If we didn't give a boost (were rising already), keep rising naturally
+                        // If we were falling but didn't get a boost (edge case), keep at 0
                     }
-                    // Glide with slower falling speed
+                    // Glide with slower falling speed after the stall
                     else
                     {
                         rb.gravityScale = fallgravity * midairSpinGravityMult;
@@ -2435,24 +2481,42 @@ public class MarioMovement : MonoBehaviour
 
     public void onSpinPressed()
     {
-        // Handle midair spin
+        // Midair twirl (NSMBW-style)
         if (!onGround && !swimming && !groundPounding && !wallSliding && !climbing)
         {
-            // Only start a midair spin if this jump hasn't used one yet and we're not already spinning
-            if (canMidairSpin && !midairSpinUsedThisJump && !isMidairSpinning)
+            // If midair spin is disabled or we are already twirling, do nothing
+            if (!canMidairSpin || isMidairSpinning)
+                return;
+
+            if (!allowMultipleMidairSpins)
             {
-                StartMidairSpin();
+                // only one twirl per jump
+                if (!midairSpinUsedThisJump)
+                {
+                    StartMidairSpin();
+                }
+            }
+            else
+            {
+                // first twirl is always allowed,
+                // additional twirls require a short cooldown
+                bool firstSpinThisJump = !midairSpinUsedThisJump;
+                bool cooldownReady = Time.time >= lastMidairSpinTime + midairSpinCooldown;
+
+                if (firstSpinThisJump || cooldownReady)
+                {
+                    StartMidairSpin();
+                }
             }
 
-            // Don't queue a ground spin jump when we're in the air
+            // Never queue a ground spin jump while in the air
             return;
         }
 
-        // if we can't spin jump, do nothing 
+        // Ground / wall / climb spin jump
         if (!canSpinJump)
             return;
 
-        // queue a spin jump on the next jump
         jumpTimer = Time.time + jumpDelay;
         spinPressed = true;
         spinJumpQueued = true;
@@ -2741,11 +2805,28 @@ public class MarioMovement : MonoBehaviour
         midairSpinStartTime = Time.time;
         midairSpinEndTime = Time.time + midairSpinDuration;
 
+        // Always give an upward boost if we are falling or at/near the peak
         if (rb.velocity.y <= 0f)
         {
-            rb.velocity = new Vector2(rb.velocity.x, 0f);
-            rb.AddForce(Vector2.up * midairSpinUpwardBoost, ForceMode2D.Impulse);
+            // Make sure we end up going up at least at midairSpinUpwardBoost
+            float targetY = Mathf.Max(rb.velocity.y + midairSpinUpwardBoost, midairSpinUpwardBoost);
+            rb.velocity = new Vector2(rb.velocity.x, targetY);
         }
+        else
+        {
+            // If still rising, reduce vertical speed so we don't gain a ton of extra height
+            rb.velocity = new Vector2(rb.velocity.x, rb.velocity.y * 0.5f);
+        }
+
+        // Preserve horizontal momentum (existing logic)
+        if (midairSpinHorizontalPreserve < 1f)
+        {
+            rb.velocity = new Vector2(
+                rb.velocity.x * midairSpinHorizontalPreserve,
+                rb.velocity.y
+            );
+        }
+
         audioSource.PlayOneShot(midAirSpinSound);
 
         foreach (MarioAbility ability in abilities)
@@ -2757,9 +2838,12 @@ public class MarioMovement : MonoBehaviour
     private void EndMidairSpin()
     {
         if (!isMidairSpinning)
-            return;
+        return;
 
         isMidairSpinning = false;
         spinning = false;
+        
+        midairSpinUsedThisJump = true; // Mark that we've spent our twirl for this jump
+        lastMidairSpinTime = Time.time; // Start cooldown from the moment the spin finishes
     }
 }
