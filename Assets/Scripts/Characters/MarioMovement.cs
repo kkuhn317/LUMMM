@@ -970,6 +970,11 @@ public class MarioMovement : MonoBehaviour
 
     private void StartClimbing()
     {
+        if (isMidairSpinning)
+        {
+            EndMidairSpin();
+        }
+        
         climbing = true;
         rb.velocity = Vector2.zero; // Stop all movement
         rb.gravityScale = 0; // Disable gravity
@@ -2430,20 +2435,24 @@ public class MarioMovement : MonoBehaviour
 
     public void onSpinPressed()
     {
-        if (!canSpinJump) return;
-
-        // 1) Midair twirl case
+        // Handle midair spin
         if (!onGround && !swimming && !groundPounding && !wallSliding && !climbing)
         {
-            // Only one twirl per jump
+            // Only start a midair spin if this jump hasn't used one yet and we're not already spinning
             if (canMidairSpin && !midairSpinUsedThisJump && !isMidairSpinning)
             {
                 StartMidairSpin();
             }
+
+            // Don't queue a ground spin jump when we're in the air
             return;
         }
 
-        // 2) Normal spin jump case (ground / climbing / wall)
+        // if we can't spin jump, do nothing 
+        if (!canSpinJump)
+            return;
+
+        // queue a spin jump on the next jump
         jumpTimer = Time.time + jumpDelay;
         spinPressed = true;
         spinJumpQueued = true;
