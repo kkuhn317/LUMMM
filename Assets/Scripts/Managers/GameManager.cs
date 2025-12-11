@@ -1547,7 +1547,7 @@ public class GameManager : MonoBehaviour
         if (!GlobalVariables.enableCheckpoints) return;
 
         // Set checkpoint active
-        checkpoint.SetActive();
+        checkpoint.SetActive(false);
 
         // Get the player object
         GameObject player = GameObject.FindGameObjectWithTag("Player"); // TODO: Replace when we improve player management

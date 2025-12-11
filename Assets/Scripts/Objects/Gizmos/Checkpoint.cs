@@ -1,7 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor;
 using UnityEngine;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 public class Checkpoint : MonoBehaviour
 {
@@ -20,7 +22,7 @@ public class Checkpoint : MonoBehaviour
     public Sprite passive;
     public Sprite[] active;
     public ParticleSystem checkpointParticles;
-    public GameObject particle; // Custom star particle prefab
+    public GameObject particle;                       // Custom star particle prefab
 
     [Header("Behaviour")]
     public bool disableColliderOnActivate = true;
@@ -29,6 +31,7 @@ public class Checkpoint : MonoBehaviour
     private AudioSource audioSource;
     private Collider2D checkpointCollider;
 
+    [Header("Spawn")]
     public Vector2 spawnOffset = new(0, 0);
 
     // Position used by GameManager to place the player
@@ -75,7 +78,7 @@ public class Checkpoint : MonoBehaviour
         if (!collision.CompareTag("Player"))
             return;
 
-        // Common logic for both modes
+        // Player touching the checkpoint: activate with full feedback
         SetActive();
 
         // Update current checkpoint ID
@@ -85,7 +88,13 @@ public class Checkpoint : MonoBehaviour
         GameManager.Instance.SaveProgress();
     }
 
-    public void SetActive()
+    /// <summary>
+    /// Activates this checkpoint.
+    /// playFeedback:
+    ///   true  -> changes sprite, plays sound, particles (when the player touches it).
+    ///   false -> only static visual state (active sprite), no sound/particle burst (when respawning / loading).
+    /// </summary>
+    public void SetActive(bool playFeedback = true)
     {
         Debug.Log($"Checkpoint {checkpointID} activated ({checkpointMode})");
 
@@ -95,17 +104,22 @@ public class Checkpoint : MonoBehaviour
             checkpointCollider.enabled = false;
         }
 
-        // For SilentTrigger mode, we skip all visual/audio feedback
-        if (checkpointMode == CheckpointMode.SilentTrigger)
-            return;
-
-        // From here on, this is only for Visual mode
-
-        // Change sprite to an "active" sprite
-        if (spriteRenderer != null && active != null && active.Length > 0)
+        // For Visual mode, always show the active sprite when the checkpoint is active,
+        // regardless of whether we play full feedback or not.
+        if (checkpointMode == CheckpointMode.Visual &&
+            spriteRenderer != null &&
+            active != null &&
+            active.Length > 0)
         {
             spriteRenderer.sprite = active[0];
         }
+
+        // If we should not play feedback (for example when respawning)
+        // or this is a SilentTrigger checkpoint, then skip sound/particles.
+        if (!playFeedback || checkpointMode == CheckpointMode.SilentTrigger)
+            return;
+
+        // From here on, this is only the transient feedback (sound / particles)
 
         // Play sound
         if (audioSource != null && CheckpointSound != null)
@@ -133,7 +147,7 @@ public class Checkpoint : MonoBehaviour
         if (checkpointCollider != null)
             checkpointCollider.enabled = true;
 
-        // Visual setup only makes sense in Visual mode
+        // When enabled and not yet activated, show the passive sprite in Visual mode
         if (checkpointMode == CheckpointMode.Visual && spriteRenderer != null && passive != null)
         {
             spriteRenderer.sprite = passive;
@@ -142,7 +156,6 @@ public class Checkpoint : MonoBehaviour
 
     public void DisableCheckpoint()
     {
-        // If checkpoints are globally disabled, just deactivate this object
         gameObject.SetActive(false);
 
         if (checkpointCollider != null)
@@ -184,21 +197,21 @@ public class Checkpoint : MonoBehaviour
     #region Gizmos
     private void OnDrawGizmos()
     {
-        // draw spawn position based on spawnOffset so you can see where the player will appear
+        // Draw spawn position based on spawnOffset so you can see where the player will appear
         Vector3 basePosition = transform.position;
         Vector3 spawnPosition = (Vector3)SpawnPosition;
 
-        // line from checkpoint origin to spawn position
+        // Line from checkpoint origin to spawn position
         Gizmos.color = Color.green;
         Gizmos.DrawLine(basePosition, spawnPosition);
 
-        // small sphere at the spawn position
+        // Small sphere at the spawn position
         Gizmos.DrawWireSphere(spawnPosition, 0.2f);
 
-        // draw the checkpoint ID as a label in the Scene view
-        #if UNITY_EDITOR
+        // Draw the checkpoint ID as a label in the Scene view
+#if UNITY_EDITOR
         Handles.Label(spawnPosition + Vector3.up * 0.3f, $"ID {checkpointID}");
-        #endif
+#endif
     }
     #endregion
 }
