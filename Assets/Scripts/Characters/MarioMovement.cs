@@ -2481,10 +2481,14 @@ public class MarioMovement : MonoBehaviour
 
     public void onSpinPressed()
     {
-        // Midair twirl (NSMBW-style)
+        // midair twirl
         if (!onGround && !swimming && !groundPounding && !wallSliding && !climbing)
         {
-            // If midair spin is disabled or we are already twirling, do nothing
+            // do not allow mid-air spin while doing, about to do a spin jump
+            if (spinning || spinJumpQueued)
+                return;
+
+            // if midair spin is disabled or we are already twirling, do nothing
             if (!canMidairSpin || isMidairSpinning)
                 return;
 
@@ -2509,11 +2513,11 @@ public class MarioMovement : MonoBehaviour
                 }
             }
 
-            // Never queue a ground spin jump while in the air
+            // never queue a ground spin jump while in the air
             return;
         }
 
-        // Ground / wall / climb spin jump
+        // ground / wall / climb spin jump
         if (!canSpinJump)
             return;
 
