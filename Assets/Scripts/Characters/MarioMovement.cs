@@ -919,92 +919,105 @@ public class MarioMovement : MonoBehaviour
     }
 
     /// <summary>
-    /// Try to slide Mario horizontally into a small gap when moving sideways in the air.
-    /// Returns true if we snapped Mario and vertical corner correction should be skipped.
+    /// Horizontal version of Mario-style corner correction.
+    /// When moving sideways in the air and catching on a vertical corner,
+    /// this will slide Mario up or down into the gap if there is enough room.
+    /// Returns true if a correction was applied.
     /// </summary>
     private bool TryHorizontalCornerCorrection()
     {
-        // Only in air and only if we’re actually trying to move
-        if (onGround) return false;
+        // Must be enabled and only while airborne
         if (!doCornerCorrection) return false;
+        if (onGround) return false;
 
-        float horizontalInput = direction.x;
-        if (Mathf.Abs(rb.velocity.x) < 0.01f && Mathf.Abs(horizontalInput) < 0.01f)
+        float velX = rb.velocity.x;
+        float inputX = direction.x;
+
+        // Need some horizontal intent
+        if (Mathf.Abs(velX) < 0.01f && Mathf.Abs(inputX) < 0.01f)
             return false;
 
-        // Direction we’re “pushing into” (prefer velocity, fallback to input)
-        float dirX = Mathf.Abs(rb.velocity.x) > 0.01f
-            ? Mathf.Sign(rb.velocity.x)
-            : Mathf.Sign(horizontalInput);
-
+        // Direction we are pushing into (prefer velocity, fallback to input)
+        float dirX = Mathf.Abs(velX) > 0.01f ? Mathf.Sign(velX) : Mathf.Sign(inputX);
         if (dirX == 0f) return false;
 
         var box = GetComponent<BoxCollider2D>();
-        float playerWidth = box.bounds.size.x;
-        float playerHeight = box.bounds.size.y;
+        var bounds = box.bounds;
 
-        // Predict a little bit ahead in the horizontal direction (like the vertical code does for Y)
-        float startWidth = playerWidth / 2f + (rb.velocity.x * Time.fixedDeltaTime) + 0.01f;
+        float halfWidth  = bounds.extents.x;
+        float halfHeight = bounds.extents.y;
 
-        // Ray origin at the side we are moving towards, centered vertically
-        Vector2 origin = (Vector2)transform.position + new Vector2(dirX * startWidth, 0f);
+        // Predict a little bit ahead horizontally (similar to vertical CC using Y)
+        float startWidth = halfWidth + velX * Time.fixedDeltaTime + 0.01f;
 
-        // Ray length based on height
-        float rayLength = playerHeight / 2f * 1.1f;
+        // Ray origin: side we are moving towards, centered vertically
+        Vector2 origin = new Vector2(bounds.center.x + dirX * startWidth, bounds.center.y);
 
-        // Two rays: one up, one down from the side
-        RaycastHit2D hitUp = Physics2D.Raycast(origin, Vector2.up,   rayLength, groundLayer);
+        // Rays go up & down from that side
+        float rayLength = halfHeight * 1.1f;
+
+        RaycastHit2D hitUp   = Physics2D.Raycast(origin, Vector2.up,   rayLength, groundLayer);
         RaycastHit2D hitDown = Physics2D.Raycast(origin, Vector2.down, rayLength, groundLayer);
 
-        if (hitUp.collider == null || hitDown.collider == null)
-        {
-            // No walls forming a "gap" on this side
+        // No walls forming a "vertical gap" on this side
+        if (hitUp.collider == null && hitDown.collider == null)
             return false;
-        }
 
-        float distUp = hitUp.distance;
-        float distDown = hitDown.distance;
+        float distUp   = hitUp.collider   ? hitUp.distance   : 999f;
+        float distDown = hitDown.collider ? hitDown.distance : 999f;
+
         float totalDistance = distUp + distDown;
-        float gapHeight = totalDistance - playerHeight;
+        float playerHeight  = halfHeight * 2f;
+        float gapHeight     = totalDistance - playerHeight;
 
-        // Not enough room to fit Mario vertically
+        // Not enough space to fit Mario between floor & ceiling
         if (gapHeight < 0f)
             return false;
 
-        // Similar idea to vertical corner correction:
-        // Only correct if the corner we’re touching is very close to Mario’s top/bottom.
-        float playerTop = transform.position.y + playerHeight / 2f;
-        float playerBottom = transform.position.y - playerHeight / 2f;
+        float playerTop    = bounds.max.y;
+        float playerBottom = bounds.min.y;
 
-        float cornerMargin = cornerCorrection * playerHeight;
+        // How close to the corner we need to be to apply the correction
+        float margin = cornerCorrection * playerHeight;
 
-        bool touchingTopCorner =
-            hitDown.point.y > playerBottom &&
-            hitDown.point.y < playerBottom + cornerMargin;
+        bool touchingTopCorner = hitDown.collider != null &&
+                                hitDown.point.y > playerBottom &&
+                                hitDown.point.y < playerBottom + margin;
 
-        bool touchingBottomCorner =
-            hitUp.point.y < playerTop &&
-            hitUp.point.y > playerTop - cornerMargin;
+        bool touchingBottomCorner = hitUp.collider != null &&
+                                    hitUp.point.y < playerTop &&
+                                    hitUp.point.y > playerTop - margin;
 
+        // If we’re not actually catching one of the corners, do nothing
         if (!touchingTopCorner && !touchingBottomCorner)
             return false;
 
         Vector3 oldPos = transform.position;
+        float newY;
 
-        // Center Mario vertically in the gap
-        float gapCenterY = (hitUp.point.y + hitDown.point.y) * 0.5f;
-        float newY = gapCenterY;
+        if (touchingTopCorner && !touchingBottomCorner)
+        {
+            // We hit the lower corner of the gap → slide DOWN into it
+            newY = hitDown.point.y + halfHeight * 1.01f;
+        }
+        else if (touchingBottomCorner && !touchingTopCorner)
+        {
+            // We hit the upper corner of the gap → slide UP into it
+            newY = hitUp.point.y - halfHeight * 1.01f;
+        }
+        else
+        {
+            // Both rays hitting: just center Mario inside the gap
+            float gapCenterY = (hitUp.point.y + hitDown.point.y) * 0.5f;
+            newY = gapCenterY;
+        }
 
-        // Nudge him a little *into* the gap horizontally
-        float newX = transform.position.x + dirX * (playerWidth * 0.2f);
+        // Small nudge *into* the gap horizontally so we don’t immediately re-collide
+        float newX = oldPos.x + dirX * (halfWidth * 0.2f);
 
-        transform.position = new Vector3(newX, newY, transform.position.z);
+        transform.position = new Vector3(newX, newY, oldPos.z);
 
-        Debug.Log(
-            $"[HorizontalCornerCorrection] Applied. dirX={dirX}, " +
-            $"oldPos={oldPos}, newPos={transform.position}, " +
-            $"distUp={distUp:F3}, distDown={distDown:F3}, gapHeight={gapHeight:F3}"
-        );
+        Debug.Log($"[HorizontalCornerCorrection] from {oldPos} to {transform.position}");
 
         return true;
     }
@@ -1474,6 +1487,10 @@ public class MarioMovement : MonoBehaviour
         groundPoundRotating = false;
         groundPoundInWater = false;
         waterGroundPoundStartTime = 0f; // Reset timer
+
+        rb.velocity = Vector2.zero;
+        rb.gravityScale = 0f;
+
         audioSource.PlayOneShot(groundPoundLandSound);
         IGroundPoundable groundPoundable = hitObject.GetComponent<IGroundPoundable>();
         if (groundPoundable != null)
@@ -1557,15 +1574,43 @@ public class MarioMovement : MonoBehaviour
         if (groundPounding)
         {
             rb.drag = 0;
+
+            // If we *had* landed but the ground is gone now (disappearing platform etc.),
+            // immediately resume the fall instead of "hovering".
+            // this happened when I destroyed a block
+            if (groundPoundLanded && !onGround)
+            {
+                groundPoundLanded = false;
+                groundPoundRotating = false;
+
+                // Back to normal falling phase
+                rb.gravityScale = fallgravity;
+
+                // Make sure we are actually going down
+                if (rb.velocity.y > -jumpSpeed)
+                {
+                    rb.velocity = new Vector2(rb.velocity.x, -jumpSpeed * 1.2f);
+                }
+            }
+
             if (groundPoundRotating)
             {
-                rb.gravityScale = 0; // Freeze during rotation phase
-                rb.velocity = new Vector2(0, 0);
+                // Spin phase: frozen in the air
+                rb.gravityScale = 0;
+                rb.velocity = Vector2.zero;
+            }
+            else if (groundPoundLanded)
+            {
+                // Landed phase: locked to the ground *as long as onGround stays true*
+                rb.gravityScale = 0;
+                rb.velocity = Vector2.zero;
             }
             else
             {
-                rb.gravityScale = fallgravity; // Normal gravity during fall phase
+                // Fall phase
+                rb.gravityScale = fallgravity;
             }
+
             return;
         }
 
