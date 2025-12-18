@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 2195100313329446622}
   - component: {fileID: 6327073861555898452}
   - component: {fileID: -143044417560785852}
+  - component: {fileID: -18156132753929363}
   m_Layer: 0
   m_Name: longIceBlock
   m_TagString: Untagged
@@ -25,13 +26,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 18061507926315146}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -2.6195672, y: -3.8464067, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &6327073861555898452
 SpriteRenderer:
@@ -95,6 +96,25 @@ BoxCollider2D:
   m_Enabled: 1
   m_Density: 1
   m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
@@ -102,7 +122,7 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 0.875, y: 1.875}
+    oldSize: {x: 1, y: 2}
     newSize: {x: 0.875, y: 1.875}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
@@ -111,3 +131,65 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 0.875, y: 1.875}
   m_EdgeRadius: 0
+--- !u!114 &-18156132753929363
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 18061507926315146}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9dc371e94ac98614d93c60e932d93d50, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  movingLeft: 1
+  velocity: {x: 0, y: 0}
+  gravity: 60
+  width: 1.875
+  height: 1.875
+  boundsOffset: {x: 0, y: 0}
+  sizePadding: {x: 0, y: 0}
+  ignoreRaycastFlip: 0
+  floorRaycastSpacing: 0.75
+  wallRaycastSpacing: 0.75
+  floorMask:
+    serializedVersion: 2
+    m_Bits: 8
+  wallMask:
+    serializedVersion: 2
+    m_Bits: 8
+  checkObjectCollision: 1
+  ceilingDetection: 1
+  DontFallOffLedges: 0
+  bounceOffWalls: 1
+  flipObject: 0
+  normalScale: {x: 0, y: 0}
+  updateType: 2
+  lavaKill: 1
+  forceSinkInLava: 1
+  sinkSpeed: 20
+  lavaMask:
+    serializedVersion: 2
+    m_Bits: 0
+  isInWater: 0
+  waterMask:
+    serializedVersion: 2
+    m_Bits: 0
+  carryable: 0
+  carried: 0
+  throwVelocity: {x: 12, y: 10}
+  rotateAroundCenter: 0
+  knockAwayVelocity: {x: 5, y: 5}
+  overrideKnockAwayGravity: 0
+  knockAwayGravity: 60
+  knockAwayType: 0
+  knockAwayRotationSpeed: 10
+  KnockAwayDissapearTime: -1
+  knockAwaySound: {fileID: 0}
+  objectState: 0
+  movement: 1
+  stopAfterLand: 0
+  bounceHeight: 0
+  minHeightToBounce: 1
+  hitWallSound: {fileID: 8300000, guid: afac73768605d1247a3b564ad284e550, type: 3}

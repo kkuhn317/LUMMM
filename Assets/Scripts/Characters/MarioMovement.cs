@@ -216,6 +216,7 @@ public class MarioMovement : MonoBehaviour
     private const float wallJumpHoldTime = 0.25f;
     private float wallJumpHoldTimer;
     public bool canSpinJump = false;
+    public float spinMultiplier = 0.8f;
 
     [Header("Midair Spin / Twirl")]
     [Tooltip("delays fall and provides extra air time")]
@@ -1412,7 +1413,7 @@ public class MarioMovement : MonoBehaviour
 
         audioSource.PlayOneShot(spinJumpSound);
         rb.velocity = new Vector2(rb.velocity.x, 0);
-        rb.AddForce(Vector2.up * jumpSpeed * 1.1f, ForceMode2D.Impulse);
+        rb.AddForce(Vector2.up * jumpSpeed * spinMultiplier, ForceMode2D.Impulse);
         onGround = false;
         jumpTimer = 0;
         airtimer = Time.time + (airtime * 0.6f);
