@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
+
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -17,6 +19,10 @@ public class Checkpoint : MonoBehaviour
     public int checkpointID; // Unique ID for this checkpoint
     public CheckpointMode checkpointMode = CheckpointMode.Visual;
 
+    [Header("Events")]
+    [Tooltip("Triggers when player RESPAWNS at this checkpoint (including on level load)")]
+    public UnityEvent OnRespawnActivation;
+    
     [Header("Feedback (Visual mode only)")]
     public AudioClip CheckpointSound;
     public Sprite passive;
@@ -58,7 +64,7 @@ public class Checkpoint : MonoBehaviour
             audioSource = GetComponent<AudioSource>();
         }
 
-        // NEW: Enable/disable based on BOTH "checkpoints enabled" and the selected checkpoint type (0/1/2)
+        // Enable/disable based on BOTH "checkpoints enabled" and the selected checkpoint type (0/1/2)
         if (IsAllowedByGlobalMode())
         {
             EnableCheckpoint();
@@ -72,6 +78,12 @@ public class Checkpoint : MonoBehaviour
     private void Start()
     {
         GameManager.Instance.AddCheckpoint(this);
+
+        if (GlobalVariables.checkpoint == checkpointID)
+        {
+            // This means we're loading at this checkpoint (after death or level load)
+            OnRespawnActivation?.Invoke();
+        }
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
