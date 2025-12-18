@@ -10,7 +10,6 @@ public class PlayerTransformation : MonoBehaviour
     [Header("Set in Inspector")]
     public GameObject oldChild;
     public GameObject newChild;
-    
 
     [Header("Set in MarioMovement")]
     public GameObject oldPlayer;
@@ -19,14 +18,35 @@ public class PlayerTransformation : MonoBehaviour
     private PowerupState oldPowerupState;
     private PowerupState newPowerupState;
 
+    // Cached BEFORE oldPlayer gets destroyed (because transformPlayer runs later via Invoke)
+    private float cachedOldFeetY;
+    private Vector3 cachedSpawnPosition;
 
-    // Start is called before the first frame update
     void Start()
     {
-        
     }
 
-    public void startTransformation() {
+    public void startTransformation()
+    {
+        // Cache the position we want to spawn at (transformation object's position)
+        cachedSpawnPosition = transform.position;
+
+        // Cache "feet Y" from the OLD player right now (safe, oldPlayer still exists at this moment)
+        cachedOldFeetY = cachedSpawnPosition.y;
+        if (oldPlayer != null)
+        {
+            var oldCol = oldPlayer.GetComponent<Collider2D>();
+            if (oldCol != null)
+            {
+                cachedOldFeetY = oldCol.bounds.min.y;
+            }
+            else
+            {
+                cachedOldFeetY = oldPlayer.transform.position.y;
+            }
+        }
+
+        // Existing logic
         MarioMovement oldPlayerScript = oldPlayer.GetComponent<MarioMovement>();
         MarioMovement newPlayerScript = newPlayer.GetComponent<MarioMovement>();
 
@@ -35,16 +55,18 @@ public class PlayerTransformation : MonoBehaviour
 
         oldPowerupState = oldPlayerScript.powerupState;
         newPowerupState = newPlayerScript.powerupState;
+        
         bool wasBig = PowerStates.IsBig(oldPowerupState);
-        bool wasSmall = PowerStates.IsSmall(oldPowerupState);
+        bool wasSmall = oldPowerupState == PowerupState.small;
+        bool wasTiny = oldPowerupState == PowerupState.tiny;
+        
         bool isBig = PowerStates.IsBig(newPowerupState);
-        bool isSmall = PowerStates.IsSmall(newPowerupState);
+        bool isSmall = newPowerupState == PowerupState.small;
+        bool isTiny = newPowerupState == PowerupState.tiny;
 
         // Set the sprite libraries of this to the old player's sprite library
         SpriteLibrary oldPlayerSpriteLibrary = oldPlayer.GetComponent<SpriteLibrary>();
         SpriteLibrary newPlayerSpriteLibrary = newPlayer.GetComponent<SpriteLibrary>();
-        // SpriteResolver oldPlayerSpriteResolver = oldPlayer.GetComponent<SpriteResolver>();
-        // SpriteResolver newPlayerSpriteResolver = newPlayer.GetComponent<SpriteResolver>();
 
         oldChild.GetComponent<SpriteLibrary>().spriteLibraryAsset = oldPlayerSpriteLibrary.spriteLibraryAsset;
         newChild.GetComponent<SpriteLibrary>().spriteLibraryAsset = newPlayerSpriteLibrary.spriteLibraryAsset;
@@ -54,40 +76,58 @@ public class PlayerTransformation : MonoBehaviour
         newChild.transform.localScale = newPlayer.transform.localScale;
 
         // Flip the sprites if the player is facing left
-        if (!GetComponent<MarioMovement>().facingRight) {
+        if (!GetComponent<MarioMovement>().facingRight)
+        {
             oldChild.GetComponent<SpriteRenderer>().flipX = true;
             newChild.GetComponent<SpriteRenderer>().flipX = true;
         }
 
         Animator animator = GetComponent<Animator>();
-
         float time = 1f;
 
-        if (newPowerupState == PowerupState.tiny) {
-            animator.Play("SmallToTiny");
-        } else if (wasBig && isSmall) {
+        if (wasBig && isTiny)
+        {
+            animator.Play("BigToTiny");
+        }
+        else if (wasTiny && isBig)
+        {
+            animator.Play("TinyToBig");
+        }
+        else if (wasBig && isSmall)
+        {
             animator.Play("BigToSmall");
-        } else if (wasSmall && isBig) {
+        }
+        else if (wasSmall && isBig)
+        {
             animator.Play("SmallToBig");
-        } else if (wasBig && isBig) {
+        }
+        else if ((wasSmall || wasTiny) && isTiny)
+        {
+            animator.Play("SmallToTiny");
+        }
+        else if (wasBig && isBig)
+        {
             animator.Play("BigToBig");
         }
 
         Invoke(nameof(transformPlayer), time);
     }
 
-    public void transformPlayer() {
-        float verticalOffset = 0f;
-        PowerupState newPowerupState = newPlayer.GetComponent<MarioMovement>().powerupState;
+    public void transformPlayer()
+    {
+        // Instantiate the new player at the transformation object's position
+        GameObject newMario = Instantiate(newPlayer, cachedSpawnPosition, Quaternion.identity);
 
-        if (PowerStates.IsSmall(newPowerupState) && !PowerStates.IsSmall(oldPowerupState)) {
-            verticalOffset = -0.5f;
-        } else if (!PowerStates.IsSmall(newPowerupState) && PowerStates.IsSmall(oldPowerupState)) {
-            verticalOffset = 0.5f;
+        // match the bottom of the NEW collider to cachedOldFeetY
+        var newCol = newMario.GetComponent<Collider2D>();
+        if (newCol != null)
+        {
+            float newFeetY = newCol.bounds.min.y;
+            float deltaY = cachedOldFeetY - newFeetY;
+            newMario.transform.position += new Vector3(0f, deltaY, 0f);
         }
 
-        GameObject newMario = Instantiate(newPlayer, new Vector3(transform.position.x, transform.position.y + verticalOffset, transform.position.z), Quaternion.identity);
-        
+        // Transfer gameplay state (velocity, devices, etc.)
         GetComponent<MarioMovement>().transferProperties(newMario);
 
         Destroy(gameObject);

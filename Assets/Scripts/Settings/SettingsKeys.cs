@@ -12,7 +12,8 @@ class SettingsKeys
 
     // Modifiers
     public const string InfiniteLivesKey = "InfiniteLives";
-    public const string CheckpointsKey = "Checkpoints";
+    public const string CheckpointsKey = "Checkpoints"; // Maybe rename to CheckpointsEnabled? Or probably delete
+    public const string CheckpointModeKey = "CheckpointMode";
     public const string TimeLimitKey = "TimeLimit";
 
 }

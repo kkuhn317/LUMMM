@@ -86,7 +86,16 @@ public class SettingsApply : MonoBehaviour
 
     private void InitCheckpoints()
     {
-        GlobalVariables.enableCheckpoints = PlayerPrefs.GetInt(SettingsKeys.CheckpointsKey, 0) == 1;
+        // Prefer new 0/1/2 mode key if it exists
+        int mode = PlayerPrefs.HasKey(SettingsKeys.CheckpointModeKey)
+            ? PlayerPrefs.GetInt(SettingsKeys.CheckpointModeKey, 0)
+            : (PlayerPrefs.GetInt(SettingsKeys.CheckpointsKey, 0) == 1 ? 1 : 0);
+
+        GlobalVariables.checkpointMode = mode;       // 0=Off, 1=Visual, 2=Silent
+        GlobalVariables.enableCheckpoints = mode != 0;
+
+        // Optional: keep legacy key in sync so older code stays consistent
+        PlayerPrefs.SetInt(SettingsKeys.CheckpointsKey, mode != 0 ? 1 : 0);
     }
 
     private void InitOnScreenControls()

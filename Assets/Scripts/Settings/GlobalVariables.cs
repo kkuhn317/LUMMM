@@ -18,6 +18,7 @@ public static class GlobalVariables
     // Modifiers
     public static bool infiniteLivesMode = false;
     public static bool enableCheckpoints = false;
+    public static int checkpointMode = 0;
     public static bool stopTimeLimit = false;
 
     // Settings

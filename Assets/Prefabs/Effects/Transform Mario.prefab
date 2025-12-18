@@ -26,13 +26,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 251824336857139181}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 5168828408026376273}
-  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &3213712232099940398
 SpriteRenderer:
@@ -112,9 +112,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ed8b1ae4e4e52b34ea557c1c11e076fc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_CategoryHash: 0
-  m_labelHash: 0
+  m_CategoryHash: 0.009161512
+  m_labelHash: 3.991422e-13
   m_SpriteKey: 1.2362407e-29
+  m_SpriteHash: 259702089
 --- !u!1 &5168828408026376284
 GameObject:
   m_ObjectHideFlags: 0
@@ -144,8 +145,9 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5168828408026376284}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -17, y: -4.5, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -153,7 +155,6 @@ Transform:
   - {fileID: 4829317860437711899}
   - {fileID: 4449958527565779059}
   m_Father: {fileID: 0}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &6417136283090577168
 MonoBehaviour:
@@ -184,14 +185,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerNumber: 0
+  inputLocked: 0
   moveInput: {x: 0, y: 0}
-  crouchPressed: 0
+  groundPoundInWater: 0
+  waterGroundPoundStartTime: 0
   moveSpeed: 20
   runSpeed: 20
   slowDownForce: 5
   direction: {x: 0, y: 0}
   facingRight: 1
   jumpSpeed: 16
+  walkJumpSpeed: 12
+  walkJumpSpeedRequired: 1
   jumpDelay: 0.1
   terminalvelocity: 12.5
   startfallingspeed: 1
@@ -203,11 +208,11 @@ MonoBehaviour:
   heldObjectPosition: {fileID: 6106460139332843092}
   maxSpeed: 5
   maxRunSpeed: 10
-  linearDrag: 10
-  runlinearDrag: 1
-  gravity: 0.2
+  riseGravity: 0
+  peakGravity: 1
   fallgravity: 7
   airtime: 0.4
+  walkJumpAirtime: 1.5
   bubbleSpawnDelay: 2
   bubblePrefab: {fileID: 0}
   splashWaterPrefab: {fileID: 0}
@@ -216,33 +221,41 @@ MonoBehaviour:
   swimGravity: 1
   swimDrag: 3
   swimTerminalVelocity: 2.5
+  climbSpeed: 2
   onGround: 0
+  wasGrounded: 0
   groundLength: 0.6
   groundSink: 0.1
   onMovingPlatform: 0
+  doMovingPlatformMomentum: 1
   ceilingLength: 0.53
   doCornerCorrection: 1
   cornerCorrection: 0.1
-  colliderOffset: {x: 0.35, y: 0, z: 0}
+  raycastSeparation: 0.35
+  raycastOffsetX: 0
   damageinvinctime: 15
   invincetimeremain: 0
   groundPos: {x: 0, y: 0}
   animationScale: {x: 1, y: 1, z: 1}
-  originalScale: {x: 0, y: 0, z: 0}
-  wasScaledNormal: 1
+  baseScale: {x: 0, y: 0, z: 0}
+  animationRotation: 0
   canSkid: 1
   canCrouch: 1
   crouchColOffset: -0.15
   crouchColHeight: 0.5
   walkAnimatorSpeed: 0.125
+  currentPowerupType: 
   powerupState: 0
   transformMario: {fileID: 0}
   powerDownMario: {fileID: 0}
+  isTransforming: 0
   starPower: 0
   deadMario: {fileID: 2690894693950398662, guid: ff75489bc4690ac44b21755151c91047, type: 3}
   damageSound: {fileID: 8300000, guid: 938d4a3d1a37b284c81c8c25379c86b4, type: 3}
   bonkSound: {fileID: 8300000, guid: 6db2c81fb3c026d40a90d8d52dc8384b, type: 3}
   swimSound: {fileID: 8300000, guid: e2bb1aa0b45968f4b898809f1533541a, type: 3}
+  spinJumpSound: {fileID: 0}
+  midAirSpinSound: {fileID: 0}
   yeahAudioClip: {fileID: 8300000, guid: b4a5b5a191256034ca457e70e758ea5b, type: 3}
   carrying: 0
   pressRunToGrab: 0
@@ -253,10 +266,34 @@ MonoBehaviour:
   throwSound: {fileID: 8300000, guid: 62467461e51dddb40931164fd2db1170, type: 3}
   canCrawl: 0
   canWallJump: 0
+  canWallJumpWhenHoldingObject: 0
   canSpinJump: 0
+  canMidairSpin: 1
+  allowMultipleMidairSpins: 0
+  midairSpinCooldown: 0.2
+  midairSpinDuration: 0.4
+  midairSpinStallTime: 0.15
+  midairSpinGravityMult: 0.25
+  midairSpinFallSpeedCap: 2
+  midairSpinUpwardBoost: 2
+  midairSpinHorizontalPreserve: 0.8
+  isCapeActive: 0
+  wallSliding: 0
+  spinning: 0
+  canGroundPound: 0
+  groundPoundParticles: {fileID: 0}
+  groundPounding: 0
+  groundPoundRotating: 0
+  spinJumpBounceSound: {fileID: 0}
+  spinJumpPoofSound: {fileID: 0}
+  spinJumpBouncePrefab: {fileID: 0}
+  spinJumpPoofPrefab: {fileID: 0}
+  groundPoundSound: {fileID: 0}
+  groundPoundLandSound: {fileID: 0}
+  playerInput: {fileID: 0}
 --- !u!95 &2975864963408780425
 Animator:
-  serializedVersion: 4
+  serializedVersion: 5
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -273,7 +310,8 @@ Animator:
   m_WarningMessage: 
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorControllerStateOnDisable: 0
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!50 &352344458276004950
 Rigidbody2D:
   serializedVersion: 4
@@ -291,6 +329,12 @@ Rigidbody2D:
   m_AngularDrag: 0.05
   m_GravityScale: 1
   m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
   m_Interpolate: 0
   m_SleepingMode: 1
   m_CollisionDetection: 0
@@ -537,10 +581,6 @@ MonoBehaviour:
     m_ActionId: 0a049029-55c7-40b8-8aa1-5f0302846462
     m_ActionName: Mariomove/Run[/Keyboard/x]
   - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: baef8440-a0d7-46f1-b68f-748bd3bdfc6d
-    m_ActionName: UI/Pause[/Keyboard/escape,/Keyboard/p]
-  - m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 5168828408026376272}
         m_TargetAssemblyTypeName: MarioMovement, Assembly-CSharp
@@ -572,6 +612,22 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: 6af6bceb-cea8-41cb-90a3-0138921f18f4
     m_ActionName: Mariomove/Use[/Keyboard/z,/XInputControllerWindows/rightShoulder,/XInputControllerWindows/leftShoulder]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 6b06232f-07cd-4234-b9ca-514bea360799
+    m_ActionName: Mariomove/ExtraAction[/Keyboard/x]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: e6935c41-6770-415e-971e-b994233060d7
+    m_ActionName: UI/StepModifier10[/Keyboard/leftShift]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: ea0fb50b-6fa4-4488-9cd0-ddea2e783e9d
+    m_ActionName: UI/StepModifier25[/Keyboard/leftCtrl]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 056ecb73-c96d-423c-a33b-4cdf6c7ea9ec
+    m_ActionName: UI/StepModifier50[/Keyboard/leftAlt]
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Mariomove
@@ -589,7 +645,7 @@ GameObject:
   m_Layer: 9
   m_Name: held object position
   m_TagString: Untagged
-  m_Icon: {fileID: 0}
+  m_Icon: {fileID: 7174288486110832750, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
@@ -600,13 +656,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6106460139332843092}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0.365, y: -0.034, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 5168828408026376273}
-  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &8461399102105838429
 GameObject:
@@ -634,13 +690,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8461399102105838429}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 5168828408026376273}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &4384244640499681667
 SpriteRenderer:
@@ -720,6 +776,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ed8b1ae4e4e52b34ea557c1c11e076fc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_CategoryHash: 0
-  m_labelHash: 0
+  m_CategoryHash: 0.009161512
+  m_labelHash: 3.991422e-13
   m_SpriteKey: 1.2362407e-29
+  m_SpriteHash: 259702089

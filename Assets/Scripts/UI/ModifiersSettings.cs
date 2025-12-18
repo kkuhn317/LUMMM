@@ -10,17 +10,16 @@ public class ModifiersSettings : MonoBehaviour
 {
     [Header("Gameplay Toggles")]
     public Toggle infiniteLivesToggle;
-    public Toggle checkpointsToggle;
     public Toggle timeLimitToggle;
+
+    [Header("Checkpoint Cycle Button (0=Off, 1=Classic, 2=Silent)")]
+    [SerializeField] private CheckpointCycleUI checkpointCycleUI;
 
     [Header("Toggle Sprites")]
     public Image infiniteLivesImage;
-    public Image checkpointsImage;
     public Image timeLimitImage;
     public Sprite enableInfiniteLivesSprite;
     public Sprite disableInfiniteLivesSprite;
-    public Sprite enableCheckpointsSprite;
-    public Sprite disableCheckpointsSprite;
     public Sprite enableTimeLimitSprite;
     public Sprite disableTimeLimitSprite;
 
@@ -32,13 +31,18 @@ public class ModifiersSettings : MonoBehaviour
     public CanvasGroup decisionCanvasGroup; // CanvasGroup for the decision window
 
     private GameObject previouslySelected; // To track the previously selected UI element
-    private string bufferedModifierKey; // The key of the modifier that the player wants to change (while the decision window is open)
-    private bool bufferedModifierValue; // The value of the modifier that the player wants to change (while the decision window is open)
+
+    // Buffer for toggle-based changes (infinite lives / time limit)
+    private string bufferedModifierKey;
+    private bool bufferedModifierValue;
+
+    // Buffer for checkpoint mode change (cycle button)
+    private int bufferedCheckpointMode = -1;
 
     private void Start()
     {
         ConfigureInfiniteLives();
-        ConfigureCheckpoints();
+        ConfigureCheckpointMode();
         ConfigureTimeLimit();
 
         // Set up the buttons for the decision window
@@ -62,6 +66,8 @@ public class ModifiersSettings : MonoBehaviour
         {
             bufferedModifierKey = SettingsKeys.InfiniteLivesKey;
             bufferedModifierValue = isEnabled;
+
+            bufferedCheckpointMode = -1; // clear other buffer
             ActivateDecisionWindow();
         }
         else
@@ -77,35 +83,75 @@ public class ModifiersSettings : MonoBehaviour
         GlobalVariables.infiniteLivesMode = isEnabled;
     }
 
-    /* CHECKPOINTS */
-    private void ConfigureCheckpoints()
+    /* CHECKPOINT MODE (0=Off, 1=Classic, 2=Silent) */
+    private void ConfigureCheckpointMode()
     {
-        bool areCheckpointsEnabled = PlayerPrefs.GetInt(SettingsKeys.CheckpointsKey, 0) == 1;
-        checkpointsToggle.isOn = areCheckpointsEnabled;
-        checkpointsImage.sprite = areCheckpointsEnabled ? enableCheckpointsSprite : disableCheckpointsSprite;
-        GlobalVariables.enableCheckpoints = areCheckpointsEnabled; // Initialize the GlobalVariables with the current setting
-        checkpointsToggle.onValueChanged.AddListener(OnCheckpointsClick);
+        int mode = ReadCheckpointModeWithFallback();
+
+        // Initialize UI
+        if (checkpointCycleUI != null)
+        {
+            checkpointCycleUI.SetModeInstant(mode);
+            checkpointCycleUI.OnRequestModeChange += OnCheckpointModeRequested;
+        }
+
+        // Apply to globals + prefs mirror
+        ApplyCheckpointMode(mode);
     }
 
-    private void OnCheckpointsClick(bool isEnabled)
+    private void OnCheckpointModeRequested(int nextMode)
     {
+        nextMode = Mathf.Clamp(nextMode, 0, 2);
+
+        // If there's a saved checkpoint, we require confirmation before changing behavior
         if (isSaveGameAvailable())
         {
-            bufferedModifierKey = SettingsKeys.CheckpointsKey;
-            bufferedModifierValue = isEnabled;
+            bufferedCheckpointMode = nextMode;
+
+            bufferedModifierKey = null; // clear other buffer
             ActivateDecisionWindow();
+            return;
         }
-        else
-        {
-            ChangeCheckpoints(isEnabled);
-        }
+
+        SetCheckpointMode(nextMode, animated: true);
     }
 
-    private void ChangeCheckpoints(bool isEnabled)
+    private void SetCheckpointMode(int mode, bool animated)
     {
-        checkpointsImage.sprite = isEnabled ? enableCheckpointsSprite : disableCheckpointsSprite;
-        PlayerPrefs.SetInt(SettingsKeys.CheckpointsKey, isEnabled ? 1 : 0);
-        GlobalVariables.enableCheckpoints = isEnabled;
+        mode = Mathf.Clamp(mode, 0, 2);
+
+        // UI
+        if (checkpointCycleUI != null)
+        {
+            if (animated) checkpointCycleUI.SetModeAnimated(mode);
+            else checkpointCycleUI.SetModeInstant(mode);
+        }
+
+        // Persist + apply
+        PlayerPrefs.SetInt(SettingsKeys.CheckpointModeKey, mode);
+
+        // Legacy mirror so older code that still reads CheckpointsKey keeps working
+        PlayerPrefs.SetInt(SettingsKeys.CheckpointsKey, mode != 0 ? 1 : 0);
+
+        ApplyCheckpointMode(mode);
+    }
+
+    private void ApplyCheckpointMode(int mode)
+    {
+        // Existing global used across the project
+        GlobalVariables.enableCheckpoints = mode != 0;
+        GlobalVariables.checkpointMode = mode;
+    }
+
+    private int ReadCheckpointModeWithFallback()
+    {
+        // Prefer new 0/1/2 mode key if it exists
+        if (PlayerPrefs.HasKey(SettingsKeys.CheckpointModeKey))
+            return PlayerPrefs.GetInt(SettingsKeys.CheckpointModeKey, 0);
+
+        // Fallback to old bool key (0/1)
+        bool enabled = PlayerPrefs.GetInt(SettingsKeys.CheckpointsKey, 0) == 1;
+        return enabled ? 1 : 0;
     }
 
     /* TIME LIMIT */
@@ -124,6 +170,8 @@ public class ModifiersSettings : MonoBehaviour
         {
             bufferedModifierKey = SettingsKeys.TimeLimitKey;
             bufferedModifierValue = isEnabled;
+
+            bufferedCheckpointMode = -1; // clear other buffer
             ActivateDecisionWindow();
         }
         else
@@ -142,12 +190,12 @@ public class ModifiersSettings : MonoBehaviour
     /* SAVE GAME */
     private bool isSaveGameAvailable()
     {
+        // You already use SavedLevel in the current script :contentReference[oaicite:2]{index=2}
         return PlayerPrefs.HasKey("SavedLevel");
     }
 
     private void ActivateDecisionWindow()
     {
-        // Track the currently selected UI element
         previouslySelected = EventSystem.current.currentSelectedGameObject;
 
         // Disable main UI
@@ -174,7 +222,7 @@ public class ModifiersSettings : MonoBehaviour
         decisionCanvasGroup.blocksRaycasts = false;
         decisionWindow.SetActive(false);
 
-        // Restore focus to the previously selected UI element
+        // Restore selection
         if (previouslySelected != null)
         {
             EventSystem.current.SetSelectedGameObject(previouslySelected);
@@ -185,19 +233,26 @@ public class ModifiersSettings : MonoBehaviour
     {
         // Clear saved checkpoint data
         PlayerPrefs.DeleteKey("SavedLevel");
-        LevelSelectionManager.Instance.RefreshCheckpointFlags();
 
-        // Close the decision window
+        // If your project *also* uses "SavedCheckpoint" elsewhere, you may want to clear it too:
+        // PlayerPrefs.DeleteKey("SavedCheckpoint");
+
+        LevelSelectionManager.Instance.RefreshCheckpointFlags();
         DeactivateDecisionWindow();
 
-        // Apply the buffered modifier change
+        // If the pending change was a checkpoint mode request, apply it now
+        if (bufferedCheckpointMode != -1)
+        {
+            SetCheckpointMode(bufferedCheckpointMode, animated: true);
+            bufferedCheckpointMode = -1;
+            return;
+        }
+
+        // Otherwise apply the buffered toggle modifier change
         switch (bufferedModifierKey)
         {
             case SettingsKeys.InfiniteLivesKey:
                 ChangeInfiniteLives(bufferedModifierValue);
-                break;
-            case SettingsKeys.CheckpointsKey:
-                ChangeCheckpoints(bufferedModifierValue);
                 break;
             case SettingsKeys.TimeLimitKey:
                 ChangeTimeLimit(bufferedModifierValue);
@@ -207,7 +262,14 @@ public class ModifiersSettings : MonoBehaviour
 
     public void OnCancelDeleteCheckpoint()
     {
-        // Simply close the decision window without applying changes
+        // If we were cancelling a checkpoint mode change, revert UI back to saved mode
+        if (bufferedCheckpointMode != -1 && checkpointCycleUI != null)
+        {
+            int savedMode = ReadCheckpointModeWithFallback();
+            checkpointCycleUI.SetModeInstant(savedMode);
+            bufferedCheckpointMode = -1;
+        }
+
         DeactivateDecisionWindow();
     }
 }

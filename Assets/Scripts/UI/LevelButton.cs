@@ -149,12 +149,17 @@ public class LevelButton : MonoBehaviour
             greenCoinListImages[i].sprite = GreenCoinsprite[sprite];
         }
 
+        int mode = PlayerPrefs.HasKey(SettingsKeys.CheckpointModeKey)
+            ? PlayerPrefs.GetInt(SettingsKeys.CheckpointModeKey, 0)
+            : (PlayerPrefs.GetInt(SettingsKeys.CheckpointsKey, 0) == 1 ? 1 : 0);
+
         // Checkpoint
-        if (PlayerPrefs.GetString("SavedLevel") == id && PlayerPrefs.GetInt(SettingsKeys.CheckpointsKey, 0) == 1)
+        if (PlayerPrefs.GetString("SavedLevel") == id && mode != 0)
         {
             checkpointFlag.SetActive(true);
         }
-        else{
+        else 
+        {
             checkpointFlag.SetActive(false);
         }
 
@@ -186,8 +191,13 @@ public class LevelButton : MonoBehaviour
 
     public void UpdateCheckpointFlag()
     {
-        bool hasCheckpoint = PlayerPrefs.HasKey("SavedCheckpoint") &&
+        int mode = PlayerPrefs.HasKey(SettingsKeys.CheckpointModeKey)
+            ? PlayerPrefs.GetInt(SettingsKeys.CheckpointModeKey, 0)
+            : (PlayerPrefs.GetInt(SettingsKeys.CheckpointsKey, 0) == 1 ? 1 : 0);
+    
+        bool hasCheckpoint = PlayerPrefs.HasKey("SavedLevel") &&
                              PlayerPrefs.GetString("SavedLevel") == levelInfo.levelID;
-        checkpointFlag.SetActive(hasCheckpoint);
+    
+        checkpointFlag.SetActive(hasCheckpoint && mode != 0);
     }
 }

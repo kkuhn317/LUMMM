@@ -1547,7 +1547,7 @@ public class GameManager : MonoBehaviour
         if (!GlobalVariables.enableCheckpoints) return;
 
         // Set checkpoint active
-        checkpoint.SetActive(false);
+        RefreshCheckpoints(checkpoint.checkpointID);
 
         // Get the player object
         GameObject player = GameObject.FindGameObjectWithTag("Player"); // TODO: Replace when we improve player management
@@ -1556,4 +1556,32 @@ public class GameManager : MonoBehaviour
         player.transform.position = checkpoint.SpawnPosition;
     }
     
+    public void OnCheckpointActivated(Checkpoint activated)
+    {
+        if (!GlobalVariables.enableCheckpoints) return;
+
+        // Make only the current checkpoint visually active
+        RefreshCheckpoints(GlobalVariables.checkpoint);
+    }
+
+    private void RefreshCheckpoints(int currentId)
+    {
+        foreach (var cp in checkpoints)
+        {
+            if (cp == null) continue;
+
+            if (cp.checkpointID == currentId)
+            {
+                cp.SetActive(false); // current looks active (no feedback)
+            }
+            else if (cp.checkpointID < currentId)
+            {
+                cp.DisableCheckpoint(); // behind: inactive + collider off
+            }
+            else
+            {
+                cp.EnableCheckpoint(); // ahead: available again (passive + collider on)
+            }
+        }
+    }
 }

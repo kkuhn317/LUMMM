@@ -5,7 +5,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Rendering;
 
-public class IceBlock : ObjectPhysics
+public class IceBlock : ObjectPhysics, IGroundPoundable
 {
     protected AudioSource audioSource;
     public AudioClip hitWallSound;
@@ -97,6 +97,11 @@ public class IceBlock : ObjectPhysics
 
 
         Destroy(gameObject, 0.5f);
+    }
+
+    public void OnGroundPound(MarioMovement mario)
+    {
+        BreakIce();
     }
 
     protected override void onTouchWall(GameObject other)

@@ -9,8 +9,8 @@ public class Checkpoint : MonoBehaviour
 {
     public enum CheckpointMode
     {
-        Visual, // Uses sprite / audio / particles
-        SilentTrigger // Only updates respawn; no feedback required
+        Visual,        // Uses sprite / audio / particles
+        SilentTrigger  // Only updates respawn; no feedback required
     }
 
     [Header("Checkpoint")]
@@ -58,7 +58,8 @@ public class Checkpoint : MonoBehaviour
             audioSource = GetComponent<AudioSource>();
         }
 
-        if (GlobalVariables.enableCheckpoints)
+        // NEW: Enable/disable based on BOTH "checkpoints enabled" and the selected checkpoint type (0/1/2)
+        if (IsAllowedByGlobalMode())
         {
             EnableCheckpoint();
         }
@@ -78,14 +79,31 @@ public class Checkpoint : MonoBehaviour
         if (!collision.CompareTag("Player"))
             return;
 
-        // Player touching the checkpoint: activate with full feedback
+        if (!IsAllowedByGlobalMode())
+            return;
+
+        // Activate this checkpoint
         SetActive();
 
-        // Update current checkpoint ID
         GlobalVariables.checkpoint = checkpointID;
 
-        // Save progress so the player respawns here
+        // refresh all checkpoints so only the correct one is visually active
+        GameManager.Instance.OnCheckpointActivated(this);
+
         GameManager.Instance.SaveProgress();
+    }
+
+    // Centralized rule for 0/1/2 behavior
+    private bool IsAllowedByGlobalMode()
+    {
+        // 0: off, 1: visual-only, 2: silent-only
+        int mode = GlobalVariables.checkpointMode;
+
+        if (!GlobalVariables.enableCheckpoints || mode == 0)
+            return false;
+
+        return (mode == 1 && checkpointMode == CheckpointMode.Visual)
+            || (mode == 2 && checkpointMode == CheckpointMode.SilentTrigger);
     }
 
     /// <summary>

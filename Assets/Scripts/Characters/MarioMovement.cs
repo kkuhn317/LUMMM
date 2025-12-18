@@ -2016,6 +2016,9 @@ public class MarioMovement : MonoBehaviour
         newMarioMovement.canWallJumpWhenHoldingObject = canWallJumpWhenHoldingObject;
         newMarioMovement.canSpinJump = canSpinJump;
         newMarioMovement.canGroundPound = canGroundPound;
+        newMarioMovement.canClimb = canClimb;
+        newMarioMovement.canMidairSpin = canMidairSpin;
+        newMarioMovement.allowMultipleMidairSpins = allowMultipleMidairSpins;
 
         // Passing the sound effects
         newMarioMovement.yeahAudioClip = yeahAudioClip;
