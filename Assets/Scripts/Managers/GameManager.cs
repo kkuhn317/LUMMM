@@ -808,7 +808,7 @@ public class GameManager : MonoBehaviour
 
     public void CollectGreenCoin(GameObject greenCoin)
     {
-        AddScorePoints(4000);
+        AddScorePoints(2000);
 
         collectedGreenCoinsInRun.Add(greenCoin);    // This assumes you can't collect the same green coin twice in the same run
 

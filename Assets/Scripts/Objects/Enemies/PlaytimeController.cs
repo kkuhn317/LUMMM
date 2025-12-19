@@ -14,6 +14,7 @@ public class PlaytimeController : EnemyAI
     public override void KnockAway(bool direction, bool sound = true, KnockAwayType? type = null, Vector2? velocity = null)
     {
         base.KnockAway(false, sound, type, velocity);
+        AwardFlatScoreReward(4000, transform.position); // Extra point bonus
         releaseItem();
     }
 }
