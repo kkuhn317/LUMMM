@@ -95,8 +95,8 @@ public class MarioMovement : MonoBehaviour
 
     [Header("Climbing")]
     private bool climbing = false;
-    public float climbSpeed = 2f;
-    private bool canClimb = false; // Whether the player can climb
+    private Climbable currentClimbable = null;
+    private bool sideClimbCanMoveToSide = false;    // Whether the player can move horizontally while side climbing (the stick was in neutral position)
 
     [Header("Collision")]
     public bool onGround = false;
@@ -520,7 +520,7 @@ public class MarioMovement : MonoBehaviour
         // Movement
         if (climbing)
         {
-            ClimbMove(direction);
+            ClimbMove(direction, currentClimbable);
         }
         else
         {
@@ -846,17 +846,18 @@ public class MarioMovement : MonoBehaviour
         }
 
         // Climbing
-        // if (!climbing && canClimb && direction.y > 0.8f)
-        if (!climbing && canClimb && Mathf.Abs(direction.y) > 0.5f)
+        // if (!climbing && currentClimbable != null && direction.y > 0.8f)
+        if (!climbing && currentClimbable != null && Mathf.Abs(direction.y) > 0.5f)
         {
-            StartClimbing();
+            StartClimbing(currentClimbable);
         }
 
         animator.SetBool("isWallSliding", wallSliding);
         animator.SetBool("isSpinning", spinning);
         animator.SetBool("isMidairSpinning", isMidairSpinning);
         animator.SetBool("isLookingUp", isLookingUp);
-        animator.SetBool("isClimbing", climbing);
+        animator.SetBool("isClimbing", climbing && currentClimbable.climbMethod == Climbable.ClimbMethod.Front);
+        animator.SetBool("isSideClimbing", climbing && currentClimbable.climbMethod == Climbable.ClimbMethod.Side);
 
         // Look Up
         if (!isMoving && direction.y > 0.8f)
@@ -917,7 +918,7 @@ public class MarioMovement : MonoBehaviour
         ModifyPhysics();
     }
 
-    private void StartClimbing()
+    private void StartClimbing(Climbable climbable)
     {
         if (isMidairSpinning)
         {
@@ -954,9 +955,18 @@ public class MarioMovement : MonoBehaviour
         climbing = false;
         rb.gravityScale = 1; // Enable gravity
         rb.drag = 0; // Disable drag
-        //rb.isKinematic = false; // Make the rigidbody non-kinematic
+        // Re-enable gravity and physics
+        rb.gravityScale = 1;
+        rb.drag = 0;
 
-        FlipTo(rb.velocity.x > 0); // Face the direction of movement
+        // Side climbing: maintain current facing direction
+        if (currentClimbable != null && currentClimbable.climbMethod == Climbable.ClimbMethod.Side)
+        {
+            return;
+        }
+
+        // Face the direction of movement
+        FlipTo(rb.velocity.x > 0);
     }
 
     private void TransferMovingPlatformMomentum()
@@ -1231,9 +1241,54 @@ public class MarioMovement : MonoBehaviour
         animator.SetBool("isCrawling", isCrawling);
     }
 
-    private void ClimbMove(Vector2 dir)
+    private void ClimbMove(Vector2 dir, Climbable climbable)
     {
-        rb.velocity = new Vector2(dir.x * climbSpeed, dir.y * climbSpeed);
+        if (climbable == null) return;  // Probably won't be triggered but just in case
+
+        switch (climbable.climbMethod)
+        {
+            case Climbable.ClimbMethod.Front:
+                // Front climbing
+                rb.velocity = new Vector2(dir.x * climbable.climbSpeed, dir.y * climbable.climbSpeed);
+                break;
+            case Climbable.ClimbMethod.Side:
+                // Side climbing
+                rb.velocity = new Vector2(0, dir.y * climbable.climbSpeed);
+
+                if (sideClimbCanMoveToSide && moveInput.x != 0)
+                {
+                    if (!facingRight && moveInput.x < 0)
+                    {
+                        FlipTo(true);
+                    }
+                    else if (facingRight && moveInput.x > 0)
+                    {
+                        FlipTo(false);
+                    }
+                    else if (!facingRight && moveInput.x > 0)
+                    {
+                        StopClimbing();
+                    }
+                    else if (facingRight && moveInput.x < 0)
+                    {
+                        StopClimbing();
+                    }
+                }
+
+                // Set horizontal position to match the climbable's position
+                if (facingRight)
+                {
+                    transform.position = new Vector3(climbable.transform.position.x - climbable.width / 2, transform.position.y, transform.position.z);
+                }
+                else
+                {
+                    transform.position = new Vector3(climbable.transform.position.x + climbable.width / 2, transform.position.y, transform.position.z);
+                }
+
+                break;
+        }
+
+        sideClimbCanMoveToSide = dir.x == 0;  // Allow moving to the side again after the stick is let go
         animator.SetFloat("climbSpeed", rb.velocity.magnitude);
     }
 
@@ -1911,7 +1966,7 @@ public class MarioMovement : MonoBehaviour
         newMarioMovement.canWallJumpWhenHoldingObject = canWallJumpWhenHoldingObject;
         newMarioMovement.canSpinJump = canSpinJump;
         newMarioMovement.canGroundPound = canGroundPound;
-        newMarioMovement.canClimb = canClimb;
+        newMarioMovement.currentClimbable = currentClimbable;
         newMarioMovement.canMidairSpin = canMidairSpin;
         newMarioMovement.allowMultipleMidairSpins = allowMultipleMidairSpins;
 
@@ -2098,9 +2153,9 @@ public class MarioMovement : MonoBehaviour
             }
         }
 
-        if (other.gameObject.layer == LayerMask.NameToLayer("Vine"))
+        if (other.TryGetComponent<Climbable>(out Climbable climbable))
         {
-            canClimb = true;
+            currentClimbable = climbable;
         }
 
         DetectDamagingObject(other);
@@ -2156,13 +2211,13 @@ public class MarioMovement : MonoBehaviour
             }
         }
 
-        if (other.gameObject.layer == LayerMask.NameToLayer("Vine"))
+        if (other.TryGetComponent<Climbable>(out Climbable climbable))
         {
-            canClimb = false;
             if (climbing)
             {
                 StopClimbing();
             }
+            currentClimbable = null;
         }
     }
 

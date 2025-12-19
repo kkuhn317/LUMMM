@@ -58844,6 +58844,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   checkpointID: 1
   checkpointMode: 1
+  OnRespawnActivation:
+    m_PersistentCalls:
+      m_Calls: []
   CheckpointSound: {fileID: 8300000, guid: 0a06a44e13ee9ea419e8d66509366006, type: 3}
   passive: {fileID: -724414142, guid: 01d29b99acc81084dbf22bbe3a18b906, type: 3}
   active:
@@ -59262,6 +59265,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   checkpointID: 9
   checkpointMode: 1
+  OnRespawnActivation:
+    m_PersistentCalls:
+      m_Calls: []
   CheckpointSound: {fileID: 8300000, guid: 0a06a44e13ee9ea419e8d66509366006, type: 3}
   passive: {fileID: -724414142, guid: 01d29b99acc81084dbf22bbe3a18b906, type: 3}
   active:
@@ -59630,6 +59636,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   checkpointID: 0
   checkpointMode: 1
+  OnRespawnActivation:
+    m_PersistentCalls:
+      m_Calls: []
   CheckpointSound: {fileID: 8300000, guid: 0a06a44e13ee9ea419e8d66509366006, type: 3}
   passive: {fileID: -724414142, guid: 01d29b99acc81084dbf22bbe3a18b906, type: 3}
   active:
@@ -60826,6 +60835,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   checkpointID: 5
   checkpointMode: 1
+  OnRespawnActivation:
+    m_PersistentCalls:
+      m_Calls: []
   CheckpointSound: {fileID: 8300000, guid: 0a06a44e13ee9ea419e8d66509366006, type: 3}
   passive: {fileID: -724414142, guid: 01d29b99acc81084dbf22bbe3a18b906, type: 3}
   active:
@@ -62581,6 +62593,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   checkpointID: 7
   checkpointMode: 1
+  OnRespawnActivation:
+    m_PersistentCalls:
+      m_Calls: []
   CheckpointSound: {fileID: 8300000, guid: 0a06a44e13ee9ea419e8d66509366006, type: 3}
   passive: {fileID: -724414142, guid: 01d29b99acc81084dbf22bbe3a18b906, type: 3}
   active:
@@ -66061,6 +66076,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   checkpointID: 3
   checkpointMode: 1
+  OnRespawnActivation:
+    m_PersistentCalls:
+      m_Calls: []
   CheckpointSound: {fileID: 8300000, guid: 0a06a44e13ee9ea419e8d66509366006, type: 3}
   passive: {fileID: -724414142, guid: 01d29b99acc81084dbf22bbe3a18b906, type: 3}
   active:
@@ -67639,7 +67657,8 @@ GameObject:
   - component: {fileID: 1860726574}
   - component: {fileID: 1860726573}
   - component: {fileID: 1860726575}
-  m_Layer: 26
+  - component: {fileID: 1860726576}
+  m_Layer: 12
   m_Name: ladder
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -67758,6 +67777,21 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 0.875, y: 10.1}
   m_EdgeRadius: 0
+--- !u!114 &1860726576
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1860726572}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 25e67ee9ad2f2e84b89df699f1aa5472, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  climbMethod: 0
+  isLadder: 1
+  climbSpeed: 4
 --- !u!1001 &1878836844
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -67881,6 +67915,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   checkpointID: 8
   checkpointMode: 1
+  OnRespawnActivation:
+    m_PersistentCalls:
+      m_Calls: []
   CheckpointSound: {fileID: 8300000, guid: 0a06a44e13ee9ea419e8d66509366006, type: 3}
   passive: {fileID: -724414142, guid: 01d29b99acc81084dbf22bbe3a18b906, type: 3}
   active:
@@ -68230,6 +68267,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   checkpointID: 2
   checkpointMode: 1
+  OnRespawnActivation:
+    m_PersistentCalls:
+      m_Calls: []
   CheckpointSound: {fileID: 8300000, guid: 0a06a44e13ee9ea419e8d66509366006, type: 3}
   passive: {fileID: -724414142, guid: 01d29b99acc81084dbf22bbe3a18b906, type: 3}
   active:
@@ -68507,6 +68547,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   checkpointID: 6
   checkpointMode: 1
+  OnRespawnActivation:
+    m_PersistentCalls:
+      m_Calls: []
   CheckpointSound: {fileID: 8300000, guid: 0a06a44e13ee9ea419e8d66509366006, type: 3}
   passive: {fileID: -724414142, guid: 01d29b99acc81084dbf22bbe3a18b906, type: 3}
   active:
@@ -68891,6 +68934,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   checkpointID: 4
   checkpointMode: 1
+  OnRespawnActivation:
+    m_PersistentCalls:
+      m_Calls: []
   CheckpointSound: {fileID: 8300000, guid: 0a06a44e13ee9ea419e8d66509366006, type: 3}
   passive: {fileID: -724414142, guid: 01d29b99acc81084dbf22bbe3a18b906, type: 3}
   active:
