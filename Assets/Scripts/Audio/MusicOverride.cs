@@ -12,21 +12,16 @@ public class MusicOverride : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        GameManager.Instance.OverrideMusic(this.gameObject);
+        MusicManager.Instance.PushMusicOverride(gameObject, MusicManager.MusicStartMode.Restart);
     }
 
     public void stopPlayingAfterTime(float time) {
         Invoke("stopPlaying", time);
     }
 
-    public void stopPlaying() {
-        GameManager.Instance.ResumeMusic(this.gameObject);
-        Destroy(gameObject);
-    }
-
-    // Update is called once per frame
-    void Update()
+    public void stopPlaying()
     {
-        
+        MusicManager.Instance.PopMusicOverride(gameObject, MusicManager.MusicStartMode.Continue);
+        Destroy(gameObject);
     }
 }

@@ -133,7 +133,7 @@ public class Flag : MonoBehaviour
             GetComponents<AudioSource>()[0].Play(); // first audio source is the flagpole sound, second is for music
             
             // stop the music
-            GameManager.Instance.StopAllMusic();
+            MusicManager.Instance.MuteAllMusic();
 
             // change to cutscene state after a certain amount of time
             StartCoroutine(ToCutsceneState());

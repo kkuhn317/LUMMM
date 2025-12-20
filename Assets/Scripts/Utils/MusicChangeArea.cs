@@ -19,14 +19,17 @@ public class MusicChangeArea : MonoBehaviour
     void StartNewMusic()
     {
         GetComponent<AudioSource>().Play();
-        GameManager.Instance.OverrideMusic(gameObject);
+        MusicManager.Instance.PushMusicOverride(gameObject, MusicManager.MusicStartMode.Restart);
     }
 
     void ResumeOldMusic()
     {
-        GameManager.Instance.ResumeMusic(gameObject);
-        if (restartOldMusicOnExit)
-            GameManager.Instance.RestartMusic();
+        // If you want the old music to restart when exiting the area, use Restart.
+        var mode = restartOldMusicOnExit
+            ? MusicManager.MusicStartMode.Restart
+            : MusicManager.MusicStartMode.Continue;
+
+        MusicManager.Instance.PopMusicOverride(gameObject, mode);
         GetComponent<AudioSource>().Stop();
     }
 

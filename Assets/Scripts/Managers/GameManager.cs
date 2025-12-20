@@ -142,12 +142,7 @@ public class GameManager : MonoBehaviour
 
     [Header("Score System")]
     [SerializeField] TMP_Text scoreText;
-
-    [Header("Music")]
-    public GameObject music;
-    private List<GameObject> musicOverrides = new List<GameObject>(); // add to this list when music override added, remove when music override removed
-    private GameObject currentlyPlayingMusic;
-
+    
     [Header("Pause Menu")]
     public GameObject pausemenu;
     public GameObject mainPauseMenu;
@@ -342,11 +337,6 @@ public class GameManager : MonoBehaviour
             ApplyOptionsMenuSettings();
         }
 
-        if (music)
-        {
-            print("Music found");
-            currentlyPlayingMusic = music;
-        }
         currentTime = startingTime;
 
         if (GlobalVariables.levelInfo == null)
@@ -482,10 +472,8 @@ public class GameManager : MonoBehaviour
                         currentTime = 0;
                         isTimeUp = true;
                         // Debug.Log("Stop music!");
-                        StopAllMusic();
                         // Debug.Log("The time has run out!");
-                        // DecrementLives();
-                        ResumeMusic(music);
+                        DecrementLives();
                     }
                 }
             }
@@ -524,7 +512,7 @@ public class GameManager : MonoBehaviour
         RemoveProgress();
 
         // turn off all music overrides
-        RemoveAllMusicOverrides();
+        MusicManager.Instance.ClearMusicOverrides(MusicManager.MusicStartMode.Restart);
 
         stopTimer = true;   // Stops speedrun timer from starting early
 
@@ -544,7 +532,7 @@ public class GameManager : MonoBehaviour
         RemoveProgress();
 
         // turn off all music overrides
-        RemoveAllMusicOverrides();
+        MusicManager.Instance.ClearMusicOverrides(MusicManager.MusicStartMode.Restart);
 
         // Reloads the level
         ReloadSceneWithFade();
@@ -556,7 +544,7 @@ public class GameManager : MonoBehaviour
     public void RestartLevelFromCheckpoint()
     {
         // turn off all music overrides
-        RemoveAllMusicOverrides();
+        MusicManager.Instance.ClearMusicOverrides(MusicManager.MusicStartMode.Continue);
 
         // Reloads the level
         ReloadScene();
@@ -585,8 +573,7 @@ public class GameManager : MonoBehaviour
 
     public virtual void DecrementLives()
     {
-        // turn off all music overrides
-        RemoveAllMusicOverrides();
+        MusicManager.Instance.ClearMusicOverrides(MusicManager.MusicStartMode.Continue);
 
         if (!GlobalVariables.infiniteLivesMode)        // Check if the player is not in infinite lives mode
         {
@@ -907,99 +894,6 @@ public class GameManager : MonoBehaviour
         UpdateScoreUI();
     }
 
-    public void SetNewMainMusic(GameObject music)
-    {
-        // is currentlyPlayingMusic the main music?
-        if (currentlyPlayingMusic == this.music)
-        {
-            currentlyPlayingMusic = music;
-        }
-        this.music = music;
-    }
-
-    public void OverrideMusic(GameObject musicOverride)
-    {
-        // turn off music
-        if (currentlyPlayingMusic != null)
-            currentlyPlayingMusic.GetComponent<AudioSource>().mute = true;
-
-        // add to list
-        musicOverrides.Add(musicOverride);
-        // set as current music
-        currentlyPlayingMusic = musicOverride;
-    }
-
-    public void ResumeMusic(GameObject musicOverride)
-    {
-        // are we in the list? if not then do nothing
-        if (!musicOverrides.Contains(musicOverride))
-        {
-            return;
-        }
-
-        // remove from list
-        musicOverrides.Remove(musicOverride);
-
-        // are we the current music?
-        if (currentlyPlayingMusic == musicOverride)
-        {
-            // are there any other overrides?
-            if (musicOverrides.Count > 0)
-            {
-                // play the last override
-                currentlyPlayingMusic = musicOverrides[musicOverrides.Count - 1];
-                currentlyPlayingMusic.GetComponent<AudioSource>().mute = false;
-            }
-            else
-            {
-                // play the original music
-                if (music)
-                {
-                    currentlyPlayingMusic = music;
-                    currentlyPlayingMusic.GetComponent<AudioSource>().mute = false;
-                }
-                else
-                {
-                    currentlyPlayingMusic = null;
-                }
-            }
-        }
-    }
-
-    public void RemoveAllMusicOverrides()
-    {
-        StopAllMusic();
-
-        if (currentlyPlayingMusic != null)
-        {
-            currentlyPlayingMusic.GetComponent<AudioSource>().mute = false;
-        }
-    }
-
-    public void RestartMusic()
-    {
-        currentlyPlayingMusic.GetComponent<AudioSource>().Play();
-    }
-
-    public void StopAllMusic()
-    {
-        // turn off currentlyPlayingMusic (everything else should be muted)
-        if (currentlyPlayingMusic != null)
-            currentlyPlayingMusic.GetComponent<AudioSource>().mute = true;
-
-        // clear list of overrides
-        musicOverrides.Clear();
-
-        if (music)
-        {
-            currentlyPlayingMusic = music;
-        }
-        else
-        {
-            currentlyPlayingMusic = null;
-        }
-    }
-
     // Stops both the level timer and the speedrun timer
     public void StopTimer()
     {
@@ -1173,11 +1067,8 @@ public class GameManager : MonoBehaviour
         Time.timeScale = 0f;  // Set time scale to 0 (pause)
         GlobalVariables.speedrunTimer.Stop();   // Stop speedrun timer
 
-        if (currentlyPlayingMusic != null)
-        {
-            originalVolume = currentlyPlayingMusic.GetComponent<AudioSource>().volume;
-            currentlyPlayingMusic.GetComponent<AudioSource>().volume = originalVolume * 0.25f;
-        }
+        originalVolume = MusicManager.Instance.GetCurrentVolume();
+        MusicManager.Instance.SetCurrentVolume(originalVolume * 0.25f);
 
         CursorHelper.ShowCursor();
 
@@ -1216,14 +1107,12 @@ public class GameManager : MonoBehaviour
 
         if (!stopTimer)
         {
-            GlobalVariables.speedrunTimer.Start();  // Resume speedrun timer
+            GlobalVariables.speedrunTimer.Start(); // Resume speedrun timer
         }
 
-        if (currentlyPlayingMusic != null)
-        {
-            currentlyPlayingMusic.GetComponent<AudioSource>().volume = originalVolume;
-        }
+        MusicManager.Instance.SetCurrentVolume(originalVolume);
 
+            
         if (hideCursor)
         {
             CursorHelper.HideCursor();
@@ -1391,7 +1280,7 @@ public class GameManager : MonoBehaviour
 
         if (stopMusicImmediately)
         {
-            StopAllMusic();
+            MusicManager.Instance.MuteAllMusic();
         }
         if (cutsceneDelay > 0)
         {
@@ -1415,7 +1304,7 @@ public class GameManager : MonoBehaviour
 
         if (!stopMusicImmediately)
         {
-            StopAllMusic();
+            MusicManager.Instance.MuteAllMusic();
         }
 
         if (hideUI)

@@ -92,9 +92,7 @@ public class Axe : MonoBehaviour
     {
         // Get the AudioSource component attached to the same GameObject or add one if missing.
         audioSource = GetComponent<AudioSource>();
-
         axeCollider = GetComponent<BoxCollider2D>();
-
         animatedSprite = GetComponent<AnimatedSprite>();
     }
     private void Update()
@@ -149,7 +147,7 @@ public class Axe : MonoBehaviour
             // Stop music if needed
             if (musicStopMode == MusicStopMode.StopOnTouch)
             {
-                GameManager.Instance.StopAllMusic();
+                MusicManager.Instance.MuteAllMusic();
             }
 
             // Handle behavior based on the axe size.
@@ -279,7 +277,7 @@ public class Axe : MonoBehaviour
         // Stop the music if needed.
         if (musicStopMode == MusicStopMode.StopAfterBridgeDestroyed)
         {
-            GameManager.Instance.StopAllMusic();
+            MusicManager.Instance.MuteAllMusic();
         }
 
         // If there's an ending cutscene, trigger it.

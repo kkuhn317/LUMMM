@@ -111,7 +111,13 @@ public class Pipe : MonoBehaviour
         if (playerSprite && (enterDirection == Direction.Left || enterDirection == Direction.Right))
             playerSprite.flipX = (enterDirection == Direction.Left);
 
-        if (marioMovement) marioMovement.enabled = false;
+        if (marioMovement)
+        {
+            marioMovement.inputLocked = true;
+            marioMovement.DisableInputs();
+            marioMovement.StopGroundPound();
+            marioMovement.enabled = false;
+        }
 
         // enter movement
         Vector2 enterDirVec = DirectionToVector(enterDirection) * enterDistance;
@@ -199,7 +205,12 @@ public class Pipe : MonoBehaviour
         // unfreeze
         if (playerRb)  playerRb.isKinematic = false;
         if (playerCol) playerCol.enabled    = true;
-        if (marioMovement) marioMovement.enabled = true;
+        if (marioMovement)
+        {
+            marioMovement.enabled = true;
+            marioMovement.inputLocked = false;
+            marioMovement.EnableInputs();
+        }
 
         OnAnyExitFinished?.Invoke(this, player);
         isEnteringPipe = false;

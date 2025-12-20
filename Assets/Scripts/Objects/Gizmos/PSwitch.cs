@@ -61,7 +61,7 @@ public class PSwitch : MonoBehaviour
             musicSource.Play();
 
         // Override the music
-        GameManager.Instance.OverrideMusic(this.gameObject);
+        MusicManager.Instance.PushMusicOverride(gameObject, MusicManager.MusicStartMode.Restart);
 
         // Change the bricks to coins and add to converted lists
         for (int i = 0; i < bricks.Count; i++) {
@@ -118,8 +118,7 @@ public class PSwitch : MonoBehaviour
         }
         convertedCoins.Clear();
 
-        GameManager.Instance.ResumeMusic(this.gameObject);
+        MusicManager.Instance.PopMusicOverride(gameObject, MusicManager.MusicStartMode.Continue);
         Destroy(gameObject);
     }
 }
-
