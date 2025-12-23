@@ -512,7 +512,7 @@ public class GameManager : MonoBehaviour
         RemoveProgress();
 
         // turn off all music overrides
-        MusicManager.Instance.ClearMusicOverrides(MusicManager.MusicStartMode.Restart);
+        MusicManager.Instance.ClearMusicOverrides(MusicManager.MusicStartMode.Continue);
 
         stopTimer = true;   // Stops speedrun timer from starting early
 
@@ -532,7 +532,7 @@ public class GameManager : MonoBehaviour
         RemoveProgress();
 
         // turn off all music overrides
-        MusicManager.Instance.ClearMusicOverrides(MusicManager.MusicStartMode.Restart);
+        MusicManager.Instance.ClearMusicOverrides(MusicManager.MusicStartMode.Continue);
 
         // Reloads the level
         ReloadSceneWithFade();
@@ -575,7 +575,7 @@ public class GameManager : MonoBehaviour
     {
         MusicManager.Instance.ClearMusicOverrides(MusicManager.MusicStartMode.Continue);
 
-        if (!GlobalVariables.infiniteLivesMode)        // Check if the player is not in infinite lives mode
+        if (!GlobalVariables.infiniteLivesMode) // Check if the player is not in infinite lives mode
         {
             GlobalVariables.lives--;
 
