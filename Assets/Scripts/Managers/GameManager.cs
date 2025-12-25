@@ -32,12 +32,14 @@ public class GameManager : MonoBehaviour
 
     [Header("Timer")]
     public float startingTime;
-    private bool timesRunning = true;
     public static bool isPaused = false;
     private static bool pauseable = true; // turn off when win screen shows up or when fading to another scene
     private bool isTimeUp = false;
     private bool stopTimer = false;
-    public AudioClip timeWarning;
+    public float timeWarningTimer = 3f;
+    [SerializeField] private GameObject timeWarningOverridePrefab;
+    private GameObject timeWarningInstance;
+    private bool timeWarningActive = false;
     [SerializeField] protected TMP_Text timerText;
     public Image infiniteTimeImage;
     [SerializeField] protected TMP_Text speedrunTimerText;
@@ -461,12 +463,18 @@ public class GameManager : MonoBehaviour
                         GlobalVariables.lives = 99;
                     }
 
-                    if (currentTime <= 100 && timesRunning)
+                    // TURN ON warning when crossing threshold
+                    if (currentTime <= 100f && !timeWarningActive)
                     {
-                        audioSource.clip = timeWarning;
-                        audioSource.PlayOneShot(timeWarning);
-                        timesRunning = false;
+                        timeWarningInstance = Instantiate(timeWarningOverridePrefab);
+                        timeWarningInstance.GetComponent<MusicOverride>()?.stopPlayingAfterTime(timeWarningTimer);
+                        timeWarningActive = true;
                     }
+                    else if (currentTime > 100f && timeWarningActive)
+                    {
+                        StopTimeWarningMusic();
+                    }
+
                     if (currentTime <= 0 && !isTimeUp)
                     {
                         currentTime = 0;
@@ -478,6 +486,15 @@ public class GameManager : MonoBehaviour
                 }
             }
         }
+    }
+
+    public void StopTimeWarningMusic()
+    {
+        if (timeWarningInstance != null)
+            Destroy(timeWarningInstance);
+
+        timeWarningInstance = null;
+        timeWarningActive = false;
     }
 
     private void ApplyOptionsMenuSettings()

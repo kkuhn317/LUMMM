@@ -184,6 +184,7 @@ public class Axe : MonoBehaviour
         if (timerStop)
         {
             GameManager.Instance.StopTimer();
+            GameManager.Instance.StopTimeWarningMusic();
         }
 
         Invoke(nameof(DestroyBridge), bridgeDestroyDelay);

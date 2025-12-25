@@ -46,8 +46,16 @@ public class MusicManager : MonoBehaviour
             (looper != null && looper.IsPlaying) ||
             (src != null && src.isPlaying);
 
-        if (!isPlaying)
+        if (looper != null)
+        {
+            // If music is scheduled (intro->loop), don't restart
+            if (!looper.IsPlaying)
+                looper.EnsurePlaying();
+        }
+        else if (!isPlaying)
+        {
             ClearMusicOverrides(MusicStartMode.Restart);
+        }
     }
 
 

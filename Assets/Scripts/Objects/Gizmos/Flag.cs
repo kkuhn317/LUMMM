@@ -102,6 +102,7 @@ public class Flag : MonoBehaviour
             var mario = other.GetComponent<MarioMovement>();
 
             GameManager.Instance.StopTimer();
+            GameManager.Instance.StopTimeWarningMusic();
 
             csMario = cutsceneMario;
 

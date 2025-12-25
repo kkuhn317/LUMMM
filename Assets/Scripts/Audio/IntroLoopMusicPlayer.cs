@@ -6,8 +6,11 @@ public class IntroLoopMusicPlayer : MonoBehaviour
     public AudioClip introClip;
     public AudioClip loopClip;
 
-    [Header("Settings")]
+    [Header("Scheduling")]
     [Min(0)] public double scheduleSafetySeconds = 0.05;
+
+    // If MP3 introduces a tiny overlap, push loop a few ms later (try 0.005).
+    [Min(0)] public double handoffPaddingSeconds = 0.0;
 
     [Header("Audio (Intro Source)")]
     public AudioSource source; // keep this for compatibility (intro source)
@@ -15,15 +18,19 @@ public class IntroLoopMusicPlayer : MonoBehaviour
     [Header("Audio (Loop Source)")]
     public AudioSource loopSource;
 
+    // Guard against re-scheduling (and helps MusicManager "gap" detection).
+    private bool _isScheduled;
+
+    // Expose for other systems if needed (optional but useful).
+    public bool IsScheduled => _isScheduled;
+
     void Awake()
     {
         if (!source) source = GetComponent<AudioSource>();
         if (!source) source = gameObject.AddComponent<AudioSource>();
 
         if (!loopSource)
-        {
             loopSource = gameObject.AddComponent<AudioSource>();
-        }
 
         // Basic setup
         source.playOnAwake = false;
@@ -40,7 +47,10 @@ public class IntroLoopMusicPlayer : MonoBehaviour
     {
         if (!introClip || !loopClip || !source || !loopSource) return;
 
-        Stop();
+        // Prevent duplicate scheduling (key to avoid overlaps from re-entrant calls)
+        if (_isScheduled) return;
+
+        StopInternal(cancelScheduled: true);
 
         double dspNow = AudioSettings.dspTime;
         double introStart = dspNow + scheduleSafetySeconds;
@@ -50,23 +60,47 @@ public class IntroLoopMusicPlayer : MonoBehaviour
         source.loop = false;
         source.PlayScheduled(introStart);
 
-        // Schedule loop exactly at intro end
-        double introDuration = (double)introClip.samples / introClip.frequency;
-        double loopStart = introStart + introDuration;
+        // Prefer AudioClip.length here (more reliable for compressed clips than samples/frequency)
+        double introDuration = (double)introClip.length;
+
+        // Schedule loop at intro end (+ optional padding)
+        double loopStart = introStart + introDuration + handoffPaddingSeconds;
+
+        // CRITICAL: hard cut intro at loopStart to avoid any bleed/overlap
+        source.SetScheduledEndTime(loopStart);
 
         loopSource.clip = loopClip;
         loopSource.loop = true;
         loopSource.PlayScheduled(loopStart);
+
+        _isScheduled = true;
     }
 
     public void Stop()
     {
+        StopInternal(cancelScheduled: true);
+    }
+
+    private void StopInternal(bool cancelScheduled)
+    {
+        if (cancelScheduled)
+        {
+            // Cancel any queued PlayScheduled on the DSP timeline
+            double now = AudioSettings.dspTime;
+            if (source) source.SetScheduledEndTime(now);
+            if (loopSource) loopSource.SetScheduledEndTime(now);
+        }
+
         if (source) source.Stop();
         if (loopSource) loopSource.Stop();
+
+        _isScheduled = false;
     }
 
     public bool IsPlaying =>
-    (source != null && source.isPlaying) || (loopSource != null && loopSource.isPlaying);
+        _isScheduled || // treat "scheduled but not yet audible" as playing for manager logic
+        (source != null && source.isPlaying) ||
+        (loopSource != null && loopSource.isPlaying);
 
     public void UnPause()
     {
@@ -82,15 +116,10 @@ public class IntroLoopMusicPlayer : MonoBehaviour
 
     public void EnsurePlaying()
     {
-        // If neither intro nor loop is currently playing, start the music.
-        // If one is already playing, do nothing (this preserves progress on death/respawn).
-        bool introPlaying = source != null && source.isPlaying;
-        bool loopPlaying  = loopSource != null && loopSource.isPlaying;
+        // If already scheduled or currently playing, do nothing.
+        if (IsPlaying) return;
 
-        if (!introPlaying && !loopPlaying)
-        {
-            PlayFromStart();
-        }
+        PlayFromStart();
     }
 
     public void SetPaused(bool paused)
@@ -127,7 +156,6 @@ public class IntroLoopMusicPlayer : MonoBehaviour
 
     private void CopyAudioSettings(AudioSource from, AudioSource to)
     {
-        // Keep routing & 2D/3D behavior consistent
         to.outputAudioMixerGroup = from.outputAudioMixerGroup;
         to.spatialBlend = from.spatialBlend;
         to.priority = from.priority;
@@ -141,7 +169,6 @@ public class IntroLoopMusicPlayer : MonoBehaviour
         to.minDistance = from.minDistance;
         to.maxDistance = from.maxDistance;
 
-        // Keep the same initial loudness/mute state
         to.volume = from.volume;
         to.mute = from.mute;
     }

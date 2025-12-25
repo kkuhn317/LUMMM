@@ -9948,6 +9948,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   checkpointID: 3
   checkpointMode: 1
+  OnRespawnActivation:
+    m_PersistentCalls:
+      m_Calls: []
   CheckpointSound: {fileID: 8300000, guid: 0a06a44e13ee9ea419e8d66509366006, type: 3}
   passive: {fileID: -724414142, guid: 01d29b99acc81084dbf22bbe3a18b906, type: 3}
   active:
@@ -12125,6 +12128,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   checkpointID: 6
   checkpointMode: 1
+  OnRespawnActivation:
+    m_PersistentCalls:
+      m_Calls: []
   CheckpointSound: {fileID: 8300000, guid: 0a06a44e13ee9ea419e8d66509366006, type: 3}
   passive: {fileID: -724414142, guid: 01d29b99acc81084dbf22bbe3a18b906, type: 3}
   active:
@@ -13676,6 +13682,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   checkpointID: 2
   checkpointMode: 1
+  OnRespawnActivation:
+    m_PersistentCalls:
+      m_Calls: []
   CheckpointSound: {fileID: 8300000, guid: 0a06a44e13ee9ea419e8d66509366006, type: 3}
   passive: {fileID: -724414142, guid: 01d29b99acc81084dbf22bbe3a18b906, type: 3}
   active:
@@ -15816,6 +15825,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   checkpointID: 1
   checkpointMode: 1
+  OnRespawnActivation:
+    m_PersistentCalls:
+      m_Calls: []
   CheckpointSound: {fileID: 8300000, guid: 0a06a44e13ee9ea419e8d66509366006, type: 3}
   passive: {fileID: -724414142, guid: 01d29b99acc81084dbf22bbe3a18b906, type: 3}
   active:
@@ -16208,8 +16220,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1043237218}
+  - component: {fileID: 1043237219}
   - component: {fileID: 1043237217}
-  - component: {fileID: 1043237216}
   m_Layer: 0
   m_Name: Music
   m_TagString: GameMusic
@@ -16217,18 +16229,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1043237216
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1043237215}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dd3ee184fa596d54ebdbc9a9d9b60dd6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!82 &1043237217
 AudioSource:
   m_ObjectHideFlags: 0
@@ -16340,6 +16340,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1043237219
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1043237215}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 36e312cfe6fcad74eadf7bdc569cf87f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mainMusic: {fileID: 1043237215}
+  currentlyPlayingMusic: {fileID: 1043237215}
 --- !u!1001 &1050395991
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -17151,6 +17165,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   checkpointID: 0
   checkpointMode: 1
+  OnRespawnActivation:
+    m_PersistentCalls:
+      m_Calls: []
   CheckpointSound: {fileID: 8300000, guid: 0a06a44e13ee9ea419e8d66509366006, type: 3}
   passive: {fileID: -724414142, guid: 01d29b99acc81084dbf22bbe3a18b906, type: 3}
   active:
@@ -21209,6 +21226,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   checkpointID: 4
   checkpointMode: 1
+  OnRespawnActivation:
+    m_PersistentCalls:
+      m_Calls: []
   CheckpointSound: {fileID: 8300000, guid: 0a06a44e13ee9ea419e8d66509366006, type: 3}
   passive: {fileID: -724414142, guid: 01d29b99acc81084dbf22bbe3a18b906, type: 3}
   active:
@@ -21546,6 +21566,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   checkpointID: 5
   checkpointMode: 1
+  OnRespawnActivation:
+    m_PersistentCalls:
+      m_Calls: []
   CheckpointSound: {fileID: 8300000, guid: 0a06a44e13ee9ea419e8d66509366006, type: 3}
   passive: {fileID: -724414142, guid: 01d29b99acc81084dbf22bbe3a18b906, type: 3}
   active:
