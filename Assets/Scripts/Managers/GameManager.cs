@@ -44,6 +44,20 @@ public class GameManager : MonoBehaviour
     public Image infiniteTimeImage;
     [SerializeField] protected TMP_Text speedrunTimerText;
 
+    [Header("Time Bonus (Timer Points)")]
+    public bool awardTimeBonusOnFinish = true;
+    public bool animateTimeBonusOnFinish = true;
+    public int timeBonusPerSecond = 50; // classic SMB feel
+    public float timeBonusTickRealtime = 0.02f; // tick speed (uses realtime)
+    public int timeBonusFastChunkThreshold = 100; // above this, tick faster in chunks
+    [Min(0)] public int timeBonusFastChunkSize = 5; // subtract 5 "seconds" per tick when large
+    private int finishTimeSnapshot = -1;
+
+    [Header("Time Bonus SFX")]
+    public AudioClip timeBonusTickSfx;
+    public float timeBonusTickVolume = 1f;
+    public int timeBonusTickEverySteps = 1;
+    
     [Header("Lives")]
     private int maxLives = 99;
     [SerializeField] TMP_Text livesText;
@@ -488,6 +502,55 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    private void AwardTimeBonusInstant()
+    {
+        if (!awardTimeBonusOnFinish) return;
+        if (GlobalVariables.stopTimeLimit) return;
+
+        int timeLeft = Mathf.Max(0, Mathf.FloorToInt(currentTime));
+        AddScorePoints(timeLeft * timeBonusPerSecond);
+        
+        currentTime = 0;
+        UpdateTimerUI();
+    }
+
+    private IEnumerator AnimateTimeBonus()
+    {
+        // No bonus if infinite time mode
+        if (!awardTimeBonusOnFinish) yield break;
+        if (GlobalVariables.stopTimeLimit) yield break;
+
+        int timeLeft = Mathf.Max(0, Mathf.FloorToInt(currentTime));
+
+        // Show the starting time on the win screen immediately
+        if (timerText != null)
+            timerText.text = timeLeft.ToString("D3");
+
+        int sfxCounter = 0;
+
+        while (timeLeft > 0)
+        {
+            int step = 1;
+            if (timeLeft > timeBonusFastChunkThreshold)
+                step = Mathf.Min(timeBonusFastChunkSize, timeLeft);
+
+            timeLeft -= step;
+            currentTime = timeLeft;
+
+            UpdateTimerUI();
+            AddScorePoints(step * timeBonusPerSecond);
+
+            sfxCounter += step;
+            if (timeBonusTickSfx != null && audioSource != null && (timeBonusTickEverySteps <= 1 || sfxCounter >= timeBonusTickEverySteps))
+            {
+                audioSource.PlayOneShot(timeBonusTickSfx, timeBonusTickVolume);
+                sfxCounter = 0;
+            }
+
+            yield return new WaitForSeconds(timeBonusTickRealtime);
+        }
+    }
+
     public void StopTimeWarningMusic()
     {
         if (timeWarningInstance != null)
@@ -584,6 +647,7 @@ public class GameManager : MonoBehaviour
     {
         if (levelUI != null)
         {
+            print("UI hidden");
             levelUI.SetActive(false);
         }
     }
@@ -751,7 +815,9 @@ public class GameManager : MonoBehaviour
     private void UpdateScoreUI()
     {
         scoreText.text = "<mspace=0.8em>" + GlobalVariables.score.ToString("D9"); // 000000000
-
+        
+        if (WinScreenGameObject != null && WinScreenGameObject.activeInHierarchy && scoreWinScreenText != null)
+            scoreWinScreenText.text = GlobalVariables.score.ToString("D9");
     }
 
     private void UpdateHighScoreUI()
@@ -1217,7 +1283,8 @@ public class GameManager : MonoBehaviour
         ShowTotalCoins();
 
         // Time when you get to the end
-        timerFinishText.text = ((int)currentTime).ToString("D3");
+        int timeToShow = (finishTimeSnapshot >= 0) ? finishTimeSnapshot : (int)currentTime;
+        timerFinishText.text = timeToShow.ToString("D3");
 
         // Collected coins
         collectedCoinsText.text = GlobalVariables.coinCount.ToString("D2");
@@ -1324,12 +1391,6 @@ public class GameManager : MonoBehaviour
             MusicManager.Instance.MuteAllMusic();
         }
 
-        if (hideUI)
-        {
-            HideUI();
-            print("UI hidden");
-        }
-
         cutscene.Play();
         yield return new WaitForSeconds(cutsceneLength);
         print($"Cutscene played for {cutsceneLength} seconds.");
@@ -1341,8 +1402,31 @@ public class GameManager : MonoBehaviour
     // after level ends, call this (ex: flag cutscene ends)
     public void FinishLevel()
     {
+        StartCoroutine(FinishLevelCoroutine());
+    }
+
+    private IEnumerator FinishLevelCoroutine()
+    {
         pauseable = false;
 
+        finishTimeSnapshot = Mathf.Max(0, Mathf.FloorToInt(currentTime));
+
+        if (awardTimeBonusOnFinish)
+        {
+            if (animateTimeBonusOnFinish)
+            {
+                yield return AnimateTimeBonus();
+            }
+            
+            {
+                AwardTimeBonusInstant();
+            }
+        }
+
+        yield return new WaitForSeconds(1.5f); // small delay before showing win screen
+
+        HideUI();
+        
         WinScreenStats();
 
         // Save the high score when the level ends
@@ -1372,6 +1456,8 @@ public class GameManager : MonoBehaviour
         restartButtonWinScreen.Select();
 
         CursorHelper.ShowCursor();
+
+        finishTimeSnapshot = -1;
     }
 
     public void SetPlayer(MarioMovement player, int playerIndex)

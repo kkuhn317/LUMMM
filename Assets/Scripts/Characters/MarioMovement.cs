@@ -2265,9 +2265,6 @@ public class MarioMovement : MonoBehaviour
             Gizmos.color = Color.yellow;
         }
 
-        // Draw left corner correction
-        Gizmos.DrawLine(start, start + new Vector3(-rayLength, 0, 0));
-
         Gizmos.color = Color.cyan;
         RaycastHit2D hitRight = Physics2D.Raycast(start, Vector2.right, rayLength, groundLayer);
 
