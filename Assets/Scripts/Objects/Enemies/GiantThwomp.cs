@@ -80,6 +80,7 @@ public class GiantThwomp : EnemyAI, IGroundPoundable
 
     public SpikesFlagPole flagpole;
     public UnityEvent onThwompDefeat;
+    public bool CanBeDefeatedNow => currentState == ThwompStates.FallBack;
 
     protected override void Start()
     {
