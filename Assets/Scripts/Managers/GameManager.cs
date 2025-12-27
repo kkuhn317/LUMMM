@@ -1511,6 +1511,23 @@ public class GameManager : MonoBehaviour
             player.ChangePowerup(fireMarioPrefab);
     }
 
+    public void ForcePlayersTiny()
+    {
+        StartCoroutine(ForcePlayersTinyNextFrame());
+    }
+
+    private IEnumerator ForcePlayersTinyNextFrame()
+    {
+        // wait one frame so Checkpoint.Start()/AddCheckpoint can place Mario first
+        yield return null;
+
+        foreach (var player in GetPlayers())
+        {
+            if (player != null)
+                player.ChangePowerup(tinyMarioPrefab);
+        }
+    }
+
     // Gets rid of all the dead players
     private List<MarioMovement> ExistingPlayers()
     {

@@ -1072,6 +1072,12 @@ public class ObjectPhysics : MonoBehaviour
         }
     }
 
+    public void SetPosition(Transform target)
+    {
+        if (target == null) return;
+        SetPosition(target.position);
+    }
+
     protected void SetPosition(Vector3 pos)
     {
         if (updateType == UpdateType.Rigidbody)
