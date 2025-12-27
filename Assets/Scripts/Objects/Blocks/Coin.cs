@@ -7,13 +7,14 @@ public class Coin : MonoBehaviour
 {
     public enum Amount { one, ten, thirty, fifty, green }
     public Amount type;
+    public PowerStates.PowerupState popupSize = PowerStates.PowerupState.small;
 
     [Header("Pop-Up Movement")]
 
     // The animation state "PopUp" will always be played. Set this to <=0 if the animation makes the coin move up and down
     public float bounceTime = 0.5f;
     public float bounceHeight = 2f;
-    Vector2 originalPosition;   // Set when the coin is going to bounce
+    Vector2 originalPosition; // Set when the coin is going to bounce
 
     public string popUpAnimationName = "PopUp";
     public bool isCollected = false;
@@ -157,7 +158,7 @@ public class Coin : MonoBehaviour
     {
         AddCoinAmount();
         ComboResult result = new ComboResult(RewardType.Score, PopupID.Score100, 0);
-        ScorePopupManager.Instance.ShowPopup(result, transform.position);
+        ScorePopupManager.Instance.ShowPopup(result, transform.position, popupSize);
         Destroy(gameObject, coinSound.length);
     }
 

@@ -900,7 +900,8 @@ public class GameManager : MonoBehaviour
 
     public void CollectGreenCoin(GameObject greenCoin)
     {
-        AddScorePoints(2000);
+        ComboResult result = new ComboResult(RewardType.Score, PopupID.Score2000, 2000);
+        ScorePopupManager.Instance.ShowPopup(result, transform.position);
 
         collectedGreenCoinsInRun.Add(greenCoin);    // This assumes you can't collect the same green coin twice in the same run
 
