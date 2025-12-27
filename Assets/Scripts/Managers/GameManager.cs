@@ -900,9 +900,7 @@ public class GameManager : MonoBehaviour
 
     public void CollectGreenCoin(GameObject greenCoin)
     {
-        ComboResult result = new ComboResult(RewardType.Score, PopupID.Score2000, 2000);
-        ScorePopupManager.Instance.ShowPopup(result, transform.position);
-
+        AddScorePoints(2000);
         collectedGreenCoinsInRun.Add(greenCoin);    // This assumes you can't collect the same green coin twice in the same run
 
         // Uncomment this and remove the code in WinScreenStats() if you want to show green coins collected IN THE RUN instead of ALL green coins ever collected

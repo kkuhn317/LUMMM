@@ -110,6 +110,8 @@ public class Coin : MonoBehaviour
         }
         else
         {
+            ComboResult result = new ComboResult(RewardType.Score, PopupID.Score2000, 0);
+            ScorePopupManager.Instance.ShowPopup(result, transform.position, popupSize);
             GameManager.Instance.CollectGreenCoin(gameObject);
         }
     }
