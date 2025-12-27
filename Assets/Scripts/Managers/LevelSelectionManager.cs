@@ -6,6 +6,7 @@ using UnityEngine.Localization.Settings;
 using UnityEngine.Localization.Tables;
 using UnityEngine.UI;
 using UnityEngine.Events;
+using System.Globalization;
 
 public class LevelSelectionManager : MonoBehaviour
 {
@@ -34,7 +35,7 @@ public class LevelSelectionManager : MonoBehaviour
     public TMP_Text videoYearText;
     public Button videoLinkButton;
     public TMP_Text videoLinkText;
-
+    public TMP_Text bestTimeText;
     public GameObject LevelUpImage;
     public TMP_Text levelDescriptionText;
     public Button playButton;
@@ -66,6 +67,8 @@ public class LevelSelectionManager : MonoBehaviour
         playButton.gameObject.SetActive(false); // Deactivate the button if it's initially active
         // Set the enabled state of the videoLinkButton based on persistent event listeners
         videoLinkButton.enabled = videoLinkButton.onClick.GetPersistentEventCount() > 0;
+        if (bestTimeText != null)
+            bestTimeText.text = "--:--.--";
     }
 
     public static bool IsLevelPlayable(LevelButton button)
@@ -89,6 +92,23 @@ public class LevelSelectionManager : MonoBehaviour
         levelNameText.text = LocalizationSettings.StringDatabase.GetLocalizedString("Level_" + button.levelInfo.levelID);
         videoYearText.text = button.levelInfo.videoYear;
         levelDescriptionText.text = LocalizationSettings.StringDatabase.GetLocalizedString("Desc_" + button.levelInfo.levelID);
+        
+        // Update best time text
+        if (bestTimeText != null)
+        {
+            string key = $"BestTimeMs_{button.levelInfo.levelID}";
+            string msStr = PlayerPrefs.GetString(key, "");
+
+            if (double.TryParse(msStr, NumberStyles.Float, CultureInfo.InvariantCulture, out double ms) && ms > 0)
+            {
+                var ts = TimeSpan.FromMilliseconds(ms);
+                bestTimeText.text = ts.ToString(@"m\:ss\.ff");
+            }
+            else
+            {
+                bestTimeText.text = "--:--.--";
+            }
+        }
 
         // Remove any existing listeners from the play button's onClick event
         videoLinkButton.onClick.RemoveAllListeners();

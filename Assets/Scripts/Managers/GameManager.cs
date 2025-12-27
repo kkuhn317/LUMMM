@@ -775,6 +775,7 @@ public class GameManager : MonoBehaviour
     {
         coinText.text = "<mspace=0.8em>" + GlobalVariables.coinCount.ToString("D2"); // 00
     }
+
     private void UpdateTimerUI()
     {
         if (!GlobalVariables.stopTimeLimit)
@@ -793,6 +794,27 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    private static string BestTimeKey(string levelId) => $"BestTimeMs_{levelId}";
+
+    private void UpdateBestTimeRecord()
+    {
+        // This will be used to store the time you took to complete the level
+        // then this value will be used on select level scene to show the best time
+
+        // store milliseconds (easy compare, culture-safe)
+        double newMs = GlobalVariables.elapsedTime.TotalMilliseconds;
+
+        string key = BestTimeKey(levelID);
+        string prev = PlayerPrefs.GetString(key, "");
+
+        bool hasPrev = double.TryParse(prev, NumberStyles.Float, CultureInfo.InvariantCulture, out double prevMs);
+
+        if (!hasPrev || newMs < prevMs)
+        {
+            PlayerPrefs.SetString(key, newMs.ToString(CultureInfo.InvariantCulture));
+            PlayerPrefs.Save();
+        }
+    }
 
     private void CheckForInfiniteTime()
     {
@@ -1147,8 +1169,8 @@ public class GameManager : MonoBehaviour
         if (!pauseable) return;
 
         isPaused = true;
-        Time.timeScale = 0f;  // Set time scale to 0 (pause)
-        GlobalVariables.speedrunTimer.Stop();   // Stop speedrun timer
+        Time.timeScale = 0f; // Set time scale to 0 (pause)
+        GlobalVariables.speedrunTimer.Stop(); // Stop speedrun timer
 
         originalVolume = MusicManager.Instance.GetCurrentVolume();
         MusicManager.Instance.SetCurrentVolume(originalVolume * 0.25f);
@@ -1428,6 +1450,7 @@ public class GameManager : MonoBehaviour
         HideUI();
         
         WinScreenStats();
+        UpdateBestTimeRecord();
 
         // Save the high score when the level ends
         UpdateHighScore();

@@ -2747,7 +2747,7 @@ public class MarioMovement : MonoBehaviour
     {
         midairSpinUsedThisJump = true;
         isMidairSpinning = true;
-        spinning = true;
+
         midairSpinStartTime = Time.time;
         midairSpinEndTime = Time.time + midairSpinDuration;
 
@@ -2787,7 +2787,6 @@ public class MarioMovement : MonoBehaviour
         return;
 
         isMidairSpinning = false;
-        spinning = false;
         
         midairSpinUsedThisJump = true; // Mark that we've spent our twirl for this jump
         lastMidairSpinTime = Time.time; // Start cooldown from the moment the spin finishes
