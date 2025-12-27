@@ -1291,23 +1291,23 @@ PrefabInstance:
       objectReference: {fileID: 1698263031}
     - target: {fileID: 1209335749245954322, guid: 6c3da054316607e43b17e4af15d611e6, type: 3}
       propertyPath: scoreForARank
-      value: 6000
+      value: 16000
       objectReference: {fileID: 0}
     - target: {fileID: 1209335749245954322, guid: 6c3da054316607e43b17e4af15d611e6, type: 3}
       propertyPath: scoreForBRank
-      value: 4000
+      value: 14000
       objectReference: {fileID: 0}
     - target: {fileID: 1209335749245954322, guid: 6c3da054316607e43b17e4af15d611e6, type: 3}
       propertyPath: scoreForCRank
-      value: 2000
+      value: 12000
       objectReference: {fileID: 0}
     - target: {fileID: 1209335749245954322, guid: 6c3da054316607e43b17e4af15d611e6, type: 3}
       propertyPath: scoreForDRank
-      value: 1000
+      value: 8000
       objectReference: {fileID: 0}
     - target: {fileID: 1209335749245954322, guid: 6c3da054316607e43b17e4af15d611e6, type: 3}
       propertyPath: scoreForSRank
-      value: 8200
+      value: 18000
       objectReference: {fileID: 0}
     - target: {fileID: 1209335749245954322, guid: 6c3da054316607e43b17e4af15d611e6, type: 3}
       propertyPath: timeBonusTickSfx
@@ -5363,6 +5363,28 @@ MonoBehaviour:
   cutsceneTime: 10
   flagOnRight: 0
   cutsceneSelector: {fileID: 0}
+  poleBottom: {fileID: 0}
+  poleTop: {fileID: 0}
+  useColliderIfNoTransforms: 1
+  scoreBands:
+  - minT: 0
+    maxT: 0.11
+    points: 100
+  - minT: 0.11
+    maxT: 0.37
+    points: 400
+  - minT: 0.37
+    maxT: 0.53
+    points: 800
+  - minT: 0.53
+    maxT: 0.83
+    points: 2000
+  - minT: 0.83
+    maxT: 0.99
+    points: 4000
+  - minT: 0.99
+    maxT: 1
+    points: 5000
   giantThwomp: {fileID: 924918924}
   brokenFlagPole: {fileID: 10039679}
   deadMario: {fileID: 2690894693950398662, guid: bbcd46cf0ba891e4e93970cabbe39a14, type: 3}

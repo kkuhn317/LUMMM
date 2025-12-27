@@ -73,6 +73,7 @@ public class GiantSpiny : EnemyAI
 
     private void SpawnSpinySpike()
     {
+        if (!isVisible) return; // Only spawn if the spiny is visible on screen
         Vector3 spawnPosition = transform.position + new Vector3(-2, -0.5f, 0); // Adjust spawn position as needed
         GameObject spinySpike = Instantiate(spinySpikePrefab, spawnPosition, Quaternion.identity);
         audioSource.PlayOneShot(spinySpikeSound);
@@ -80,6 +81,7 @@ public class GiantSpiny : EnemyAI
 
     private IEnumerator SpawnShellsWithDelay()
     {
+        if (!isVisible) yield break; // Only spawn if the spiny is visible on screen
         for (int i = 0; i < 3; i++)
         {
             Vector3 spawnPosition = transform.position + new Vector3(0, 1, 0);

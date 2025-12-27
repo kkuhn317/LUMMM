@@ -279,7 +279,7 @@ public class MarioMovement : MonoBehaviour
         }
     }
 
-    public PlayerInput playerInput;
+    private PlayerInput playerInput;
 
     public void DisableInputs()
     {
@@ -319,6 +319,7 @@ public class MarioMovement : MonoBehaviour
         baseScale = transform.lossyScale;
         abilities.AddRange(GetComponents<MarioAbility>());
         normalSpriteLibrary = GetComponent<SpriteLibrary>().spriteLibraryAsset;
+        playerInput = GetComponent<PlayerInput>();
 
         // Store player's position at the beginning of the level (respawn)
         originalPosition = transform.position;
