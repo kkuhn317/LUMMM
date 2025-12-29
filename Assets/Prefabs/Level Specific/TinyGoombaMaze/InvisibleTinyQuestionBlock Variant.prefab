@@ -5,6 +5,7 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+    serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 6115455793969980353, guid: fb1f702c0eae34342aa7b8ed91180b12, type: 3}
@@ -35,6 +36,10 @@ PrefabInstance:
       propertyPath: itemMoveHeight
       value: 0.2
       objectReference: {fileID: 0}
+    - target: {fileID: 6115455793969980353, guid: fb1f702c0eae34342aa7b8ed91180b12, type: 3}
+      propertyPath: risingPresenter
+      value: 
+      objectReference: {fileID: 3132430638111684048}
     - target: {fileID: 6115455793969980353, guid: fb1f702c0eae34342aa7b8ed91180b12, type: 3}
       propertyPath: spawnableItems.Array.size
       value: 1
@@ -120,6 +125,15 @@ PrefabInstance:
       value: 1.5
       objectReference: {fileID: 0}
     m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 6115455793969980363, guid: fb1f702c0eae34342aa7b8ed91180b12, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2048621648}
+    - targetCorrespondingSourceObject: {fileID: 6115455793969980363, guid: fb1f702c0eae34342aa7b8ed91180b12, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3132430638111684048}
   m_SourcePrefab: {fileID: 100100000, guid: fb1f702c0eae34342aa7b8ed91180b12, type: 3}
 --- !u!1 &2380807973128482379 stripped
 GameObject:
@@ -145,3 +159,22 @@ PlatformEffector2D:
   m_UseSideFriction: 0
   m_UseSideBounce: 0
   m_SideArc: 1
+--- !u!114 &3132430638111684048
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2380807973128482379}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c4338207a5ad3234d85d6b2b325cb51d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  defaultMoveHeight: 1
+  defaultMoveSpeed: 1
+  colliderEnableDelay: 0.25
+  risingTag: RisingItem
+  overrideSortingWhileRising: 1
+  risingSortingOrder: -1
+  risingSortingLayerId: 0

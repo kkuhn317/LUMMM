@@ -5,6 +5,7 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+    serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 3699390078725392172, guid: 8533ce9fc20c81041a3d89f9335a4fdf, type: 3}
@@ -57,11 +58,41 @@ PrefabInstance:
       objectReference: {fileID: 1533980395, guid: 73e8458ff5e4cb64785e934cba22ebe4, type: 3}
     - target: {fileID: 3699390078725392179, guid: 8533ce9fc20c81041a3d89f9335a4fdf, type: 3}
       propertyPath: m_Name
-      value: Brick
+      value: Gray Brick
       objectReference: {fileID: 0}
     - target: {fileID: 5909481456473465412, guid: 8533ce9fc20c81041a3d89f9335a4fdf, type: 3}
       propertyPath: noCoinIfNoItem
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 3699390078725392179, guid: 8533ce9fc20c81041a3d89f9335a4fdf, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: -6377092811575746135}
   m_SourcePrefab: {fileID: 100100000, guid: 8533ce9fc20c81041a3d89f9335a4fdf, type: 3}
+--- !u!1 &347509430163843175 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3699390078725392179, guid: 8533ce9fc20c81041a3d89f9335a4fdf, type: 3}
+  m_PrefabInstance: {fileID: 4000399684413402964}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &-6377092811575746135
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 347509430163843175}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c4338207a5ad3234d85d6b2b325cb51d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  defaultMoveHeight: 1
+  defaultMoveSpeed: 1
+  colliderEnableDelay: 0.25
+  risingTag: RisingItem
+  overrideSortingWhileRising: 1
+  risingSortingOrder: -1
+  risingSortingLayerId: 0

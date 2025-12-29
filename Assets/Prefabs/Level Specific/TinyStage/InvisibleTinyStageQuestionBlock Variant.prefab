@@ -5,6 +5,7 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+    serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 2380807973128482369, guid: 91a42071df095b848b2b343359ac9da3, type: 3}
@@ -15,6 +16,10 @@ PrefabInstance:
       propertyPath: itemMoveHeight
       value: 0.5
       objectReference: {fileID: 0}
+    - target: {fileID: 2380807973128482369, guid: 91a42071df095b848b2b343359ac9da3, type: 3}
+      propertyPath: risingPresenter
+      value: 
+      objectReference: {fileID: 5653594124985583612}
     - target: {fileID: 2380807973128482369, guid: 91a42071df095b848b2b343359ac9da3, type: 3}
       propertyPath: emptyBlockSprite
       value: 
@@ -29,7 +34,7 @@ PrefabInstance:
       objectReference: {fileID: -120732342, guid: 5c45bc6ccc558734fb3ff2b5a0f25122, type: 3}
     - target: {fileID: 2380807973128482379, guid: 91a42071df095b848b2b343359ac9da3, type: 3}
       propertyPath: m_Name
-      value: InvisibleTinyStageQuestionBlock Variant (1)
+      value: InvisibleTinyStageQuestionBlock Variant
       objectReference: {fileID: 0}
     - target: {fileID: 2380807973128482381, guid: 91a42071df095b848b2b343359ac9da3, type: 3}
       propertyPath: m_RootOrder
@@ -117,4 +122,45 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 2380807973128482380, guid: 91a42071df095b848b2b343359ac9da3, type: 3}
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 2380807973128482379, guid: 91a42071df095b848b2b343359ac9da3, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: -8298782434426523059}
   m_SourcePrefab: {fileID: 100100000, guid: 91a42071df095b848b2b343359ac9da3, type: 3}
+--- !u!1 &4902006336210836583 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2380807973128482379, guid: 91a42071df095b848b2b343359ac9da3, type: 3}
+  m_PrefabInstance: {fileID: 7281538804831367724}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &-8298782434426523059
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4902006336210836583}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c4338207a5ad3234d85d6b2b325cb51d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  defaultMoveHeight: 1
+  defaultMoveSpeed: 1
+  colliderEnableDelay: 0.25
+  risingTag: RisingItem
+  overrideSortingWhileRising: 1
+  risingSortingOrder: -1
+  risingSortingLayerId: 0
+--- !u!114 &5653594124985583612 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3132430638111684048, guid: 91a42071df095b848b2b343359ac9da3, type: 3}
+  m_PrefabInstance: {fileID: 7281538804831367724}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4902006336210836583}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c4338207a5ad3234d85d6b2b325cb51d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

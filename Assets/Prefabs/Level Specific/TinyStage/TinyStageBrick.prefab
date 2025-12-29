@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 226923756559970040}
   - component: {fileID: 226923756559970023}
   - component: {fileID: 7093833837285297041}
+  - component: {fileID: -1921633838269150499}
   - component: {fileID: 7080466090033974029}
   - component: {fileID: 8742074544869024568}
   m_Layer: 3
@@ -28,13 +29,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 226923756559970022}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &226923756559970040
 SpriteRenderer:
@@ -98,6 +99,25 @@ BoxCollider2D:
   m_Enabled: 1
   m_Density: 1
   m_Material: {fileID: 6200000, guid: 3605a6811aae3564bb7cf23d3bfa975e, type: 2}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
@@ -126,19 +146,44 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0666ef16005fc244bab577124d5226c8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isInvisible: 0
   bounceHeight: 0.5
   bounceSpeed: 4
+  isInvisible: 0
   brickBlock: 1
   spawnableItems: []
+  spawnMode: 0
   itemMoveHeight: 1
   itemMoveSpeed: 1
+  itemRiseSound: {fileID: 8300000, guid: 772ddf80295b4d74e9d96fb646aace10, type: 3}
+  risingPresenter: {fileID: -1921633838269150499}
   onBlockActivated:
     m_PersistentCalls:
       m_Calls: []
   emptyBlockSprite: {fileID: 1761723225, guid: c969912de6832e14baf152772b3b1ea0, type: 3}
-  itemRiseSound: {fileID: 8300000, guid: 772ddf80295b4d74e9d96fb646aace10, type: 3}
   popUpCoinAnimationName: 
+  useConditionalItems: 0
+  conditionalRules: []
+  conditionalFallback: 0
+  defaultConditionalPrefab: {fileID: 0}
+--- !u!114 &-1921633838269150499
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 226923756559970022}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c4338207a5ad3234d85d6b2b325cb51d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  defaultMoveHeight: 1
+  defaultMoveSpeed: 1
+  colliderEnableDelay: 0.25
+  risingTag: RisingItem
+  overrideSortingWhileRising: 1
+  risingSortingOrder: -1
+  risingSortingLayerId: 0
 --- !u!82 &7080466090033974029
 AudioSource:
   m_ObjectHideFlags: 0
