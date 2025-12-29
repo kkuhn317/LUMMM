@@ -157,9 +157,19 @@ MonoBehaviour:
   maxCoinsDuringWindow: 0
   enableBonusReward: 1
   bonusThreshold: 10
-  bonusRewardPrefab: {fileID: 6275588455045691860, guid: 54d121fef18902d44a9f2af117d42bfa, type: 3}
+  bonusRewardPrefab: {fileID: 0}
+  conditionalBonusRules:
+    enabled: 1
+    rules:
+    - name: mushroom
+      condition: 1
+      item: {fileID: 6275588455045691860, guid: 54d121fef18902d44a9f2af117d42bfa, type: 3}
+    - name: fire flower
+      condition: 2
+      item: {fileID: 529961903374160834, guid: e34758b302f084549809b1b5614ba115, type: 3}
+    noMatchMode: 0
+    fallbackItem: {fileID: 6275588455045691860, guid: 54d121fef18902d44a9f2af117d42bfa, type: 3}
   bonusAwardTiming: 1
-  bonusUsesRiseUp: 1
   bonusMoveHeight: 1
   bonusMoveSpeed: 1
   itemRiseSound: {fileID: 8300000, guid: 772ddf80295b4d74e9d96fb646aace10, type: 3}

@@ -14,22 +14,23 @@ public class CoinBlock : BumpableBlock
     [Tooltip("How long (seconds) the block stays in multi-coin mode after the FIRST hit.")]
     public float activeWindowSeconds = 3.8f;
 
-    [Tooltip("If true, each successful hit while active refreshes the timer window.")]
+    [Tooltip("If true, each hit while active refreshes the window timer.")]
     public bool refreshWindowOnHit = false;
 
-    [Header("Limits / Rewards")]
-    [Tooltip("Soft cap (classic feel). Set <= 0 to disable.")]
-    public int maxCoinsDuringWindow = 10;
+    [Header("Coin Cap (Optional)")]
+    [Tooltip("If > 0, caps the number of coins given during the active window. If <= 0, unlimited during window.")]
+    public int maxCoinsDuringWindow = 0;
 
     [Header("Bonus Reward")]
-    [Tooltip("If enabled, coin block can award a bonus if hit fast enough.")]
-    public bool enableBonusReward = true;
+    public bool enableBonusReward = false;
 
     [Tooltip("If player reaches this many hits during the active window, bonus can be earned.")]
     public int bonusThreshold = 10;
 
-    [Tooltip("Optional (mushroom, gold block, etc.)")]
-    public GameObject bonusRewardPrefab;
+    [Header("Conditional Bonus Rules")]
+    [Tooltip("Rules are evaluated top-to-bottom. First match wins.\n" +
+             "Use 'Any' condition for default bonus, or set fallback item in ConditionalItemRules.")]
+    public ConditionalItemRules conditionalBonusRules = new();
 
     public enum BonusAwardTiming
     {
@@ -37,13 +38,10 @@ public class CoinBlock : BumpableBlock
         OnFinalHitAfterExpiry
     }
 
-    [Tooltip("When the bonus is actually spawned.")]
+    [Tooltip("When the bonus spawns if earned.")]
     public BonusAwardTiming bonusAwardTiming = BonusAwardTiming.OnFinalHitAfterExpiry;
 
     [Header("Bonus Presentation")]
-    [Tooltip("If enabled, the bonus reward rises out of the block like a Question Block powerup.")]
-    public bool bonusUsesRiseUp = true;
-
     [Tooltip("How high the bonus reward rises.")]
     public float bonusMoveHeight = 1f;
 
@@ -69,19 +67,20 @@ public class CoinBlock : BumpableBlock
     private int coinsGivenDuringWindow = 0;
 
     // bonus state
-    private bool bonusEarned = false; // threshold reached during window
-    private bool bonusSpawned = false; // bonus actually spawned
+    private bool bonusEarned = false;
+    private bool bonusSpawned = false;
 
-    private Animator animator;
+    // last player who hit (used for conditional bonus resolution)
+    private MarioMovement lastHitPlayer;
+
     private SpriteRenderer spriteRenderer;
-    private AudioSource audioSource;
+    private Animator animator;
 
     protected override void Awake()
     {
         base.Awake();
         spriteRenderer = GetComponent<SpriteRenderer>();
         animator = GetComponent<Animator>();
-        audioSource = GetComponent<AudioSource>();
 
         if (risingPresenter == null)
         {
@@ -89,6 +88,9 @@ public class CoinBlock : BumpableBlock
             if (risingPresenter == null)
                 risingPresenter = gameObject.AddComponent<RisingItemPresenter>();
         }
+        
+        // Validate bonus configuration
+        ValidateBonusConfiguration();
     }
 
     // Prevent activation once empty (unless allowBounceWhenEmpty)
@@ -118,6 +120,8 @@ public class CoinBlock : BumpableBlock
 
     protected override void OnAfterBounce(BlockHitDirection direction, MarioMovement player)
     {
+        lastHitPlayer = player;
+
         // If empty, do nothing (we already handled bounce skipping in OnBeforeBounce).
         if (isUsed) return;
 
@@ -131,28 +135,16 @@ public class CoinBlock : BumpableBlock
             coinsGivenDuringWindow = 0;
             bonusEarned = false;
             bonusSpawned = false;
-
-            // First coin is always granted
-            GiveCoin(player);
-            coinsGivenDuringWindow = 1;
-
-            // Check bonus conditions after first coin
-            HandleBonusProgress();
-
-            return;
         }
 
         bool windowExpired = Time.time > expireTime;
 
-        // If window expired, give one last coin, then (optionally) award bonus on this final hit, then become empty.
+        // If window expired, finalize
         if (windowExpired)
         {
-            GiveCoin(player);
-
-            if (enableBonusReward &&
-                bonusAwardTiming == BonusAwardTiming.OnFinalHitAfterExpiry &&
-                bonusEarned && !bonusSpawned &&
-                bonusRewardPrefab != null)
+            // If bonus is earned and we spawn on final hit after expiry
+            if (enableBonusReward && bonusEarned && !bonusSpawned &&
+                bonusAwardTiming == BonusAwardTiming.OnFinalHitAfterExpiry)
             {
                 bonusSpawned = true;
                 SpawnBonusReward();
@@ -171,34 +163,14 @@ public class CoinBlock : BumpableBlock
             if (refreshWindowOnHit)
                 expireTime = Time.time + activeWindowSeconds;
 
-            // Bonus progress (earn/spawn depending on timing)
             HandleBonusProgress();
         }
         else
         {
-            // Soft cap reached: do nothing, keep waiting for expiry.
-            // Note: If you want the player to still be able to "earn" the bonus even after soft cap,
-            // switch HandleBonusProgress() to use a separate hit counter instead of coinsGivenDuringWindow.
-        }
-    }
-
-    private void HandleBonusProgress()
-    {
-        if (!enableBonusReward) return;
-        if (bonusRewardPrefab == null) return;
-        if (bonusSpawned) return;
-
-        // Earn the bonus as soon as threshold is reached during the active window.
-        if (!bonusEarned && coinsGivenDuringWindow >= bonusThreshold)
-        {
-            bonusEarned = true;
-
-            // spawn immediately when threshold reached
-            if (bonusAwardTiming == BonusAwardTiming.ImmediatelyWhenThresholdReached)
-            {
-                bonusSpawned = true;
-                SpawnBonusReward();
-            }
+            // Even if we aren't giving more coins, still allow bonus tracking if you want:
+            // (Here it's tied to coinsGivenDuringWindow, so hitting after cap won't progress.)
+            // If desired, add a separate hit counter.
+            HandleBonusProgress();
         }
     }
 
@@ -225,19 +197,57 @@ public class CoinBlock : BumpableBlock
         }
     }
 
+    private void HandleBonusProgress()
+    {
+        if (!enableBonusReward) return;
+        if (bonusSpawned) return;
+
+        // Check if conditional bonus rules are configured
+        if (!IsBonusConfigured())
+            return;
+
+        // Earn the bonus as soon as threshold is reached during the active window.
+        if (!bonusEarned && coinsGivenDuringWindow >= bonusThreshold)
+        {
+            bonusEarned = true;
+
+            // spawn immediately when threshold reached
+            if (bonusAwardTiming == BonusAwardTiming.ImmediatelyWhenThresholdReached)
+            {
+                bonusSpawned = true;
+                SpawnBonusReward();
+            }
+        }
+    }
+
     private void SpawnBonusReward()
     {
-        if (bonusRewardPrefab == null) return;
+        GameObject resolved = null;
 
-        if (!bonusUsesRiseUp)
+        if (conditionalBonusRules != null && conditionalBonusRules.enabled)
+            resolved = conditionalBonusRules.Resolve(lastHitPlayer);
+
+        if (resolved == null)
         {
-            GameObject reward = Instantiate(bonusRewardPrefab, transform.parent, true);
-            reward.transform.position = originalPosition;
+            // If no rules match and no fallback configured, don't spawn anything
+#if UNITY_EDITOR
+            if (conditionalBonusRules != null && conditionalBonusRules.enabled && enableBonusReward)
+            {
+                Debug.LogWarning($"{gameObject.name}: Bonus earned but no conditional rule matched and no fallback item configured.", this);
+            }
+#endif
+            return;
+        }
+
+        if (risingPresenter == null)
+        {
+            // Fallback: spawn at position without presentation
+            Instantiate(resolved, originalPosition, Quaternion.identity, transform.parent);
             return;
         }
 
         risingPresenter.PresentRising(
-            prefab: bonusRewardPrefab,
+            prefab: resolved,
             parent: transform.parent,
             origin: originalPosition,
             moveHeight: bonusMoveHeight,
@@ -249,16 +259,17 @@ public class CoinBlock : BumpableBlock
 
     private void MarkUsed()
     {
+        if (isUsed) return;
         isUsed = true;
-        isActive = false;
-
-        if (animator != null)
-            animator.enabled = false;
 
         if (spriteRenderer != null && emptyBlockSprite != null)
             spriteRenderer.sprite = emptyBlockSprite;
+
+        if (animator != null)
+            animator.enabled = false;
     }
 
+    // Optional reset (useful for editor testing)
     public void ResetBlock()
     {
         isUsed = false;
@@ -274,4 +285,48 @@ public class CoinBlock : BumpableBlock
         if (animator != null)
             animator.enabled = true;
     }
+
+    #region Helper Methods
+
+    /// <summary>
+    /// Returns true if bonus rewards are properly configured.
+    /// </summary>
+    private bool IsBonusConfigured()
+    {
+        return conditionalBonusRules != null &&
+               conditionalBonusRules.enabled &&
+               conditionalBonusRules.HasAnyConfiguredItem();
+    }
+
+    /// <summary>
+    /// Validates bonus configuration and logs warnings for potentially confusing setups.
+    /// </summary>
+    private void ValidateBonusConfiguration()
+    {
+#if UNITY_EDITOR
+        if (enableBonusReward)
+        {
+            if (conditionalBonusRules == null)
+            {
+                Debug.LogWarning($"{gameObject.name}: Bonus enabled but conditionalBonusRules is null.", this);
+            }
+            else if (!conditionalBonusRules.enabled)
+            {
+                Debug.LogWarning($"{gameObject.name}: Bonus enabled but conditionalBonusRules.enabled is false.", this);
+            }
+            else if (!conditionalBonusRules.HasAnyConfiguredItem())
+            {
+                Debug.LogWarning($"{gameObject.name}: Bonus enabled but no rules or fallback item configured in conditionalBonusRules.", this);
+            }
+            
+            // Warn if bonusThreshold is too high relative to coin cap
+            if (maxCoinsDuringWindow > 0 && bonusThreshold > maxCoinsDuringWindow)
+            {
+                Debug.LogWarning($"{gameObject.name}: bonusThreshold ({bonusThreshold}) > maxCoinsDuringWindow ({maxCoinsDuringWindow}). Bonus may never be earned.", this);
+            }
+        }
+#endif
+    }
+
+    #endregion
 }

@@ -30,17 +30,10 @@ public class QuestionBlock : BumpableBlock
     public string popUpCoinAnimationName = "";
 
     [Header("Conditional Powerup Override")]
-    [Tooltip("If enabled, ONLY non-coin items will be resolved by rules (coins always spawn normally).")]
-    public bool useConditionalItems = false;
-
-    [Tooltip("Rules are evaluated top-to-bottom. First match wins.")]
-    public List<ConditionalSpawnRule> conditionalRules = new();
-
-    [Tooltip("What happens if no rule matches (for non-coin items only).")]
-    public ConditionalFallbackMode conditionalFallback = ConditionalFallbackMode.UseSpawnableItems;
-
-    [Tooltip("Used when fallback is UseDefaultPrefab.")]
-    public GameObject defaultConditionalPrefab = null;
+    [Tooltip("Rules are evaluated top-to-bottom. First match wins.\n" +
+             "NOTE: Coins always spawn from spawnableItems list.\n" +
+             "Non-coin items may be replaced by conditional rules.")]
+    public ConditionalItemRules conditionalItemRules = new();
 
     private const int GROUND_LAYER = 3;
     private int originalLayer = GROUND_LAYER;
@@ -89,17 +82,19 @@ public class QuestionBlock : BumpableBlock
         // Used blocks are dead
         if (IsUsed) return false;
 
+        // Always allow activation if we have ANY content OR if onBlockActivated has listeners
         bool hasSpawnables = spawnableItems != null && spawnableItems.Length > 0;
         bool hasConditional = HasConditionalContent();
+        bool hasEventListeners = onBlockActivated != null && onBlockActivated.GetPersistentEventCount() > 0;
 
-        // If there is truly nothing to spawn, don't activate.
-        if (!hasSpawnables && !hasConditional) return false;
+        // Allow activation if we have content OR event listeners
+        if (!hasSpawnables && !hasConditional && !hasEventListeners) return false;
 
-        // Sequential: allow bumps while we still have something to spawn (spawnables OR conditional content)
+        // Sequential: allow bumps while we still have something to spawn
         if (spawnMode == SpawnMode.Sequential)
-            return HasRemainingSpawnables() || hasConditional;
+            return HasRemainingSpawnables() || hasConditional || hasEventListeners;
 
-        // AllAtOnce: allow activation if we have spawnables OR conditional content
+        // AllAtOnce: always allow if we have content or event listeners
         return true;
     }
 
@@ -112,11 +107,12 @@ public class QuestionBlock : BumpableBlock
 
         bool hasSpawnables = spawnableItems != null && spawnableItems.Length > 0;
         bool hasConditional = HasConditionalContent();
+        bool hasEventListeners = onBlockActivated != null && onBlockActivated.GetPersistentEventCount() > 0;
 
-        if (!hasSpawnables && !hasConditional) return false;
+        if (!hasSpawnables && !hasConditional && !hasEventListeners) return false;
 
         if (spawnMode == SpawnMode.Sequential)
-            return HasRemainingSpawnables() || hasConditional;
+            return HasRemainingSpawnables() || hasConditional || hasEventListeners;
 
         return true;
     }
@@ -133,10 +129,11 @@ public class QuestionBlock : BumpableBlock
 
         bool hasSpawnables = spawnableItems != null && spawnableItems.Length > 0;
         bool hasConditional = HasConditionalContent();
+        bool hasEventListeners = onBlockActivated != null && onBlockActivated.GetPersistentEventCount() > 0;
 
-        if (!hasSpawnables && !hasConditional) return;
+        if (!hasSpawnables && !hasConditional && !hasEventListeners) return;
 
-        if (spawnMode != SpawnMode.Sequential || HasRemainingSpawnables() || hasConditional)
+        if (spawnMode != SpawnMode.Sequential || HasRemainingSpawnables() || hasConditional || hasEventListeners)
         {
             Bump(BlockHitDirection.Side, player);
         }
@@ -153,7 +150,7 @@ public class QuestionBlock : BumpableBlock
             skipBounceThisHit = true;
             return;
         }
-
+        
         onBlockActivated?.Invoke();
 
         if (isInvisible)
@@ -194,7 +191,7 @@ public class QuestionBlock : BumpableBlock
         bool hasSpawnables = spawnableItems != null && spawnableItems.Length > 0;
         bool hasConditional = HasConditionalContent();
 
-        // If block truly has no content, become empty on first hit
+        // If block has no content but has event listeners, just become empty
         if (!hasSpawnables && !hasConditional)
         {
             MarkUsedAndEmpty();
@@ -207,7 +204,7 @@ public class QuestionBlock : BumpableBlock
             return;
         }
 
-        // All at once (original behavior), but with optional conditional powerup override
+        // All at once
         SpawnAllAtOnce(player);
         MarkUsedAndEmpty();
     }
@@ -221,7 +218,7 @@ public class QuestionBlock : BumpableBlock
         bool hasSpawnables = spawnableItems != null && spawnableItems.Length > 0;
         bool hasConditional = HasConditionalContent();
 
-        // If brick contains something (spawnables or conditional), spawn before breaking
+        // If brick contains something, spawn before breaking
         if (hasSpawnables || hasConditional)
         {
             SpawnAllAtOnce(player);
@@ -236,33 +233,11 @@ public class QuestionBlock : BumpableBlock
 
     #region Spawn Helpers
 
+    [System.Serializable]
     public enum SpawnMode
     {
         AllAtOnce,
         Sequential
-    }
-
-    [System.Serializable]
-    public class ConditionalSpawnRule
-    {
-        public string name;
-        public PlayerCondition condition = PlayerCondition.IsSmall;
-        public GameObject prefabToSpawn;
-    }
-
-    public enum PlayerCondition
-    {
-        Any,
-        IsSmall,
-        IsBig,
-        IsNotSmall
-    }
-
-    public enum ConditionalFallbackMode
-    {
-        UseSpawnableItems,
-        UseDefaultPrefab,
-        SpawnNothing
     }
 
     private bool HasRemainingSpawnables()
@@ -277,21 +252,12 @@ public class QuestionBlock : BumpableBlock
         return false;
     }
 
-    // Block has "content" if it has valid conditional rules (even if spawnableItems is empty)
+    // Block has "content" if it has valid conditional rules
     private bool HasConditionalContent()
     {
-        if (!useConditionalItems) return false;
-
-        if (conditionalRules != null)
-        {
-            foreach (var rule in conditionalRules)
-            {
-                if (rule != null && rule.prefabToSpawn != null)
-                    return true;
-            }
-        }
-
-        return defaultConditionalPrefab != null;
+        return conditionalItemRules != null &&
+               conditionalItemRules.enabled &&
+               conditionalItemRules.HasAnyConfiguredItem();
     }
 
     private void MarkUsedAndEmpty()
@@ -300,35 +266,17 @@ public class QuestionBlock : BumpableBlock
         ChangeToEmptySprite();
     }
 
-    private bool RuleMatches(PlayerCondition condition, MarioMovement player)
+    /// <summary>
+    /// Resolve a conditional item using ConditionalItemRules.
+    /// Returns null if no match and rules are set to ReturnNull.
+    /// Returns fallbackItem if no match and rules are set to UseFallbackItem.
+    /// </summary>
+    private GameObject ResolveConditionalItem(MarioMovement player)
     {
-        if (player == null) return false;
-
-        bool isSmall = PowerStates.IsSmall(player.powerupState);
-        bool isBig = PowerStates.IsBig(player.powerupState);
-
-        return condition switch
+        if (conditionalItemRules != null && conditionalItemRules.enabled)
         {
-            PlayerCondition.Any => true,
-            PlayerCondition.IsSmall => isSmall,
-            PlayerCondition.IsBig => isBig,
-            PlayerCondition.IsNotSmall => !isSmall,
-            _ => false
-        };
-    }
-
-    private GameObject ResolveConditionalPrefab(MarioMovement player)
-    {
-        if (conditionalRules == null || conditionalRules.Count == 0)
-            return null;
-
-        foreach (var rule in conditionalRules)
-        {
-            if (rule == null || rule.prefabToSpawn == null) continue;
-            if (RuleMatches(rule.condition, player))
-                return rule.prefabToSpawn;
+            return conditionalItemRules.Resolve(player);
         }
-
         return null;
     }
 
@@ -340,23 +288,15 @@ public class QuestionBlock : BumpableBlock
     {
         bool hasSpawnables = spawnableItems != null && spawnableItems.Length > 0;
 
-        // If there are NO spawnables, we can still spawn conditional powerup only (Mario-like)
+        // If there are NO spawnables, we can still spawn conditional powerup only
         if (!hasSpawnables)
         {
-            if (useConditionalItems)
+            if (IsConditionalActive())
             {
-                var conditionalPrefab = ResolveConditionalPrefab(player);
-                if (conditionalPrefab != null)
-                {
-                    PresentItems(new List<GameObject> { conditionalPrefab });
-                }
-                else
-                {
-                    if (conditionalFallback == ConditionalFallbackMode.UseDefaultPrefab && defaultConditionalPrefab != null)
-                        PresentItems(new List<GameObject> { defaultConditionalPrefab });
-                }
+                var conditionalItem = ResolveConditionalItem(player);
+                if (conditionalItem != null)
+                    PresentItems(new List<GameObject> { conditionalItem });
             }
-
             return;
         }
 
@@ -380,34 +320,25 @@ public class QuestionBlock : BumpableBlock
         // Non-coins: either original behavior or conditional override
         if (nonCoins.Count == 0) return;
 
-        if (!useConditionalItems)
+        if (!IsConditionalActive())
         {
             PresentItems(nonCoins);
             return;
         }
 
-        // Conditional ON: spawn ONE resolved prefab (powerup) if possible
-        var conditionalResolved = ResolveConditionalPrefab(player);
+        // Conditional ON: try resolve items using rules
+        var conditionalResolved = ResolveConditionalItem(player);
+
         if (conditionalResolved != null)
         {
+            // If we got an item from rules (either matched rule or fallback), spawn it
             PresentItems(new List<GameObject> { conditionalResolved });
-            return;
         }
-
-        // No match -> fallback (non-coin only)
-        switch (conditionalFallback)
+        else
         {
-            case ConditionalFallbackMode.UseSpawnableItems:
-                PresentItems(nonCoins);
-                break;
-
-            case ConditionalFallbackMode.UseDefaultPrefab:
-                if (defaultConditionalPrefab != null)
-                    PresentItems(new List<GameObject> { defaultConditionalPrefab });
-                break;
-
-            case ConditionalFallbackMode.SpawnNothing:
-                break;
+            // If Resolve() returns null (NoMatchMode.ReturnNull with no match), 
+            // spawn original non-coins as fallback
+            PresentItems(nonCoins);
         }
     }
 
@@ -416,20 +347,12 @@ public class QuestionBlock : BumpableBlock
         // No spawnableItems, but conditional exists -> spawn conditional once, then empty
         if (spawnableItems == null || spawnableItems.Length == 0)
         {
-            if (useConditionalItems)
+            if (IsConditionalActive())
             {
-                var resolved = ResolveConditionalPrefab(player);
-                if (resolved != null)
-                {
-                    PresentItems(new List<GameObject> { resolved });
-                }
-                else
-                {
-                    if (conditionalFallback == ConditionalFallbackMode.UseDefaultPrefab && defaultConditionalPrefab != null)
-                        PresentItems(new List<GameObject> { defaultConditionalPrefab });
-                }
+                var conditionalItem = ResolveConditionalItem(player);
+                if (conditionalItem != null)
+                    PresentItems(new List<GameObject> { conditionalItem });
             }
-
             MarkUsedAndEmpty();
             return;
         }
@@ -455,30 +378,19 @@ public class QuestionBlock : BumpableBlock
         }
         else
         {
-            // Non-coin: conditional "powerup slot"
-            if (useConditionalItems)
+            // Non-coin: use conditional rules if active
+            if (IsConditionalActive())
             {
-                var resolved = ResolveConditionalPrefab(player);
-                if (resolved != null)
+                var conditionalResolved = ResolveConditionalItem(player);
+
+                if (conditionalResolved != null)
                 {
-                    PresentItems(new List<GameObject> { resolved });
+                    PresentItems(new List<GameObject> { conditionalResolved });
                 }
                 else
                 {
-                    switch (conditionalFallback)
-                    {
-                        case ConditionalFallbackMode.UseSpawnableItems:
-                            PresentItems(new List<GameObject> { originalPrefab });
-                            break;
-
-                        case ConditionalFallbackMode.UseDefaultPrefab:
-                            if (defaultConditionalPrefab != null)
-                                PresentItems(new List<GameObject> { defaultConditionalPrefab });
-                            break;
-
-                        case ConditionalFallbackMode.SpawnNothing:
-                            break;
-                    }
+                    // If Resolve() returns null, spawn original as fallback
+                    PresentItems(new List<GameObject> { originalPrefab });
                 }
             }
             else
@@ -543,6 +455,20 @@ public class QuestionBlock : BumpableBlock
                 riseSound: itemRiseSound
             );
         }
+    }
+
+    #endregion
+
+    #region Conditional Helper Methods
+
+    /// <summary>
+    /// Returns true if conditional item rules are active and configured.
+    /// </summary>
+    private bool IsConditionalActive()
+    {
+        return conditionalItemRules != null && 
+               conditionalItemRules.enabled && 
+               conditionalItemRules.HasAnyConfiguredItem();
     }
 
     #endregion
