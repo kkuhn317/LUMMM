@@ -1687,14 +1687,21 @@ MonoBehaviour:
   isInvisible: 0
   brickBlock: 1
   spawnableItems: []
+  spawnMode: 0
   itemMoveHeight: 1
   itemMoveSpeed: 1
   itemRiseSound: {fileID: 8300000, guid: 772ddf80295b4d74e9d96fb646aace10, type: 3}
+  risingPresenter: {fileID: 0}
   onBlockActivated:
     m_PersistentCalls:
       m_Calls: []
   emptyBlockSprite: {fileID: -1237451757, guid: c9b448e531d67da4f8acf998a69cc746, type: 3}
   popUpCoinAnimationName: 
+  conditionalItemRules:
+    enabled: 0
+    rules: []
+    noMatchMode: 1
+    fallbackItem: {fileID: 0}
 --- !u!61 &126782935
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -5149,14 +5156,21 @@ MonoBehaviour:
   isInvisible: 0
   brickBlock: 1
   spawnableItems: []
+  spawnMode: 0
   itemMoveHeight: 1
   itemMoveSpeed: 1
   itemRiseSound: {fileID: 8300000, guid: 772ddf80295b4d74e9d96fb646aace10, type: 3}
+  risingPresenter: {fileID: 0}
   onBlockActivated:
     m_PersistentCalls:
       m_Calls: []
   emptyBlockSprite: {fileID: -1237451757, guid: c9b448e531d67da4f8acf998a69cc746, type: 3}
   popUpCoinAnimationName: 
+  conditionalItemRules:
+    enabled: 0
+    rules: []
+    noMatchMode: 1
+    fallbackItem: {fileID: 0}
 --- !u!61 &343575199
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -15487,6 +15501,10 @@ PrefabInstance:
       propertyPath: groundLayer.m_Bits
       value: 25165832
       objectReference: {fileID: 0}
+    - target: {fileID: 1771483343543010228, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
+      propertyPath: midairSpinUpwardBoost
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 1771483343543010229, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
       propertyPath: m_RootOrder
       value: 14
@@ -15726,6 +15744,10 @@ PrefabInstance:
     - target: {fileID: 1771483343543010228, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
       propertyPath: groundLayer.m_Bits
       value: 25165832
+      objectReference: {fileID: 0}
+    - target: {fileID: 1771483343543010228, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
+      propertyPath: midairSpinUpwardBoost
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 1771483343543010229, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
       propertyPath: m_RootOrder
@@ -30457,14 +30479,21 @@ MonoBehaviour:
   isInvisible: 0
   brickBlock: 1
   spawnableItems: []
+  spawnMode: 0
   itemMoveHeight: 1
   itemMoveSpeed: 1
   itemRiseSound: {fileID: 8300000, guid: 772ddf80295b4d74e9d96fb646aace10, type: 3}
+  risingPresenter: {fileID: 0}
   onBlockActivated:
     m_PersistentCalls:
       m_Calls: []
   emptyBlockSprite: {fileID: -1237451757, guid: c9b448e531d67da4f8acf998a69cc746, type: 3}
   popUpCoinAnimationName: 
+  conditionalItemRules:
+    enabled: 0
+    rules: []
+    noMatchMode: 1
+    fallbackItem: {fileID: 0}
 --- !u!61 &2133844187
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -32255,6 +32284,10 @@ PrefabInstance:
       propertyPath: tinyOffset.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6670919134577806686, guid: db284f6338f7cb744b621c53763554da, type: 3}
+      propertyPath: tinyMotionMultiplier
+      value: 0.25
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -32798,16 +32831,16 @@ PrefabInstance:
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
+  - {fileID: 7660437946596734965}
+  - {fileID: 8116981543392197627}
+  - {fileID: 6598482103973053842}
+  - {fileID: 1393336823}
   - {fileID: 486352588}
   - {fileID: 2055227755}
   - {fileID: 281053392}
   - {fileID: 1730604527}
   - {fileID: 541155663}
   - {fileID: 221951475}
-  - {fileID: 1393336823}
-  - {fileID: 6598482103973053842}
-  - {fileID: 8116981543392197627}
-  - {fileID: 7660437946596734965}
   - {fileID: 504974389}
   - {fileID: 1651585028}
   - {fileID: 1177173380}

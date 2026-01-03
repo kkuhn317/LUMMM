@@ -7,6 +7,7 @@ public class ScorePopupSprite : MonoBehaviour
     [Header("Movement")]
     public float moveSpeed = 1.5f;
     public Vector3 moveDirection = Vector3.up;
+    private float motionMultiplier = 1f;
 
     [Header("Timing")]
     public float lifetime = 0.8f;
@@ -33,8 +34,10 @@ public class ScorePopupSprite : MonoBehaviour
         }
     }
 
-    public void Init(Sprite sprite)
+    public void Init(Sprite sprite, float motionMultiplier = 1f)
     {
+        this.motionMultiplier = motionMultiplier;
+        
         if (spriteRenderer != null)
         {
             spriteRenderer.sprite = sprite;
@@ -49,7 +52,7 @@ public class ScorePopupSprite : MonoBehaviour
     private void Update()
     {
         // Move upwards
-        transform.position += moveDirection * moveSpeed * Time.deltaTime;
+        transform.position += moveDirection * moveSpeed * motionMultiplier * Time.deltaTime;
 
         timer += Time.deltaTime;
 

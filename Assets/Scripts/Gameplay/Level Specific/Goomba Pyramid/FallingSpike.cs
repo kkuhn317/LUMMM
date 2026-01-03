@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+using PowerupState = PowerStates.PowerupState;
 
 public class FallingSpike : EnemyAI
 {
@@ -77,9 +78,10 @@ public class FallingSpike : EnemyAI
 
         if (!deadly)
         {
-            // Spike already fell and is safe → flat reward (not combo)
+            // Spike already fell and is safe, then flat reward (not combo)
             KnockAway(player.transform.position.x > transform.position.x);
-            GiveFlatScore(100);
+            ComboResult result = new ComboResult(RewardType.Score, PopupID.Score100, 100);
+            ScorePopupManager.Instance.ShowPopup(result, transform.position, playerscript.powerupState);
             Die();
             return;
         }

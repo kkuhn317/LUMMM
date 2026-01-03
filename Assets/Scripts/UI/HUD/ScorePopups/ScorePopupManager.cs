@@ -22,6 +22,12 @@ public class ScorePopupManager : MonoBehaviour
     public Vector3 bigOffset = new Vector3(0f, 1.0f, 0f);
     public Vector3 powerOffset = new Vector3(0f, 1.0f, 0f);
 
+    [Header("Motion per Power State")]
+    public float tinyMotionMultiplier = 0.25f;
+    public float smallMotionMultiplier = 1.0f;
+    public float bigMotionMultiplier = 1.0f;
+    public float powerMotionMultiplier = 1.0f;
+
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -65,7 +71,7 @@ public class ScorePopupManager : MonoBehaviour
             return;
         }
 
-        popup.Init(sprite);
+        popup.Init(sprite, GetMotionMultiplier(powerState));
     }
 
     private Vector3 GetScale(PowerStates.PowerupState state)
@@ -91,4 +97,13 @@ public class ScorePopupManager : MonoBehaviour
             _ => Vector3.zero
         };
     }
+
+    private float GetMotionMultiplier(PowerStates.PowerupState state) => state switch
+    {
+        PowerStates.PowerupState.tiny  => tinyMotionMultiplier,
+        PowerStates.PowerupState.small => smallMotionMultiplier,
+        PowerStates.PowerupState.big   => bigMotionMultiplier,
+        PowerStates.PowerupState.power => powerMotionMultiplier,
+        _ => 1f
+    };
 }
