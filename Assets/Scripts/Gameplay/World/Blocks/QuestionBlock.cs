@@ -43,6 +43,7 @@ public class QuestionBlock : BumpableBlock
 
     // State to control if already used
     public bool IsUsed { get; private set; } = false;
+    private bool pendingBrickBreak = false;
 
     // Cache references
     private SpriteRenderer spriteRenderer;
@@ -167,7 +168,7 @@ public class QuestionBlock : BumpableBlock
         {
             if (!PowerStates.IsSmall(player.powerupState))
             {
-                BreakBrick(player);
+                pendingBrickBreak = true;
                 skipBounceThisHit = true;
                 IsUsed = true;
                 return;
@@ -183,7 +184,14 @@ public class QuestionBlock : BumpableBlock
     protected override void OnAfterBounce(BlockHitDirection direction, MarioMovement player)
     {
         if (brickBlock)
+        {
+            if (pendingBrickBreak)
+            {
+                pendingBrickBreak = false;
+                BreakBrick(player);
+            }
             return;
+        }
 
         if (IsUsed)
             return;
@@ -490,6 +498,7 @@ public class QuestionBlock : BumpableBlock
     {
         IsUsed = false;
         nextSpawnIndex = 0;
+        pendingBrickBreak = false;
 
         if (risingPresenter != null)
             risingPresenter.ResetStop();

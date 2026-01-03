@@ -141,7 +141,8 @@ public class Flag : MonoBehaviour
 
                 // Same pattern as PowerUp.cs
                 ComboResult result = new ComboResult(RewardType.Score, popupId, flagPoints);
-                ScorePopupManager.Instance.ShowPopup(result, popupPos, mario.powerupState);
+                var popupPowerState = mario.powerupState;
+                ScorePopupManager.Instance.ShowPopup(result, popupPos, popupPowerState);
             }
         }
     }

@@ -5,7 +5,8 @@ using UnityEngine.SceneManagement;
 
 public class KoopaController : EnemyAI
 {
-    public enum EnemyState {
+    public enum EnemyState
+    {
         walking,
         inShell,
         movingShell
@@ -29,7 +30,8 @@ public class KoopaController : EnemyAI
         audioSource = GetComponent<AudioSource>();
         dontFallOffLedgesInternal = DontFallOffLedges;
 
-        switch(state) {
+        switch (state)
+        {
             case EnemyState.walking:
                 ToWalking();
                 break;
@@ -46,14 +48,16 @@ public class KoopaController : EnemyAI
     {
         base.Update();
 
-        if (hitCooldownTimer > 0) {
+        if (hitCooldownTimer > 0)
+        {
             hitCooldownTimer -= Time.deltaTime;
         }
     }
 
     protected override void touchNonPlayer(GameObject other)
     {
-        if (other.CompareTag("Enemy") && state == EnemyState.movingShell) {
+        if (other.CompareTag("Enemy") && state == EnemyState.movingShell)
+        {
             other.GetComponent<EnemyAI>().KnockAway(movingLeft);
             AwardShellComboReward();
         }
@@ -73,17 +77,20 @@ public class KoopaController : EnemyAI
         }
     }
 
-    private void ToWalking() {
+    private void ToWalking()
+    {
         state = EnemyState.walking;
         animator.SetBool("inShell", false);
         velocity = new Vector2(walkingSpeed, velocity.y);
         checkObjectCollision = true;
-        if (dontFallOffLedgesInternal) {
+        if (dontFallOffLedgesInternal)
+        {
             DontFallOffLedges = true;
         }
     }
 
-    private void ToInShell() {
+    private void ToInShell()
+    {
         state = EnemyState.inShell;
         animator.SetBool("inShell", true);
         velocity = new Vector2(0, velocity.y);
@@ -93,7 +100,8 @@ public class KoopaController : EnemyAI
         DontFallOffLedges = false;
     }
 
-    private void ToMovingShell(bool direction) {
+    private void ToMovingShell(bool direction)
+    {
         state = EnemyState.movingShell;
         movingLeft = direction;
         animator.SetBool("inShell", true);
@@ -103,14 +111,17 @@ public class KoopaController : EnemyAI
         checkObjectCollision = false;
         DontFallOffLedges = false;
 
+        // Start shell chain context (kick will set index appropriately)
         if (ComboManager.Instance != null)
         {
             ComboManager.Instance.StartShellChain();
         }
     }
 
-    private bool HitCooldownCheck() {
-        if (hitCooldownTimer > 0) {
+    private bool HitCooldownCheck()
+    {
+        if (hitCooldownTimer > 0)
+        {
             return false;
         }
         hitCooldownTimer = hitCooldown;
@@ -122,44 +133,67 @@ public class KoopaController : EnemyAI
         audioSource.PlayOneShot(knockAwaySound);
         ToMovingShell(playerTransform.position.x > transform.position.x);
 
-        int kickPoints = 400; // Default kick points
+        int kickPoints = 400;
 
         if (ComboManager.Instance != null)
         {
-            ComboResult result = ComboManager.Instance.RegisterStompKill();
-            int last = result.amount;
+            int last = ComboManager.Instance.PeekLastStompAmount();
 
             // If you come from higher stomp rewards, increase the kick
-            if (last >= 400 && last < 800)
-                kickPoints = 500;
-            else if (last >= 800)
-                kickPoints = 800;
+            if (last >= 400 && last < 800) kickPoints = 500;
+            else if (last >= 800) kickPoints = 800;
 
-            // Start shell sequence from 0 and mark the shell chain as active
-            ComboManager.Instance.ResetShellChain();
-            ComboManager.Instance.StartShellChain();
+            PopupID kickPopup = kickPoints switch
+            {
+                400 => PopupID.Score400,
+                500 => PopupID.Score500,
+                800 => PopupID.Score800,
+                _ => PopupID.Score400
+            };
+
+            // Kick = step 0 of shell chain (first kill becomes step 1)
+            ComboResult result = ComboManager.Instance.RegisterShellKick(kickPoints, kickPopup);
+
+            GameManager.Instance.AddScorePoints(result.amount);
+
+            if (ScorePopupManager.Instance != null)
+            {
+                ScorePopupManager.Instance.ShowPopup(
+                    result,
+                    transform.position + Vector3.up * 0.5f,
+                    playerScript.powerupState
+                );
+            }
         }
-
-        // Give the kick reward (400 / 500 / 800) and popup
-        GiveFlatScore(kickPoints);
+        else
+        {
+            GiveFlatScore(kickPoints);
+        }
     }
 
-    protected override void hitByStomp(GameObject player) {
-        if (!HitCooldownCheck()) {
+    protected override void hitByStomp(GameObject player)
+    {
+        if (!HitCooldownCheck())
+        {
             return;
         }
+
         hitCooldownTimer = hitCooldown;
         MarioMovement playerScript = player.GetComponent<MarioMovement>();
-        switch (state) {
+
+        switch (state)
+        {
             case EnemyState.walking:
                 playerScript.Jump();
                 audioSource.Play();
                 ToInShell();
                 AwardStompComboReward();
                 break;
+
             case EnemyState.inShell:
                 KickShell(playerScript, player.transform);
                 break;
+
             case EnemyState.movingShell:
                 playerScript.Jump();
                 audioSource.Play();
@@ -181,18 +215,25 @@ public class KoopaController : EnemyAI
         AwardStompComboReward();
     }
 
-    protected override void hitOnSide(GameObject player) {
-        if (!HitCooldownCheck()) {
+    protected override void hitOnSide(GameObject player)
+    {
+        if (!HitCooldownCheck())
+        {
             return;
         }
+
         MarioMovement playerScript = player.GetComponent<MarioMovement>();
-        switch (state) {
+
+        switch (state)
+        {
             case EnemyState.walking:
                 playerScript.damageMario();
                 break;
+
             case EnemyState.inShell:
                 KickShell(playerScript, player.transform);
                 break;
+
             case EnemyState.movingShell:
                 playerScript.damageMario();
                 QuestionBlock questionBlock = player.GetComponent<QuestionBlock>();
@@ -201,14 +242,15 @@ public class KoopaController : EnemyAI
                     questionBlock.Bump(BlockHitDirection.Up, playerScript);
                 }
                 break;
-        }  
+        }
     }
 
     protected override void onTouchWall(GameObject other)
     {
         base.onTouchWall(other);
-        
-        if (state == EnemyState.movingShell) {
+
+        if (state == EnemyState.movingShell)
+        {
             // if the wall is a question block, hit it
             QuestionBlock qb = other.GetComponent<QuestionBlock>();
             if (qb != null)
@@ -236,11 +278,11 @@ public class KoopaController : EnemyAI
         if (type.HasValue && type.Value == KnockAwayType.animation)
         {
             // Skip applying the movingLeft direction if the type is animation
-            base.KnockAway(false, sound, type, velocity); // You might want to use "false" or some default direction here.
+            base.KnockAway(false, sound, type, velocity);
         }
         else
         {
-            base.KnockAway(direction, sound, type, velocity); // Default KnockAway behavior
+            base.KnockAway(direction, sound, type, velocity);
         }
     }
 }

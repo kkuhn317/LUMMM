@@ -52,6 +52,8 @@ public class GameManager : MonoBehaviour
     public int timeBonusFastChunkThreshold = 100; // above this, tick faster in chunks
     [Min(0)] public int timeBonusFastChunkSize = 5; // subtract 5 "seconds" per tick when large
     private int finishTimeSnapshot = -1;
+    private bool skipTimeBonus = false;
+    public InputAction skipEndSequenceAction;
 
     [Header("Time Bonus SFX")]
     public AudioClip timeBonusTickSfx;
@@ -514,22 +516,45 @@ public class GameManager : MonoBehaviour
         UpdateTimerUI();
     }
 
+    private bool AnyPlayerPressedSubmitThisFrame()
+    {
+        foreach (var p in ExistingPlayers())
+        {
+            var input = p.GetComponent<PlayerInput>();
+            if (input == null || input.actions == null) continue;
+
+            // Use your actual action name/path, e.g. "UI/Submit" or "Gameplay/Submit"
+            var submit = input.actions.FindAction("Submit", throwIfNotFound: false);
+            if (submit != null && submit.WasPressedThisFrame())
+                return true;
+        }
+        return false;
+    }
+
+
     private IEnumerator AnimateTimeBonus()
     {
-        // No bonus if infinite time mode
         if (!awardTimeBonusOnFinish) yield break;
         if (GlobalVariables.stopTimeLimit) yield break;
 
+        skipTimeBonus = false;
+        skipEndSequenceAction.Enable();
+
         int timeLeft = Mathf.Max(0, Mathf.FloorToInt(currentTime));
 
-        // Show the starting time on the win screen immediately
         if (timerText != null)
             timerText.text = timeLeft.ToString("D3");
 
         int sfxCounter = 0;
 
-        while (timeLeft > 0)
+        while (timeLeft > 0 && !skipTimeBonus)
         {
+            if (AnyPlayerPressedSubmitThisFrame())
+            {
+                skipTimeBonus = true;
+                break;
+            }
+
             int step = 1;
             if (timeLeft > timeBonusFastChunkThreshold)
                 step = Mathf.Min(timeBonusFastChunkSize, timeLeft);
@@ -541,13 +566,24 @@ public class GameManager : MonoBehaviour
             AddScorePoints(step * timeBonusPerSecond);
 
             sfxCounter += step;
-            if (timeBonusTickSfx != null && audioSource != null && (timeBonusTickEverySteps <= 1 || sfxCounter >= timeBonusTickEverySteps))
+            if (timeBonusTickSfx != null && audioSource != null &&
+                (timeBonusTickEverySteps <= 1 || sfxCounter >= timeBonusTickEverySteps))
             {
                 audioSource.PlayOneShot(timeBonusTickSfx, timeBonusTickVolume);
                 sfxCounter = 0;
             }
 
             yield return new WaitForSeconds(timeBonusTickRealtime);
+        }
+
+        skipEndSequenceAction.Disable();
+
+        // If skipped → instantly resolve remaining bonus
+        if (skipTimeBonus && timeLeft > 0)
+        {
+            AddScorePoints(timeLeft * timeBonusPerSecond);
+            currentTime = 0;
+            UpdateTimerUI();
         }
     }
 
@@ -1438,7 +1474,7 @@ public class GameManager : MonoBehaviour
             {
                 yield return AnimateTimeBonus();
             }
-            
+            else
             {
                 AwardTimeBonusInstant();
             }
@@ -1504,7 +1540,8 @@ public class GameManager : MonoBehaviour
         if (player == null) yield break; // player could have been swapped/destroyed
 
         if (GlobalVariables.cheatStartTiny)
-            player.ChangePowerup(tinyMarioPrefab);
+            if (player.powerupState != PowerStates.PowerupState.tiny)
+                player.ChangePowerup(tinyMarioPrefab);
         else if (GlobalVariables.cheatStartIce)
             player.ChangePowerup(iceMarioPrefab);
         else if (GlobalVariables.cheatFlamethrower)
@@ -1523,7 +1560,7 @@ public class GameManager : MonoBehaviour
 
         foreach (var player in GetPlayers())
         {
-            if (player != null)
+            if (player != null && player.powerupState != PowerStates.PowerupState.tiny)
                 player.ChangePowerup(tinyMarioPrefab);
         }
     }

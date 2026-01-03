@@ -164,9 +164,12 @@ public abstract class BumpableBlock : MonoBehaviour, IBumpable, IGroundPoundable
 
         if (direction == BlockHitDirection.Up || direction == BlockHitDirection.Down)
         {
+            Vector2 worldCenter = (Vector2)transform.TransformPoint(boxCollider.offset) + Vector2.up * 0.05f;
+            Vector2 worldSize = Vector2.Scale(boxCollider.size, transform.lossyScale);
+
             Collider2D[] hits = Physics2D.OverlapBoxAll(
-                boxCollider.bounds.center + Vector3.up * 0.05f,
-                boxCollider.bounds.size,
+                worldCenter,
+                worldSize,
                 0f,
                 LayerMask.GetMask("Enemy")
             );
