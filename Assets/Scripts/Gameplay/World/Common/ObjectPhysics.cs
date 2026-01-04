@@ -747,6 +747,12 @@ public class ObjectPhysics : MonoBehaviour
 
     public virtual void Land(GameObject other = null)
     {
+        if (hasBeenThrown && ComboManager.Instance != null)
+        {   
+            ComboManager.Instance.EndShellChain();
+            hasBeenThrown = false;
+        }
+
         objectState = ObjectState.grounded;
         if (stopAfterLand)
         {
@@ -1006,12 +1012,7 @@ public class ObjectPhysics : MonoBehaviour
         // Only allow this if object was thrown
         if (!hasBeenThrown)
             return;
-
-        // Object must be moving horizontally with intent
-        if (Mathf.Abs(velocity.x) < 1f)
-            return;
-
-        // Must hit an enemy
+            
         if (!collision.CompareTag("Enemy"))
             return;
 
@@ -1019,15 +1020,33 @@ public class ObjectPhysics : MonoBehaviour
         if (enemy == null)
             return;
 
-        bool hitFromLeft = transform.position.x < enemy.transform.position.x;
+        // Count BOTH side hits and bottom/top hits
+        float absX = Mathf.Abs(velocity.x);
+        float absY = Mathf.Abs(velocity.y);
 
-        // Knock the enemy
+        // Require some minimum "impact" (either horizontal OR vertical)
+        if (absX < 1f && absY < 1f)
+            return;
+
+        // Decide which direction to knock the enemy
+        bool hitFromLeft;
+
+        if (absX >= 0.25f) // we have meaningful horizontal intent
+        {
+            hitFromLeft = velocity.x > 0f;
+        }
+        else
+        {
+            // mostly vertical hit: decide based on relative positions
+            hitFromLeft = transform.position.x < enemy.transform.position.x;
+        }
+
         enemy.KnockAway(hitFromLeft);
 
         // Register as shell chain kill
         enemy.AwardShellCombo();
     }
-
+    
     public virtual void escapeMario()
     {
         // find mario's script (mario is 2 levels up hopefully lol)

@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using UnityEngine.Events;
 
 public class ButtonSelector : MonoBehaviour
 {
@@ -8,7 +9,8 @@ public class ButtonSelector : MonoBehaviour
     [SerializeField] private float padding = 30f; // Padding around the selector
     [SerializeField] private float animationTime = 0.2f; // Animation time for transitions
     [SerializeField] private LeanTweenType tweenType = LeanTweenType.easeOutQuad; // Type of easing animation
-
+    [SerializeField] private UnityEvent onSelectionChanged;
+    
     private RectTransform currentTarget;
     private GameObject lastSelectedObject;
     private Canvas canvas;
@@ -52,6 +54,7 @@ public class ButtonSelector : MonoBehaviour
             if (targetRect != null)
             {
                 currentTarget = targetRect;
+                onSelectionChanged?.Invoke();
                 AnimateSelector(); // Animate to the new target
             }
             else
