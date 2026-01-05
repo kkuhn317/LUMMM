@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
@@ -24,8 +25,39 @@ public class ObjectIndicator : MonoBehaviour
     private GameObject lastSelectedObject;
     private bool audioArmed;
 
+    // NEW: used to arm audio after enable has settled
+    private Coroutine enableRoutine;
+
+    private void OnEnable()
+    {
+        if (enableRoutine != null)
+            StopCoroutine(enableRoutine);
+
+        enableRoutine = StartCoroutine(ArmAudioNextFrame());
+    }
+
+    // NEW: wait one frame so UI selection + AudioManager/mixer settling completes
+    private IEnumerator ArmAudioNextFrame()
+    {
+        yield return null;
+
+        if (EventSystem.current != null)
+            lastSelectedObject = EventSystem.current.currentSelectedGameObject;
+
+        // Make sure the *next* selection change (your first manual move) can play
+        audioArmed = true;
+
+        enableRoutine = null;
+    }
+
     void OnDisable()
     {
+        if (enableRoutine != null)
+        {
+            StopCoroutine(enableRoutine);
+            enableRoutine = null;
+        }
+
         if (objectSettings.Length > 0 && objectSettings[0].targetObject != null)
         {
             if (EventSystem.current != null)
@@ -53,6 +85,7 @@ public class ObjectIndicator : MonoBehaviour
         if (EventSystem.current != null)
             lastSelectedObject = EventSystem.current.currentSelectedGameObject;
 
+        // Keep your original behavior: first selection change is silent when starting enabled.
         audioArmed = false;
     }
 
