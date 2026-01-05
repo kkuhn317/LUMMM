@@ -26,6 +26,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1495768377974858623}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
@@ -33,11 +34,10 @@ Transform:
   m_Children:
   - {fileID: 878590809859667846}
   m_Father: {fileID: 0}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!95 &1495768377974858611
 Animator:
-  serializedVersion: 4
+  serializedVersion: 5
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -54,7 +54,8 @@ Animator:
   m_WarningMessage: 
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorControllerStateOnDisable: 0
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!82 &1495768377974858614
 AudioSource:
   m_ObjectHideFlags: 0
@@ -64,7 +65,7 @@ AudioSource:
   m_GameObject: {fileID: 1495768377974858623}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 24300002, guid: 52d4409ed4d7bb645aad562fcfd87159, type: 2}
+  OutputAudioMixerGroup: {fileID: 8344622298301875051, guid: c7d84f37eaf7dce499dfd79725ceac87, type: 2}
   m_audioClip: {fileID: 0}
   m_PlayOnAwake: 0
   m_Volume: 1
@@ -171,6 +172,10 @@ MonoBehaviour:
   blockedSound: {fileID: 8300000, guid: cd850e0e12d5fae45b36371af0ba4e4a, type: 3}
   particle: {fileID: 4811748717798332445, guid: bf150b576e72bb34b83ee64f0b2b6cb1, type: 3}
   blackFade: {fileID: 0}
+  doorWidth: 1
+  doorHeight: 2
+  snapCameraX: 0
+  snapCameraY: 0
 --- !u!1 &2840450172249188154
 GameObject:
   m_ObjectHideFlags: 0
@@ -195,13 +200,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2840450172249188154}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1495768377974858610}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &821602593317858032
 SpriteRenderer:

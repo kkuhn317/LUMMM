@@ -1,31 +1,33 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
-using System;
 
 public class ObjectIndicator : MonoBehaviour
 {
     [System.Serializable]
     public class ObjectIndicatorSettings
     {
-        public Transform targetObject; // The object to track
-        public Sprite indicatorSprite; // Custom sprite for the indicator
-        public Vector3 indicatorPosition; // Direct position for the indicator
+        public Transform targetObject;
+        public Sprite indicatorSprite;
+        public Vector3 indicatorPosition;
     }
 
-    public ObjectIndicatorSettings[] objectSettings; // List of objects and their settings
-    public GameObject existingIndicator; // Reference to the existing indicator in the scene
+    public ObjectIndicatorSettings[] objectSettings;
+    public GameObject existingIndicator;
 
     private ObjectIndicatorSettings currentSettings;
-    private Image indicatorImage; // UI Image component of the indicator
+    private Image indicatorImage;
 
-    void OnDisable(){
-        // Move indicator to the first object in the array
+    public AudioClip onIndicatorMove;
+    public AudioClip onIndicatorHide;
+
+    private GameObject lastSelectedObject;
+    private bool audioArmed;
+
+    void OnDisable()
+    {
         if (objectSettings.Length > 0 && objectSettings[0].targetObject != null)
         {
-            // Ensure EventSystem is available before setting selected object
             if (EventSystem.current != null)
             {
                 EventSystem.current.SetSelectedGameObject(objectSettings[0].targetObject.gameObject);
@@ -38,92 +40,150 @@ public class ObjectIndicator : MonoBehaviour
         if (existingIndicator == null)
         {
             Debug.LogError("Existing indicator is not assigned in the Inspector!");
+            enabled = false;
             return;
         }
 
-        // Get the Image component from the existing indicator
         indicatorImage = existingIndicator.GetComponent<Image>();
         if (indicatorImage == null)
         {
             Debug.LogError("The existing indicator does not have an Image component!");
         }
+
+        if (EventSystem.current != null)
+            lastSelectedObject = EventSystem.current.currentSelectedGameObject;
+
+        audioArmed = false;
     }
 
     void Update()
     {
-        // Check the currently selected GameObject in the Event System
+        if (EventSystem.current == null)
+            return;
+
         GameObject selectedObject = EventSystem.current.currentSelectedGameObject;
 
-        if (selectedObject != null)
+        if (selectedObject == null)
         {
-            // Validate if the selected object is part of objectSettings
-            currentSettings = GetObjectSettings(selectedObject.transform);
-
-            if (currentSettings != null)
-            {
-                UpdateIndicator();
-            }
-            else
-            {
-                // If the selected object is not in objectSettings, disable the indicator
-                existingIndicator.SetActive(false);
-            }
+            if (existingIndicator.activeSelf)
+                HideIndicator(false);
+            return;
         }
-    }
 
-    private ObjectIndicatorSettings GetObjectSettings(Transform selectedObject)
-    {
-        // Search for the selected object in the settings array
-        foreach (var settings in objectSettings)
+        bool selectionChanged = selectedObject != lastSelectedObject;
+
+        currentSettings = GetObjectSettings(selectedObject.transform);
+
+        if (currentSettings != null)
         {
-            if (settings.targetObject == selectedObject)
+            UpdateIndicator();
+
+            if (selectionChanged)
             {
-                return settings; // Found a match
-            }
-        }
-        return null; // No match found
-    }
-
-    private void UpdateIndicator()
-    {
-        if (currentSettings != null && existingIndicator != null)
-        {
-            // Enable the indicator
-            existingIndicator.SetActive(true);
-
-            // Get the RectTransform of the indicator
-            RectTransform indicatorRect = existingIndicator.GetComponent<RectTransform>();
-
-            if (indicatorRect != null)
-            {
-                // Set the indicator's local position directly
-                //indicatorRect.localPosition = currentSettings.indicatorPosition;
-
-                // Set the indicator's local position directly, offset from the target object
-                
-                // First make the indicator a sibling of the target object
-                existingIndicator.transform.SetParent(currentSettings.targetObject.parent);
-                // Then set the indicator's position relative to the target object
-                indicatorRect.localPosition = currentSettings.indicatorPosition + currentSettings.targetObject.localPosition;
-
-                // Update the image's sprite if specified
-                if (indicatorImage != null && currentSettings.indicatorSprite != null)
+                if (!audioArmed)
                 {
-                    indicatorImage.sprite = currentSettings.indicatorSprite;
+                    audioArmed = true;
                 }
-            }
-            else
-            {
-                Debug.LogError("Indicator does not have a RectTransform!");
+                else if (onIndicatorMove != null)
+                {
+                    PlayOneShot(onIndicatorMove);
+                }
             }
         }
         else
         {
-            Debug.LogWarning("Target object, settings, or existing indicator is missing!");
+            if (existingIndicator.activeSelf)
+                HideIndicator(audioArmed);
+
+            if (selectionChanged && !audioArmed)
+                audioArmed = true;
+        }
+
+        if (selectionChanged)
+            lastSelectedObject = selectedObject;
+    }
+
+    private ObjectIndicatorSettings GetObjectSettings(Transform selectedObject)
+    {
+        foreach (var settings in objectSettings)
+        {
+            if (settings != null && settings.targetObject == selectedObject)
+                return settings;
+        }
+        return null;
+    }
+
+    private void UpdateIndicator()
+    {
+        if (currentSettings == null || existingIndicator == null)
+        {
             if (existingIndicator != null)
-            {
                 existingIndicator.SetActive(false);
-            }
+            return;
+        }
+
+        existingIndicator.SetActive(true);
+
+        RectTransform indicatorRect = existingIndicator.GetComponent<RectTransform>();
+        if (indicatorRect == null)
+        {
+            Debug.LogError("Indicator does not have a RectTransform!");
+            return;
+        }
+
+        if (currentSettings.targetObject == null)
+        {
+            existingIndicator.SetActive(false);
+            return;
+        }
+
+        existingIndicator.transform.SetParent(currentSettings.targetObject.parent);
+        indicatorRect.localPosition = currentSettings.indicatorPosition + currentSettings.targetObject.localPosition;
+
+        if (indicatorImage != null && currentSettings.indicatorSprite != null)
+            indicatorImage.sprite = currentSettings.indicatorSprite;
+    }
+
+    private void HideIndicator(bool playSfx)
+    {
+        existingIndicator.SetActive(false);
+
+        if (playSfx && onIndicatorHide != null)
+            PlayOneShot(onIndicatorHide);
+    }
+
+    private void PlayOneShot(AudioClip clip)
+    {
+        if (clip == null || AudioManager.Instance == null)
+            return;
+
+        AudioManager.Instance.Play(clip, SoundCategory.SFX);
+    }
+
+    void OnDrawGizmos()
+    {
+        if (objectSettings == null)
+            return;
+
+        for (int i = 0; i < objectSettings.Length; i++)
+        {
+            var s = objectSettings[i];
+            if (s == null || s.targetObject == null)
+                continue;
+
+            Transform parent = s.targetObject.parent;
+            if (parent == null)
+                continue;
+
+            Vector3 targetWorld = s.targetObject.position;
+
+            // Matches your runtime positioning rule:
+            // indicator local = target.local + indicatorPosition (in parent space)
+            Vector3 indicatorWorld = parent.TransformPoint(s.targetObject.localPosition + s.indicatorPosition);
+
+            Gizmos.DrawSphere(targetWorld, 0.03f);
+            Gizmos.DrawLine(targetWorld, indicatorWorld);
+            Gizmos.DrawWireSphere(indicatorWorld, 0.05f);
         }
     }
 }

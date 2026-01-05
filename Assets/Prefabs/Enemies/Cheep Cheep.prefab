@@ -357,6 +357,7 @@ MonoBehaviour:
   heldItem: {fileID: 0}
   itemSpawnOffset: {x: 0, y: 0, z: 0}
   customDeath: {fileID: 0}
+  popupOffset: {x: 0, y: 0.5}
   onPlayerDamaged:
     m_PersistentCalls:
       m_Calls: []
@@ -372,7 +373,10 @@ MonoBehaviour:
   squashSpeed: 10
   jumpForceOutOfWater: 0
   rotationSpeed: 200
+  maxAimPitchDeg: 60
+  aimHysteresisDeg: 3
   bubble: {fileID: 2475560701492738197, guid: 6f50ef65252a90140a0e1d345d215823, type: 3}
+  dashParticles: {fileID: 0}
   bubbleIntervalSeconds: 3
   faceDeadZone: 0.35
   faceHysteresis: 0.15
@@ -395,7 +399,7 @@ AudioSource:
   m_GameObject: {fileID: 7555920980545491170}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: -1032615450488366135, guid: 52d4409ed4d7bb645aad562fcfd87159, type: 2}
+  OutputAudioMixerGroup: {fileID: 8344622298301875051, guid: c7d84f37eaf7dce499dfd79725ceac87, type: 2}
   m_audioClip: {fileID: 0}
   m_PlayOnAwake: 0
   m_Volume: 1

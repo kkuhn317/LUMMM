@@ -74,7 +74,7 @@ public class CheepCheep : EnemyAI
     // visuals, physics
     private Vector3 originalScale;
     public Transform pivot;
-    [SerializeField] private SpriteRenderer spriteRenderer;
+    [SerializeField] private SpriteRenderer childSpriteRenderer;
     [SerializeField] private Animator animator;
     private bool suppressBounce = false;
     private Coroutine angryCo;
@@ -98,7 +98,7 @@ public class CheepCheep : EnemyAI
 
     private void SetVisualFacing()
     {
-        if (spriteRenderer) spriteRenderer.flipX = movingLeft;
+        if (childSpriteRenderer) childSpriteRenderer.flipX = movingLeft;
     }
 
     private void SuppressRaycastFlip(bool on) => ignoreRaycastFlip = on;

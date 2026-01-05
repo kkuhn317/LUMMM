@@ -26,6 +26,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1399727692653736092}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
@@ -34,7 +35,6 @@ Transform:
   - {fileID: 7497016346276061612}
   - {fileID: 7497016344916374822}
   m_Father: {fileID: 7497016345514218027}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &8142186640857265871
 SpriteRenderer:
@@ -110,6 +110,25 @@ PolygonCollider2D:
   m_Enabled: 1
   m_Density: 1
   m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
   m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
@@ -141,6 +160,7 @@ PolygonCollider2D:
       - {x: 0.7537842, y: -0.7679859}
       - {x: 0.7476762, y: -0.24551971}
       - {x: 1.0969179, y: -0.022268742}
+  m_UseDelaunayMesh: 0
 --- !u!1 &7497016344916374821
 GameObject:
   m_ObjectHideFlags: 0
@@ -166,13 +186,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7497016344916374821}
+  serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0.2230072, y: 0.1630001, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 513347580218870867}
-  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &7497016344916374823
 SpriteRenderer:
@@ -266,6 +286,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7497016345514218031}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 137.88, y: -4.186, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
@@ -273,7 +294,6 @@ Transform:
   m_Children:
   - {fileID: 513347580218870867}
   m_Father: {fileID: 0}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1397138400
 MonoBehaviour:
@@ -292,6 +312,9 @@ MonoBehaviour:
   gravity: 60
   width: 1.55
   height: 2.55
+  boundsOffset: {x: 0, y: 0}
+  sizePadding: {x: 0, y: 0}
+  ignoreRaycastFlip: 0
   floorRaycastSpacing: 0.3
   wallRaycastSpacing: 0.6
   floorMask:
@@ -305,12 +328,18 @@ MonoBehaviour:
   DontFallOffLedges: 0
   bounceOffWalls: 0
   flipObject: 0
+  normalScale: {x: 0, y: 0}
   updateType: 0
   lavaKill: 1
+  forceSinkInLava: 1
   sinkSpeed: 20
   lavaMask:
     serializedVersion: 2
     m_Bits: 8192
+  isInWater: 0
+  waterMask:
+    serializedVersion: 2
+    m_Bits: 0
   carryable: 0
   carried: 0
   throwVelocity: {x: 12, y: 10}
@@ -332,6 +361,7 @@ MonoBehaviour:
   heldItem: {fileID: 0}
   itemSpawnOffset: {x: 0, y: 0, z: 0}
   customDeath: {fileID: 0}
+  popupOffset: {x: 0, y: 0.5}
   onPlayerDamaged:
     m_PersistentCalls:
       m_Calls: []
@@ -364,13 +394,19 @@ Rigidbody2D:
   m_AngularDrag: 0.05
   m_GravityScale: 1
   m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
   m_Interpolate: 1
   m_SleepingMode: 1
   m_CollisionDetection: 1
   m_Constraints: 0
 --- !u!95 &1737679810673620637
 Animator:
-  serializedVersion: 4
+  serializedVersion: 5
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -387,7 +423,8 @@ Animator:
   m_WarningMessage: 
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorControllerStateOnDisable: 0
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!82 &7889135041742838741
 AudioSource:
   m_ObjectHideFlags: 0
@@ -397,7 +434,7 @@ AudioSource:
   m_GameObject: {fileID: 7497016345514218031}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 24300002, guid: 52d4409ed4d7bb645aad562fcfd87159, type: 2}
+  OutputAudioMixerGroup: {fileID: 8344622298301875051, guid: c7d84f37eaf7dce499dfd79725ceac87, type: 2}
   m_audioClip: {fileID: 8300000, guid: 3afd04d01aa2d3e43a29a8e5512ad0df, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 1
@@ -523,13 +560,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7497016346276061603}
+  serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: -0.21899414, y: 0.1630001, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 513347580218870867}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &7497016346276061613
 SpriteRenderer:

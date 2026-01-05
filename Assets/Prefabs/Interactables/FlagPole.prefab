@@ -24,13 +24,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 180378800084396602}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -0.5, y: 5.45, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 180378801255794292}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &180378800084396600
 SpriteRenderer:
@@ -111,6 +111,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 180378801255794295}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -2.4784145, y: 2.8557045, z: -0.08568879}
   m_LocalScale: {x: 1, y: 1, z: 1}
@@ -121,7 +122,6 @@ Transform:
   - {fileID: 1117535498713371148}
   - {fileID: 3302898858535032182}
   m_Father: {fileID: 0}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!61 &180378801255794293
 BoxCollider2D:
@@ -133,6 +133,25 @@ BoxCollider2D:
   m_Enabled: 1
   m_Density: 1
   m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
   m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
@@ -162,6 +181,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   height: 6
+  starParticlePrefab: {fileID: 0}
+  finishFlag: {fileID: 0}
   flag: {fileID: 180378800084396602}
   pole: {fileID: 180378801320711574}
   cutsceneMario: {fileID: 4887895206107879957}
@@ -171,6 +192,29 @@ MonoBehaviour:
   slideTime: 2
   cutsceneTime: 10
   flagOnRight: 0
+  cutsceneSelector: {fileID: 0}
+  poleBottom: {fileID: 0}
+  poleTop: {fileID: 0}
+  useColliderIfNoTransforms: 1
+  scoreBands:
+  - minT: 0
+    maxT: 0.11
+    points: 100
+  - minT: 0.11
+    maxT: 0.37
+    points: 400
+  - minT: 0.37
+    maxT: 0.53
+    points: 800
+  - minT: 0.53
+    maxT: 0.83
+    points: 2000
+  - minT: 0.83
+    maxT: 0.99
+    points: 4000
+  - minT: 0.99
+    maxT: 1
+    points: 5000
 --- !u!82 &4818442767274578817
 AudioSource:
   m_ObjectHideFlags: 0
@@ -180,7 +224,7 @@ AudioSource:
   m_GameObject: {fileID: 180378801255794295}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 24300002, guid: 52d4409ed4d7bb645aad562fcfd87159, type: 2}
+  OutputAudioMixerGroup: {fileID: 8344622298301875051, guid: c7d84f37eaf7dce499dfd79725ceac87, type: 2}
   m_audioClip: {fileID: 8300000, guid: 181de5749896a494fa3a15b0a5517e4c, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 0.4
@@ -276,7 +320,7 @@ AudioSource:
   m_GameObject: {fileID: 180378801255794295}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 24300002, guid: 44648a194bc63354d827c6c13f697d72, type: 2}
+  OutputAudioMixerGroup: {fileID: -3573146375305429989, guid: c7d84f37eaf7dce499dfd79725ceac87, type: 2}
   m_audioClip: {fileID: 0}
   m_PlayOnAwake: 0
   m_Volume: 1
@@ -387,13 +431,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 180378801320711574}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 3.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 180378801255794292}
-  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &180378801320711572
 SpriteRenderer:
@@ -474,13 +518,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4887895206107879957}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 180378801255794292}
-  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &4714294256444020268
 SpriteRenderer:
@@ -536,7 +580,7 @@ SpriteRenderer:
   m_SpriteSortPoint: 0
 --- !u!95 &6105738017291824772
 Animator:
-  serializedVersion: 4
+  serializedVersion: 5
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -553,7 +597,8 @@ Animator:
   m_WarningMessage: 
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorControllerStateOnDisable: 0
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!114 &9133461322523549342
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -637,11 +682,13 @@ MonoBehaviour:
   m_CategoryHash: 0
   m_labelHash: 0
   m_SpriteKey: 0
+  m_SpriteHash: 0
 --- !u!1001 &180378801510145726
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+    serializedVersion: 3
     m_TransformParent: {fileID: 180378801255794292}
     m_Modifications:
     - target: {fileID: 937484351836703922, guid: 17d2ae7c33396284cbb7d8c77cdd6e5d, type: 3}
@@ -701,6 +748,9 @@ PrefabInstance:
       value: 3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 17d2ae7c33396284cbb7d8c77cdd6e5d, type: 3}
 --- !u!4 &1117535498713371148 stripped
 Transform:

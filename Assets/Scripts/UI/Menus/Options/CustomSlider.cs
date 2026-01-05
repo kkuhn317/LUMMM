@@ -9,26 +9,64 @@ public class CustomSlider : Slider
     public float stepBig = 0.02f;
     public float holdDelay = 0.5f;
     public float holdRepeatRate = 0.05f;
-    public bool snapModifiersToMultiples = false; // This toggles snapping behavior for modifier steps
+    public bool snapModifiersToMultiples = false;
 
     private bool isHolding = false;
     private float holdTimer = 0f;
     private float repeatTimer = 0f;
     private int holdDirection = 0;
     private bool awaitingRelease = false;
-    private Mario inputActions; // Replace "PlayerInputActions" with your InputActions name
+    private Mario inputActions;
+    private bool inputActionsInitialized = false;
+    
+    // Debug variables
+    [Header("Debug")]
+    public bool showDebug = false;
+    public string debugModifierState = "";
+    public float debugStep = 0f;
 
     protected override void Awake()
     {
         base.Awake();
-        inputActions = new Mario();
-        inputActions.Enable();
+        
+        // Check if InputActions already exist
+        if (inputActions == null)
+        {
+            inputActions = new Mario();
+            inputActions.Enable();
+            inputActionsInitialized = true;
+            
+            if (showDebug)
+                Debug.Log($"CustomSlider {gameObject.name}: InputActions created and enabled");
+        }
+    }
+
+    protected override void OnEnable()
+    {
+        base.OnEnable();
+        
+        // Ensure input actions are enabled
+        if (inputActions != null && !inputActionsInitialized)
+        {
+            inputActions.Enable();
+            inputActionsInitialized = true;
+            if (showDebug)
+                Debug.Log($"CustomSlider {gameObject.name}: InputActions enabled in OnEnable");
+        }
     }
 
     protected override void OnDisable()
     {
         base.OnDisable();
-        inputActions?.Disable();
+        
+        // Disable input actions when slider is disabled
+        if (inputActions != null && inputActionsInitialized)
+        {
+            inputActions.Disable();
+            inputActionsInitialized = false;
+            if (showDebug)
+                Debug.Log($"CustomSlider {gameObject.name}: InputActions disabled in OnDisable");
+        }
     }
 
     protected override void OnDestroy()
@@ -38,7 +76,14 @@ public class CustomSlider : Slider
         if (!UnityEditor.EditorApplication.isPlayingOrWillChangePlaymode)
             return;
 #endif
-        inputActions?.Dispose();
+        if (inputActions != null)
+        {
+            inputActions.Dispose();
+            inputActions = null;
+            inputActionsInitialized = false;
+            if (showDebug)
+                Debug.Log($"CustomSlider {gameObject.name}: InputActions disposed");
+        }
     }
 
     public override void OnMove(AxisEventData eventData)
@@ -52,6 +97,12 @@ public class CustomSlider : Slider
         if (awaitingRelease) return;
 
         bool hasModifier = IsAnyModifierPressed();
+        
+        if (showDebug)
+        {
+            debugModifierState = GetModifierDebugString();
+            Debug.Log($"OnMove: direction={eventData.moveDir}, hasModifier={hasModifier}, modState={debugModifierState}");
+        }
 
         switch (eventData.moveDir)
         {
@@ -109,12 +160,16 @@ public class CustomSlider : Slider
     {
         base.OnSelect(eventData);
         awaitingRelease = false;
+        if (showDebug)
+            Debug.Log($"CustomSlider {gameObject.name}: Selected");
     }
 
     public override void OnDeselect(BaseEventData eventData)
     {
         base.OnDeselect(eventData);
         awaitingRelease = false;
+        if (showDebug)
+            Debug.Log($"CustomSlider {gameObject.name}: Deselected");
     }
 
     private void StartHold(int direction, bool useModifier)
@@ -125,12 +180,28 @@ public class CustomSlider : Slider
         repeatTimer = 0f;
 
         float step = useModifier ? GetModifierStep(direction) : stepSmall * direction;
+        debugStep = step;
+        
+        if (showDebug)
+            Debug.Log($"StartHold: direction={direction}, useModifier={useModifier}, step={step}, value before={value}");
+        
         MoveSlider(step);
     }
 
     private new void Update()
     {
-        if (inputActions == null) return;
+        if (inputActions == null) 
+        {
+            // Try to reinitialize if null
+            Awake();
+            if (inputActions == null) return;
+        }
+
+        // Update debug info
+        if (showDebug)
+        {
+            debugModifierState = GetModifierDebugString();
+        }
 
         if (isHolding)
         {
@@ -146,7 +217,12 @@ public class CustomSlider : Slider
                     float step = useModifier
                         ? GetModifierStep(holdDirection)
                         : stepBig * holdDirection;
-
+                    
+                    debugStep = step;
+                    
+                    if (showDebug)
+                        Debug.Log($"Hold repeat: useModifier={useModifier}, step={step}, value={value}");
+                    
                     MoveSlider(step);
                     repeatTimer = 0f;
                 }
@@ -158,9 +234,12 @@ public class CustomSlider : Slider
                 holdDirection = 0;
                 holdTimer = 0f;
                 repeatTimer = 0f;
+                if (showDebug)
+                    Debug.Log("Hold released");
             }
         }
 
+        // Reset awaitingRelease when no input is pressed
         if (inputActions != null && inputActions.UI.Navigate.ReadValue<Vector2>() == Vector2.zero)
         {
             awaitingRelease = false;
@@ -170,6 +249,9 @@ public class CustomSlider : Slider
     private bool IsPressingDirection()
     {
         if (EventSystem.current?.currentSelectedGameObject != gameObject)
+            return false;
+
+        if (inputActions == null)
             return false;
 
         Vector2 moveInput = inputActions.UI.Navigate.ReadValue<Vector2>();
@@ -194,28 +276,66 @@ public class CustomSlider : Slider
 
     private bool IsAnyModifierPressed()
     {
-        if (inputActions == null) return false;
+        if (inputActions == null || !inputActionsInitialized) 
+        {
+            if (showDebug)
+                Debug.LogWarning("InputActions is null or not initialized in IsAnyModifierPressed");
+            return false;
+        }
         
-        return
-            inputActions.UI.StepModifier10.ReadValue<float>() > 0.5f ||
-            inputActions.UI.StepModifier25.ReadValue<float>() > 0.5f ||
-            inputActions.UI.StepModifier50.ReadValue<float>() > 0.5f;
+        bool modifier10 = inputActions.UI.StepModifier10.ReadValue<float>() > 0.5f;
+        bool modifier25 = inputActions.UI.StepModifier25.ReadValue<float>() > 0.5f;
+        bool modifier50 = inputActions.UI.StepModifier50.ReadValue<float>() > 0.5f;
+        
+        if (showDebug && (modifier10 || modifier25 || modifier50))
+        {
+            Debug.Log($"Modifiers pressed: 10%={modifier10}, 25%={modifier25}, 50%={modifier50}");
+        }
+        
+        return modifier10 || modifier25 || modifier50;
     }
 
     private float GetModifierStep(int direction)
     {
+        if (inputActions == null || !inputActionsInitialized)
+        {
+            if (showDebug)
+                Debug.LogWarning("InputActions not available in GetModifierStep");
+            return stepSmall * direction;
+        }
+
         float range = maxValue - minValue;
-
+        float step = stepSmall * direction; // default
+        
         if (inputActions.UI.StepModifier50.ReadValue<float>() > 0.5f)
-            return snapModifiersToMultiples ? SnapToMultiple(range * 0.5f, direction) : range * 0.5f * direction;
+        {
+            step = snapModifiersToMultiples ? SnapToMultiple(range * 0.5f, direction) : range * 0.5f * direction;
+            if (showDebug) Debug.Log($"50% modifier: step={step}");
+        }
+        else if (inputActions.UI.StepModifier25.ReadValue<float>() > 0.5f)
+        {
+            step = snapModifiersToMultiples ? SnapToMultiple(range * 0.25f, direction) : range * 0.25f * direction;
+            if (showDebug) Debug.Log($"25% modifier: step={step}");
+        }
+        else if (inputActions.UI.StepModifier10.ReadValue<float>() > 0.5f)
+        {
+            step = snapModifiersToMultiples ? SnapToMultiple(range * 0.1f, direction) : range * 0.1f * direction;
+            if (showDebug) Debug.Log($"10% modifier: step={step}");
+        }
+        
+        return step;
+    }
 
-        if (inputActions.UI.StepModifier25.ReadValue<float>() > 0.5f)
-            return snapModifiersToMultiples ? SnapToMultiple(range * 0.25f, direction) : range * 0.25f * direction;
-
-        if (inputActions.UI.StepModifier10.ReadValue<float>() > 0.5f)
-            return snapModifiersToMultiples ? SnapToMultiple(range * 0.1f, direction) : range * 0.1f * direction;
-
-        return stepSmall * direction;
+    private string GetModifierDebugString()
+    {
+        if (inputActions == null || !inputActionsInitialized)
+            return "InputActions not available";
+            
+        float mod10 = inputActions.UI.StepModifier10.ReadValue<float>();
+        float mod25 = inputActions.UI.StepModifier25.ReadValue<float>();
+        float mod50 = inputActions.UI.StepModifier50.ReadValue<float>();
+        
+        return $"10%: {mod10:F2}, 25%: {mod25:F2}, 50%: {mod50:F2}";
     }
 
     private float SnapToMultiple(float stepSize, int direction)

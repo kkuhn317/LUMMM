@@ -27,6 +27,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 445452249483720805}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 61, y: 0.6, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
@@ -34,7 +35,6 @@ Transform:
   m_Children:
   - {fileID: 3255820346273570924}
   m_Father: {fileID: 0}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &445452249483720810
 SpriteRenderer:
@@ -98,6 +98,25 @@ BoxCollider2D:
   m_Enabled: 1
   m_Density: 1
   m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
   m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
@@ -131,6 +150,9 @@ MonoBehaviour:
   gravity: 0
   width: 6.51
   height: 3.52
+  boundsOffset: {x: 0, y: 0}
+  sizePadding: {x: 0, y: 0}
+  ignoreRaycastFlip: 0
   floorRaycastSpacing: 0.25
   wallRaycastSpacing: 0.25
   floorMask:
@@ -144,12 +166,18 @@ MonoBehaviour:
   DontFallOffLedges: 0
   bounceOffWalls: 1
   flipObject: 0
+  normalScale: {x: 0, y: 0}
   updateType: 0
   lavaKill: 1
+  forceSinkInLava: 1
   sinkSpeed: 20
   lavaMask:
     serializedVersion: 2
     m_Bits: 8192
+  isInWater: 0
+  waterMask:
+    serializedVersion: 2
+    m_Bits: 0
   carryable: 0
   carried: 0
   throwVelocity: {x: 12, y: 10}
@@ -171,6 +199,7 @@ MonoBehaviour:
   heldItem: {fileID: 0}
   itemSpawnOffset: {x: 0, y: 0, z: 0}
   customDeath: {fileID: 0}
+  popupOffset: {x: 0, y: 0.5}
   onPlayerDamaged:
     m_PersistentCalls:
       m_Calls: []
@@ -187,7 +216,7 @@ AudioSource:
   m_GameObject: {fileID: 445452249483720805}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 24300002, guid: 52d4409ed4d7bb645aad562fcfd87159, type: 2}
+  OutputAudioMixerGroup: {fileID: 8344622298301875051, guid: c7d84f37eaf7dce499dfd79725ceac87, type: 2}
   m_audioClip: {fileID: 8300000, guid: e2bb1aa0b45968f4b898809f1533541a, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 0.7
@@ -300,13 +329,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8784825314618363729}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 445452249483720809}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!60 &7944149790277223925
 PolygonCollider2D:
@@ -318,6 +347,25 @@ PolygonCollider2D:
   m_Enabled: 1
   m_Density: 1
   m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
   m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
@@ -336,6 +384,7 @@ PolygonCollider2D:
     - - {x: -0.018798828, y: 1.6967076}
       - {x: -3.3055267, y: -0.04976666}
       - {x: 0.0060424805, y: -1.7867115}
+  m_UseDelaunayMesh: 0
 --- !u!114 &3024484904076527341
 MonoBehaviour:
   m_ObjectHideFlags: 0

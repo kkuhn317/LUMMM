@@ -5,6 +5,7 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+    serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 1104027325654879534, guid: a286635ae5bff1c4ca47a020ca4722f3, type: 3}
@@ -73,12 +74,16 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4724413303932486935, guid: a286635ae5bff1c4ca47a020ca4722f3, type: 3}
       propertyPath: m_Name
-      value: Pipe
+      value: Enterable Pipe
       objectReference: {fileID: 0}
     - target: {fileID: 6635746277180121796, guid: a286635ae5bff1c4ca47a020ca4722f3, type: 3}
       propertyPath: m_PlayOnAwake
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6635746277180121796, guid: a286635ae5bff1c4ca47a020ca4722f3, type: 3}
+      propertyPath: OutputAudioMixerGroup
+      value: 
+      objectReference: {fileID: 8344622298301875051, guid: c7d84f37eaf7dce499dfd79725ceac87, type: 2}
     - target: {fileID: 7804207368095498561, guid: a286635ae5bff1c4ca47a020ca4722f3, type: 3}
       propertyPath: m_Size.y
       value: 3
@@ -92,6 +97,12 @@ PrefabInstance:
       value: 3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 4724413303932486935, guid: a286635ae5bff1c4ca47a020ca4722f3, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1575653856}
   m_SourcePrefab: {fileID: 100100000, guid: a286635ae5bff1c4ca47a020ca4722f3, type: 3}
 --- !u!1 &6882375732965242648 stripped
 GameObject:
@@ -111,9 +122,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   connection: {fileID: 0}
-  enterDirection: {x: 0, y: -0.5, z: 0}
-  exitDirection: {x: 0, y: 0, z: 0}
+  enterDirection: 1
+  exitDirection: 0
+  enterDistance: 1
+  enterAlignType: 1
+  insideExitDistance: 1
+  exitDistance: 1
+  instantExit: 0
   warpEnterSound: {fileID: 8300000, guid: 938d4a3d1a37b284c81c8c25379c86b4, type: 3}
   requireGroundToEnter: 1
   snapCameraX: 0
   snapCameraY: 0
+  onPlayerEnter:
+    m_PersistentCalls:
+      m_Calls: []

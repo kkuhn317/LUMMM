@@ -221,7 +221,6 @@ MonoBehaviour:
   swimGravity: 1
   swimDrag: 3
   swimTerminalVelocity: 2.5
-  climbSpeed: 2
   onGround: 0
   wasGrounded: 0
   groundLength: 0.6
@@ -268,6 +267,7 @@ MonoBehaviour:
   canWallJump: 0
   canWallJumpWhenHoldingObject: 0
   canSpinJump: 0
+  spinMultiplier: 0.8
   canMidairSpin: 1
   allowMultipleMidairSpins: 0
   midairSpinCooldown: 0.2
@@ -290,7 +290,6 @@ MonoBehaviour:
   spinJumpPoofPrefab: {fileID: 0}
   groundPoundSound: {fileID: 0}
   groundPoundLandSound: {fileID: 0}
-  playerInput: {fileID: 0}
 --- !u!95 &2975864963408780425
 Animator:
   serializedVersion: 5
@@ -348,7 +347,7 @@ AudioSource:
   m_GameObject: {fileID: 5168828408026376284}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 24300002, guid: 52d4409ed4d7bb645aad562fcfd87159, type: 2}
+  OutputAudioMixerGroup: {fileID: 8344622298301875051, guid: c7d84f37eaf7dce499dfd79725ceac87, type: 2}
   m_audioClip: {fileID: 0}
   m_PlayOnAwake: 0
   m_Volume: 1

@@ -29,13 +29,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 785369256329550456}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -19.099998, y: -3.5005, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &785369256329550458
 SpriteRenderer:
@@ -107,6 +107,7 @@ MonoBehaviour:
   - {fileID: -1504287832, guid: 8f6a654becfacfa42831335f328fc67e, type: 3}
   - {fileID: -1067532446, guid: 8f6a654becfacfa42831335f328fc67e, type: 3}
   framerate: 0.0666667
+  loop: 1
 --- !u!50 &1169720415096950474
 Rigidbody2D:
   serializedVersion: 4
@@ -124,6 +125,12 @@ Rigidbody2D:
   m_AngularDrag: 0.05
   m_GravityScale: 1
   m_Material: {fileID: 6200000, guid: 3605a6811aae3564bb7cf23d3bfa975e, type: 2}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
   m_Interpolate: 1
   m_SleepingMode: 1
   m_CollisionDetection: 1
@@ -138,6 +145,25 @@ BoxCollider2D:
   m_Enabled: 1
   m_Density: 1
   m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
   m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
@@ -171,6 +197,9 @@ MonoBehaviour:
   gravity: 30
   width: 1
   height: 1
+  boundsOffset: {x: 0, y: 0}
+  sizePadding: {x: 0, y: 0}
+  ignoreRaycastFlip: 0
   floorRaycastSpacing: 0.2
   wallRaycastSpacing: 0.2
   floorMask:
@@ -180,17 +209,26 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 265
   checkObjectCollision: 1
+  ceilingDetection: 1
   DontFallOffLedges: 0
+  bounceOffWalls: 1
   flipObject: 0
-  FrequentMovement: 0
+  normalScale: {x: 0, y: 0}
+  updateType: 0
   lavaKill: 1
+  forceSinkInLava: 1
   sinkSpeed: 20
   lavaMask:
+    serializedVersion: 2
+    m_Bits: 0
+  isInWater: 0
+  waterMask:
     serializedVersion: 2
     m_Bits: 0
   carryable: 0
   carried: 0
   throwVelocity: {x: 12, y: 10}
+  rotateAroundCenter: 0
   knockAwayVelocity: {x: 5, y: 5}
   overrideKnockAwayGravity: 0
   knockAwayGravity: 60
@@ -204,12 +242,11 @@ MonoBehaviour:
   bounceHeight: 15
   minHeightToBounce: 1
   newMarioState: {fileID: 0}
-  powerLevel: 1
   starTime: 5
   starMusicOverride: {fileID: 6935973553461563371, guid: b471b7eb5bd938d489ff062ee94140ec, type: 3}
+  powerUpType: 0
+  temporalInactiveTime: 5
   is1Up: 0
-  oneupSpritePrefab: {fileID: 0}
-  upSpeed: 2
 --- !u!82 &213977724960094815
 AudioSource:
   m_ObjectHideFlags: 0
@@ -219,7 +256,7 @@ AudioSource:
   m_GameObject: {fileID: 785369256329550456}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 24300002, guid: 52d4409ed4d7bb645aad562fcfd87159, type: 2}
+  OutputAudioMixerGroup: {fileID: 8344622298301875051, guid: c7d84f37eaf7dce499dfd79725ceac87, type: 2}
   m_audioClip: {fileID: 8300000, guid: be4d77170a408a146ae5c96efb99d19c, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 1

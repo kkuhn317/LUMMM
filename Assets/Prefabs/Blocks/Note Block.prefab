@@ -28,13 +28,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4235166107723269365}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 27.5, y: 9.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &4235166107723269367
 SpriteRenderer:
@@ -98,6 +98,25 @@ BoxCollider2D:
   m_Enabled: 1
   m_Density: 1
   m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
@@ -123,7 +142,7 @@ AudioSource:
   m_GameObject: {fileID: 4235166107723269365}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 24300002, guid: 52d4409ed4d7bb645aad562fcfd87159, type: 2}
+  OutputAudioMixerGroup: {fileID: 8344622298301875051, guid: c7d84f37eaf7dce499dfd79725ceac87, type: 2}
   m_audioClip: {fileID: 0}
   m_PlayOnAwake: 0
   m_Volume: 1
@@ -222,7 +241,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b8d728ab204da1742bc18d37f255dff0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  animationDuration: 0.1
+  bounceHeight: 0.5
+  bounceSpeed: 4
   noteSounds:
   - {fileID: 8300000, guid: 6db2c81fb3c026d40a90d8d52dc8384b, type: 3}
   - {fileID: 8300000, guid: dd616d35c86682e4e8623e8e65f85b28, type: 3}
@@ -285,6 +305,10 @@ MonoBehaviour:
   - 5
   - 5
   - 5
+  animationDistance: 0.5
+  animationDuration: 0.1
+  jumpBoostForce: 5
+  applyJumpBoost: 1
 --- !u!114 &324479332
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -297,6 +321,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cd4b98eb5afdfe249a3d61bbcba2d113, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enemyBounce: 1
+  objectBounce: 0
   playerBouncePower: 7.5
-  enemyBouncePower: 5
+  objectBouncePower: 25
+  sideways: 0

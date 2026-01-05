@@ -28,13 +28,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8935569787376133327}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 2.5, y: -3, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &8935569787376133362
 SpriteRenderer:
@@ -104,6 +104,7 @@ MonoBehaviour:
   - {fileID: 1413218514, guid: 350f49d788482c345b3c276134c9f7bd, type: 3}
   - {fileID: 733412733, guid: 350f49d788482c345b3c276134c9f7bd, type: 3}
   framerate: 0.16666667
+  loop: 1
 --- !u!61 &8935569787376133360
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -114,6 +115,25 @@ BoxCollider2D:
   m_Enabled: 1
   m_Density: 1
   m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
   m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
@@ -147,6 +167,9 @@ MonoBehaviour:
   gravity: 60
   width: 1
   height: 1
+  boundsOffset: {x: 0, y: 0}
+  sizePadding: {x: 0, y: 0}
+  ignoreRaycastFlip: 0
   floorRaycastSpacing: 0.2
   wallRaycastSpacing: 0.2
   floorMask:
@@ -160,15 +183,22 @@ MonoBehaviour:
   DontFallOffLedges: 0
   bounceOffWalls: 1
   flipObject: 1
-  FrequentMovement: 0
+  normalScale: {x: 0, y: 0}
+  updateType: 0
   lavaKill: 1
+  forceSinkInLava: 1
   sinkSpeed: 20
   lavaMask:
+    serializedVersion: 2
+    m_Bits: 0
+  isInWater: 0
+  waterMask:
     serializedVersion: 2
     m_Bits: 0
   carryable: 0
   carried: 0
   throwVelocity: {x: 12, y: 10}
+  rotateAroundCenter: 0
   knockAwayVelocity: {x: 5, y: 5}
   overrideKnockAwayGravity: 0
   knockAwayGravity: 60
@@ -181,13 +211,16 @@ MonoBehaviour:
   stopAfterLand: 0
   bounceHeight: 0
   minHeightToBounce: 1
-  testme: 0
   canBeFireballed: 1
   stompHeight: 0.2
   heldItem: {fileID: 0}
   itemSpawnOffset: {x: 0, y: 0, z: 0}
-  InstantChange: 0
   customDeath: {fileID: 0}
+  popupOffset: {x: 0, y: 0.5}
+  onPlayerDamaged:
+    m_PersistentCalls:
+      m_Calls: []
+  spinJumpEffect: 0
 --- !u!82 &3651313239135719932
 AudioSource:
   m_ObjectHideFlags: 0
@@ -197,7 +230,7 @@ AudioSource:
   m_GameObject: {fileID: 8935569787376133327}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 24300002, guid: 52d4409ed4d7bb645aad562fcfd87159, type: 2}
+  OutputAudioMixerGroup: {fileID: 8344622298301875051, guid: c7d84f37eaf7dce499dfd79725ceac87, type: 2}
   m_audioClip: {fileID: 0}
   m_PlayOnAwake: 0
   m_Volume: 1

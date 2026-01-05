@@ -151,6 +151,9 @@ MonoBehaviour:
   gravity: 0
   width: 0.25
   height: 0.25
+  boundsOffset: {x: 0, y: 0}
+  sizePadding: {x: 0, y: 0}
+  ignoreRaycastFlip: 0
   floorRaycastSpacing: 0.2
   wallRaycastSpacing: 0.2
   floorMask:
@@ -164,11 +167,16 @@ MonoBehaviour:
   DontFallOffLedges: 0
   bounceOffWalls: 0
   flipObject: 0
+  normalScale: {x: 0, y: 0}
   updateType: 0
   lavaKill: 1
   forceSinkInLava: 1
   sinkSpeed: 20
   lavaMask:
+    serializedVersion: 2
+    m_Bits: 0
+  isInWater: 0
+  waterMask:
     serializedVersion: 2
     m_Bits: 0
   carryable: 0
@@ -192,6 +200,7 @@ MonoBehaviour:
   heldItem: {fileID: 0}
   itemSpawnOffset: {x: 0, y: 0, z: 0}
   customDeath: {fileID: 2163776378943282265, guid: a2cb9f55eb53968489bfef579a953666, type: 3}
+  popupOffset: {x: 0, y: 0.5}
   onPlayerDamaged:
     m_PersistentCalls:
       m_Calls: []
@@ -212,7 +221,7 @@ AudioSource:
   m_GameObject: {fileID: 6049510752361955699}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: -1032615450488366135, guid: 52d4409ed4d7bb645aad562fcfd87159, type: 2}
+  OutputAudioMixerGroup: {fileID: 8344622298301875051, guid: c7d84f37eaf7dce499dfd79725ceac87, type: 2}
   m_audioClip: {fileID: 8300000, guid: ddc0ba5a06d37ff47854c6a9862c25ee, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 1

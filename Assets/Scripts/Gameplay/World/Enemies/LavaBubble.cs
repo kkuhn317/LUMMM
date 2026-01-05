@@ -11,7 +11,7 @@ public class LavaBubble : EnemyAI
     private bool isJumping = false;
     private float initialPositionY;
     private float gravityInternal;
-    private SpriteRenderer spriteRenderer;
+    private SpriteRenderer visualRenderer;
 
     private float startJumpTime = 0f;   // Used to help time the jumps with other lava bubbles
 
@@ -22,7 +22,7 @@ public class LavaBubble : EnemyAI
         velocity = new Vector2(0, 0);
         gravityInternal = gravity;
         gravity = 0;
-        spriteRenderer = GetComponent<SpriteRenderer>();
+        visualRenderer = GetComponent<SpriteRenderer>();
         base.Start();
         enabled = true; // Enable the enemy AI because we want it to jump from offscreen
         Invoke(nameof(Jump), jumpInitialDelay);
@@ -51,7 +51,7 @@ public class LavaBubble : EnemyAI
         {
             return;
         }
-        spriteRenderer.flipY = velocity.y < 0;
+        visualRenderer.flipY = velocity.y < 0;
         if (isJumping && velocity.y <= 0 && transform.position.y <= initialPositionY)
         {
             isJumping = false;

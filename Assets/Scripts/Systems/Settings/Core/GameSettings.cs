@@ -151,7 +151,7 @@ public class GameSettings : MonoBehaviour
             }
         }
 
-        resolutionDropdown.value = selectedIndex;
+        resolutionDropdown.SetValueWithoutNotify(selectedIndex);
         resolutionDropdown.RefreshShownValue();
         resolutionDropdown.onValueChanged.AddListener(ChangeResolution);
     }
@@ -341,8 +341,8 @@ public class GameSettings : MonoBehaviour
             TMP_Dropdown.OptionData option = new TMP_Dropdown.OptionData(translatedQualityLevel);
             graphicsQualityDropdown.options.Add(option);
         }
-
-        graphicsQualityDropdown.value = currentQualityIndex;
+        
+        graphicsQualityDropdown.SetValueWithoutNotify(currentQualityIndex);
         graphicsQualityDropdown.RefreshShownValue();
         graphicsQualityText.text = LocalizationSettings.StringDatabase.GetLocalizedString("Quality_" + QualitySettings.names[currentQualityIndex]);
         graphicsQualityDropdown.onValueChanged.AddListener(ChangeGraphicsQuality);

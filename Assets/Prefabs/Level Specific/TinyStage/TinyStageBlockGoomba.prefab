@@ -29,6 +29,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 265021960647162311}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 56.75, y: -1.75, z: 0}
   m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
@@ -37,7 +38,6 @@ Transform:
   - {fileID: 7695801674028760717}
   - {fileID: 2931802531657027524}
   m_Father: {fileID: 0}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &265021960647162305
 SpriteRenderer:
@@ -108,6 +108,12 @@ Rigidbody2D:
   m_AngularDrag: 0
   m_GravityScale: 1
   m_Material: {fileID: 6200000, guid: 3605a6811aae3564bb7cf23d3bfa975e, type: 2}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
   m_Interpolate: 1
   m_SleepingMode: 1
   m_CollisionDetection: 1
@@ -122,6 +128,25 @@ CapsuleCollider2D:
   m_Enabled: 1
   m_Density: 1
   m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
   m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
@@ -130,7 +155,7 @@ CapsuleCollider2D:
   m_Direction: 0
 --- !u!95 &265021960647162306
 Animator:
-  serializedVersion: 4
+  serializedVersion: 5
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -147,7 +172,8 @@ Animator:
   m_WarningMessage: 
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorControllerStateOnDisable: 0
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!114 &265021960647162309
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -165,6 +191,9 @@ MonoBehaviour:
   gravity: 60
   width: 0.25
   height: 0.5
+  boundsOffset: {x: 0, y: 0}
+  sizePadding: {x: 0, y: 0}
+  ignoreRaycastFlip: 0
   floorRaycastSpacing: 0.2
   wallRaycastSpacing: 0.2
   floorMask:
@@ -178,12 +207,18 @@ MonoBehaviour:
   DontFallOffLedges: 0
   bounceOffWalls: 1
   flipObject: 0
+  normalScale: {x: 0, y: 0}
   updateType: 0
   lavaKill: 1
+  forceSinkInLava: 1
   sinkSpeed: 20
   lavaMask:
     serializedVersion: 2
     m_Bits: 8192
+  isInWater: 0
+  waterMask:
+    serializedVersion: 2
+    m_Bits: 0
   carryable: 0
   carried: 0
   throwVelocity: {x: 12, y: 10}
@@ -205,6 +240,7 @@ MonoBehaviour:
   heldItem: {fileID: 0}
   itemSpawnOffset: {x: 0, y: 0, z: 0}
   customDeath: {fileID: 0}
+  popupOffset: {x: 0, y: 0.5}
   onPlayerDamaged:
     m_PersistentCalls:
       m_Calls: []
@@ -225,7 +261,7 @@ AudioSource:
   m_GameObject: {fileID: 265021960647162311}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 24300002, guid: 52d4409ed4d7bb645aad562fcfd87159, type: 2}
+  OutputAudioMixerGroup: {fileID: 8344622298301875051, guid: c7d84f37eaf7dce499dfd79725ceac87, type: 2}
   m_audioClip: {fileID: 8300000, guid: e2bb1aa0b45968f4b898809f1533541a, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 1
@@ -317,6 +353,7 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+    serializedVersion: 3
     m_TransformParent: {fileID: 265021960647162366}
     m_Modifications:
     - target: {fileID: 3738071129037060350, guid: 4ccd0d94155ef1747b184dca3766c36a, type: 3}
@@ -380,6 +417,9 @@ PrefabInstance:
       value: TinyStageBlock (1)
       objectReference: {fileID: 0}
     m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 4ccd0d94155ef1747b184dca3766c36a, type: 3}
 --- !u!4 &2931802531657027524 stripped
 Transform:
@@ -391,6 +431,7 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+    serializedVersion: 3
     m_TransformParent: {fileID: 265021960647162366}
     m_Modifications:
     - target: {fileID: 3738071129037060350, guid: 4ccd0d94155ef1747b184dca3766c36a, type: 3}
@@ -454,6 +495,9 @@ PrefabInstance:
       value: TinyStageBlock
       objectReference: {fileID: 0}
     m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 4ccd0d94155ef1747b184dca3766c36a, type: 3}
 --- !u!4 &7695801674028760717 stripped
 Transform:
