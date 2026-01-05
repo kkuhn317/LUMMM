@@ -1,9 +1,8 @@
 using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class DropdownSettingHandler : MonoBehaviour, ISettingHandler
 {
@@ -15,23 +14,26 @@ public class DropdownSettingHandler : MonoBehaviour, ISettingHandler
     [SerializeField] private TMP_Dropdown dropdown;
 
     [Header("SFX")]
-    [SerializeField] private AudioClip navigateSfx; // tick while browsing items (list open)
+    [SerializeField] private AudioClip navigateSfx; // tick while browsing options (list open)
     [SerializeField] private AudioClip pressSfx;    // confirm when value changes
 
-    [Header("Performance")]
-    [SerializeField] private float selectionCheckInterval = 0.05f; // Check every 0.05s instead of every frame
-
-    private int currentValue;
     public SettingType SettingType => settingType;
 
+    private int currentValue;
+
+    // Track open/close
     private bool wasExpanded;
-    private Coroutine monitorRoutine;
-    private GameObject lastSelectedObject;
-    private bool ignoreFirstSelect = true;
-    private WaitForSeconds checkWait;
 
     // Prevent press sfx when we update dropdown value from code (load/refresh)
     private bool suppressCommitSfx;
+
+    // Used to skip the first auto-highlight tick when dropdown opens
+    private bool suppressFirstOptionSelectTick = true;
+
+    // Cached canvas (TMP spawns list under a canvas)
+    private Canvas cachedCanvas;
+
+    private const string DropdownListName = "Dropdown List";
 
     private void Reset()
     {
@@ -40,7 +42,17 @@ public class DropdownSettingHandler : MonoBehaviour, ISettingHandler
 
     private void Awake()
     {
-        checkWait = new WaitForSeconds(selectionCheckInterval);
+        if (dropdown == null)
+            dropdown = GetComponent<TMP_Dropdown>();
+
+        cachedCanvas = dropdown != null ? dropdown.GetComponentInParent<Canvas>() : null;
+    }
+
+    private void OnEnable()
+    {
+        // When menus start disabled, we must reset state on enable
+        suppressFirstOptionSelectTick = true;
+        wasExpanded = dropdown != null && dropdown.IsExpanded;
     }
 
     private void Start()
@@ -60,9 +72,6 @@ public class DropdownSettingHandler : MonoBehaviour, ISettingHandler
         // Safety: if destroyed while expanded, ensure we release suppression
         if (wasExpanded)
             UISfxGate.PopSuppressSelectSfx();
-
-        if (monitorRoutine != null)
-            StopCoroutine(monitorRoutine);
     }
 
     private void LateUpdate()
@@ -73,133 +82,128 @@ public class DropdownSettingHandler : MonoBehaviour, ISettingHandler
 
         if (!wasExpanded && isExpanded)
         {
-            // Dropdown opened: mute global select SFX while list is open
-            UISfxGate.PushSuppressSelectSfx();
-            
-            // Suppress the first auto-highlight tick when the list appears
-            UISfxGate.SuppressNextSelectSfx = true;
-            
-            // Start monitoring dropdown item selection
-            if (monitorRoutine != null) StopCoroutine(monitorRoutine);
-            monitorRoutine = StartCoroutine(MonitorDropdownSelection());
-            ignoreFirstSelect = true;
+            HandleDropdownOpened();
+            wasExpanded = true;
         }
         else if (wasExpanded && !isExpanded)
         {
-            // Dropdown closed: re-enable global select SFX
-            UISfxGate.PopSuppressSelectSfx();
-            
-            if (monitorRoutine != null)
-            {
-                StopCoroutine(monitorRoutine);
-                monitorRoutine = null;
-            }
-            lastSelectedObject = null;
+            HandleDropdownClosed();
+            wasExpanded = false;
         }
-
-        wasExpanded = isExpanded;
     }
 
-    private IEnumerator MonitorDropdownSelection()
+    private void HandleDropdownOpened()
     {
-        // Wait for dropdown to fully spawn
+        // Mute global select SFX while list is open (so only our tick plays)
+        UISfxGate.PushSuppressSelectSfx();
+
+        // Also suppress any "first select" gate you already use elsewhere
+        UISfxGate.SuppressNextSelectSfx = true;
+
+        suppressFirstOptionSelectTick = true;
+
+        // Setup list hooks next frame (TMP builds the list asynchronously)
+        StartCoroutine(SetupDropdownListHooksNextFrame());
+    }
+
+    private void HandleDropdownClosed()
+    {
+        UISfxGate.PopSuppressSelectSfx();
+    }
+
+    private IEnumerator SetupDropdownListHooksNextFrame()
+    {
+        // Let TMP create the list & toggles
+        yield return null;
         yield return new WaitForEndOfFrame();
-        
-        // Skip first frame to avoid initial selection
-        yield return checkWait;
-        
-        while (dropdown.IsExpanded)
-        {
-            yield return checkWait; // Check less frequently
-            
-            if (EventSystem.current == null) continue;
-            
-            GameObject currentSelected = EventSystem.current.currentSelectedGameObject;
-            if (currentSelected == null) continue;
-            
-            // Check if selected object is in our dropdown list
-            if (!IsInDropdownList(currentSelected)) continue;
-            
-            // Check if selection changed
-            if (currentSelected != lastSelectedObject)
-            {
-                // Skip the first selection when dropdown opens
-                if (ignoreFirstSelect)
-                {
-                    ignoreFirstSelect = false;
-                }
-                else
-                {
-                    PlayNavigateSound();
-                }
-                
-                lastSelectedObject = currentSelected;
-            }
-        }
-    }
 
-    private bool IsInDropdownList(GameObject obj)
-    {
-        if (obj == null) return false;
-        
+        if (dropdown == null || !dropdown.IsExpanded) yield break;
+
         Transform listRoot = FindSpawnedDropdownListRoot();
-        if (listRoot == null) return false;
-        
-        return obj.transform.IsChildOf(listRoot);
+        if (listRoot == null) yield break;
+
+        // Each option is a Toggle. We hook OnSelect via a relay component.
+        Toggle[] toggles = listRoot.GetComponentsInChildren<Toggle>(true);
+        if (toggles == null || toggles.Length == 0) yield break;
+
+        for (int i = 0; i < toggles.Length; i++)
+        {
+            if (toggles[i] == null) continue;
+
+            var relay = toggles[i].GetComponent<OptionSelectSfxRelay>();
+            if (relay == null)
+                relay = toggles[i].gameObject.AddComponent<OptionSelectSfxRelay>();
+
+            relay.Bind(this);
+        }
+
+        // Prime selection to the current value so navigation starts cleanly.
+        // We do this AFTER hooks are attached, but we suppress the first tick.
+        int index = Mathf.Clamp(dropdown.value, 0, toggles.Length - 1);
+        if (EventSystem.current != null && toggles[index] != null)
+        {
+            EventSystem.current.SetSelectedGameObject(toggles[index].gameObject);
+        }
     }
 
     private Transform FindSpawnedDropdownListRoot()
     {
-        if (dropdown == null) return null;
-        
-        // Cache canvas reference
-        Canvas canvas = dropdown.GetComponentInParent<Canvas>();
-        if (canvas == null) return null;
-        
-        // Cache the dropdown list once when opened
-        if (!dropdown.IsExpanded) return null;
-        
-        // Search through immediate children first (more efficient)
-        for (int i = 0; i < canvas.transform.childCount; i++)
+        if (dropdown == null || !dropdown.IsExpanded) return null;
+
+        if (cachedCanvas == null)
+            cachedCanvas = dropdown.GetComponentInParent<Canvas>();
+
+        if (cachedCanvas == null) return null;
+
+        Transform canvasRoot = cachedCanvas.transform;
+
+        // Fast path: immediate children
+        for (int i = 0; i < canvasRoot.childCount; i++)
         {
-            Transform child = canvas.transform.GetChild(i);
-            if (child.gameObject.activeInHierarchy && child.name == "Dropdown List")
-            {
+            Transform child = canvasRoot.GetChild(i);
+            if (child.gameObject.activeInHierarchy && child.name == DropdownListName)
                 return child;
-            }
         }
-        
-        // If not found in immediate children, search deeper
-        Transform[] allTransforms = canvas.GetComponentsInChildren<Transform>(true);
-        foreach (Transform t in allTransforms)
+
+        // Fallback: deep search
+        Transform[] all = cachedCanvas.GetComponentsInChildren<Transform>(true);
+        for (int i = 0; i < all.Length; i++)
         {
-            // TMP dropdown lists are named "Dropdown List"
-            if (t.name == "Dropdown List" && t.gameObject.activeInHierarchy)
-            {
+            Transform t = all[i];
+            if (t.gameObject.activeInHierarchy && t.name == DropdownListName)
                 return t;
-            }
         }
-        
+
         return null;
+    }
+
+    // Called by relay when a dropdown option is selected (navigated)
+    private void OnOptionSelected()
+    {
+        // Only tick while expanded
+        if (dropdown == null || !dropdown.IsExpanded) return;
+
+        // Skip the first auto-highlight when the list appears (and when we prime selection)
+        if (suppressFirstOptionSelectTick)
+        {
+            suppressFirstOptionSelectTick = false;
+            return;
+        }
+
+        PlayNavigateSound();
     }
 
     private void PlayNavigateSound()
     {
         if (navigateSfx != null && AudioManager.Instance != null)
-        {
             AudioManager.Instance.Play(navigateSfx, SoundCategory.SFX);
-        }
     }
 
     private void OnValueChanged(int index)
     {
-        // Apply immediately for responsiveness
         Apply(index);
-        
-        // Save in a coroutine to avoid frame spike
         StartCoroutine(SaveWithDelay());
-        
-        // Don't play press SFX for code-driven value sets (load/refresh)
+
         if (suppressCommitSfx) return;
 
         if (pressSfx != null && AudioManager.Instance != null)
@@ -208,7 +212,6 @@ public class DropdownSettingHandler : MonoBehaviour, ISettingHandler
 
     private IEnumerator SaveWithDelay()
     {
-        // Wait one frame to spread out the work
         yield return null;
         Save();
     }
@@ -219,7 +222,6 @@ public class DropdownSettingHandler : MonoBehaviour, ISettingHandler
 
         if (dropdown != null)
         {
-            // Setting UI value from code should not trigger commit SFX
             suppressCommitSfx = true;
             dropdown.SetValueWithoutNotify(currentValue);
             suppressCommitSfx = false;
@@ -241,5 +243,27 @@ public class DropdownSettingHandler : MonoBehaviour, ISettingHandler
         PlayerPrefs.Save();
     }
 
-    public void RefreshUI() => Apply(currentValue);
+    public void RefreshUI()
+    {
+        Apply(currentValue);
+    }
+
+    /// <summary>
+    /// Lives on each spawned dropdown option (Toggle) and fires when it becomes selected.
+    /// This is what makes the navigate SFX reliable even when menus start inactive.
+    /// </summary>
+    private sealed class OptionSelectSfxRelay : MonoBehaviour, ISelectHandler
+    {
+        private DropdownSettingHandler owner;
+
+        public void Bind(DropdownSettingHandler handler)
+        {
+            owner = handler;
+        }
+
+        public void OnSelect(BaseEventData eventData)
+        {
+            owner?.OnOptionSelected();
+        }
+    }
 }

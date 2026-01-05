@@ -142,12 +142,20 @@ public class CoinBlock : BumpableBlock
         // If window expired, finalize
         if (windowExpired)
         {
+            bool spawnedBonus = false;
+
             // If bonus is earned and we spawn on final hit after expiry
             if (enableBonusReward && bonusEarned && !bonusSpawned &&
                 bonusAwardTiming == BonusAwardTiming.OnFinalHitAfterExpiry)
             {
-                bonusSpawned = true;
-                SpawnBonusReward();
+                spawnedBonus = SpawnBonusReward(); // now returns bool
+                bonusSpawned = spawnedBonus;
+            }
+
+            // If we couldn't spawn the bonus reward, give one final coin as consolation
+            if (!spawnedBonus)
+            {
+                GiveCoin(player);
             }
 
             MarkUsed();
@@ -220,7 +228,7 @@ public class CoinBlock : BumpableBlock
         }
     }
 
-    private void SpawnBonusReward()
+    private bool SpawnBonusReward()
     {
         GameObject resolved = null;
 
@@ -229,21 +237,19 @@ public class CoinBlock : BumpableBlock
 
         if (resolved == null)
         {
-            // If no rules match and no fallback configured, don't spawn anything
-#if UNITY_EDITOR
+    #if UNITY_EDITOR
             if (conditionalBonusRules != null && conditionalBonusRules.enabled && enableBonusReward)
             {
                 Debug.LogWarning($"{gameObject.name}: Bonus earned but no conditional rule matched and no fallback item configured.", this);
             }
-#endif
-            return;
+    #endif
+            return false;
         }
 
         if (risingPresenter == null)
         {
-            // Fallback: spawn at position without presentation
             Instantiate(resolved, originalPosition, Quaternion.identity, transform.parent);
-            return;
+            return true;
         }
 
         risingPresenter.PresentRising(
@@ -255,6 +261,8 @@ public class CoinBlock : BumpableBlock
             audioSource: audioSource,
             riseSound: itemRiseSound
         );
+
+        return true;
     }
 
     private void MarkUsed()
