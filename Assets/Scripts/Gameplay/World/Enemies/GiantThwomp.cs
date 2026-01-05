@@ -36,6 +36,9 @@ public class GiantThwomp : EnemyAI, IGroundPoundable
     [SerializeField] private GameObject jumpInstruction;
     private bool jumpHintAlreadyUsed = false;
 
+    [SerializeField] private GameObject useCapeInstruction;
+    private bool useCapeHintAlreadyUsed = false;
+
     [Header("Sounds")]
     private AudioSource audioSource;
     public AudioClip thwompLandSound;
@@ -100,6 +103,9 @@ public class GiantThwomp : EnemyAI, IGroundPoundable
 
         if (jumpInstruction != null)
             jumpInstruction.SetActive(false);
+
+        if (useCapeInstruction != null)
+            useCapeInstruction.SetActive(false);
     }
 
     private void DetectPlayer() {
@@ -223,6 +229,17 @@ public class GiantThwomp : EnemyAI, IGroundPoundable
         {
             if (jumpInstruction != null)
                 jumpInstruction.SetActive(false);
+        }
+
+        if (newState == ThwompStates.Landed)
+            {
+            if (!useCapeHintAlreadyUsed && useCapeInstruction != null)
+                useCapeInstruction.SetActive(true);
+        }
+        else
+        {
+            if (useCapeInstruction != null)
+                useCapeInstruction.SetActive(false);
         }
 
         switch (newState)
@@ -498,6 +515,14 @@ public class GiantThwomp : EnemyAI, IGroundPoundable
     {
         if (currentState == ThwompStates.Landed)
         {
+            if (!useCapeHintAlreadyUsed)
+            {
+                useCapeHintAlreadyUsed = true;
+
+                if (useCapeInstruction != null)
+                    useCapeInstruction.SetActive(false);
+            }
+
             ChangeState(ThwompStates.Vulnerable);
         }
     }
