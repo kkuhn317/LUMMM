@@ -398,11 +398,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4542788829555422419, guid: 8006521725c47cc46b914d96f85a3da1, type: 3}
       propertyPath: m_SpriteTilingProperty.drawMode
-      value: 0
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 4542788829555422419, guid: 8006521725c47cc46b914d96f85a3da1, type: 3}
       propertyPath: m_SpriteTilingProperty.newSize.y
-      value: 0.4375
+      value: 0.37
       objectReference: {fileID: 0}
     - target: {fileID: 4879673037594086256, guid: 8006521725c47cc46b914d96f85a3da1, type: 3}
       propertyPath: m_RootOrder
@@ -15528,6 +15528,10 @@ PrefabInstance:
       value: 0.25
       objectReference: {fileID: 0}
     - target: {fileID: 1771483343543010228, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
+      propertyPath: canMidairSpin
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1771483343543010228, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
       propertyPath: yeahAudioClip
       value: 
       objectReference: {fileID: 0}
@@ -15711,6 +15715,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 28eaa5374a88177499ab0bf99563953a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &1191281005 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3447058314901893931, guid: 640f6a7a2885b504f89dd87eb2eba112, type: 3}
+  m_PrefabInstance: {fileID: 3447058314507482343}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1194233340
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -15770,6 +15779,10 @@ PrefabInstance:
     - target: {fileID: 1771483343543010228, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
       propertyPath: groundLength
       value: 0.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 1771483343543010228, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
+      propertyPath: canMidairSpin
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1771483343543010228, guid: 5bacff33c8452234a8b620dadda82a76, type: 3}
       propertyPath: yeahAudioClip
@@ -16199,11 +16212,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4542788829555422419, guid: 8006521725c47cc46b914d96f85a3da1, type: 3}
       propertyPath: m_SpriteTilingProperty.drawMode
-      value: 0
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 4542788829555422419, guid: 8006521725c47cc46b914d96f85a3da1, type: 3}
       propertyPath: m_SpriteTilingProperty.newSize.y
-      value: 0.4375
+      value: 0.37
       objectReference: {fileID: 0}
     - target: {fileID: 4879673037594086256, guid: 8006521725c47cc46b914d96f85a3da1, type: 3}
       propertyPath: m_RootOrder
@@ -17953,6 +17966,7 @@ GameObject:
   - component: {fileID: 1308918731}
   - component: {fileID: 1308918732}
   - component: {fileID: 1308918733}
+  - component: {fileID: 1308918734}
   m_Layer: 0
   m_Name: mushroom
   m_TagString: Untagged
@@ -18082,8 +18096,6 @@ PlayableDirector:
     value: {fileID: 237002288}
   - key: {fileID: 1162567097538860376, guid: ab2e1f5bfdb54154d98f76c55127bcf7, type: 2}
     value: {fileID: 1113467937}
-  - key: {fileID: 8967577078174631211, guid: ab2e1f5bfdb54154d98f76c55127bcf7, type: 2}
-    value: {fileID: 0}
   - key: {fileID: 8882901865250001101, guid: ab2e1f5bfdb54154d98f76c55127bcf7, type: 2}
     value: {fileID: 504974384}
   - key: {fileID: -946732798899645178, guid: ab2e1f5bfdb54154d98f76c55127bcf7, type: 2}
@@ -18096,12 +18108,12 @@ PlayableDirector:
     value: {fileID: 1393336826}
   - key: {fileID: -1758215572499691427, guid: ab2e1f5bfdb54154d98f76c55127bcf7, type: 2}
     value: {fileID: 541155658}
-  - key: {fileID: -353355826577782142, guid: ab2e1f5bfdb54154d98f76c55127bcf7, type: 2}
-    value: {fileID: 1087771479}
   - key: {fileID: 505570817523847586, guid: ab2e1f5bfdb54154d98f76c55127bcf7, type: 2}
     value: {fileID: 1917459686}
   - key: {fileID: -818371308342202429, guid: ab2e1f5bfdb54154d98f76c55127bcf7, type: 2}
     value: {fileID: 353793533}
+  - key: {fileID: -721469748281818958, guid: ab2e1f5bfdb54154d98f76c55127bcf7, type: 2}
+    value: {fileID: 1308918734}
   m_ExposedReferences:
     m_References: []
 --- !u!95 &1308918732
@@ -18221,6 +18233,60 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &1308918734
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1308918728}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e52de21a22b6dd44c9cc19f810c65059, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Events:
+    m_Signals:
+    - {fileID: 11400000, guid: 46476c608056ef14d83d82d4cafa9c6f, type: 2}
+    m_Events:
+    - m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 1191281005}
+          m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+          m_MethodName: SetActive
+          m_Mode: 6
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+        - m_Target: {fileID: 1087771479}
+          m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+          m_MethodName: SetActive
+          m_Mode: 6
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+        - m_Target: {fileID: 939574626}
+          m_TargetAssemblyTypeName: UnityEngine.Behaviour, UnityEngine
+          m_MethodName: set_enabled
+          m_Mode: 6
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
 --- !u!1 &1327506409
 GameObject:
   m_ObjectHideFlags: 0
@@ -22048,11 +22114,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4542788829555422419, guid: 8006521725c47cc46b914d96f85a3da1, type: 3}
       propertyPath: m_SpriteTilingProperty.drawMode
-      value: 0
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 4542788829555422419, guid: 8006521725c47cc46b914d96f85a3da1, type: 3}
       propertyPath: m_SpriteTilingProperty.newSize.y
-      value: 0.4375
+      value: 0.37
       objectReference: {fileID: 0}
     - target: {fileID: 4879673037594086256, guid: 8006521725c47cc46b914d96f85a3da1, type: 3}
       propertyPath: m_RootOrder
@@ -23417,11 +23483,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4542788829555422419, guid: 8006521725c47cc46b914d96f85a3da1, type: 3}
       propertyPath: m_SpriteTilingProperty.drawMode
-      value: 0
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 4542788829555422419, guid: 8006521725c47cc46b914d96f85a3da1, type: 3}
       propertyPath: m_SpriteTilingProperty.newSize.y
-      value: 0.4375
+      value: 0.37
       objectReference: {fileID: 0}
     - target: {fileID: 4879673037594086256, guid: 8006521725c47cc46b914d96f85a3da1, type: 3}
       propertyPath: m_RootOrder
@@ -27227,11 +27293,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4542788829555422419, guid: 8006521725c47cc46b914d96f85a3da1, type: 3}
       propertyPath: m_SpriteTilingProperty.drawMode
-      value: 0
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 4542788829555422419, guid: 8006521725c47cc46b914d96f85a3da1, type: 3}
       propertyPath: m_SpriteTilingProperty.newSize.y
-      value: 0.4375
+      value: 0.37
       objectReference: {fileID: 0}
     - target: {fileID: 4879673037594086256, guid: 8006521725c47cc46b914d96f85a3da1, type: 3}
       propertyPath: m_RootOrder
@@ -28766,11 +28832,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4542788829555422419, guid: 8006521725c47cc46b914d96f85a3da1, type: 3}
       propertyPath: m_SpriteTilingProperty.drawMode
-      value: 0
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 4542788829555422419, guid: 8006521725c47cc46b914d96f85a3da1, type: 3}
       propertyPath: m_SpriteTilingProperty.newSize.y
-      value: 0.4375
+      value: 0.37
       objectReference: {fileID: 0}
     - target: {fileID: 4879673037594086256, guid: 8006521725c47cc46b914d96f85a3da1, type: 3}
       propertyPath: m_RootOrder
@@ -29361,7 +29427,7 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1504628361758397435, guid: 640f6a7a2885b504f89dd87eb2eba112, type: 3}
   m_PrefabInstance: {fileID: 3447058314507482343}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 1191281005}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5b9bd87588ed34c42897c223b53f68da, type: 3}
@@ -29728,7 +29794,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 1997580843, guid: c9b448e531d67da4f8acf998a69cc746, type: 3}
+  m_Sprite: {fileID: -814343289, guid: c9b448e531d67da4f8acf998a69cc746, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 1
   m_FlipY: 0
@@ -29751,8 +29817,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ed8b1ae4e4e52b34ea557c1c11e076fc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_CategoryHash: 1.8625731e-11
-  m_labelHash: 6.605349e-34
+  m_CategoryHash: 0.009161512
+  m_labelHash: 3.991422e-13
   m_SpriteKey: 0.00011459454
   m_SpriteHash: 259702089
 --- !u!82 &2055227760
@@ -32442,11 +32508,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4542788829555422419, guid: 8006521725c47cc46b914d96f85a3da1, type: 3}
       propertyPath: m_SpriteTilingProperty.drawMode
-      value: 0
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 4542788829555422419, guid: 8006521725c47cc46b914d96f85a3da1, type: 3}
       propertyPath: m_SpriteTilingProperty.newSize.y
-      value: 0.4375
+      value: 0.37
       objectReference: {fileID: 0}
     - target: {fileID: 4879673037594086256, guid: 8006521725c47cc46b914d96f85a3da1, type: 3}
       propertyPath: m_RootOrder

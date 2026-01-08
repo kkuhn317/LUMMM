@@ -28,9 +28,7 @@ public class BulletBill : EnemyAI
         // rotate to movement
         if ((objectState != ObjectState.knockedAway) && rotateToMovement) {
             RotateToMovement();
-        }
-
-        
+        } 
     }
 
     protected virtual void RotateToMovement() {
@@ -51,7 +49,6 @@ public class BulletBill : EnemyAI
         Vector3 popupPos = transform.position + Vector3.up * 0.5f;
         AwardStompComboReward(popupPos);
     }
-
 
     protected override void hitByGroundPound(MarioMovement player)
     {

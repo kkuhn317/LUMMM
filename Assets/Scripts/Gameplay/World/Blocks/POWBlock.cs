@@ -28,6 +28,13 @@ public class POWBlock : BumpableBlock
     public AudioClip powBlockSound;
     public GameObject destructionEffect;
 
+    [Header("Animation")]
+    [SerializeField] private Animator animator;
+    [SerializeField] private string useTrigger = "hit";
+    [SerializeField] private string hitTrigger = "finalUse";
+    [SerializeField] private float timeBeforeDestroy = 1f;
+    private bool isDestroying;
+
     private int currentUses;
     private SpriteRenderer spriteRenderer;
     private Camera mainCamera;
@@ -71,6 +78,11 @@ public class POWBlock : BumpableBlock
             return;
         }
 
+        if (animator != null && !string.IsNullOrEmpty(useTrigger))
+        {
+            animator.SetTrigger(useTrigger);
+        }
+
         ActivatePOWEffect();
         currentUses--;
         UpdateAppearance();
@@ -78,7 +90,7 @@ public class POWBlock : BumpableBlock
 
     protected override void OnAfterBounce(BlockHitDirection direction, MarioMovement player)
     {
-        if (currentUses <= 0)
+        if (currentUses <= 0 && !isDestroying)
         {
             onPOWDepleted?.Invoke();
             DestroyPOWBlock();
@@ -87,6 +99,20 @@ public class POWBlock : BumpableBlock
     #endregion
 
     #region POW Effect
+    // this method is used to put on signals
+    public void ApplyPOWUse()
+    {
+        ActivatePOWEffect();
+        currentUses--;
+        UpdateAppearance();
+
+        if (currentUses <= 0 && !isDestroying)
+        {
+            onPOWDepleted?.Invoke();
+            DestroyPOWBlock();
+        }
+    }
+
     public void ActivatePOWEffect()
     {
         // Collect enemies to affect
@@ -217,6 +243,21 @@ public class POWBlock : BumpableBlock
     #region Destruction
     private void DestroyPOWBlock()
     {
+        if (isDestroying) return;
+        isDestroying = true;
+
+        StartCoroutine(DestroyRoutine());
+    }
+
+    private IEnumerator DestroyRoutine()
+    {
+        if (animator != null && hitTrigger.Length > 0)
+        {
+            animator.SetTrigger(hitTrigger);
+        }
+
+        yield return new WaitForSeconds(timeBeforeDestroy);
+
         if (destructionEffect != null)
         {
             Instantiate(destructionEffect, transform.position, Quaternion.identity);

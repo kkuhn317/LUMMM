@@ -65630,7 +65630,7 @@ MonoBehaviour:
         m_Calls:
         - m_Target: {fileID: 1745225518}
           m_TargetAssemblyTypeName: POWBlock, Assembly-CSharp
-          m_MethodName: ActivatePOWEffect
+          m_MethodName: ApplyPOWUse
           m_Mode: 1
           m_Arguments:
             m_ObjectArgument: {fileID: 0}
@@ -65651,6 +65651,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1d938e165bc6f4a4cb85e29d5df8d25b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!95 &1745225522 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 5106177185516576274, guid: 430631c5c05b454459f8aac68494af60, type: 3}
+  m_PrefabInstance: {fileID: 6368774267364927082}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1745419803
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -95841,22 +95846,6 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 4135636053778333886, guid: 430631c5c05b454459f8aac68494af60, type: 3}
-      propertyPath: powBlockSound
-      value: 
-      objectReference: {fileID: 8300000, guid: 407929389d10a8841a5654c9913504cd, type: 3}
-    - target: {fileID: 4135636053778333886, guid: 430631c5c05b454459f8aac68494af60, type: 3}
-      propertyPath: playKickSounds
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 4135636053778333886, guid: 430631c5c05b454459f8aac68494af60, type: 3}
-      propertyPath: affectAllEnemies
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 4135636053778333886, guid: 430631c5c05b454459f8aac68494af60, type: 3}
-      propertyPath: affectVisibleEnemies
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4135636053778333886, guid: 430631c5c05b454459f8aac68494af60, type: 3}
       propertyPath: useStateSprites.Array.size
       value: 0
       objectReference: {fileID: 0}
@@ -95865,35 +95854,47 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4135636053778333886, guid: 430631c5c05b454459f8aac68494af60, type: 3}
+      propertyPath: useStates.Array.data[0].sprite
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 4135636053778333886, guid: 430631c5c05b454459f8aac68494af60, type: 3}
       propertyPath: changeVisibleEnemiesToKnockedAway
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4135636053778333886, guid: 430631c5c05b454459f8aac68494af60, type: 3}
-      propertyPath: onPOWActivated.m_PersistentCalls.m_Calls.Array.size
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 4135636053778333886, guid: 430631c5c05b454459f8aac68494af60, type: 3}
-      propertyPath: onPOWActivated.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
-      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 4135636053778333886, guid: 430631c5c05b454459f8aac68494af60, type: 3}
       propertyPath: onPOWActivated.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 1144771243}
     - target: {fileID: 4135636053778333886, guid: 430631c5c05b454459f8aac68494af60, type: 3}
-      propertyPath: onPOWActivated.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      propertyPath: useStates.Array.data[0].onUse.m_PersistentCalls.m_Calls.Array.size
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4135636053778333886, guid: 430631c5c05b454459f8aac68494af60, type: 3}
+      propertyPath: useStates.Array.data[0].onUse.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4135636053778333886, guid: 430631c5c05b454459f8aac68494af60, type: 3}
+      propertyPath: useStates.Array.data[0].onUse.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1745225522}
+    - target: {fileID: 4135636053778333886, guid: 430631c5c05b454459f8aac68494af60, type: 3}
+      propertyPath: useStates.Array.data[0].onUse.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
       value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 4135636053778333886, guid: 430631c5c05b454459f8aac68494af60, type: 3}
-      propertyPath: onPOWActivated.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: SetActive
+      propertyPath: useStates.Array.data[0].onUse.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: Play
       objectReference: {fileID: 0}
     - target: {fileID: 4135636053778333886, guid: 430631c5c05b454459f8aac68494af60, type: 3}
-      propertyPath: onPOWActivated.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
-      value: UnityEngine.GameObject, UnityEngine
+      propertyPath: useStates.Array.data[0].onUse.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: UnityEngine.Animator, UnityEngine
       objectReference: {fileID: 0}
     - target: {fileID: 4135636053778333886, guid: 430631c5c05b454459f8aac68494af60, type: 3}
-      propertyPath: onPOWActivated.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      propertyPath: useStates.Array.data[0].onUse.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_StringArgument
+      value: finalHit
+      objectReference: {fileID: 0}
+    - target: {fileID: 4135636053778333886, guid: 430631c5c05b454459f8aac68494af60, type: 3}
+      propertyPath: useStates.Array.data[0].onUse.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
       value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
     - target: {fileID: 6368774267003242140, guid: 430631c5c05b454459f8aac68494af60, type: 3}
