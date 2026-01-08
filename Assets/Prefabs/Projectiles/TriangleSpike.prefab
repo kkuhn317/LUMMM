@@ -26,13 +26,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6499240561405051423}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 132.1, y: 3.66, z: 0.08010964}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &611214936084973716
 SpriteRenderer:
@@ -96,6 +96,25 @@ CircleCollider2D:
   m_Enabled: 1
   m_Density: 1
   m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
   m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
@@ -119,6 +138,9 @@ MonoBehaviour:
   gravity: 0
   width: 1
   height: 0.85
+  boundsOffset: {x: 0, y: 0}
+  sizePadding: {x: 0, y: 0}
+  ignoreRaycastFlip: 0
   floorRaycastSpacing: 0.25
   wallRaycastSpacing: 0.25
   floorMask:
@@ -132,15 +154,22 @@ MonoBehaviour:
   DontFallOffLedges: 0
   bounceOffWalls: 1
   flipObject: 0
-  FrequentMovement: 0
+  normalScale: {x: 0, y: 0}
+  updateType: 0
   lavaKill: 1
+  forceSinkInLava: 1
   sinkSpeed: 20
   lavaMask:
     serializedVersion: 2
     m_Bits: 8192
+  isInWater: 0
+  waterMask:
+    serializedVersion: 2
+    m_Bits: 0
   carryable: 0
   carried: 0
   throwVelocity: {x: 12, y: 10}
+  rotateAroundCenter: 0
   knockAwayVelocity: {x: 1, y: 3}
   overrideKnockAwayGravity: 1
   knockAwayGravity: 20
@@ -157,6 +186,12 @@ MonoBehaviour:
   stompHeight: 0.05
   heldItem: {fileID: 0}
   itemSpawnOffset: {x: 0, y: 0, z: 0}
-  InstantChange: 0
   customDeath: {fileID: 0}
+  popupOffset: {x: 0, y: 0.5}
+  onPlayerDamaged:
+    m_PersistentCalls:
+      m_Calls: []
+  spinJumpEffect: 0
   rotateToMovement: 1
+  appearSound: {fileID: 0}
+  appearSoundVolume: 0.2

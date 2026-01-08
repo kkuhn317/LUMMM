@@ -62,10 +62,17 @@ public class BulletBill : EnemyAI
 
     // When we hit a wall, we should die
     protected override void onTouchWall(GameObject other){
-        KnockAway(!movingLeft);
+        StartCoroutine(OnHitSurface());
     }
 
     public override void Land(GameObject other = null) {
+        StartCoroutine(OnHitSurface());
+    }
+
+    // Wait until end of frame so it can detect player collision first
+    // Example: Fast moving spikes at end of World of Spikes
+    private IEnumerator OnHitSurface() {
+        yield return new WaitForEndOfFrame();
         KnockAway(!movingLeft);
     }
 
