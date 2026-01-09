@@ -48393,6 +48393,9 @@ MonoBehaviour:
   carryable: 0
   carried: 0
   throwVelocity: {x: 12, y: 10}
+  throwVisualType: 0
+  throwSpriteRenderer: {fileID: 0}
+  throwRotateSpeed: 720
   rotateAroundCenter: 0
   knockAwayVelocity: {x: 5, y: 5}
   overrideKnockAwayGravity: 0
@@ -95845,6 +95848,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 804002257182916948, guid: 430631c5c05b454459f8aac68494af60, type: 3}
+      propertyPath: affectAllEnemies
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 804002257182916948, guid: 430631c5c05b454459f8aac68494af60, type: 3}
+      propertyPath: affectVisibleEnemies
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4135636053778333886, guid: 430631c5c05b454459f8aac68494af60, type: 3}
       propertyPath: useStateSprites.Array.size
       value: 0
@@ -95868,6 +95879,10 @@ PrefabInstance:
     - target: {fileID: 4135636053778333886, guid: 430631c5c05b454459f8aac68494af60, type: 3}
       propertyPath: useStates.Array.data[0].onUse.m_PersistentCalls.m_Calls.Array.size
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4135636053778333886, guid: 430631c5c05b454459f8aac68494af60, type: 3}
+      propertyPath: onPOWActivated.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: SetActive
       objectReference: {fileID: 0}
     - target: {fileID: 4135636053778333886, guid: 430631c5c05b454459f8aac68494af60, type: 3}
       propertyPath: useStates.Array.data[0].onUse.m_PersistentCalls.m_Calls.Array.data[0].m_Mode

@@ -90,6 +90,23 @@ public class ObjectPhysics : MonoBehaviour
     private int oldOrderInLayer;
     public Vector2 throwVelocity = new Vector2(12, 10);
     private bool hasBeenThrown = false;
+    public enum ThrowVisualType
+    {
+        Normal,     // no visual rotation
+        RotateSprite // rotate assigned sprite while thrown
+    }
+        
+    [Header("Throw Visual")]
+    public ThrowVisualType throwVisualType = ThrowVisualType.Normal;
+
+    // Assign this in the inspector – can be a child sprite
+    [SerializeField] private SpriteRenderer throwSpriteRenderer;
+
+    // Rotation speed for rotate-type throws
+    [SerializeField] private float throwRotateSpeed = 720f;
+
+    // Internal flag so we know when to spin
+    private bool isThrowRotating = false;
 
     [Header("Knock Away")]
 
@@ -263,6 +280,27 @@ public class ObjectPhysics : MonoBehaviour
         }
     }
 
+    // At the end of UpdatePosition(), or in Update()
+    private void UpdateThrowVisual()
+    {
+        if (!isThrowRotating) return;
+        if (throwVisualType != ThrowVisualType.RotateSprite) return;
+        if (throwSpriteRenderer == null) return;
+
+        // Only spin while actually in the air
+        if (objectState == ObjectState.falling)
+        {
+            // spin the sprite around Z
+            throwSpriteRenderer.transform.Rotate(0f, 0f, throwRotateSpeed * Time.deltaTime);
+        }
+        else
+        {
+            // no longer falling, then stop and reset
+            isThrowRotating = false;
+            throwSpriteRenderer.transform.localRotation = Quaternion.identity;
+        }
+    }
+
     public virtual void UpdatePosition()
     {
         // don't move if carried
@@ -358,6 +396,8 @@ public class ObjectPhysics : MonoBehaviour
                 Destroy(gameObject);
             }
         }
+
+        UpdateThrowVisual();
     }
 
     Vector3 CheckGround(Vector3 pos)
@@ -753,6 +793,13 @@ public class ObjectPhysics : MonoBehaviour
             hasBeenThrown = false;
         }
 
+        // Stop throw rotation and reset sprite rotation
+        if (isThrowRotating && throwSpriteRenderer != null)
+        {
+            isThrowRotating = false;
+            throwSpriteRenderer.transform.localRotation = Quaternion.identity;
+        }
+
         objectState = ObjectState.grounded;
         if (stopAfterLand)
         {
@@ -935,6 +982,12 @@ public class ObjectPhysics : MonoBehaviour
 
         // Set a flag to indicate that the enemy has been thrown
         hasBeenThrown = true;
+
+        // Start rotation if this throw type uses sprite rotation
+        if (throwVisualType == ThrowVisualType.RotateSprite && throwSpriteRenderer != null)
+        {
+            isThrowRotating = true;
+        }
     }
     
     private void OnTriggerEnter2D(Collider2D collision)

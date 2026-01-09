@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -13,32 +12,32 @@ public class POWUseState
 public class POWBlock : BumpableBlock
 {
     [Header("POW Block Settings")]
-    public bool affectVisibleEnemies = true;
-    public bool affectAllEnemies = false;
-    public bool playKickSounds = true;
+    [Tooltip("How many times this POW block can be used before it is depleted.")]
     public int maxUses = 1;
+
+    [Tooltip("Per-use visuals & events. Index 0 = first use, 1 = second, etc.")]
     public POWUseState[] useStates; // Per-use sprite + event
 
-    [Header("Events")]
-    public UnityEvent onPOWActivated;
-    public UnityEvent onPOWDepleted;
-    public UnityEvent onEnemyAffected;
+    [SerializeField] private POWEffect powEffect;
 
-    [Header("Effects")]
-    public AudioClip powBlockSound;
-    public GameObject destructionEffect;
+    [Header("Block Events")]
+    [Tooltip("Invoked every time the POW block is successfully used.")]
+    public UnityEvent onPOWActivated;
+
+    [Tooltip("Invoked once when the POW block is fully depleted.")]
+    public UnityEvent onPOWDepleted;
 
     [Header("Animation")]
     [SerializeField] private Animator animator;
     [SerializeField] private string useTrigger = "hit";
     [SerializeField] private string hitTrigger = "finalUse";
     [SerializeField] private float timeBeforeDestroy = 1f;
+    public GameObject destructionEffect;
+
     private bool isDestroying;
 
     private int currentUses;
     private SpriteRenderer spriteRenderer;
-    private Camera mainCamera;
-    private bool hasCachedCamera;
 
     // To avoid firing onUse multiple times for the same state
     private int lastUseStateIndex = -1;
@@ -47,14 +46,14 @@ public class POWBlock : BumpableBlock
     {
         base.Awake();
         spriteRenderer = GetComponent<SpriteRenderer>();
+
+        if (powEffect == null)
+            powEffect = GetComponent<POWEffect>();
+
         currentUses = maxUses;
         UpdateAppearance();
-        
-        // Cache camera reference
-        mainCamera = Camera.main;
-        hasCachedCamera = mainCamera != null;
     }
-    
+
     #region Activation
     protected override bool CanActivate(Collision2D other)
     {
@@ -72,6 +71,7 @@ public class POWBlock : BumpableBlock
     #region Bounce Handling
     protected override void OnBeforeBounce(BlockHitDirection direction, MarioMovement player)
     {
+        // If we are out of uses, cancel the bounce
         if (currentUses <= 0)
         {
             skipBounceThisHit = true;
@@ -83,29 +83,51 @@ public class POWBlock : BumpableBlock
             animator.SetTrigger(useTrigger);
         }
 
-        ActivatePOWEffect();
-        currentUses--;
-        UpdateAppearance();
+        // Apply the POW use (effect + usage count + appearance + event)
+        ApplyPOWUseInternal();
     }
 
     protected override void OnAfterBounce(BlockHitDirection direction, MarioMovement player)
     {
-        if (currentUses <= 0 && !isDestroying)
-        {
-            onPOWDepleted?.Invoke();
-            DestroyPOWBlock();
-        }
+        base.OnAfterBounce(direction, player);
+        HandleDepletionIfNeeded();
     }
     #endregion
 
     #region POW Effect
-    // this method is used to put on signals
+    /// <summary>
+    /// Public entry point in case you want to trigger it from signals, animations, etc.
+    /// This bypasses the bounce, so we also handle depletion directly here.
+    /// </summary>
     public void ApplyPOWUse()
     {
-        ActivatePOWEffect();
+        if (currentUses <= 0) return;
+
+        ApplyPOWUseInternal();
+        HandleDepletionIfNeeded();
+    }
+
+    private void ApplyPOWUseInternal()
+    {
+        // Trigger the shared POW effect (composition)
+        if (powEffect != null)
+        {
+            powEffect.ActivatePOWEffect();
+        }
+        else
+        {
+            Debug.LogWarning($"POWBlock on {name} has no POWEffect assigned.");
+        }
+
         currentUses--;
         UpdateAppearance();
 
+        // Block-level event
+        onPOWActivated?.Invoke();
+    }
+
+    private void HandleDepletionIfNeeded()
+    {
         if (currentUses <= 0 && !isDestroying)
         {
             onPOWDepleted?.Invoke();
@@ -113,93 +135,12 @@ public class POWBlock : BumpableBlock
         }
     }
 
-    public void ActivatePOWEffect()
-    {
-        // Collect enemies to affect
-        List<EnemyAI> enemiesToAffect = new List<EnemyAI>();
-
-        if (affectVisibleEnemies)
-        {
-            enemiesToAffect.AddRange(GetVisibleEnemies());
-        }
-
-        if (affectAllEnemies)
-        {
-            enemiesToAffect.AddRange(GetAllEnemies());
-        }
-
-        // Remove duplicates
-        HashSet<EnemyAI> uniqueEnemies = new HashSet<EnemyAI>(enemiesToAffect);
-
-        foreach (EnemyAI enemy in uniqueEnemies)
-        {
-            if (enemy == null)
-                continue;
-
-            bool knockRight = Random.value > 0.5f;
-            enemy.KnockAway(knockRight, playKickSounds);
-
-            // Per-enemy event
-            onEnemyAffected?.Invoke();
-        }
-
-        // Play sound using the cached camera
-        if (powBlockSound != null && hasCachedCamera && mainCamera != null)
-        {
-            AudioSource.PlayClipAtPoint(powBlockSound, mainCamera.transform.position, 1f);
-        }
-
-        // Screen shake effect
-        if (hasCachedCamera && mainCamera != null)
-        {
-            StartCoroutine(ScreenShakeEffect());
-        }
-
-        // Global POW activation event
-        onPOWActivated?.Invoke();
-    }
-
-    private List<EnemyAI> GetVisibleEnemies()
-    {
-        List<EnemyAI> visibleEnemies = new List<EnemyAI>();
-
-        if (!hasCachedCamera || mainCamera == null) return visibleEnemies;
-
-        Vector3 bottomLeft = mainCamera.ViewportToWorldPoint(Vector3.zero);
-        Vector3 topRight = mainCamera.ViewportToWorldPoint(Vector3.one);
-
-        Collider2D[] colliders = Physics2D.OverlapAreaAll(bottomLeft, topRight);
-
-        foreach (Collider2D collider in colliders)
-        {
-            if (collider.CompareTag("Enemy"))
-            {
-                EnemyAI enemy = collider.GetComponent<EnemyAI>();
-                if (enemy != null)
-                {
-                    visibleEnemies.Add(enemy);
-                }
-            }
-        }
-
-        return visibleEnemies;
-    }
-
-    private List<EnemyAI> GetAllEnemies()
-    {
-        // Include inactive enemies as well
-        EnemyAI[] enemies = FindObjectsOfType<EnemyAI>(true);
-        return new List<EnemyAI>(enemies);
-    }
-    #endregion
-
-    #region Visual Effects
     private void UpdateAppearance()
     {
         if (spriteRenderer == null || useStates == null || useStates.Length == 0)
             return;
 
-        // Same mapping as before: currentUses - 1 -> index
+        // Map currentUses -> index (1..N -> 0..N-1), clamped
         int index = Mathf.Clamp(currentUses - 1, 0, useStates.Length - 1);
         POWUseState state = useStates[index];
 
@@ -215,29 +156,6 @@ public class POWBlock : BumpableBlock
             state.onUse?.Invoke();
         }
     }
-
-    private IEnumerator ScreenShakeEffect()
-    {
-        if (!hasCachedCamera || mainCamera == null) yield break;
-
-        Vector3 originalPosition = mainCamera.transform.position;
-        float shakeDuration = 0.3f;
-        float shakeMagnitude = 0.1f;
-
-        float elapsed = 0f;
-        while (elapsed < shakeDuration)
-        {
-            float x = Random.Range(-1f, 1f) * shakeMagnitude;
-            float y = Random.Range(-1f, 1f) * shakeMagnitude;
-
-            mainCamera.transform.position = originalPosition + new Vector3(x, y, 0f);
-
-            elapsed += Time.deltaTime;
-            yield return null;
-        }
-
-        mainCamera.transform.position = originalPosition;
-    }
     #endregion
 
     #region Destruction
@@ -251,7 +169,7 @@ public class POWBlock : BumpableBlock
 
     private IEnumerator DestroyRoutine()
     {
-        if (animator != null && hitTrigger.Length > 0)
+        if (animator != null && !string.IsNullOrEmpty(hitTrigger))
         {
             animator.SetTrigger(hitTrigger);
         }

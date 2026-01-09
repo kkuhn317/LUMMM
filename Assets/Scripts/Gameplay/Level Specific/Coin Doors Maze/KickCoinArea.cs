@@ -35,9 +35,13 @@ public class KickCoinArea : UseableObject
         ObjectPhysics physics = coin.GetComponent<ObjectPhysics>();
         Pushable pushable = coin.GetComponentInChildren<Pushable>();
         pushable.StopPushing();
-        physics.Fall();
-        physics.movingLeft = false;
-        physics.velocity = kickVelocity;
+
+        // set the throw velocity you want for this kick
+        physics.throwVelocity = kickVelocity;
+
+        // true = throw to the right, false = throw to the left
+        physics.GetThrown(direction: true);
+
         audioSource.Play();
 
         // Instantiate the kick effect at the collision point

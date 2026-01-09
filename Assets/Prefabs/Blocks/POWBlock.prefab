@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 6368774267003242143}
   - component: {fileID: 6368774267003242141}
   - component: {fileID: 4135636053778333886}
+  - component: {fileID: 804002257182916948}
   - component: {fileID: 5106177185516576274}
   m_Layer: 3
   m_Name: POWBlock
@@ -146,11 +147,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   bounceHeight: 0
   bounceSpeed: 0
-  affectVisibleEnemies: 0
-  affectAllEnemies: 1
-  playKickSounds: 1
   maxUses: 1
   useStates: []
+  powEffect: {fileID: 804002257182916948}
   onPOWActivated:
     m_PersistentCalls:
       m_Calls:
@@ -169,15 +168,35 @@ MonoBehaviour:
   onPOWDepleted:
     m_PersistentCalls:
       m_Calls: []
-  onEnemyAffected:
-    m_PersistentCalls:
-      m_Calls: []
-  powBlockSound: {fileID: 8300000, guid: 407929389d10a8841a5654c9913504cd, type: 3}
-  destructionEffect: {fileID: 0}
   animator: {fileID: 5106177185516576274}
   useTrigger: hit
   hitTrigger: finalUse
   timeBeforeDestroy: 0.35
+  destructionEffect: {fileID: 0}
+--- !u!114 &804002257182916948
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6368774267003242142}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 86b68927fde96084782201972be8561b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  affectVisibleEnemies: 1
+  affectAllEnemies: 0
+  playKickSounds: 1
+  onPOWActivated:
+    m_PersistentCalls:
+      m_Calls: []
+  onEnemyAffected:
+    m_PersistentCalls:
+      m_Calls: []
+  powBlockSound: {fileID: 8300000, guid: 62467461e51dddb40931164fd2db1170, type: 3}
+  screenShakeDuration: 0.3
+  screenShakeMagnitude: 0.1
 --- !u!95 &5106177185516576274
 Animator:
   serializedVersion: 5
