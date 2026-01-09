@@ -9988,7 +9988,7 @@ MonoBehaviour:
   m_CategoryHash: 0
   m_labelHash: 0
   m_SpriteKey: 1.2362407e-29
-  m_SpriteHash: 0
+  m_SpriteHash: 259702089
 --- !u!114 &691055859
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -71298,6 +71298,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   pushSpeed: 2
+  stopWallDistance: 0.7
+  wallLayer:
+    serializedVersion: 2
+    m_Bits: 256
 --- !u!61 &1064315711
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -72568,6 +72572,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1900107192, guid: f10403033d7bf5742b1d2151da60c959, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6983163346503446604, guid: f10403033d7bf5742b1d2151da60c959, type: 3}
       propertyPath: m_Name
       value: Coin Door (2)
@@ -72618,6 +72626,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6983163346503446611, guid: f10403033d7bf5742b1d2151da60c959, type: 3}
       propertyPath: mustBeStanding
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6983163347533943242, guid: f10403033d7bf5742b1d2151da60c959, type: 3}
+      propertyPath: m_Layer
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents:
@@ -73491,6 +73503,83 @@ MonoBehaviour:
   useCoinSound: {fileID: 8300000, guid: b9cac7047581fd349a262f277c6ce439, type: 3}
   pushCoin: {fileID: 1714053474}
   maxPlayerCoinDistance: 0.75
+--- !u!1 &1264354254
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1264354256}
+  - component: {fileID: 1264354255}
+  m_Layer: 8
+  m_Name: Coin Wall Prevention
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!61 &1264354255
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1264354254}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0, y: 0}
+    oldSize: {x: 0, y: 0}
+    newSize: {x: 0, y: 0}
+    adaptiveTilingThreshold: 0
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  serializedVersion: 2
+  m_Size: {x: 1, y: 1}
+  m_EdgeRadius: 0
+--- !u!4 &1264354256
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1264354254}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 142.50285, y: 0.50001, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1268916552
 GameObject:
   m_ObjectHideFlags: 0
@@ -76056,7 +76145,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1455825862}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 11b9d10e228733d49863606560286385, type: 3}
+  m_Script: {fileID: 11500000, guid: ee8a1a28298a79549891a371d1c229c1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   angle: -45
@@ -79210,6 +79299,9 @@ MonoBehaviour:
   carryable: 0
   carried: 0
   throwVelocity: {x: 12, y: 10}
+  throwVisualType: 0
+  throwSpriteRenderer: {fileID: 0}
+  throwRotateSpeed: 720
   rotateAroundCenter: 0
   knockAwayVelocity: {x: 5, y: 5}
   overrideKnockAwayGravity: 0
@@ -79384,6 +79476,71 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 1
   m_Constraints: 0
+--- !u!1001 &1714317106
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 5952215414569807492, guid: 54eb9e6e9c4ac8d4daa3b65fd7fbca08, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 143.53647
+      objectReference: {fileID: 0}
+    - target: {fileID: 5952215414569807492, guid: 54eb9e6e9c4ac8d4daa3b65fd7fbca08, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.80681574
+      objectReference: {fileID: 0}
+    - target: {fileID: 5952215414569807492, guid: 54eb9e6e9c4ac8d4daa3b65fd7fbca08, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -0.040486585
+      objectReference: {fileID: 0}
+    - target: {fileID: 5952215414569807492, guid: 54eb9e6e9c4ac8d4daa3b65fd7fbca08, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5952215414569807492, guid: 54eb9e6e9c4ac8d4daa3b65fd7fbca08, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5952215414569807492, guid: 54eb9e6e9c4ac8d4daa3b65fd7fbca08, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5952215414569807492, guid: 54eb9e6e9c4ac8d4daa3b65fd7fbca08, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5952215414569807492, guid: 54eb9e6e9c4ac8d4daa3b65fd7fbca08, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5952215414569807492, guid: 54eb9e6e9c4ac8d4daa3b65fd7fbca08, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5952215414569807492, guid: 54eb9e6e9c4ac8d4daa3b65fd7fbca08, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5952215414569807493, guid: 54eb9e6e9c4ac8d4daa3b65fd7fbca08, type: 3}
+      propertyPath: groundLayer.m_Bits
+      value: 419430408
+      objectReference: {fileID: 0}
+    - target: {fileID: 5952215414569807497, guid: 54eb9e6e9c4ac8d4daa3b65fd7fbca08, type: 3}
+      propertyPath: m_Name
+      value: Tiny Mario For Testing
+      objectReference: {fileID: 0}
+    - target: {fileID: 5952215414569807497, guid: 54eb9e6e9c4ac8d4daa3b65fd7fbca08, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 54eb9e6e9c4ac8d4daa3b65fd7fbca08, type: 3}
 --- !u!1001 &1719752346
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -81057,6 +81214,9 @@ MonoBehaviour:
   carryable: 0
   carried: 0
   throwVelocity: {x: 12, y: 10}
+  throwVisualType: 0
+  throwSpriteRenderer: {fileID: 0}
+  throwRotateSpeed: 720
   rotateAroundCenter: 0
   knockAwayVelocity: {x: -3, y: 7}
   overrideKnockAwayGravity: 0
@@ -85260,6 +85420,9 @@ MonoBehaviour:
   carryable: 0
   carried: 0
   throwVelocity: {x: 12, y: 10}
+  throwVisualType: 0
+  throwSpriteRenderer: {fileID: 0}
+  throwRotateSpeed: 720
   rotateAroundCenter: 0
   knockAwayVelocity: {x: -3, y: 7}
   overrideKnockAwayGravity: 0
@@ -86251,6 +86414,7 @@ SceneRoots:
   - {fileID: 2012392383}
   - {fileID: 438970759}
   - {fileID: 2129222752}
+  - {fileID: 1264354256}
   - {fileID: 1714053479}
   - {fileID: 1455825864}
   - {fileID: 1326353683}
@@ -86267,3 +86431,4 @@ SceneRoots:
   - {fileID: 122742305}
   - {fileID: 959591054}
   - {fileID: 785128622}
+  - {fileID: 1714317106}
