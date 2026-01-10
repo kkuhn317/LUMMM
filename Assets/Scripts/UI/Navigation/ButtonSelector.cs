@@ -83,6 +83,11 @@ public class ButtonSelector : MonoBehaviour
     {
         if (selectorImage == null || !selectorImage.gameObject.activeInHierarchy)
             return;
+        
+        /*if (isAnimating && !LeanTween.isTweening(selectorImage.gameObject))
+        {
+            isAnimating = false;
+        }*/
 
         if (currentTarget != null)
             UpdateSelector();
@@ -127,7 +132,7 @@ public class ButtonSelector : MonoBehaviour
     private void UpdateSelector()
     {
         if (currentTarget == null) return;
-        if (isAnimating) return;
+        // if (isAnimating) return;
         if (!selectorImage.gameObject.activeInHierarchy) return;
 
         Vector3[] worldCorners = new Vector3[4];
