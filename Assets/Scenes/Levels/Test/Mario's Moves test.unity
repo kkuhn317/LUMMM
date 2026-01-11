@@ -884,7 +884,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 313099525}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 11b9d10e228733d49863606560286385, type: 3}
+  m_Script: {fileID: 11500000, guid: ee8a1a28298a79549891a371d1c229c1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   angle: -45
@@ -3525,6 +3525,24 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a27f74524bceaf047bed67a8ce138db1, type: 3}
+--- !u!1 &812554423 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8062929088435951622, guid: 4e04efef1f22b7f4fa0fa9eac739327e, type: 3}
+  m_PrefabInstance: {fileID: 8062929087227238061}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &812554427
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 812554423}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ee8a1a28298a79549891a371d1c229c1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  angle: 45
 --- !u!1 &818453298
 GameObject:
   m_ObjectHideFlags: 0
@@ -11475,11 +11493,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1771483343543010229, guid: 0ed8634130540ee49afd6a10ccb53bf6, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -17.3
+      value: 16.00032
       objectReference: {fileID: 0}
     - target: {fileID: 1771483343543010229, guid: 0ed8634130540ee49afd6a10ccb53bf6, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -4.00008
+      value: 10.0002
       objectReference: {fileID: 0}
     - target: {fileID: 1771483343543010229, guid: 0ed8634130540ee49afd6a10ccb53bf6, type: 3}
       propertyPath: m_LocalPosition.z
@@ -12966,6 +12984,9 @@ MonoBehaviour:
   carryable: 0
   carried: 0
   throwVelocity: {x: 12, y: 10}
+  throwVisualType: 0
+  throwSpriteRenderer: {fileID: 0}
+  throwRotateSpeed: 720
   rotateAroundCenter: 0
   knockAwayVelocity: {x: 5, y: 5}
   overrideKnockAwayGravity: 0
@@ -13258,6 +13279,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   pushSpeed: 2
+  stopWallDistance: 0
+  wallLayer:
+    serializedVersion: 2
+    m_Bits: 0
 --- !u!1001 &1783515542
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -14964,6 +14989,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 8062929088435951616, guid: 4e04efef1f22b7f4fa0fa9eac739327e, type: 3}
+      propertyPath: m_IsTrigger
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 8062929088435951619, guid: 4e04efef1f22b7f4fa0fa9eac739327e, type: 3}
       propertyPath: m_RootOrder
       value: 42
@@ -15012,10 +15041,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: Slope (1)
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 8062929088435951617, guid: 4e04efef1f22b7f4fa0fa9eac739327e, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 8062929088435951622, guid: 4e04efef1f22b7f4fa0fa9eac739327e, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 812554427}
   m_SourcePrefab: {fileID: 100100000, guid: 4e04efef1f22b7f4fa0fa9eac739327e, type: 3}
 --- !u!4 &8363881857235560831
 Transform:
