@@ -40,6 +40,12 @@ public class Checkpoint : MonoBehaviour
     [Header("Spawn")]
     public Vector2 spawnOffset = new(0, 0);
 
+    [Header("Score Reward")]
+    public bool giveScoreOnTouch = true;
+    public int checkpointScore = 2000;
+    public Vector3 scorePopupOffset = new Vector3(0f, 1.0f, 0f);
+    public PowerStates.PowerupState checkpointPowerState;
+
     // Position used by GameManager to place the player
     public Vector2 SpawnPosition
     {
@@ -96,6 +102,11 @@ public class Checkpoint : MonoBehaviour
 
         // Activate this checkpoint
         SetActive();
+
+        if (giveScoreOnTouch)
+        {
+            GiveScoreReward();
+        }
 
         GlobalVariables.checkpoint = checkpointID;
 
@@ -191,6 +202,27 @@ public class Checkpoint : MonoBehaviour
         if (checkpointCollider != null)
             checkpointCollider.enabled = false;
     }
+
+    private void GiveScoreReward()
+    {
+        if (checkpointScore <= 0)
+            return;
+        
+        GameManager.Instance.AddScorePoints(checkpointScore);
+
+        if (ScorePopupManager.Instance == null)
+            return;
+
+        ComboResult result = new ComboResult(
+            RewardType.Score,
+            PopupID.Score2000,
+            checkpointScore
+        );
+
+        Vector3 popupPos = transform.position + scorePopupOffset;
+        ScorePopupManager.Instance.ShowPopup(result, popupPos, checkpointPowerState);
+    }
+
 
     #region Particles
     private void SpawnParticles()
