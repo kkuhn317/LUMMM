@@ -11,8 +11,8 @@ public class Checkpoint : MonoBehaviour
 {
     public enum CheckpointMode
     {
-        Visual,        // Uses sprite / audio / particles
-        SilentTrigger  // Only updates respawn; no feedback required
+        Visual,     // Uses sprite / audio / particles
+        Invisible   // Only updates respawn; only aound feedback required
     }
 
     [Header("Checkpoint")]
@@ -28,7 +28,7 @@ public class Checkpoint : MonoBehaviour
     public Sprite passive;
     public Sprite[] active;
     public ParticleSystem checkpointParticles;
-    public GameObject particle;                       // Custom star particle prefab
+    public GameObject particle; // Custom star particle prefab
 
     [Header("Behaviour")]
     public bool disableColliderOnActivate = true;
@@ -44,6 +44,9 @@ public class Checkpoint : MonoBehaviour
     public bool giveScoreOnTouch = true;
     public int checkpointScore = 2000;
     public Vector3 scorePopupOffset = new Vector3(0f, 1.0f, 0f);
+    [Tooltip("If true, use the player's current powerup state for the popup instead of the fixed checkpointPowerState.")]
+    public bool usePlayerPowerState = false;
+
     public PowerStates.PowerupState checkpointPowerState;
 
     // Position used by GameManager to place the player
@@ -100,15 +103,23 @@ public class Checkpoint : MonoBehaviour
         if (!IsAllowedByGlobalMode())
             return;
 
+        // Get Mario once, reuse it
+        MarioMovement mario = collision.GetComponent<MarioMovement>();
+
         // Activate this checkpoint
         SetActive();
 
         if (giveScoreOnTouch)
         {
-            GiveScoreReward();
+            GiveScoreReward(mario);
         }
 
         GlobalVariables.checkpoint = checkpointID;
+
+        if (checkpointMode == CheckpointMode.Invisible && mario != null)
+        {
+            mario.ShowCheckpointFlag();
+        }
 
         // refresh all checkpoints so only the correct one is visually active
         GameManager.Instance.OnCheckpointActivated(this);
@@ -119,14 +130,14 @@ public class Checkpoint : MonoBehaviour
     // Centralized rule for 0/1/2 behavior
     private bool IsAllowedByGlobalMode()
     {
-        // 0: off, 1: visual-only, 2: silent-only
+        // 0: off, 1: visual-only, 2: invisible-only
         int mode = GlobalVariables.checkpointMode;
 
         if (!GlobalVariables.enableCheckpoints || mode == 0)
             return false;
 
         return (mode == 1 && checkpointMode == CheckpointMode.Visual)
-            || (mode == 2 && checkpointMode == CheckpointMode.SilentTrigger);
+            || (mode == 2 && checkpointMode == CheckpointMode.Invisible);
     }
 
     /// <summary>
@@ -157,27 +168,29 @@ public class Checkpoint : MonoBehaviour
 
         // If we should not play feedback (for example when respawning)
         // or this is a SilentTrigger checkpoint, then skip sound/particles.
-        if (!playFeedback || checkpointMode == CheckpointMode.SilentTrigger)
+        if (!playFeedback)
             return;
 
         // From here on, this is only the transient feedback (sound / particles)
-
-        // Play sound
-        if (audioSource != null && CheckpointSound != null)
+        if (CheckpointSound != null && AudioManager.Instance != null)
         {
-            audioSource.PlayOneShot(CheckpointSound);
+            AudioManager.Instance.Play(CheckpointSound, SoundCategory.SFX);
         }
 
-        // Play built-in particle system
-        if (checkpointParticles != null)
+        // Particles ONLY for Visual checkpoints
+        if (checkpointMode == CheckpointMode.Visual)
         {
-            checkpointParticles.Play();
-        }
+            // Built-in particle system
+            if (checkpointParticles != null)
+            {
+                checkpointParticles.Play();
+            }
 
-        // Spawn custom particles
-        if (particle != null)
-        {
-            SpawnParticles();
+            // Custom star particles
+            if (particle != null)
+            {
+                SpawnParticles();
+            }
         }
     }
 
@@ -203,7 +216,7 @@ public class Checkpoint : MonoBehaviour
             checkpointCollider.enabled = false;
     }
 
-    private void GiveScoreReward()
+    private void GiveScoreReward(MarioMovement mario)
     {
         if (checkpointScore <= 0)
             return;
@@ -213,6 +226,15 @@ public class Checkpoint : MonoBehaviour
         if (ScorePopupManager.Instance == null)
             return;
 
+        // Decide which power state to use for the popup
+        PowerStates.PowerupState popupPowerState = checkpointPowerState;
+
+        if (usePlayerPowerState && mario != null)
+        {
+            // Use the player's current power-up state instead
+            popupPowerState = mario.powerupState;
+        }
+
         ComboResult result = new ComboResult(
             RewardType.Score,
             PopupID.Score2000,
@@ -220,9 +242,8 @@ public class Checkpoint : MonoBehaviour
         );
 
         Vector3 popupPos = transform.position + scorePopupOffset;
-        ScorePopupManager.Instance.ShowPopup(result, popupPos, checkpointPowerState);
+        ScorePopupManager.Instance.ShowPopup(result, popupPos, popupPowerState);
     }
-
 
     #region Particles
     private void SpawnParticles()

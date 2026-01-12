@@ -209,6 +209,12 @@ public class MarioMovement : MonoBehaviour
 
     private bool isLookingUp = false;
 
+    [Header("Checkpoint Indicator")]
+    [SerializeField] private GameObject checkpointFlag;
+    [SerializeField] private float checkpointFlagDuration = 2.0f;
+
+    private Coroutine checkpointFlagRoutine;
+
     [Header("Additional Abilities")]
     public bool canCrawl = false;       // Only small Mario has an animation for crawling right now, so it will not be transferred after powerup
     public bool canWallJump = false;
@@ -323,6 +329,7 @@ public class MarioMovement : MonoBehaviour
 
         // Store player's position at the beginning of the level (respawn)
         originalPosition = transform.position;
+        checkpointFlag.SetActive(false);
 
         // Abilities cheat
         if (GlobalVariables.cheatAllAbilities)
@@ -2790,5 +2797,29 @@ public class MarioMovement : MonoBehaviour
         
         midairSpinUsedThisJump = true; // Mark that we've spent our twirl for this jump
         lastMidairSpinTime = Time.time; // Start cooldown from the moment the spin finishes
+    }
+
+    public void ShowCheckpointFlag()
+    {
+        if (checkpointFlag == null)
+            return;
+
+        // If the flag is already showing, restart the timer
+        if (checkpointFlagRoutine != null)
+        {
+            checkpointFlag.SetActive(false);
+            StopCoroutine(checkpointFlagRoutine);
+        }
+
+        checkpointFlagRoutine = StartCoroutine(CheckpointFlagRoutine());
+    }
+
+    private IEnumerator CheckpointFlagRoutine()
+    {
+        checkpointFlag.SetActive(true);
+        yield return new WaitForSeconds(checkpointFlagDuration);
+
+        checkpointFlag.SetActive(false);
+        checkpointFlagRoutine = null;
     }
 }
