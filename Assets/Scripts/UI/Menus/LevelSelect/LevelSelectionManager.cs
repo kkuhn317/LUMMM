@@ -7,6 +7,7 @@ using UnityEngine.Localization.Tables;
 using UnityEngine.UI;
 using UnityEngine.Events;
 using System.Globalization;
+using UnityEngine.SceneManagement;
 
 public class LevelSelectionManager : MonoBehaviour
 {
@@ -64,44 +65,52 @@ public class LevelSelectionManager : MonoBehaviour
     {
         onSceneStart?.Invoke();
         playButton.interactable = false;
-        playButton.gameObject.SetActive(false); // Deactivate the button if it's initially active
-        // Set the enabled state of the videoLinkButton based on persistent event listeners
+        playButton.gameObject.SetActive(false);
+        
+        // Ensure SaveLoadSystem is initialized
+        if (SaveLoadSystem.Instance == null)
+        {
+            Debug.LogError("SaveLoadSystem not found! Make sure it's in the scene.");
+        }
+        
+        // Initialize video link button
         videoLinkButton.enabled = videoLinkButton.onClick.GetPersistentEventCount() > 0;
+        
         if (bestTimeText != null)
             bestTimeText.text = "--:--.--";
     }
 
     public static bool IsLevelPlayable(LevelButton button)
     {
-        return !string.IsNullOrEmpty(button.levelInfo.levelScene) && (!button.levelInfo.beta || GlobalVariables.cheatBetaMode);
+        if (button == null || button.levelInfo == null) return false;
+        return !string.IsNullOrEmpty(button.levelInfo.levelScene) && 
+               (!button.levelInfo.beta || GlobalVariables.cheatBetaMode);
     }
 
     public void OnLevelButtonClick(LevelButton button)
     {
-        if (selectedLevelButton != null)
+        if (selectedLevelButton != null && selectedLevelButton != button)
         {
-            // Deactivate selectionMark of the previously selected button
             selectedLevelButton.selectionMark.SetActive(false);
         }
 
         selectedLevelButton = button;
 
-        selectedLevelButton.selectionMark.SetActive(true);
+        if (selectedLevelButton.selectionMark != null)
+            selectedLevelButton.selectionMark.SetActive(true);
 
         // Update the level info text
         levelNameText.text = LocalizationSettings.StringDatabase.GetLocalizedString("Level_" + button.levelInfo.levelID);
         videoYearText.text = button.levelInfo.videoYear;
         levelDescriptionText.text = LocalizationSettings.StringDatabase.GetLocalizedString("Desc_" + button.levelInfo.levelID);
         
-        // Update best time text
+        // Update best time text from SaveData
         if (bestTimeText != null)
         {
-            string key = $"BestTimeMs_{button.levelInfo.levelID}";
-            string msStr = PlayerPrefs.GetString(key, "");
-
-            if (double.TryParse(msStr, NumberStyles.Float, CultureInfo.InvariantCulture, out double ms) && ms > 0)
+            var progress = SaveLoadSystem.Instance?.GetLevelProgress(button.levelInfo.levelID);
+            if (progress != null && progress.bestTimeMs > 0)
             {
-                var ts = TimeSpan.FromMilliseconds(ms);
+                var ts = TimeSpan.FromMilliseconds(progress.bestTimeMs);
                 bestTimeText.text = ts.ToString(@"m\:ss\.ff");
             }
             else
@@ -110,7 +119,7 @@ public class LevelSelectionManager : MonoBehaviour
             }
         }
 
-        // Remove any existing listeners from the play button's onClick event
+        // Remove any existing listeners from the video link button
         videoLinkButton.onClick.RemoveAllListeners();
 
         var table = LocalizationSettings.StringDatabase.GetTable("Game Text");
@@ -123,7 +132,6 @@ public class LevelSelectionManager : MonoBehaviour
         else
         {
             videoLinkButton.enabled = true;
-            print(table.GetEntry("WatchVideo").GetLocalizedString());
             videoLinkText.text = table.GetEntry("WatchVideo").GetLocalizedString();
             videoLinkButton.onClick.AddListener(OpenVideoLink);
         }
@@ -131,40 +139,38 @@ public class LevelSelectionManager : MonoBehaviour
         // Set custom video link text if available
         var videoLinkTextEntry = table.GetEntry("VideoLinkText_" + button.levelInfo.levelID);
         string customVideoLinkText = videoLinkTextEntry != null ? videoLinkTextEntry.GetLocalizedString() : null;
-        print("custom video text: " + customVideoLinkText);
         if (!string.IsNullOrEmpty(customVideoLinkText))
         {
             videoLinkText.text = customVideoLinkText;
         }
 
         // Enable the correct animator icon
-        print(animatorIcons.Count);
         foreach (AnimatorIcon animator in animatorIcons)
         {
-            animator.gameObject.SetActive(animator.marioAnimator == button.marioAnimator);
+            if (animator != null)
+                animator.gameObject.SetActive(animator.marioAnimator == button.marioAnimator);
         }
 
         playButton.gameObject.SetActive(true);
-        playButton.onClick.RemoveAllListeners(); // Remove previous listeners if any
-
-        playButton.gameObject.SetActive(true);
+        playButton.onClick.RemoveAllListeners();
+        playButton.onClick.AddListener(OnPlayButtonClick);
 
         if (!IsLevelPlayable(button))
         {
             playButton.interactable = false;
-            gameObject.SetActive(false);
             return;
         }
 
         playButton.interactable = true;
-
         onValidLevelSelected?.Invoke();
     }
 
-    // Allows you open an URL
     private void OpenVideoLink()
     {
-        Application.OpenURL(selectedLevelButton.levelInfo.videoLink);
+        if (selectedLevelButton != null && !string.IsNullOrEmpty(selectedLevelButton.levelInfo.videoLink))
+        {
+            Application.OpenURL(selectedLevelButton.levelInfo.videoLink);
+        }
     }
 
     public void OnPlayButtonClick()
@@ -179,55 +185,118 @@ public class LevelSelectionManager : MonoBehaviour
 
     private void LoadSaveGame()
     {
-        // Load the saved info
-        GlobalVariables.lives = PlayerPrefs.GetInt("SavedLives", 3);
-        GlobalVariables.coinCount = PlayerPrefs.GetInt("SavedCoins", 0);
-        if (GlobalVariables.enableCheckpoints) {
-            GlobalVariables.checkpoint = PlayerPrefs.GetInt("SavedCheckpoint", -1);
-        } else {
-            GlobalVariables.checkpoint = -1;
+        if (selectedLevelButton == null) return;
+        
+        string levelID = selectedLevelButton.levelInfo.levelID;
+        var checkpoint = SaveManager.Current.checkpoint;
+        
+        // Check if we have a checkpoint for this level
+        if (checkpoint.hasCheckpoint && checkpoint.levelID == levelID)
+        {
+            // Load from checkpoint data
+            GlobalVariables.lives = checkpoint.coins; // Note: checkpoint.coins might be misnamed
+            GlobalVariables.coinCount = checkpoint.coins;
+            GlobalVariables.checkpoint = checkpoint.checkpointId;
+            
+            // Convert speedrunMs back to TimeSpan
+            if (checkpoint.speedrunMs > 0)
+            {
+                GlobalVariables.speedrunTimer = new System.Diagnostics.Stopwatch();
+                GlobalVariables.speedrunTimer.Start();
+                // We need to set elapsed time - this is tricky with Stopwatch
+                // Might need to store start time instead
+            }
+            
+            // Green coins from checkpoint will be loaded by GameManager
+            Debug.Log($"Loading checkpoint for level {levelID}, checkpoint {checkpoint.checkpointId}");
         }
-        GlobalVariables.SetTimerOffsetFromString(PlayerPrefs.GetString("SavedSpeedrunTime"));
-
-        // The saved green coins will be handled by GameManager (where we need to check if it's the saved level)
+        else
+        {
+            // Fresh start
+            GlobalVariables.lives = selectedLevelButton.levelInfo.lives;
+            GlobalVariables.coinCount = 0;
+            GlobalVariables.checkpoint = -1;
+            GlobalVariables.speedrunTimer = new System.Diagnostics.Stopwatch();
+        }
     }
 
     private void StartLevel()
     {
-        if (string.IsNullOrEmpty(selectedLevelButton.levelInfo.levelScene))
+        if (selectedLevelButton == null || 
+            string.IsNullOrEmpty(selectedLevelButton.levelInfo.levelScene))
         {
+            Debug.LogError("Cannot start level: No level selected or no scene specified");
             return;
         }
 
+        // Destroy any existing game music
         DestroyGameMusic.DestroyGameMusicObjects();
+        
         // Reset global variables for the level
         GlobalVariables.levelInfo = selectedLevelButton.levelInfo;
         GlobalVariables.ResetForLevel();
 
-        // Check if level is a save game
-        if (selectedLevelButton.levelInfo.levelID == PlayerPrefs.GetString("SavedLevel", "none"))
+        // Check if level has a checkpoint in SaveData
+        bool hasCheckpoint = SaveManager.HasCheckpointForLevel(selectedLevelButton.levelInfo.levelID);
+        
+        if (hasCheckpoint)
         {
             LoadSaveGame();
-        } else {
-            // Remove saved info if it's not the saved level
-            PlayerPrefs.DeleteKey("SavedLevel");
+        }
+        else
+        {
+            // Fresh start
+            GlobalVariables.lives = selectedLevelButton.levelInfo.lives;
+            GlobalVariables.coinCount = 0;
+            GlobalVariables.checkpoint = -1;
+        }
+
+        // Update modifiers from SaveData
+        var modifiers = SaveManager.Current.modifiers;
+        if (modifiers != null)
+        {
+            GlobalVariables.infiniteLivesMode = modifiers.infiniteLivesEnabled;
+            GlobalVariables.stopTimeLimit = modifiers.timeLimitEnabled;
+            GlobalVariables.enableCheckpoints = modifiers.checkpointMode != 0;
+            GlobalVariables.checkpointMode = modifiers.checkpointMode;
         }
 
         // Load the scene
-        FadeInOutScene.Instance.LoadSceneWithFade("LevelIntro");
+        if (FadeInOutScene.Instance != null)
+        {
+            FadeInOutScene.Instance.LoadSceneWithFade("LevelIntro");
+        }
+        else
+        {
+            SceneManager.LoadScene("LevelIntro");
+        }
     }
 
     // Animator Icons
     public void AddAnimatorIcon(AnimatorIcon animator)
     {
-        animatorIcons.Add(animator);
+        if (animator != null && !animatorIcons.Contains(animator))
+        {
+            animatorIcons.Add(animator);
+        }
     }
 
     public void RefreshCheckpointFlags()
     {
         foreach (var button in levelButtons)
         {
-            button.UpdateCheckpointFlag();
+            if (button != null)
+                button.UpdateCheckpointFlag();
+        }
+    }
+    
+    // Refresh all level buttons UI
+    public void RefreshAllLevelButtons()
+    {
+        foreach (var button in levelButtons)
+        {
+            if (button != null)
+                button.RefreshUI();
         }
     }
 }

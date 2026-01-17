@@ -10,7 +10,7 @@ public struct CutsceneContext
 
     public MarioMovement mainPlayer;
 
-    // Datos útiles del jugador en el momento del trigger
+    // Useful player data at the moment of the trigger
     public Vector3 playerPosition;
     public PowerupState powerupState;
     public bool hasStarPower;

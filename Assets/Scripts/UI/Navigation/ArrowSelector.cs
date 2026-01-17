@@ -133,11 +133,11 @@ public class ArrowSelector : MonoBehaviour
         yield return null;
         yield return null; // a little robust but whatever it works
 
-        // Forzamos reconstrucción de layout
+        // We force layout reconstruction
         Canvas.ForceUpdateCanvases();
         LayoutRebuilder.ForceRebuildLayoutImmediate(buttons[b].button);
 
-        // Doble verificación
+        // Double verification
         yield return null;
 
         Vector3 worldPos = buttons[b].button.TransformPoint((Vector3)buttons[b].arrowOffset);

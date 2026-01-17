@@ -299,7 +299,7 @@ public class CheatButton : MonoBehaviour
         foreach (var cheatBtn in cheatButtonsInClone)
         {
             Debug.Log($"Destroying CheatButton component immediately on: {cheatBtn.gameObject.name}");
-            DestroyImmediate(cheatBtn); // Usar DestroyImmediate para que sea instantáneo
+            DestroyImmediate(cheatBtn); // Use DestroyImmediate to make it instantaneous
         }
         
         // RESTAURAR el dimBackground inmediatamente

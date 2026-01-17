@@ -133,7 +133,7 @@ public class AudioManager : MonoBehaviour
 
     public void StopCategory(SoundCategory category)
     {
-        // Detener todos los clips registrados en esa categoría
+        // Stop all clips registered in that category
         var toRemove = new List<AudioClip>();
 
         foreach (var (clip, src) in activeSounds)
@@ -150,12 +150,12 @@ public class AudioManager : MonoBehaviour
             activeSounds.Remove(clip);
         }
 
-        // Forzar apagado de musicSource
+        // Force shutdown of musicSource
         if (category == SoundCategory.BGM && musicSource != null && musicSource.isPlaying)
         {
             musicSource.Stop();
 
-            // También eliminar el clip si sigue registrado
+            // Also remove the clip if it is still registered
             if (musicSource.clip != null && activeSounds.ContainsKey(musicSource.clip))
                 activeSounds.Remove(musicSource.clip);
         }

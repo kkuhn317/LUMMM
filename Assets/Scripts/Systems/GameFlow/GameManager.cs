@@ -92,64 +92,69 @@ public class GameManager : MonoBehaviour
 
     public InputActionAsset playerInputActions; // Used to force update player input actions on resume from pause
 
-    void SaveCollectedCoins()
-    {
-        foreach (GameObject coin in collectedGreenCoins)
-        {
-            int coinIndex = Array.IndexOf(greenCoins, coin);
-            PlayerPrefs.SetInt("CollectedCoin" + coinIndex + "_" + levelID, 1);
-        }
-    }
-
     // There are 2 KINDS of collected green coins:
     // 1. Green coins that you get and then beat the level. These show in the level selection screen. The coins will be partially transparent in the next run.
     // 2. Green coins that you get and then hit a checkpoint. If you exit the level and come back, these coins will be gone.
     //    If you lose the saved progress, these coins will go back to not being collected.
     public void LoadCollectedCoins()
     {
-        for (int i = 0; i < greenCoins.Length; i++)
+        if (greenCoins == null || greenCoins.Length == 0) return;
+        
+        // Get saved data for this level
+        var levelProgress = SaveManager.Current?.levels?.Find(l => l.levelID == levelID);
+        if (levelProgress?.greenCoins == null) return;
+        
+        for (int i = 0; i < Mathf.Min(greenCoins.Length, levelProgress.greenCoins.Length); i++)
         {
-            // Collected green coins (the ones you get and then beat the level)
-            if (PlayerPrefs.GetInt("CollectedCoin" + i + "_" + levelID, 0) == 1)
+            if (greenCoins[i] == null) continue; // ← ADD THIS
+            
+            if (levelProgress.greenCoins[i]) // Coin was permanently collected
             {
                 GameObject coinObject = greenCoins[i];
-
                 collectedGreenCoins.Add(coinObject);
-
-                // Change the alpha of the sprite renderer to indicate it's collected in a previous run
+                
+                // Change alpha to indicate previously collected
                 SpriteRenderer coinRenderer = coinObject.GetComponent<SpriteRenderer>();
-                Color coinColor = coinRenderer.color;
-                coinColor.a = 0.5f;
-                coinRenderer.color = coinColor;
-
-                // Update UI for the collected coin
-                Image uiImage = greenCoinUIImages[i];
-                uiImage.sprite = collectedSprite;
+                if (coinRenderer != null)
+                {
+                    Color coinColor = coinRenderer.color;
+                    coinColor.a = 0.5f;
+                    coinRenderer.color = coinColor;
+                }
+                
+                // Update UI
+                if (i < greenCoinUIImages.Count && greenCoinUIImages[i] != null)
+                    greenCoinUIImages[i].sprite = collectedSprite;
             }
-
-            // Saved green coins (the ones you get and then hit a checkpoint)
-            // Check if the level is the saved level
-            // We need to check here because LevelSelectionManager can't load the green coins for the saved level
-            if (levelID != PlayerPrefs.GetString("SavedLevel", "none"))
+        }
+        
+        // Load checkpoint green coins
+        if (SaveManager.Current?.checkpoint != null && 
+            SaveManager.Current.checkpoint.hasCheckpoint &&
+            SaveManager.Current.checkpoint.levelID == levelID &&
+            SaveManager.Current.checkpoint.greenCoinsInRun != null)
+        {
+            for (int i = 0; i < Mathf.Min(greenCoins.Length, SaveManager.Current.checkpoint.greenCoinsInRun.Length); i++)
             {
-                continue;
+                if (greenCoins[i] == null) continue;
+                
+                if (SaveManager.Current.checkpoint.greenCoinsInRun[i])
+                {
+                    GameObject coinObject = greenCoins[i];
+                    
+                    if (!collectedGreenCoins.Contains(coinObject))
+                        collectedGreenCoins.Add(coinObject);
+                        
+                    collectedGreenCoinsInRun.Add(coinObject);
+                    
+                    // Destroy the coin (collected before checkpoint)
+                    Destroy(coinObject);
+                    
+                    // Update UI
+                    if (i < greenCoinUIImages.Count && greenCoinUIImages[i] != null)
+                        greenCoinUIImages[i].sprite = collectedSprite;
+                }
             }
-
-            if (PlayerPrefs.GetInt("SavedGreenCoin" + i, 0) == 1)
-            {
-                GameObject coinObject = greenCoins[i];
-
-                collectedGreenCoins.Add(coinObject);
-                collectedGreenCoinsInRun.Add(coinObject);
-
-                // Destroy the green coin object (to indicate it was collected before hitting a checkpoint)
-                Destroy(coinObject);
-
-                // Update UI for the collected coin
-                Image uiImage = greenCoinUIImages[i];
-                uiImage.sprite = collectedSprite;
-            }
-
         }
     }
     #endregion
@@ -268,14 +273,45 @@ public class GameManager : MonoBehaviour
 
     private void SaveHighestRank(PlayerRank rank)
     {
-        // Save the highest rank to PlayerPrefs
-        PlayerPrefs.SetInt("HighestPlayerRank_" + levelID, (int)rank);
+        // Save to SaveData instead of PlayerPrefs
+        if (SaveManager.Current != null)
+        {
+            var levelProgress = SaveManager.Current.levels.Find(l => l.levelID == levelID);
+            if (levelProgress == null)
+            {
+                levelProgress = new LevelProgressData
+                {
+                    levelID = levelID,
+                    highestRank = (int)rank
+                };
+                SaveManager.Current.levels.Add(levelProgress);
+            }
+            else
+            {
+                levelProgress.highestRank = (int)rank;
+            }
+            
+            SaveManager.Save();
+            Debug.Log($"Saved highest rank {rank} for level {levelID}");
+        }
     }
 
     private PlayerRank LoadHighestRank()
     {
-        // Load the highest rank from PlayerPrefs, defaulting to "Default" if it doesn't exist.
-        return (PlayerRank)PlayerPrefs.GetInt("HighestPlayerRank_" + levelID, (int)PlayerRank.Default);
+        // Get from SaveData
+        var levelProgress = SaveManager.Current?.levels?.Find(l => l.levelID == levelID);
+        if (levelProgress != null)
+        {
+            return (PlayerRank)levelProgress.highestRank;
+        }
+        
+        // Fallback to PlayerPrefs for backward compatibility
+        if (PlayerPrefs.HasKey("HighestPlayerRank_" + levelID))
+        {
+            return (PlayerRank)PlayerPrefs.GetInt("HighestPlayerRank_" + levelID, (int)PlayerRank.Default);
+        }
+        
+        return PlayerRank.Default;
     }
 
     private void ResetCurrentRank()
@@ -367,8 +403,22 @@ public class GameManager : MonoBehaviour
 
         if (!isOptionsMenuLevel)
         {
-            // Load the high score from PlayerPrefs, defaulting to 0 if it doesn't exist.
-            highScore = PlayerPrefs.GetInt("HighScore", 0);
+            // Load the per-level high score from SaveData
+            highScore = 0; // Reset to default
+            if (SaveManager.Current != null)
+            {
+                var levelProgress = SaveManager.Current.levels.Find(l => l.levelID == levelID);
+                if (levelProgress != null)
+                {
+                    highScore = levelProgress.highScore;
+                }
+            }
+
+            // Fallback: Also check PlayerPrefs for backward compatibility
+            if (highScore == 0 && PlayerPrefs.HasKey("HighScore_" + levelID)) // Optional: level-specific PlayerPrefs
+            {
+                highScore = PlayerPrefs.GetInt("HighScore_" + levelID, 0);
+            }
 
             // Load the highest rank from PlayerPrefs
             highestRank = LoadHighestRank();
@@ -398,6 +448,9 @@ public class GameManager : MonoBehaviour
             InitSpeedrunTimer();
         }
         CheckForInfiniteTime();
+
+        Debug.Log($"GameManager Start - stopTimeLimit: {GlobalVariables.stopTimeLimit}");
+        Debug.Log($"SaveManager timeLimitEnabled: {SaveManager.Current?.modifiers?.timeLimitEnabled}");
     }
 
     void OnEnable()
@@ -792,7 +845,33 @@ public class GameManager : MonoBehaviour
         if (GlobalVariables.score > highScore)
         {
             highScore = GlobalVariables.score;
-            PlayerPrefs.SetInt("HighScore", highScore);
+            
+            // Save to SaveData (per-level in save file)
+            if (SaveManager.Current != null)
+            {
+                var levelProgress = SaveManager.Current.levels.Find(l => l.levelID == levelID);
+                if (levelProgress == null)
+                {
+                    levelProgress = new LevelProgressData 
+                    { 
+                        levelID = levelID,
+                        highScore = highScore
+                    };
+                    SaveManager.Current.levels.Add(levelProgress);
+                }
+                else
+                {
+                    levelProgress.highScore = highScore;
+                }
+                SaveManager.Save();
+            }
+            
+            if (GlobalVariables.score > highScore)
+            {
+                highScore = GlobalVariables.score;
+                PlayerPrefs.SetInt("HighScore", highScore);
+                PlayerPrefs.Save();
+            }
         }
     }
 
@@ -834,17 +913,37 @@ public class GameManager : MonoBehaviour
 
     private void UpdateBestTimeRecord()
     {
-        // This will be used to store the time you took to complete the level
-        // then this value will be used on select level scene to show the best time
-
-        // store milliseconds (easy compare, culture-safe)
         double newMs = GlobalVariables.elapsedTime.TotalMilliseconds;
-
+        
+        // Save to SaveData
+        if (SaveManager.Current != null)
+        {
+            var levelProgress = SaveManager.Current.levels.Find(l => l.levelID == levelID);
+            if (levelProgress == null)
+            {
+                levelProgress = new LevelProgressData
+                {
+                    levelID = levelID,
+                    bestTimeMs = newMs
+                };
+                SaveManager.Current.levels.Add(levelProgress);
+            }
+            else
+            {
+                if (newMs < levelProgress.bestTimeMs || levelProgress.bestTimeMs == 0)
+                {
+                    levelProgress.bestTimeMs = newMs;
+                }
+            }
+            
+            SaveManager.Save();
+        }
+        
+        // ALSO keep PlayerPrefs for backward compatibility during transition
         string key = BestTimeKey(levelID);
         string prev = PlayerPrefs.GetString(key, "");
-
         bool hasPrev = double.TryParse(prev, NumberStyles.Float, CultureInfo.InvariantCulture, out double prevMs);
-
+        
         if (!hasPrev || newMs < prevMs)
         {
             PlayerPrefs.SetString(key, newMs.ToString(CultureInfo.InvariantCulture));
@@ -937,19 +1036,17 @@ public class GameManager : MonoBehaviour
     public void CollectGreenCoin(GameObject greenCoin)
     {
         AddScorePoints(2000);
-        collectedGreenCoinsInRun.Add(greenCoin);    // This assumes you can't collect the same green coin twice in the same run
-
-        // Uncomment this and remove the code in WinScreenStats() if you want to show green coins collected IN THE RUN instead of ALL green coins ever collected
-        // Image uiImageWin = greenCoinUIWin[Array.IndexOf(greenCoins, greenCoin)];
-        // uiImageWin.sprite = collectedSprite;
-
-        // Check if the green coin is uncollected
+        
+        // Track for this run (temporary)
+        collectedGreenCoinsInRun.Add(greenCoin);
+        
+        // Check if the green coin is uncollected in THIS RUN
         if (!collectedGreenCoins.Contains(greenCoin))
         {
             Debug.Log("Collecting green coin: " + greenCoin.name);
 
             Image uiImage = greenCoinUIImages[Array.IndexOf(greenCoins, greenCoin)];
-            collectedGreenCoins.Add(greenCoin);
+            collectedGreenCoins.Add(greenCoin);  // Still track locally for visual feedback
             if (uiImage != null)
             {
                 uiImage.sprite = collectedSprite;
@@ -962,6 +1059,125 @@ public class GameManager : MonoBehaviour
             coinRenderer.color = coinColor;
         }
     }
+
+    #region Update Save Data
+    private void UpdateSaveDataGreenCoin(int coinIndex)
+    {
+        var saveData = SaveManager.Current;
+        string levelID = GlobalVariables.levelInfo.levelID;
+
+        // Find or create LevelProgressData for this level
+        var levelData = saveData.levels.Find(l => l.levelID == levelID);
+        if (levelData == null)
+        {
+            levelData = new LevelProgressData
+            {
+                levelID = levelID,
+                greenCoins = new bool[greenCoins.Length] // Or use LevelInfo's greenCoinCount
+            };
+            saveData.levels.Add(levelData);
+        }
+
+        // Make sure the array is large enough
+        if (levelData.greenCoins == null || levelData.greenCoins.Length <= coinIndex)
+        {
+            bool[] newArray = new bool[coinIndex + 1];
+            if (levelData.greenCoins != null)
+                levelData.greenCoins.CopyTo(newArray, 0);
+            levelData.greenCoins = newArray;
+        }
+
+        // Mark coin as collected
+        levelData.greenCoins[coinIndex] = true;
+    }
+
+    private void UpdateSaveDataOnLevelComplete()
+    {
+        var saveData = SaveManager.Current;
+        string currentLevelID = levelID;
+        
+        // Find or create level data
+        var levelData = saveData.levels.Find(l => l.levelID == currentLevelID);
+        if (levelData == null)
+        {
+            levelData = new LevelProgressData 
+            { 
+                levelID = currentLevelID,
+                greenCoins = new bool[greenCoins.Length],
+                totalGreenCoins = greenCoins.Length,
+                completed = true,
+                perfect = false,
+                highestRank = 0,
+                bestTimeMs = 0,
+                highScore = GlobalVariables.score
+            };
+            saveData.levels.Add(levelData);
+        }
+        else
+        {
+            levelData.completed = true;
+        }
+        
+        // Calculate "perfect" - all coins + no modifiers
+        bool allCoinsCollected = collectedGreenCoins.Count == greenCoins.Length;
+        levelData.perfect = allCoinsCollected && 
+                        !GlobalVariables.infiniteLivesMode && 
+                        !GlobalVariables.enableCheckpoints && 
+                        !GlobalVariables.stopTimeLimit;
+        
+        // Initialize green coins array if needed
+        if (levelData.greenCoins == null || levelData.greenCoins.Length != greenCoins.Length)
+        {
+            levelData.greenCoins = new bool[greenCoins.Length];
+            levelData.totalGreenCoins = greenCoins.Length;
+        }
+        
+        // IMPORTANT: Only mark coins as permanently collected IF they were collected in this run
+        for (int i = 0; i < greenCoins.Length; i++)
+        {
+            if (collectedGreenCoins.Contains(greenCoins[i]))
+            {
+                levelData.greenCoins[i] = true;  // PERMANENT save
+            }
+        }
+        
+        // Update best time (keep fastest)
+        double currentTimeMs = GlobalVariables.elapsedTime.TotalMilliseconds;
+        if (currentTimeMs < levelData.bestTimeMs || levelData.bestTimeMs == 0)
+        {
+            levelData.bestTimeMs = currentTimeMs;
+        }
+        
+        // Update high score
+        if (GlobalVariables.score > levelData.highScore)
+        {
+            levelData.highScore = GlobalVariables.score;
+        }
+        
+        // Update rank (keep highest)
+        int currentRankValue = (int)currentRank;
+        if (currentRankValue > levelData.highestRank)
+        {
+            levelData.highestRank = currentRankValue;
+        }
+        
+        // CLEAR CHECKPOINT (level completed)
+        saveData.checkpoint = new CheckpointSave
+        {
+            hasCheckpoint = false
+        };
+        
+        // Save
+        SaveManager.Save();
+        
+        Debug.Log($"Level {currentLevelID} completed and saved: " +
+                $"Perfect={levelData.perfect}, " +
+                $"BestTime={levelData.bestTimeMs}ms, " +
+                $"Coins={levelData.greenCoins.Count(c => c)}/{levelData.totalGreenCoins}, " +
+                $"Rank={levelData.highestRank}, " +
+                $"HighScore={levelData.highScore}");
+    }
+    #endregion
 
     #region TotalCoins
     // Get the totalCoins based on coins and block that contains blocks
@@ -1021,9 +1237,34 @@ public class GameManager : MonoBehaviour
             Debug.Log("You complete the level without advantages, Congrats! You did it! Yay :D!");
         }
 
-        if (collectedGreenCoins.Count == greenCoins.Length && !GlobalVariables.infiniteLivesMode && !GlobalVariables.enableCheckpoints && !GlobalVariables.stopTimeLimit)
+        if (collectedGreenCoins.Count == greenCoins.Length && 
+            !GlobalVariables.infiniteLivesMode && 
+            !GlobalVariables.enableCheckpoints && 
+            !GlobalVariables.stopTimeLimit)
         {
             Debug.Log("Level completed perfect");
+            
+            // Save to SaveData
+            if (SaveManager.Current != null)
+            {
+                var levelProgress = SaveManager.Current.levels.Find(l => l.levelID == levelID);
+                if (levelProgress == null)
+                {
+                    levelProgress = new LevelProgressData
+                    {
+                        levelID = levelID,
+                        perfect = true
+                    };
+                    SaveManager.Current.levels.Add(levelProgress);
+                }
+                else
+                {
+                    levelProgress.perfect = true;
+                }
+                SaveManager.Save();
+            }
+            
+            // ALSO keep PlayerPrefs for backward compatibility
             PlayerPrefs.SetInt("LevelPerfect_" + levelID, 1);
         }
     }
@@ -1060,37 +1301,32 @@ public class GameManager : MonoBehaviour
         // Save level progress if reached a checkpoint
         if (GlobalVariables.checkpoint != -1)
         {
-            // Save the current number of lives to PlayerPrefs
-            PlayerPrefs.SetInt("SavedLives", GlobalVariables.lives);
+            // Update SaveData.checkpoint
+            SaveManager.Current.checkpoint = new CheckpointSave
+            {
+                hasCheckpoint = true,
+                levelID = levelID,
+                checkpointId = GlobalVariables.checkpoint,
+                coins = GlobalVariables.coinCount,
+                speedrunMs = GlobalVariables.elapsedTime.TotalMilliseconds,
+                greenCoinsInRun = new bool[greenCoins.Length]
+            };
 
-            // Save the current number of coins to PlayerPrefs
-            PlayerPrefs.SetInt("SavedCoins", GlobalVariables.coinCount);
-
-            // Save the green coins collected to PlayerPrefs
-            // But in a different way than the other PlayerPrefs so that they aren't permanently saved even if you exit the level
+            // Mark what green coins were collected IN THIS RUN
             for (int i = 0; i < greenCoins.Length; i++)
             {
-                if (collectedGreenCoinsInRun.Contains(greenCoins[i]))
-                {
-                    PlayerPrefs.SetInt("SavedGreenCoin" + i, 1);
-                }
-                else
-                {
-                    PlayerPrefs.SetInt("SavedGreenCoin" + i, 0);
-                }
+                SaveManager.Current.checkpoint.greenCoinsInRun[i] = 
+                    collectedGreenCoinsInRun.Contains(greenCoins[i]);
             }
 
-            // Save the current checkpoint to PlayerPrefs
-            PlayerPrefs.SetInt("SavedCheckpoint", GlobalVariables.checkpoint);
-
-            // Save current speedrun time to PlayerPrefs
-            PlayerPrefs.SetString("SavedSpeedrunTime", GlobalVariables.elapsedTime.TotalMilliseconds.ToString(System.Globalization.CultureInfo.InvariantCulture));
-
-            PlayerPrefs.SetString("SavedLevel", levelID);
+            SaveManager.Save();
+            Debug.Log($"Checkpoint saved for level {levelID}, checkpoint {GlobalVariables.checkpoint}");
         }
     }
+
     public void RemoveProgress()
     {
+        // Clear old PlayerPrefs system
         PlayerPrefs.DeleteKey("SavedLives");
         PlayerPrefs.DeleteKey("SavedCoins");
         PlayerPrefs.DeleteKey("SavedCheckpoint");
@@ -1098,6 +1334,14 @@ public class GameManager : MonoBehaviour
         for (int i = 0; i < greenCoins.Length; i++)
         {
             PlayerPrefs.DeleteKey("SavedGreenCoin" + i);
+        }
+        
+        // ALSO clear new SaveManager checkpoint
+        if (SaveManager.Current != null && SaveManager.Current.checkpoint != null)
+        {
+            SaveManager.Current.checkpoint.hasCheckpoint = false;
+            SaveManager.Current.checkpoint.levelID = "";
+            SaveManager.Save();
         }
     }
 
@@ -1490,14 +1734,11 @@ public class GameManager : MonoBehaviour
         // Save the high score when the level ends
         UpdateHighScore();
 
-        // Save the collected coin names in PlayerPrefs
-        SaveCollectedCoins();
-
         // Update the rank based on the final score
         UpdateRank();
 
         // Set Level Completed
-        PlayerPrefs.SetInt("LevelCompleted_" + levelID, 1);
+        UpdateSaveDataOnLevelComplete();
 
         // Remove saved progress
         RemoveProgress();
@@ -1517,7 +1758,7 @@ public class GameManager : MonoBehaviour
 
         finishTimeSnapshot = -1;
     }
-
+    
     public void SetPlayer(MarioMovement player, int playerIndex)
     {
         while (players.Count <= playerIndex) players.Add(null);

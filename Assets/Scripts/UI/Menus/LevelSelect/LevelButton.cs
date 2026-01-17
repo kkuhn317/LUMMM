@@ -106,7 +106,8 @@ public class LevelButton : MonoBehaviour
     {
         get
         {
-            return PlayerPrefs.GetInt("LevelCompleted_" + levelInfo.levelID, 0) == 1;
+            if (SaveLoadSystem.Instance == null) return false;
+            return SaveLoadSystem.Instance.IsLevelCompleted(levelInfo.levelID);
         }
     }
 
@@ -128,47 +129,62 @@ public class LevelButton : MonoBehaviour
             return;
         }
 
+        RefreshUI();
+    }
+
+    public void RefreshUI()
+    {
         string id = levelInfo.levelID;
-        // Set the saved info
         
+        if (SaveLoadSystem.Instance == null) return;
+
         // Perfect/Complete Level Mark
-        // TODO: Set the LevelPerfect playerpref when you perfect a level
-        if (PlayerPrefs.GetInt("LevelPerfect_" + id, 0) == 1)
+        if (SaveLoadSystem.Instance.IsLevelPerfect(id))
         {
             perfectLevelMark.SetActive(true);
+            completeLevelMark.SetActive(false);
         }
-        else if (PlayerPrefs.GetInt("LevelCompleted_" + id, 0) == 1)
+        else if (SaveLoadSystem.Instance.IsLevelCompleted(id))
         {
+            perfectLevelMark.SetActive(false);
             completeLevelMark.SetActive(true);
         }
-
-        // Coins
-        for (int i = 0; i < 3; i++)
+        else
         {
-            int sprite = PlayerPrefs.GetInt("CollectedCoin" + i + "_" + id, 0);
-            greenCoinListImages[i].sprite = GreenCoinsprite[sprite];
+            perfectLevelMark.SetActive(false);
+            completeLevelMark.SetActive(false);
         }
 
-        int mode = PlayerPrefs.HasKey(SettingsKeys.CheckpointModeKey)
-            ? PlayerPrefs.GetInt(SettingsKeys.CheckpointModeKey, 0)
-            : (PlayerPrefs.GetInt(SettingsKeys.CheckpointsKey, 0) == 1 ? 1 : 0);
+        // Green Coins
+        var greenCoins = SaveLoadSystem.Instance.GetGreenCoins(id);
+        int coinCount = Mathf.Min(greenCoinListImages.Count, greenCoins?.Length ?? 0);
+        
+        for (int i = 0; i < greenCoinListImages.Count; i++)
+        {
+            if (i < coinCount && greenCoins[i])
+            {
+                greenCoinListImages[i].sprite = GreenCoinsprite[1]; // collected
+            }
+            else
+            {
+                greenCoinListImages[i].sprite = GreenCoinsprite[0]; // uncollected
+            }
+        }
 
         // Checkpoint
-        if (PlayerPrefs.GetString("SavedLevel") == id && mode != 0)
-        {
-            checkpointFlag.SetActive(true);
-        }
-        else 
-        {
-            checkpointFlag.SetActive(false);
-        }
+        bool hasCheckpoint = SaveManager.HasCheckpointForLevel(id);
+        checkpointFlag.SetActive(hasCheckpoint && SaveManager.Current.modifiers.checkpointMode != 0);
 
         // Rank
-        int rank = PlayerPrefs.GetInt("HighestPlayerRank_" + id, -1);
-        if (rank > 0)
+        int rank = SaveLoadSystem.Instance.GetHighestRank(id);
+        if (rank > 0 && rank <= minirankTypes.Length)
         {
             obtainedRank.SetActive(true);
             obtainedRank.GetComponent<Image>().sprite = minirankTypes[rank - 1];
+        }
+        else
+        {
+            obtainedRank.SetActive(false);
         }
     }
 
@@ -191,13 +207,8 @@ public class LevelButton : MonoBehaviour
 
     public void UpdateCheckpointFlag()
     {
-        int mode = PlayerPrefs.HasKey(SettingsKeys.CheckpointModeKey)
-            ? PlayerPrefs.GetInt(SettingsKeys.CheckpointModeKey, 0)
-            : (PlayerPrefs.GetInt(SettingsKeys.CheckpointsKey, 0) == 1 ? 1 : 0);
-    
-        bool hasCheckpoint = PlayerPrefs.HasKey("SavedLevel") &&
-                             PlayerPrefs.GetString("SavedLevel") == levelInfo.levelID;
-    
-        checkpointFlag.SetActive(hasCheckpoint && mode != 0);
+        string id = levelInfo.levelID;
+        bool hasCheckpoint = SaveManager.HasCheckpointForLevel(id);
+        checkpointFlag.SetActive(hasCheckpoint && SaveManager.Current.modifiers.checkpointMode != 0);
     }
 }

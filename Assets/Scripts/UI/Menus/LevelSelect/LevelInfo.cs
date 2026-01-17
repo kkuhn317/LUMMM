@@ -30,6 +30,8 @@ public class LevelInfo : ScriptableObject
     public int lives;
     public bool beta;
 
+    [Min(0)] public int totalGreenCoins = 3;
+
     public MarioType marioType; // The type of Mario (Normal, Tiny, NES)
     public MarioMoves marioMoves; // The available moves for Mario (bitmask)
     public Sprite xImage;

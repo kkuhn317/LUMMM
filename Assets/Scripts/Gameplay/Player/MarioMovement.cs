@@ -23,7 +23,7 @@ public class MarioMovement : MonoBehaviour
     private const float lowerDeadzone = 0.3f; // The lower limit of the deadzone
     private const float upperDeadzone = 0.9f; // The upper limit of the deadzone
     [HideInInspector] public bool groundPoundInWater = false;
-    private float waterGroundPoundDuration = 1f; // Duración permitida en el agua
+    private float waterGroundPoundDuration = 1f; // Allowed duration in the water
     [HideInInspector] public float waterGroundPoundStartTime;
     private float lastCancelTime = -1f; // Tracks the time of the last cancel
     private bool jumpPressed = false;

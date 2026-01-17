@@ -7,33 +7,42 @@ public class Scroller : MonoBehaviour
     [SerializeField] private RawImage _img;
     [SerializeField] private float _x, _y;
     [SerializeField] private List<Color> _colors;
-    [SerializeField] private float _colorChangeDuration;
+    [SerializeField] private float _colorChangeDuration = 1f;
 
-    private int _currentColorIndex = 0;
+    private int _currentColorIndex;
     private float _colorChangeTimer;
+    private Rect _rect;
+    private float _invColorDuration;
 
     void Start()
     {
-        //Set the alpha value of the image to 1
-        Color imgColor = _img.color;
-        imgColor.a = 1f;
-        _img.color = imgColor;
+        var c = _img.color; c.a = 1f; _img.color = c;
+
+        _rect = _img.uvRect;
+        _invColorDuration = 1f / _colorChangeDuration;
     }
 
     void Update()
     {
-        //Update the UV rect
-        _img.uvRect = new Rect(_img.uvRect.position + new Vector2(_x, _y) * Time.unscaledDeltaTime, _img.uvRect.size);
+        // UV scroll
+        _rect.x += _x * Time.unscaledDeltaTime;
+        _rect.y += _y * Time.unscaledDeltaTime;
+        _img.uvRect = _rect;
 
-        //Update the color
-        if (_colors.Count > 1) // Check that there are at least 2 colors available
+        // Color interpolation
+        if (_colors.Count > 1)
         {
-            _colorChangeTimer += Time.deltaTime;
-            float t = _colorChangeTimer / _colorChangeDuration;
-            _img.color = Color.Lerp(_colors[_currentColorIndex], _colors[(_currentColorIndex + 1) % _colors.Count], t);
+            _colorChangeTimer += Time.unscaledDeltaTime;
+            float t = _colorChangeTimer * _invColorDuration;
+
+            _img.color = Color.Lerp(
+                _colors[_currentColorIndex],
+                _colors[(_currentColorIndex + 1) % _colors.Count],
+                t
+            );
+
             if (t >= 1f)
             {
-                //Reset the timer and move to the next color
                 _colorChangeTimer = 0f;
                 _currentColorIndex = (_currentColorIndex + 1) % _colors.Count;
             }
