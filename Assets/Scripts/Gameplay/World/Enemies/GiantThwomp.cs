@@ -83,6 +83,7 @@ public class GiantThwomp : EnemyAI, IGroundPoundable
 
     public SpikesFlagPole flagpole;
     public UnityEvent onThwompDefeat;
+    public UnityEvent onThwompWipedOut;
     public bool CanBeDefeatedNow => currentState == ThwompStates.FallBack;
 
     protected override void Start()
@@ -353,6 +354,10 @@ public class GiantThwomp : EnemyAI, IGroundPoundable
                 fallBackCollider.enabled = true;
                 gameObject.layer = LayerMask.NameToLayer("Ground");
                 animator.SetBool("fall", true);
+
+                // Execute unity event
+                onThwompDefeat?.Invoke();
+
                 // Start monitoring the animation
                 StartCoroutine(MonitorFallBackAnimation());
                 break;
@@ -561,7 +566,7 @@ public class GiantThwomp : EnemyAI, IGroundPoundable
                 health--;
                 if (health <= 0)
                 {
-                    ChangeState(ThwompStates.FallBack);
+                    ChangeState(ThwompStates.FallBack);                    
                 }
 
                 foreach (Material material in materials)
@@ -643,7 +648,7 @@ public class GiantThwomp : EnemyAI, IGroundPoundable
         if (currentState == ThwompStates.FallBack)
         {
             player.Freeze();
-            onThwompDefeat?.Invoke();
+            onThwompWipedOut?.Invoke();
             
             // Play the poof effect
             if (poofEffectPrefab != null)

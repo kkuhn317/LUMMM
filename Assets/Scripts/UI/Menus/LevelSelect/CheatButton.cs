@@ -230,7 +230,7 @@ public class CheatButton : MonoBehaviour
 
         foreach (LevelButton level in requiredLevels)
         {
-            if (level != null && level.beaten)
+            if (level != null && level.Beaten)
                 count++;
         }
         return count;

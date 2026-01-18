@@ -102,13 +102,33 @@ public class LevelButton : MonoBehaviour
 
     private AudioSource audioSource;
 
-    public bool beaten
+    public bool Beaten
     {
         get
         {
             if (SaveLoadSystem.Instance == null) return false;
             return SaveLoadSystem.Instance.IsLevelCompleted(levelInfo.levelID);
         }
+    }
+
+    private bool IsLevelCompleted()
+    {
+        // Primary source: SaveManager
+        if (SaveManager.Current != null && SaveManager.Current.levels != null)
+        {
+            foreach (var levelProgress in SaveManager.Current.levels)
+            {
+                if (levelProgress.levelID == levelInfo.levelID)
+                {
+                    // Assumes your LevelProgressData (or equivalent) has a bool "completed" field.
+                    // If the field has a different name, update this line accordingly.
+                    return levelProgress.completed;
+                }
+            }
+        }
+
+        // Legacy fallback: old PlayerPrefs key
+        return PlayerPrefs.GetInt("LevelCompleted_" + levelInfo.levelID, 0) == 1;
     }
 
     void Start()
@@ -139,12 +159,15 @@ public class LevelButton : MonoBehaviour
         if (SaveLoadSystem.Instance == null) return;
 
         // Perfect/Complete Level Mark
-        if (SaveLoadSystem.Instance.IsLevelPerfect(id))
+        bool isPerfect = SaveLoadSystem.Instance != null && SaveLoadSystem.Instance.IsLevelPerfect(id);
+        bool isCompleted = SaveLoadSystem.Instance != null && SaveLoadSystem.Instance.IsLevelCompleted(id);
+
+        if (isPerfect)
         {
             perfectLevelMark.SetActive(true);
             completeLevelMark.SetActive(false);
         }
-        else if (SaveLoadSystem.Instance.IsLevelCompleted(id))
+        else if (isCompleted)
         {
             perfectLevelMark.SetActive(false);
             completeLevelMark.SetActive(true);

@@ -1274,6 +1274,7 @@ MonoBehaviour:
   giveScoreOnTouch: 1
   checkpointScore: 2000
   scorePopupOffset: {x: 0, y: 1, z: 0}
+  usePlayerPowerState: 0
   checkpointPowerState: 1
 --- !u!61 &160070415
 BoxCollider2D:
@@ -4566,6 +4567,7 @@ MonoBehaviour:
   giveScoreOnTouch: 1
   checkpointScore: 2000
   scorePopupOffset: {x: 0, y: 1, z: 0}
+  usePlayerPowerState: 0
   checkpointPowerState: 1
 --- !u!61 &649794556
 BoxCollider2D:
@@ -4964,6 +4966,7 @@ MonoBehaviour:
   giveScoreOnTouch: 1
   checkpointScore: 2000
   scorePopupOffset: {x: 0, y: 1, z: 0}
+  usePlayerPowerState: 0
   checkpointPowerState: 1
 --- !u!61 &693186073
 BoxCollider2D:
@@ -5074,6 +5077,7 @@ MonoBehaviour:
   giveScoreOnTouch: 1
   checkpointScore: 2000
   scorePopupOffset: {x: 0, y: 1, z: 0}
+  usePlayerPowerState: 0
   checkpointPowerState: 1
 --- !u!61 &697029048
 BoxCollider2D:
@@ -6675,6 +6679,63 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 17d2ae7c33396284cbb7d8c77cdd6e5d, type: 3}
+--- !u!1001 &1158513622
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 3468257196839511664, guid: 2a5c5d7f5d5e52340a508e43fe6b0ae0, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3468257196839511664, guid: 2a5c5d7f5d5e52340a508e43fe6b0ae0, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3468257196839511664, guid: 2a5c5d7f5d5e52340a508e43fe6b0ae0, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3468257196839511664, guid: 2a5c5d7f5d5e52340a508e43fe6b0ae0, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3468257196839511664, guid: 2a5c5d7f5d5e52340a508e43fe6b0ae0, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3468257196839511664, guid: 2a5c5d7f5d5e52340a508e43fe6b0ae0, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3468257196839511664, guid: 2a5c5d7f5d5e52340a508e43fe6b0ae0, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3468257196839511664, guid: 2a5c5d7f5d5e52340a508e43fe6b0ae0, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3468257196839511664, guid: 2a5c5d7f5d5e52340a508e43fe6b0ae0, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3468257196839511664, guid: 2a5c5d7f5d5e52340a508e43fe6b0ae0, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9169417757887525586, guid: 2a5c5d7f5d5e52340a508e43fe6b0ae0, type: 3}
+      propertyPath: m_Name
+      value: SaveLoadSystem
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 2a5c5d7f5d5e52340a508e43fe6b0ae0, type: 3}
 --- !u!1 &1166833535
 GameObject:
   m_ObjectHideFlags: 0
@@ -12563,6 +12624,7 @@ MonoBehaviour:
   giveScoreOnTouch: 1
   checkpointScore: 2000
   scorePopupOffset: {x: 0, y: 1, z: 0}
+  usePlayerPowerState: 0
   checkpointPowerState: 1
 --- !u!61 &2073771220
 BoxCollider2D:
@@ -13342,6 +13404,7 @@ SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 778293542}
+  - {fileID: 1158513622}
   - {fileID: 1672000633}
   - {fileID: 2140510772}
   - {fileID: 2099742974}

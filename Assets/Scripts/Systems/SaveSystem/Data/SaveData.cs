@@ -22,6 +22,8 @@ public class CheckpointSave
     public string levelID;
     public int checkpointId;
     public int coins;
+    public int lives;
+    public int score; // NEW
     public double speedrunMs;
     public bool[] greenCoinsInRun;
 }

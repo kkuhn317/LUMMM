@@ -30,6 +30,8 @@ public class SaveLoadSystem : PersistentSingleton<SaveLoadSystem>
                 Debug.LogError($"Duplicate level IDs found: {string.Join(", ", duplicates)}");
             }
         }
+
+        LegacyPlayerPrefsMigrator.TryMigrate(this);
     }
 
     #region Level Info
@@ -59,13 +61,23 @@ public class SaveLoadSystem : PersistentSingleton<SaveLoadSystem>
     public bool IsLevelCompleted(string levelID)
     {
         var progress = GetLevelProgress(levelID);
-        return progress?.completed ?? false;
+        if (progress != null)
+        {
+            return progress.completed;
+        }
+
+        return PlayerPrefs.GetInt("LevelCompleted_" + levelID, 0) == 1;
     }
 
     public bool IsLevelPerfect(string levelID)
     {
         var progress = GetLevelProgress(levelID);
-        return progress?.perfect ?? false;
+        if (progress != null)
+        {
+            return progress.perfect;
+        }
+        
+        return PlayerPrefs.GetInt("LevelPerfect_" + levelID, 0) == 1;
     }
 
     public bool[] GetGreenCoins(string levelID)

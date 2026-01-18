@@ -42,7 +42,7 @@ public class LevelSelectionManager : MonoBehaviour
     public Button playButton;
     public List<LevelButton> levelButtons = new List<LevelButton>();
     public Sprite[] GreenCoinsprite; // 0 - uncollected, 1 - collected
-    public Sprite[] minirankTypes; // 0 - poison, 1 - mushroom, 2 - flower, 3 - 1up, 4 - star
+    public Sprite[] minirankTypes;   // 0 - poison, 1 - mushroom, 2 - flower, 3 - 1up, 4 - star
     public LevelButton selectedLevelButton;
 
     [Header("Events")]
@@ -66,16 +66,16 @@ public class LevelSelectionManager : MonoBehaviour
         onSceneStart?.Invoke();
         playButton.interactable = false;
         playButton.gameObject.SetActive(false);
-        
-        // Ensure SaveLoadSystem is initialized
+
+        // Make sure the SaveLoadSystem singleton exists
         if (SaveLoadSystem.Instance == null)
         {
             Debug.LogError("SaveLoadSystem not found! Make sure it's in the scene.");
         }
-        
-        // Initialize video link button
+
+        // Enable or disable the video link button based on persistent listeners
         videoLinkButton.enabled = videoLinkButton.onClick.GetPersistentEventCount() > 0;
-        
+
         if (bestTimeText != null)
             bestTimeText.text = "--:--.--";
     }
@@ -83,7 +83,7 @@ public class LevelSelectionManager : MonoBehaviour
     public static bool IsLevelPlayable(LevelButton button)
     {
         if (button == null || button.levelInfo == null) return false;
-        return !string.IsNullOrEmpty(button.levelInfo.levelScene) && 
+        return !string.IsNullOrEmpty(button.levelInfo.levelScene) &&
                (!button.levelInfo.beta || GlobalVariables.cheatBetaMode);
     }
 
@@ -99,18 +99,19 @@ public class LevelSelectionManager : MonoBehaviour
         if (selectedLevelButton.selectionMark != null)
             selectedLevelButton.selectionMark.SetActive(true);
 
-        // Update the level info text
+        // Level info text
         levelNameText.text = LocalizationSettings.StringDatabase.GetLocalizedString("Level_" + button.levelInfo.levelID);
         videoYearText.text = button.levelInfo.videoYear;
         levelDescriptionText.text = LocalizationSettings.StringDatabase.GetLocalizedString("Desc_" + button.levelInfo.levelID);
-        
-        // Update best time text from SaveData
+
+        // Best time text using SaveData first, PlayerPrefs as fallback
         if (bestTimeText != null)
         {
-            var progress = SaveLoadSystem.Instance?.GetLevelProgress(button.levelInfo.levelID);
-            if (progress != null && progress.bestTimeMs > 0)
+            double bestMs = GetBestTimeMs(button.levelInfo.levelID);
+
+            if (bestMs > 0)
             {
-                var ts = TimeSpan.FromMilliseconds(progress.bestTimeMs);
+                var ts = TimeSpan.FromMilliseconds(bestMs);
                 bestTimeText.text = ts.ToString(@"m\:ss\.ff");
             }
             else
@@ -119,7 +120,7 @@ public class LevelSelectionManager : MonoBehaviour
             }
         }
 
-        // Remove any existing listeners from the video link button
+        // Video link setup
         videoLinkButton.onClick.RemoveAllListeners();
 
         var table = LocalizationSettings.StringDatabase.GetTable("Game Text");
@@ -136,7 +137,7 @@ public class LevelSelectionManager : MonoBehaviour
             videoLinkButton.onClick.AddListener(OpenVideoLink);
         }
 
-        // Set custom video link text if available
+        // Optional custom text for the video link
         var videoLinkTextEntry = table.GetEntry("VideoLinkText_" + button.levelInfo.levelID);
         string customVideoLinkText = videoLinkTextEntry != null ? videoLinkTextEntry.GetLocalizedString() : null;
         if (!string.IsNullOrEmpty(customVideoLinkText))
@@ -144,7 +145,7 @@ public class LevelSelectionManager : MonoBehaviour
             videoLinkText.text = customVideoLinkText;
         }
 
-        // Enable the correct animator icon
+        // Animator icon selection
         foreach (AnimatorIcon animator in animatorIcons)
         {
             if (animator != null)
@@ -174,7 +175,7 @@ public class LevelSelectionManager : MonoBehaviour
     }
 
     public void OnPlayButtonClick()
-    {   
+    {
         if (selectedLevelButton == null || !IsLevelPlayable(selectedLevelButton))
         {
             return;
@@ -183,46 +184,102 @@ public class LevelSelectionManager : MonoBehaviour
         StartLevel();
     }
 
-    private void LoadSaveGame()
+    /// <summary>
+    /// Returns the best time in milliseconds for a level.
+    /// Uses SaveData first, then falls back to the legacy PlayerPrefs key "BestTimeMs_<levelID>".
+    /// </summary>
+    private double GetBestTimeMs(string levelID)
     {
-        if (selectedLevelButton == null) return;
-        
-        string levelID = selectedLevelButton.levelInfo.levelID;
-        var checkpoint = SaveManager.Current.checkpoint;
-        
-        // Check if we have a checkpoint for this level
-        if (checkpoint.hasCheckpoint && checkpoint.levelID == levelID)
+        double bestMs = 0;
+
+        // New save system first
+        var progress = SaveLoadSystem.Instance?.GetLevelProgress(levelID);
+        if (progress != null && progress.bestTimeMs > 0)
         {
-            // Load from checkpoint data
-            GlobalVariables.lives = checkpoint.coins; // Note: checkpoint.coins might be misnamed
-            GlobalVariables.coinCount = checkpoint.coins;
-            GlobalVariables.checkpoint = checkpoint.checkpointId;
-            
-            // Convert speedrunMs back to TimeSpan
-            if (checkpoint.speedrunMs > 0)
+            bestMs = progress.bestTimeMs;
+        }
+
+        // Legacy PlayerPrefs fallback
+        if (bestMs <= 0)
+        {
+            string key = $"BestTimeMs_{levelID}";
+            string msStr = PlayerPrefs.GetString(key, "");
+
+            if (double.TryParse(msStr, NumberStyles.Float, CultureInfo.InvariantCulture, out double legacyMs) && legacyMs > 0)
             {
-                GlobalVariables.speedrunTimer = new System.Diagnostics.Stopwatch();
-                GlobalVariables.speedrunTimer.Start();
-                // We need to set elapsed time - this is tricky with Stopwatch
-                // Might need to store start time instead
+                bestMs = legacyMs;
             }
-            
-            // Green coins from checkpoint will be loaded by GameManager
-            Debug.Log($"Loading checkpoint for level {levelID}, checkpoint {checkpoint.checkpointId}");
+        }
+
+        return bestMs;
+    }
+
+    /// <summary>
+    /// Loads checkpoint data from the new SaveManager system for this level.
+    /// Returns true if a valid checkpoint was loaded.
+    /// </summary>
+    private bool TryLoadCheckpointFromSaveManager(string levelID)
+    {
+        var checkpoint = SaveManager.Current.checkpoint;
+
+        if (!checkpoint.hasCheckpoint || checkpoint.levelID != levelID)
+            return false;
+
+        GlobalVariables.lives = checkpoint.lives;
+        GlobalVariables.coinCount = checkpoint.coins;
+        GlobalVariables.checkpoint = checkpoint.checkpointId;
+
+        if (checkpoint.speedrunMs > 0)
+        {
+            // Basic restoration for the timer; the exact elapsed value handling can be refined later.
+            GlobalVariables.speedrunTimer = new System.Diagnostics.Stopwatch();
+            GlobalVariables.speedrunTimer.Start();
+        }
+
+        Debug.Log($"Loading checkpoint from SaveData for level {levelID}, checkpoint {checkpoint.checkpointId}");
+        return true;
+    }
+
+    /// <summary>
+    /// Loads checkpoint data from the legacy PlayerPrefs keys if they belong to this level.
+    /// Returns true if a valid legacy save was loaded.
+    /// </summary>
+    private bool TryLoadCheckpointFromPlayerPrefs(string levelID)
+    {
+        string savedLevel = PlayerPrefs.GetString("SavedLevel", "none");
+        if (savedLevel != levelID)
+        {
+            return false;
+        }
+
+        // Lives and coins from legacy save
+        GlobalVariables.lives = PlayerPrefs.GetInt("SavedLives", selectedLevelButton.levelInfo.lives);
+        GlobalVariables.coinCount = PlayerPrefs.GetInt("SavedCoins", 0);
+
+        // Checkpoints depend on the current checkpoint mode
+        if (GlobalVariables.enableCheckpoints)
+        {
+            GlobalVariables.checkpoint = PlayerPrefs.GetInt("SavedCheckpoint", -1);
         }
         else
         {
-            // Fresh start
-            GlobalVariables.lives = selectedLevelButton.levelInfo.lives;
-            GlobalVariables.coinCount = 0;
             GlobalVariables.checkpoint = -1;
-            GlobalVariables.speedrunTimer = new System.Diagnostics.Stopwatch();
         }
+
+        // Restore speedrun timer offset if it exists
+        string savedTime = PlayerPrefs.GetString("SavedSpeedrunTime", string.Empty);
+        if (!string.IsNullOrEmpty(savedTime))
+        {
+            GlobalVariables.SetTimerOffsetFromString(savedTime);
+        }
+
+        Debug.Log($"Loading LEGACY checkpoint from PlayerPrefs for level {levelID}");
+        return true;
     }
 
     private void StartLevel()
     {
-        if (selectedLevelButton == null || 
+        if (selectedLevelButton == null ||
             string.IsNullOrEmpty(selectedLevelButton.levelInfo.levelScene))
         {
             Debug.LogError("Cannot start level: No level selected or no scene specified");
@@ -231,27 +288,35 @@ public class LevelSelectionManager : MonoBehaviour
 
         // Destroy any existing game music
         DestroyGameMusic.DestroyGameMusicObjects();
-        
+
         // Reset global variables for the level
         GlobalVariables.levelInfo = selectedLevelButton.levelInfo;
         GlobalVariables.ResetForLevel();
 
-        // Check if level has a checkpoint in SaveData
-        bool hasCheckpoint = SaveManager.HasCheckpointForLevel(selectedLevelButton.levelInfo.levelID);
-        
-        if (hasCheckpoint)
+        string levelID = selectedLevelButton.levelInfo.levelID;
+        bool loadedCheckpoint = false;
+
+        // First try checkpoint from the new save system
+        if (SaveManager.HasCheckpointForLevel(levelID))
         {
-            LoadSaveGame();
+            loadedCheckpoint = TryLoadCheckpointFromSaveManager(levelID);
         }
-        else
+
+        // If there is no save-data checkpoint, try legacy PlayerPrefs
+        if (!loadedCheckpoint)
         {
-            // Fresh start
+            loadedCheckpoint = TryLoadCheckpointFromPlayerPrefs(levelID);
+        }
+
+        // If nothing could be loaded, start fresh
+        if (!loadedCheckpoint)
+        {
             GlobalVariables.lives = selectedLevelButton.levelInfo.lives;
             GlobalVariables.coinCount = 0;
             GlobalVariables.checkpoint = -1;
         }
 
-        // Update modifiers from SaveData
+        // Update gameplay modifiers from SaveData (new system)
         var modifiers = SaveManager.Current.modifiers;
         if (modifiers != null)
         {
@@ -272,7 +337,7 @@ public class LevelSelectionManager : MonoBehaviour
         }
     }
 
-    // Animator Icons
+    // Animator Icons support
     public void AddAnimatorIcon(AnimatorIcon animator)
     {
         if (animator != null && !animatorIcons.Contains(animator))
@@ -289,7 +354,7 @@ public class LevelSelectionManager : MonoBehaviour
                 button.UpdateCheckpointFlag();
         }
     }
-    
+
     // Refresh all level buttons UI
     public void RefreshAllLevelButtons()
     {

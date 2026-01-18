@@ -1390,6 +1390,9 @@ MonoBehaviour:
   carryable: 0
   carried: 0
   throwVelocity: {x: 12, y: 10}
+  throwVisualType: 0
+  throwSpriteRenderer: {fileID: 0}
+  throwRotateSpeed: 720
   rotateAroundCenter: 0
   knockAwayVelocity: {x: 5, y: 5}
   overrideKnockAwayGravity: 0
@@ -4386,6 +4389,11 @@ MonoBehaviour:
   particle: {fileID: 4811748717798332445, guid: d1d1a2fd30f44f24f8e3305a5e1248ab, type: 3}
   disableColliderOnActivate: 1
   spawnOffset: {x: 0, y: -0.35}
+  giveScoreOnTouch: 1
+  checkpointScore: 2000
+  scorePopupOffset: {x: 0, y: 1, z: 0}
+  usePlayerPowerState: 0
+  checkpointPowerState: 0
 --- !u!61 &320711888
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -9364,6 +9372,63 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 8403295354037554395, guid: a849c50e134262f49af8f068f561f5fd, type: 3}
   m_PrefabInstance: {fileID: 1616494757}
   m_PrefabAsset: {fileID: 0}
+--- !u!1001 &745243406
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 3468257196839511664, guid: 2a5c5d7f5d5e52340a508e43fe6b0ae0, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3468257196839511664, guid: 2a5c5d7f5d5e52340a508e43fe6b0ae0, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3468257196839511664, guid: 2a5c5d7f5d5e52340a508e43fe6b0ae0, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3468257196839511664, guid: 2a5c5d7f5d5e52340a508e43fe6b0ae0, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3468257196839511664, guid: 2a5c5d7f5d5e52340a508e43fe6b0ae0, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3468257196839511664, guid: 2a5c5d7f5d5e52340a508e43fe6b0ae0, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3468257196839511664, guid: 2a5c5d7f5d5e52340a508e43fe6b0ae0, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3468257196839511664, guid: 2a5c5d7f5d5e52340a508e43fe6b0ae0, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3468257196839511664, guid: 2a5c5d7f5d5e52340a508e43fe6b0ae0, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3468257196839511664, guid: 2a5c5d7f5d5e52340a508e43fe6b0ae0, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9169417757887525586, guid: 2a5c5d7f5d5e52340a508e43fe6b0ae0, type: 3}
+      propertyPath: m_Name
+      value: SaveLoadSystem
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 2a5c5d7f5d5e52340a508e43fe6b0ae0, type: 3}
 --- !u!1 &750095157 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8563141852979758356, guid: 6c3da054316607e43b17e4af15d611e6, type: 3}
@@ -10127,6 +10192,11 @@ MonoBehaviour:
   particle: {fileID: 4811748717798332445, guid: d1d1a2fd30f44f24f8e3305a5e1248ab, type: 3}
   disableColliderOnActivate: 1
   spawnOffset: {x: -0.25, y: -0.35}
+  giveScoreOnTouch: 1
+  checkpointScore: 2000
+  scorePopupOffset: {x: 0, y: 1, z: 0}
+  usePlayerPowerState: 0
+  checkpointPowerState: 0
 --- !u!61 &856911445
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -12343,6 +12413,11 @@ MonoBehaviour:
   particle: {fileID: 4811748717798332445, guid: d1d1a2fd30f44f24f8e3305a5e1248ab, type: 3}
   disableColliderOnActivate: 1
   spawnOffset: {x: 0, y: -0.25}
+  giveScoreOnTouch: 1
+  checkpointScore: 2000
+  scorePopupOffset: {x: 0, y: 1, z: 0}
+  usePlayerPowerState: 0
+  checkpointPowerState: 0
 --- !u!61 &910053982
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -16499,6 +16574,11 @@ MonoBehaviour:
   particle: {fileID: 4811748717798332445, guid: d1d1a2fd30f44f24f8e3305a5e1248ab, type: 3}
   disableColliderOnActivate: 1
   spawnOffset: {x: 0.1, y: -0.35}
+  giveScoreOnTouch: 1
+  checkpointScore: 2000
+  scorePopupOffset: {x: 0, y: 1, z: 0}
+  usePlayerPowerState: 0
+  checkpointPowerState: 0
 --- !u!61 &1207167612
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -17268,6 +17348,11 @@ MonoBehaviour:
   particle: {fileID: 4811748717798332445, guid: d1d1a2fd30f44f24f8e3305a5e1248ab, type: 3}
   disableColliderOnActivate: 1
   spawnOffset: {x: -0.1, y: -0.35}
+  giveScoreOnTouch: 1
+  checkpointScore: 2000
+  scorePopupOffset: {x: 0, y: 1, z: 0}
+  usePlayerPowerState: 0
+  checkpointPowerState: 0
 --- !u!61 &1273313261
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -20569,6 +20654,11 @@ MonoBehaviour:
   particle: {fileID: 4811748717798332445, guid: d1d1a2fd30f44f24f8e3305a5e1248ab, type: 3}
   disableColliderOnActivate: 1
   spawnOffset: {x: 0, y: -0.25}
+  giveScoreOnTouch: 1
+  checkpointScore: 2000
+  scorePopupOffset: {x: 0, y: 1, z: 0}
+  usePlayerPowerState: 0
+  checkpointPowerState: 0
 --- !u!61 &1460711187
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -21656,6 +21746,9 @@ MonoBehaviour:
   carryable: 0
   carried: 0
   throwVelocity: {x: 12, y: 10}
+  throwVisualType: 0
+  throwSpriteRenderer: {fileID: 0}
+  throwRotateSpeed: 720
   rotateAroundCenter: 0
   knockAwayVelocity: {x: 5, y: 5}
   overrideKnockAwayGravity: 0
@@ -21864,6 +21957,11 @@ MonoBehaviour:
   particle: {fileID: 4811748717798332445, guid: d1d1a2fd30f44f24f8e3305a5e1248ab, type: 3}
   disableColliderOnActivate: 1
   spawnOffset: {x: 0, y: -0.35}
+  giveScoreOnTouch: 1
+  checkpointScore: 2000
+  scorePopupOffset: {x: 0, y: 1, z: 0}
+  usePlayerPowerState: 0
+  checkpointPowerState: 0
 --- !u!61 &1585948949
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -24241,6 +24339,11 @@ MonoBehaviour:
   particle: {fileID: 4811748717798332445, guid: d1d1a2fd30f44f24f8e3305a5e1248ab, type: 3}
   disableColliderOnActivate: 1
   spawnOffset: {x: 0, y: -0.35}
+  giveScoreOnTouch: 1
+  checkpointScore: 2000
+  scorePopupOffset: {x: 0, y: 1, z: 0}
+  usePlayerPowerState: 0
+  checkpointPowerState: 0
 --- !u!61 &1681771775
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -24891,6 +24994,9 @@ MonoBehaviour:
   carryable: 0
   carried: 0
   throwVelocity: {x: 12, y: 10}
+  throwVisualType: 0
+  throwSpriteRenderer: {fileID: 0}
+  throwRotateSpeed: 720
   rotateAroundCenter: 0
   knockAwayVelocity: {x: 5, y: 5}
   overrideKnockAwayGravity: 0
@@ -25670,6 +25776,9 @@ MonoBehaviour:
   carryable: 0
   carried: 0
   throwVelocity: {x: 12, y: 10}
+  throwVisualType: 0
+  throwSpriteRenderer: {fileID: 0}
+  throwRotateSpeed: 720
   rotateAroundCenter: 0
   knockAwayVelocity: {x: 5, y: 5}
   overrideKnockAwayGravity: 0
@@ -28178,6 +28287,11 @@ MonoBehaviour:
   particle: {fileID: 4811748717798332445, guid: d1d1a2fd30f44f24f8e3305a5e1248ab, type: 3}
   disableColliderOnActivate: 1
   spawnOffset: {x: -0.25, y: -0.35}
+  giveScoreOnTouch: 1
+  checkpointScore: 2000
+  scorePopupOffset: {x: 0, y: 1, z: 0}
+  usePlayerPowerState: 0
+  checkpointPowerState: 0
 --- !u!61 &1890666632
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -32999,6 +33113,7 @@ SceneRoots:
   - {fileID: 7660437946596734965}
   - {fileID: 8116981543392197627}
   - {fileID: 6598482103973053842}
+  - {fileID: 745243406}
   - {fileID: 1393336823}
   - {fileID: 486352588}
   - {fileID: 2055227755}
