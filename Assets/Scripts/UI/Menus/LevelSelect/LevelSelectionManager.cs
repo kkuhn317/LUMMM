@@ -146,7 +146,6 @@ public class LevelSelectionManager : MonoBehaviour
 
     private void UpdateBestTimeText(LevelButton button)
     {
-        // Best time text using SaveData first, PlayerPrefs as fallback
         if (bestTimeText == null)
             return;
 
@@ -155,7 +154,7 @@ public class LevelSelectionManager : MonoBehaviour
         if (bestMs > 0)
         {
             var ts = TimeSpan.FromMilliseconds(bestMs);
-            bestTimeText.text = ts.ToString(@"m\\:ss\\.ff");
+            bestTimeText.text = ts.ToString(@"m\:ss\.ff");
         }
         else
         {
