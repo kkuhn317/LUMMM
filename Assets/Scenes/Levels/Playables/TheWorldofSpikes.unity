@@ -388,11 +388,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: f552492f234091344bb0fb84e94c8971, type: 3}
---- !u!1 &20563078 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 6082519023744663385, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
-  m_PrefabInstance: {fileID: 5261291008970453458}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &47610907
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -30892,6 +30887,11 @@ MonoBehaviour:
   m_PointerBehavior: 0
   m_CursorLockBehavior: 0
   m_ScrollDeltaPerTick: 6
+--- !u!61 &1605890775 stripped
+BoxCollider2D:
+  m_CorrespondingSourceObject: {fileID: 3814683192567784447, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
+  m_PrefabInstance: {fileID: 5261291008970453458}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1610470850
 GameObject:
   m_ObjectHideFlags: 0
@@ -36698,11 +36698,11 @@ PrefabInstance:
     - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
       propertyPath: onThwompDefeat.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 20563078}
+      objectReference: {fileID: 1605890775}
     - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
       propertyPath: onThwompDefeat.m_PersistentCalls.m_Calls.Array.data[1].m_Target
       value: 
-      objectReference: {fileID: 20563078}
+      objectReference: {fileID: 0}
     - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
       propertyPath: onThwompWipedOut.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
       value: 6
@@ -36716,6 +36716,10 @@ PrefabInstance:
       value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
+      propertyPath: onThwompDefeat.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: set_enabled
+      objectReference: {fileID: 0}
+    - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
       propertyPath: onThwompDefeat.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName
       value: SetActive
       objectReference: {fileID: 0}
@@ -36726,6 +36730,10 @@ PrefabInstance:
     - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
       propertyPath: onThwompWipedOut.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
       value: SetActive
+      objectReference: {fileID: 0}
+    - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
+      propertyPath: onThwompDefeat.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: UnityEngine.Behaviour, UnityEngine
       objectReference: {fileID: 0}
     - target: {fileID: 1917906703443651286, guid: 6c07e30b0eb1db041af4ba26e9a8734c, type: 3}
       propertyPath: onThwompDefeat.m_PersistentCalls.m_Calls.Array.data[1].m_TargetAssemblyTypeName

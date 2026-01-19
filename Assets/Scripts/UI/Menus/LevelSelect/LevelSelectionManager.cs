@@ -76,6 +76,15 @@ public class LevelSelectionManager : MonoBehaviour
         // Enable or disable the video link button based on persistent listeners
         videoLinkButton.enabled = videoLinkButton.onClick.GetPersistentEventCount() > 0;
 
+        if (selectedLevelButton == null)
+        {
+            foreach (var icon in animatorIcons)
+            {
+                if (icon != null)
+                    icon.gameObject.SetActive(false);
+            }
+        }
+
         if (bestTimeText != null)
             bestTimeText.text = "--:--.--";
     }
@@ -89,37 +98,73 @@ public class LevelSelectionManager : MonoBehaviour
 
     public void OnLevelButtonClick(LevelButton button)
     {
-        if (selectedLevelButton != null && selectedLevelButton != button)
-        {
-            selectedLevelButton.selectionMark.SetActive(false);
-        }
+        ClearPreviousSelection(button);
+        SetSelectedLevel(button);
 
+        // Notify UI that a level has been selected and info texts are ready
+        // This runs for all levels, so year + video text appear even on first click on "coming soon".
+        onValidLevelSelected?.Invoke();
+
+        UpdateLevelInfoTexts(button);
+        UpdateBestTimeText(button);
+        ConfigureVideoLink(button);
+        ConfigurePlayButton();
+
+        bool isPlayable = IsLevelPlayable(button);
+
+        // Animator icon: ALWAYS show the appropriate Mario, even for coming-soon / beta levels
+        UpdateAnimatorIcons(button);
+
+        UpdatePlayButtonState(isPlayable);
+    }
+
+    private void ClearPreviousSelection(LevelButton newButton)
+    {
+        if (selectedLevelButton != null && selectedLevelButton != newButton)
+        {
+            if (selectedLevelButton.selectionMark != null)
+                selectedLevelButton.selectionMark.SetActive(false);
+        }
+    }
+
+    private void SetSelectedLevel(LevelButton button)
+    {
         selectedLevelButton = button;
 
         if (selectedLevelButton.selectionMark != null)
             selectedLevelButton.selectionMark.SetActive(true);
+    }
 
+    private void UpdateLevelInfoTexts(LevelButton button)
+    {
         // Level info text
         levelNameText.text = LocalizationSettings.StringDatabase.GetLocalizedString("Level_" + button.levelInfo.levelID);
         videoYearText.text = button.levelInfo.videoYear;
+        Debug.Log($"[LevelSelectionManager] Set year to '{videoYearText.text}' for level {button.levelInfo.levelID}");
         levelDescriptionText.text = LocalizationSettings.StringDatabase.GetLocalizedString("Desc_" + button.levelInfo.levelID);
+    }
 
+    private void UpdateBestTimeText(LevelButton button)
+    {
         // Best time text using SaveData first, PlayerPrefs as fallback
-        if (bestTimeText != null)
+        if (bestTimeText == null)
+            return;
+
+        double bestMs = GetBestTimeMs(button.levelInfo.levelID);
+
+        if (bestMs > 0)
         {
-            double bestMs = GetBestTimeMs(button.levelInfo.levelID);
-
-            if (bestMs > 0)
-            {
-                var ts = TimeSpan.FromMilliseconds(bestMs);
-                bestTimeText.text = ts.ToString(@"m\:ss\.ff");
-            }
-            else
-            {
-                bestTimeText.text = "--:--.--";
-            }
+            var ts = TimeSpan.FromMilliseconds(bestMs);
+            bestTimeText.text = ts.ToString(@"m\\:ss\\.ff");
         }
+        else
+        {
+            bestTimeText.text = "--:--.--";
+        }
+    }
 
+    private void ConfigureVideoLink(LevelButton button)
+    {
         // Video link setup
         videoLinkButton.onClick.RemoveAllListeners();
 
@@ -144,26 +189,37 @@ public class LevelSelectionManager : MonoBehaviour
         {
             videoLinkText.text = customVideoLinkText;
         }
+    }
 
-        // Animator icon selection
+    private void ConfigurePlayButton()
+    {
+        // Show play button for any selected level (we'll enable/disable it below)
+        playButton.gameObject.SetActive(true);
+        playButton.onClick.RemoveAllListeners();
+        playButton.onClick.AddListener(OnPlayButtonClick);
+    }
+
+    private void UpdateAnimatorIcons(LevelButton button)
+    {
         foreach (AnimatorIcon animator in animatorIcons)
         {
             if (animator != null)
                 animator.gameObject.SetActive(animator.marioAnimator == button.marioAnimator);
         }
+    }
 
-        playButton.gameObject.SetActive(true);
-        playButton.onClick.RemoveAllListeners();
-        playButton.onClick.AddListener(OnPlayButtonClick);
-
-        if (!IsLevelPlayable(button))
+    private void UpdatePlayButtonState(bool isPlayable)
+    {
+        // If the level is NOT playable (coming soon / locked)
+        if (!isPlayable)
         {
             playButton.interactable = false;
+            playButton.gameObject.SetActive(false);
             return;
         }
 
+        // Playable level
         playButton.interactable = true;
-        onValidLevelSelected?.Invoke();
     }
 
     private void OpenVideoLink()
