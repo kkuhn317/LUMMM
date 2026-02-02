@@ -23,7 +23,7 @@ public class CheckpointSave
     public int checkpointId;
     public int coins;
     public int lives;
-    public int score; // NEW
+    public int score;
     public double speedrunMs;
     public bool[] greenCoinsInRun;
 }

@@ -96,10 +96,10 @@ public class AudioManager : MonoBehaviour
     {
         if (clip == null) return;
 
-        // ADD DEBUG LOGGING HERE
-        string stackTrace = new System.Diagnostics.StackTrace(true).ToString();
+        // Debug
+        /*string stackTrace = new System.Diagnostics.StackTrace(true).ToString();
         Debug.Log($"[AudioManager] Playing clip: {clip.name} at frame {Time.frameCount}");
-        Debug.Log($"[AudioManager] Full stack trace:\n{stackTrace}");
+        Debug.Log($"[AudioManager] Full stack trace:\n{stackTrace}");*/
 
         AudioSource source = GetAudioSource(category);
         source.clip = clip;

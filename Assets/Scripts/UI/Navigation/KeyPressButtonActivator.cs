@@ -39,6 +39,8 @@ public class KeyPressButtonActivator_NewInput : MonoBehaviour
 
     private void OnActionStarted(InputAction.CallbackContext ctx)
     {
+        if (ConfirmPopup.IsAnyPopupOpen) return;
+        
         if (targetButton != null && targetButton.interactable)
             targetButton.onClick.Invoke();
     }
