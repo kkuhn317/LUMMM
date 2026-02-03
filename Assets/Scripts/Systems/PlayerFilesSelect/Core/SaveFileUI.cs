@@ -65,7 +65,9 @@ public class SaveFileUI : MonoBehaviour, ISelectHandler, IDeselectHandler
                 : SaveManager.BuildSummary(playableLevels);
 
             if (profileNameText != null)
-                profileNameText.text = SaveManager.Current.profileName;
+                profileNameText.text = string.IsNullOrWhiteSpace(SaveManager.Current.profileName)
+                    ? SaveSlotNaming.DefaultNameFor((SaveSlotId)index)
+                    : SaveManager.Current.profileName;
 
             if (levelsText != null)
                 levelsText.text = $"{summary.completedLevels}/{summary.totalLevels}";

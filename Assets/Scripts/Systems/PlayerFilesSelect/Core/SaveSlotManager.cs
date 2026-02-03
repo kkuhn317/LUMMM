@@ -81,6 +81,35 @@ public class SaveSlotManager : MonoBehaviour
         SetMode(CurrentMode, refreshVisuals: true, notify: true);
     }
 
+    private void FixDefaultProfileNameForSlot(int slotIndex)
+    {
+        // Only valid for A/B/C
+        if (slotIndex < 0 || slotIndex > 2) return;
+        if (!SaveManager.SlotExists(slotIndex)) return;
+
+        int prevSlot = SaveManager.CurrentSlot;
+
+        // Load the destination slot so we can modify its data
+        SaveManager.Load(slotIndex);
+
+        var data = SaveManager.Current;
+        if (data == null) return;
+
+        string name = data.profileName;
+        SaveSlotNaming.EnsureCorrectDefaultNameForSlot(ref name, (SaveSlotId)slotIndex);
+
+        if (name != data.profileName)
+        {
+            data.profileName = name;
+            SaveManager.Save();
+        }
+
+        // Restore previous slot to avoid side effects in menus
+        if (prevSlot != slotIndex)
+            SaveManager.Load(prevSlot);
+    }
+
+
     #region Refresh & Focus
     private void RefreshModeVisuals()
     {
@@ -783,6 +812,8 @@ public class SaveSlotManager : MonoBehaviour
 
         if (toIndex == SaveManager.CurrentSlot)
             SaveManager.Load(toIndex);
+        
+        FixDefaultProfileNameForSlot(toIndex);
 
         RefreshAllSlots();
     }
@@ -902,6 +933,8 @@ public class SaveSlotManager : MonoBehaviour
             Debug.LogWarning($"SaveSlotManager: Import into slot {slotIndex} failed.");
             return;
         }
+
+        FixDefaultProfileNameForSlot(slotIndex);
 
         // Refresh UI for this slot after import
         if (slotCards != null &&
