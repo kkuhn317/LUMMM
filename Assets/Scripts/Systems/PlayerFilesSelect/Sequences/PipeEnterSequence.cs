@@ -39,12 +39,21 @@ public class PipeEnterSequence : MonoBehaviour, IFileSelectSequence
     public LocalizedString yesBtn;
     public LocalizedString noBtn;
 
+    [Header("Name/Rename Popup (SaveSlotRename)")]
+    public SaveSlotRename renamePopup;
+
     void Start()
     {
         if (uiInputLock == null)
         {
             uiInputLock = FindObjectOfType<UIInputLock>();
             Debug.Log($"PipeEnterSequence: Auto-assigned UIInputLock: {uiInputLock != null}");
+        }
+
+        if (renamePopup == null)
+        {
+            renamePopup = FindObjectOfType<SaveSlotRename>(true);
+            Debug.Log($"PipeEnterSequence: Auto-assigned SaveSlotRename: {renamePopup != null}");
         }
     }
 
@@ -60,8 +69,9 @@ public class PipeEnterSequence : MonoBehaviour, IFileSelectSequence
             yield break;
         }
 
-        // Modes where pipe animation should NOT run
         var mode = ctx.slotManager.CurrentMode;
+
+        // Modes where pipe animation should NOT run
         bool isNonPipeSlotSelect =
             mode == SaveSlotManager.InteractionMode.CopySelectSource ||
             mode == SaveSlotManager.InteractionMode.CopySelectDestination ||
@@ -74,12 +84,189 @@ public class PipeEnterSequence : MonoBehaviour, IFileSelectSequence
             yield break;
         }
 
-        // From here: Normal and Delete modes only
-        bool isDelete = mode == SaveSlotManager.InteractionMode.Delete;
+        int slotIndex = ctx.interactable.slotIndex;
 
+        bool isRenameMode = mode == SaveSlotManager.InteractionMode.RenameSelectTarget;
+        bool isDelete = mode == SaveSlotManager.InteractionMode.Delete;
+        
+        // RENAME MODE:
+        // Press slot -> open popup ONLY
+        // Confirm -> rename ONLY (no celebrate, no pipe, no fade)
+        // Cancel -> return to normal
+        if (isRenameMode)
+        {
+            ctx.skipDefaultAction = true; // NEVER enter slot / never fade
+
+            ctx.mario.SetFollowSelection(false);
+
+            // Ensure input is enabled for popup
+            if (uiInputLock != null && uiInputLock.GetLockCount() > 0)
+            {
+                uiInputLock.ForceUnlockAll(false);
+                yield return null;
+            }
+
+            var prevSelected = EventSystem.current?.currentSelectedGameObject;
+
+            // Don't rename empty slots
+            if (!SaveManager.SlotExists(slotIndex))
+            {
+                Debug.Log("PipeEnterSequence: Cannot rename an empty slot. Returning to normal.");
+
+                ctx.slotManager.CancelCurrentMode();
+                ctx.mario.SetIdle();
+                ctx.mario.SetFollowSelection(true);
+
+                if (EventSystem.current != null && prevSelected != null)
+                    EventSystem.current.SetSelectedGameObject(prevSelected);
+
+                yield break;
+            }
+
+            if (renamePopup == null)
+            {
+                Debug.LogWarning("PipeEnterSequence: renamePopup is missing. Cancelling rename mode.");
+                ctx.slotManager.CancelCurrentMode();
+                ctx.mario.SetIdle();
+                ctx.mario.SetFollowSelection(true);
+                yield break;
+            }
+
+            bool? confirmed = null;
+            string chosenName = null;
+
+            void OnConfirmed(int i, string name)
+            {
+                if (i != slotIndex) return;
+                chosenName = name;
+                confirmed = true;
+            }
+
+            void OnCancelled()
+            {
+                confirmed = false;
+            }
+
+            renamePopup.onNameConfirmed.AddListener(OnConfirmed);
+            renamePopup.onRenameCancelled.AddListener(OnCancelled);
+
+            // Open popup (NO PIPE)
+            renamePopup.OpenForRename(slotIndex, GetSlotProfileName(slotIndex));
+
+            while (confirmed == null)
+                yield return null;
+
+            renamePopup.onNameConfirmed.RemoveListener(OnConfirmed);
+            renamePopup.onRenameCancelled.RemoveListener(OnCancelled);
+
+            // Cancel -> just exit rename mode
+            if (confirmed == false)
+            {
+                ctx.slotManager.CancelCurrentMode();
+
+                ctx.mario.SetIdle();
+                ctx.mario.SetFollowSelection(true);
+
+                if (EventSystem.current != null && prevSelected != null)
+                    EventSystem.current.SetSelectedGameObject(prevSelected);
+
+                yield break;
+            }
+
+            // Confirm -> rename ONLY, then return to normal (NO CELEBRATE, NO PIPE)
+            RenameSlotNameImmediately(slotIndex, chosenName);
+            ctx.slotManager.RefreshAllSlots();
+            ctx.slotManager.CancelCurrentMode();
+
+            ctx.mario.SetIdle();
+            ctx.mario.SetFollowSelection(true);
+
+            if (EventSystem.current != null && prevSelected != null)
+                EventSystem.current.SetSelectedGameObject(prevSelected);
+
+            yield break;
+        }
+
+        // ============================================================
+        // NORMAL MODE:
+        // If empty slot -> ask name first.
+        // Confirm -> create name, then play pipe, THEN allow default (fade)
+        // ============================================================
         if (!isDelete)
         {
-            // NORMAL MODE pipe entry
+            bool isNew = !SaveManager.SlotExists(slotIndex);
+
+            // If new slot, name first (and do NOT allow default action yet)
+            if (isNew && renamePopup != null)
+            {
+                ctx.skipDefaultAction = true;
+
+                ctx.mario.SetFollowSelection(false);
+
+                // Ensure input is enabled for popup
+                if (uiInputLock != null && uiInputLock.GetLockCount() > 0)
+                {
+                    uiInputLock.ForceUnlockAll(false);
+                    yield return null;
+                }
+
+                var prevSelected = EventSystem.current?.currentSelectedGameObject;
+
+                bool? confirmed = null;
+                string chosenName = null;
+
+                void OnConfirmed(int i, string name)
+                {
+                    if (i != slotIndex) return;
+                    chosenName = name;
+                    confirmed = true;
+                }
+
+                void OnCancelled()
+                {
+                    confirmed = false;
+                }
+
+                renamePopup.onNameConfirmed.AddListener(OnConfirmed);
+                renamePopup.onRenameCancelled.AddListener(OnCancelled);
+
+                renamePopup.OpenForNewSlot(slotIndex);
+
+                while (confirmed == null)
+                    yield return null;
+
+                renamePopup.onNameConfirmed.RemoveListener(OnConfirmed);
+                renamePopup.onRenameCancelled.RemoveListener(OnCancelled);
+
+                // Cancel -> no pipe, no enter
+                if (confirmed == false)
+                {
+                    ctx.skipDefaultAction = true;
+
+                    ctx.mario.SetIdle();
+                    ctx.mario.SetFollowSelection(true);
+
+                    if (EventSystem.current != null && prevSelected != null)
+                        EventSystem.current.SetSelectedGameObject(prevSelected);
+
+                    yield break;
+                }
+
+                // Confirm -> create slot name now
+                CreateSlotNameImmediately(slotIndex, chosenName);
+                ctx.slotManager.RefreshAllSlots();
+
+                // Restore selection after popup
+                if (EventSystem.current != null && prevSelected != null)
+                    EventSystem.current.SetSelectedGameObject(prevSelected);
+            }
+            else
+            {
+                // Existing slot: we will still delay default until after pipe anim
+                ctx.skipDefaultAction = true;
+            }
+
+            // PIPE CINEMATIC (enter slot)
             if (pipeContainer != null)
                 ctx.mario.AttachTo(pipeContainer, true);
 
@@ -90,61 +277,53 @@ public class PipeEnterSequence : MonoBehaviour, IFileSelectSequence
             Trigger(pipeAnimator, enterTrigger);
             PlayPipeSfx();
 
+            // IMPORTANT: wait for enter animation BEFORE allowing fade/scene change
+            yield return WaitForAnim(pipeAnimator, enterStateName, fallbackAnimWait);
+
+            // Now allow default action (PlayFocusedSlot -> fade)
             ctx.skipDefaultAction = false;
+
             yield return null;
             yield break;
         }
 
-        // Delete mode begins
+        // ============================================================
+        // DELETE MODE (unchanged from your old working flow)
+        // ============================================================
         ctx.skipDefaultAction = true;
 
-        // Freeze Mario follow
         ctx.mario.SetFollowSelection(false);
-        
-        // Ensure input is enabled for popup
+
         if (uiInputLock != null && uiInputLock.GetLockCount() > 0)
         {
             uiInputLock.ForceUnlockAll(false);
-            yield return null; // Wait for input system to update
+            yield return null;
         }
 
-        // Save current selection
-        var prevSelected = EventSystem.current?.currentSelectedGameObject;
-        Debug.Log($"PipeEnterSequence: Saving selection before popup: {prevSelected?.name}");
+        var prevSelectedDel = EventSystem.current?.currentSelectedGameObject;
 
-        // We MUST unlock input AFTER FileSelectManager locked it,
-        // which happens THIS FRAME.
-        // So we delay unlock until next frame.
-
-        // Check if slot has a file before showing delete confirmation
-        int slotIndex = ctx.interactable.slotIndex;
-
-        // If slot is EMPTY, just cancel delete mode immediately (no popup needed)
+        // If slot empty, cancel delete
         if (!SaveManager.SlotExists(slotIndex))
         {
             Debug.Log("PipeEnterSequence: Cannot delete an empty slot. Cancelling delete mode.");
-            
-            // Optionally show a different message or just cancel silently
+
             ctx.slotManager.CancelCurrentMode();
-            
-            // Reset Mario
+
             ctx.mario.SetTransformIntoObject();
             yield return new WaitForSecondsRealtime(0.5f);
             ctx.mario.SetIdle();
             ctx.mario.SetFollowSelection(true);
-            
-            // Restore selection
-            if (EventSystem.current != null && prevSelected != null)
-                EventSystem.current.SetSelectedGameObject(prevSelected);
-            
+
+            if (EventSystem.current != null && prevSelectedDel != null)
+                EventSystem.current.SetSelectedGameObject(prevSelectedDel);
+
             yield break;
         }
-    
+
         if (confirmPopup != null)
         {
             bool? decision = null;
 
-            // Open the popup with working input
             confirmPopup.Show(
                 deleteConfirmMsg,
                 yes: () => decision = true,
@@ -154,26 +333,23 @@ public class PipeEnterSequence : MonoBehaviour, IFileSelectSequence
                 noText: noBtn
             );
 
-            // Wait for user to choose Yes or No
             while (decision == null)
                 yield return null;
-            
-            // When No is pressed
+
             if (decision == false)
             {
-                ctx.slotManager.CancelCurrentMode(); 
+                ctx.slotManager.CancelCurrentMode();
                 ctx.mario.SetTransformIntoObject();
                 yield return new WaitForSecondsRealtime(0.5f);
                 ctx.mario.SetIdle();
                 ctx.mario.SetFollowSelection(true);
 
-                if (EventSystem.current != null && prevSelected != null)
-                    EventSystem.current.SetSelectedGameObject(prevSelected);
+                if (EventSystem.current != null && prevSelectedDel != null)
+                    EventSystem.current.SetSelectedGameObject(prevSelectedDel);
 
                 yield break;
             }
 
-            // when yes is pressed, re-lock input for the cinematic
             uiInputLock?.Lock();
         }
 
@@ -215,8 +391,8 @@ public class PipeEnterSequence : MonoBehaviour, IFileSelectSequence
         ctx.mario.Detach(true);
         ctx.mario.SetFollowSelection(true);
 
-        if (EventSystem.current != null && prevSelected != null)
-            EventSystem.current.SetSelectedGameObject(prevSelected);
+        if (EventSystem.current != null && prevSelectedDel != null)
+            EventSystem.current.SetSelectedGameObject(prevSelectedDel);
 
         uiInputLock?.Unlock();
     }
@@ -257,7 +433,6 @@ public class PipeEnterSequence : MonoBehaviour, IFileSelectSequence
         float safety = 1.5f;
         float t = 0f;
 
-        // Wait until correct state is entered
         while (!anim.GetCurrentAnimatorStateInfo(layer).IsName(stateName))
         {
             t += Time.unscaledDeltaTime;
@@ -270,8 +445,68 @@ public class PipeEnterSequence : MonoBehaviour, IFileSelectSequence
             yield return null;
         }
 
-        // Wait until animation finishes
         while (anim.GetCurrentAnimatorStateInfo(layer).normalizedTime < 1f)
             yield return null;
+    }
+
+    private void CreateSlotNameImmediately(int slotIndex, string chosenName)
+    {
+        int prevSlot = SaveManager.CurrentSlot;
+
+        SaveManager.Load(slotIndex); // creates if missing
+
+        if (SaveManager.Current != null)
+        {
+            string trimmed = string.IsNullOrWhiteSpace(chosenName)
+                ? SaveSlotNaming.DefaultNameFor((SaveSlotId)slotIndex)
+                : chosenName.Trim();
+
+            SaveManager.Current.profileName = trimmed;
+            SaveManager.Save();
+        }
+
+        if (prevSlot != slotIndex)
+            SaveManager.Load(prevSlot);
+    }
+
+    private void RenameSlotNameImmediately(int slotIndex, string chosenName)
+    {
+        if (!SaveManager.SlotExists(slotIndex)) return;
+
+        int prevSlot = SaveManager.CurrentSlot;
+
+        SaveManager.Load(slotIndex);
+
+        if (SaveManager.Current != null)
+        {
+            string trimmed = string.IsNullOrWhiteSpace(chosenName)
+                ? SaveSlotNaming.DefaultNameFor((SaveSlotId)slotIndex)
+                : chosenName.Trim();
+
+            SaveManager.Current.profileName = trimmed;
+            SaveManager.Save();
+        }
+
+        if (prevSlot != slotIndex)
+            SaveManager.Load(prevSlot);
+    }
+
+    private string GetSlotProfileName(int slotIndex)
+    {
+        if (!SaveManager.SlotExists(slotIndex))
+            return SaveSlotNaming.DefaultNameFor((SaveSlotId)slotIndex);
+
+        int prevSlot = SaveManager.CurrentSlot;
+
+        SaveManager.Load(slotIndex);
+        string name = SaveManager.Current != null ? SaveManager.Current.profileName : "";
+
+        if (string.IsNullOrWhiteSpace(name))
+            name = SaveSlotNaming.DefaultNameFor((SaveSlotId)slotIndex);
+
+        if (prevSlot != slotIndex)
+            SaveManager.Load(prevSlot);
+
+        return name;
     }
 }

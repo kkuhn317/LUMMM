@@ -31,8 +31,10 @@ public class BrickButtonSequence : MonoBehaviour, IFileSelectSequence
         bool isActionButton =
             type == FileSelectActionType.DeleteSlot ||
             type == FileSelectActionType.CopySlot ||
+            type == FileSelectActionType.RenameSlot ||
             type == FileSelectActionType.Import ||
-            type == FileSelectActionType.Export;
+            type == FileSelectActionType.Export ||
+            type == FileSelectActionType.RenameSlot;
 
         if (!isActionButton)
         {

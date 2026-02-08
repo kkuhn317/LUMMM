@@ -1,11 +1,10 @@
-using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using System.Linq;
 
-// This script manages the modifiers in the Level Select screen (infinite lives, checkpoints, no time limit)
-// Additionally, it initializes the GlobalVariables with the current settings from SaveData or PlayerPrefs
+// This script manages the modifiers in the Level Select screen (infinite lives, checkpoints, time limit)
+// SaveData-only: NO PlayerPrefs fallback/mirroring.
 public class ModifiersSettings : MonoBehaviour
 {
     [Header("Gameplay Toggles")]
@@ -27,125 +26,118 @@ public class ModifiersSettings : MonoBehaviour
     public GameObject decisionWindow; // Window to confirm deletion of the checkpoint
     public Button confirmDeleteButton;
     public Button cancelDeleteButton;
-    public CanvasGroup mainCanvasGroup; // CanvasGroup for the main UI
+    public CanvasGroup mainCanvasGroup;     // CanvasGroup for the main UI
     public CanvasGroup decisionCanvasGroup; // CanvasGroup for the decision window
 
-    private GameObject previouslySelected; // To track the previously selected UI element
+    private GameObject previouslySelected;
 
-    // Buffer for toggle-based changes (infinite lives / time limit)
-    private string bufferedModifierKey;
-    private bool bufferedModifierValue;
+    private enum BufferedToggleChange
+    {
+        None,
+        InfiniteLives,
+        TimeLimit
+    }
+
+    private BufferedToggleChange bufferedToggle = BufferedToggleChange.None;
+    private bool bufferedToggleValue;
 
     // Buffer for checkpoint mode change (cycle button)
     private int bufferedCheckpointMode = -1;
 
     private void Start()
     {
-        // Debug current save state
-        Debug.Log($"SaveManager.Current exists: {SaveManager.Current != null}");
-        if (SaveManager.Current != null)
-        {
-            Debug.Log($"Modifiers exists: {SaveManager.Current.modifiers != null}");
-            if (SaveManager.Current.modifiers != null)
-            {
-                Debug.Log($"Infinite Lives: {SaveManager.Current.modifiers.infiniteLivesEnabled}");
-                Debug.Log($"Time Limit: {SaveManager.Current.modifiers.timeLimitEnabled}");
-                Debug.Log($"Checkpoint Mode: {SaveManager.Current.modifiers.checkpointMode}");
-            }
-        }
-        
         ConfigureInfiniteLives();
         ConfigureCheckpointMode();
         ConfigureTimeLimit();
 
-        // Set up the buttons for the decision window
-        confirmDeleteButton.onClick.AddListener(OnConfirmDeleteCheckpoint);
-        cancelDeleteButton.onClick.AddListener(OnCancelDeleteCheckpoint);
+        if (confirmDeleteButton != null)
+            confirmDeleteButton.onClick.AddListener(OnConfirmDeleteCheckpoint);
+
+        if (cancelDeleteButton != null)
+            cancelDeleteButton.onClick.AddListener(OnCancelDeleteCheckpoint);
+
+        if (decisionWindow != null)
+            decisionWindow.SetActive(false);
+
+        if (decisionCanvasGroup != null)
+        {
+            decisionCanvasGroup.interactable = false;
+            decisionCanvasGroup.blocksRaycasts = false;
+        }
     }
 
-    /* INFINITE LIVES */
     private void ConfigureInfiniteLives()
     {
-        bool isInfiniteLivesEnabled = false;
-        
-        // Try to get from SaveData.modifiers first
-        if (SaveManager.Current != null && SaveManager.Current.modifiers != null)
+        bool enabled = ReadInfiniteLivesFromSave();
+
+        if (infiniteLivesToggle != null)
         {
-            isInfiniteLivesEnabled = SaveManager.Current.modifiers.infiniteLivesEnabled;
+            infiniteLivesToggle.SetIsOnWithoutNotify(enabled);
+            infiniteLivesToggle.onValueChanged.RemoveListener(OnInfiniteLivesClick);
+            infiniteLivesToggle.onValueChanged.AddListener(OnInfiniteLivesClick);
         }
-        else
-        {
-            // Fallback to PlayerPrefs for backward compatibility
-            isInfiniteLivesEnabled = PlayerPrefs.GetInt(SettingsKeys.InfiniteLivesKey, 0) == 1;
-        }
-        
-        infiniteLivesToggle.isOn = isInfiniteLivesEnabled;
-        infiniteLivesImage.sprite = isInfiniteLivesEnabled ? enableInfiniteLivesSprite : disableInfiniteLivesSprite;
-        GlobalVariables.infiniteLivesMode = isInfiniteLivesEnabled;
-        infiniteLivesToggle.onValueChanged.AddListener(OnInfiniteLivesClick);
+
+        if (infiniteLivesImage != null)
+            infiniteLivesImage.sprite = enabled ? enableInfiniteLivesSprite : disableInfiniteLivesSprite;
+
+        GlobalVariables.infiniteLivesMode = enabled;
     }
 
     private void OnInfiniteLivesClick(bool isEnabled)
     {
-        if (IsSaveGameAvailable())
+        if (IsCheckpointActive())
         {
-            bufferedModifierKey = SettingsKeys.InfiniteLivesKey;
-            bufferedModifierValue = isEnabled;
+            bufferedToggle = BufferedToggleChange.InfiniteLives;
+            bufferedToggleValue = isEnabled;
 
             bufferedCheckpointMode = -1; // clear other buffer
             ActivateDecisionWindow();
+            return;
         }
-        else
-        {
-            ChangeInfiniteLives(isEnabled);
-        }
+
+        ChangeInfiniteLives(isEnabled);
     }
 
     private void ChangeInfiniteLives(bool isEnabled)
     {
-        infiniteLivesImage.sprite = isEnabled ? enableInfiniteLivesSprite : disableInfiniteLivesSprite;
-        
-        // Save to SaveData.modifiers
-        if (SaveManager.Current != null)
-        {
-            if (SaveManager.Current.modifiers == null)
-                SaveManager.Current.modifiers = new ModifiersData();
-                
-            SaveManager.Current.modifiers.infiniteLivesEnabled = isEnabled;
-            SaveManager.Save();
-        }
-        
-        // Also save to PlayerPrefs for backward compatibility
-        PlayerPrefs.SetInt(SettingsKeys.InfiniteLivesKey, isEnabled ? 1 : 0);
+        if (infiniteLivesImage != null)
+            infiniteLivesImage.sprite = isEnabled ? enableInfiniteLivesSprite : disableInfiniteLivesSprite;
+
+        EnsureModifiersExist();
+        SaveManager.Current.modifiers.infiniteLivesEnabled = isEnabled;
+        SaveManager.Save();
+
         GlobalVariables.infiniteLivesMode = isEnabled;
     }
 
-    /* CHECKPOINT MODE (0=Off, 1=Classic, 2=Silent) */
+    private bool ReadInfiniteLivesFromSave()
+    {
+        return SaveManager.Current != null
+               && SaveManager.Current.modifiers != null
+               && SaveManager.Current.modifiers.infiniteLivesEnabled;
+    }
+
     private void ConfigureCheckpointMode()
     {
-        int mode = ReadCheckpointModeWithFallback();
+        int mode = ReadCheckpointModeFromSave();
 
-        // Initialize UI
         if (checkpointCycleUI != null)
         {
             checkpointCycleUI.SetModeInstant(mode);
+            checkpointCycleUI.OnRequestModeChange -= OnCheckpointModeRequested;
             checkpointCycleUI.OnRequestModeChange += OnCheckpointModeRequested;
         }
 
-        // Apply to globals
         ApplyCheckpointMode(mode);
     }
 
     private void OnCheckpointModeRequested(int nextMode)
     {
-        nextMode = Mathf.Clamp(nextMode, 0, 2);
-
-        // If there's a saved checkpoint, we require confirmation before changing behavior
-        if (IsSaveGameAvailable())
+        // If there's an active checkpoint, require confirmation before changing behavior
+        if (IsCheckpointActive())
         {
             bufferedCheckpointMode = nextMode;
-
-            bufferedModifierKey = null; // clear other buffer
+            bufferedToggle = BufferedToggleChange.None; // clear other buffer
             ActivateDecisionWindow();
             return;
         }
@@ -157,181 +149,148 @@ public class ModifiersSettings : MonoBehaviour
     {
         mode = Mathf.Clamp(mode, 0, 2);
 
-        // UI
         if (checkpointCycleUI != null)
         {
             if (animated) checkpointCycleUI.SetModeAnimated(mode);
             else checkpointCycleUI.SetModeInstant(mode);
         }
 
-        // Save to SaveData.modifiers
-        if (SaveManager.Current != null)
-        {
-            if (SaveManager.Current.modifiers == null)
-                SaveManager.Current.modifiers = new ModifiersData();
-                
-            SaveManager.Current.modifiers.checkpointMode = mode;
-            SaveManager.Save();
-        }
-        
-        // Persist to PlayerPrefs for backward compatibility
-        PlayerPrefs.SetInt(SettingsKeys.CheckpointModeKey, mode);
-
-        // Legacy mirror so older code that still reads CheckpointsKey keeps working
-        PlayerPrefs.SetInt(SettingsKeys.CheckpointsKey, mode != 0 ? 1 : 0);
+        EnsureModifiersExist();
+        SaveManager.Current.modifiers.checkpointMode = mode;
+        SaveManager.Save();
 
         ApplyCheckpointMode(mode);
     }
 
     private void ApplyCheckpointMode(int mode)
     {
-        // Existing global used across the project
         GlobalVariables.enableCheckpoints = mode != 0;
         GlobalVariables.checkpointMode = mode;
     }
 
-    private int ReadCheckpointModeWithFallback()
+    private int ReadCheckpointModeFromSave()
     {
-        // First try to get from SaveData.modifiers
         if (SaveManager.Current != null && SaveManager.Current.modifiers != null)
-        {
-            return SaveManager.Current.modifiers.checkpointMode;
-        }
-        
-        // Prefer new 0/1/2 mode key if it exists
-        if (PlayerPrefs.HasKey(SettingsKeys.CheckpointModeKey))
-            return PlayerPrefs.GetInt(SettingsKeys.CheckpointModeKey, 0);
+            return Mathf.Clamp(SaveManager.Current.modifiers.checkpointMode, 0, 2);
 
-        // Fallback to old bool key (0/1)
-        bool enabled = PlayerPrefs.GetInt(SettingsKeys.CheckpointsKey, 0) == 1;
-        return enabled ? 1 : 0;
+        return 0; // default Off
     }
 
-    /* TIME LIMIT */
     private void ConfigureTimeLimit()
     {
-        bool isTimeLimitEnabled = false;
-        
-        // Try to get from SaveData.modifiers first
-        if (SaveManager.Current != null && SaveManager.Current.modifiers != null)
+        bool enabled = ReadTimeLimitFromSave();
+
+        if (timeLimitToggle != null)
         {
-            isTimeLimitEnabled = SaveManager.Current.modifiers.timeLimitEnabled;
+            timeLimitToggle.SetIsOnWithoutNotify(enabled);
+            timeLimitToggle.onValueChanged.RemoveListener(OnTimeLimitClick);
+            timeLimitToggle.onValueChanged.AddListener(OnTimeLimitClick);
         }
-        else
-        {
-            // Fallback to PlayerPrefs for backward compatibility
-            isTimeLimitEnabled = PlayerPrefs.GetInt(SettingsKeys.TimeLimitKey, 0) == 1;
-        }
-        
-        timeLimitToggle.isOn = isTimeLimitEnabled;
-        timeLimitImage.sprite = isTimeLimitEnabled ? enableTimeLimitSprite : disableTimeLimitSprite;
-        GlobalVariables.stopTimeLimit = !isTimeLimitEnabled;
-        timeLimitToggle.onValueChanged.AddListener(OnTimeLimitClick);
+
+        if (timeLimitImage != null)
+            timeLimitImage.sprite = enabled ? enableTimeLimitSprite : disableTimeLimitSprite;
+
+        GlobalVariables.stopTimeLimit = enabled;
     }
 
     private void OnTimeLimitClick(bool isEnabled)
     {
-        if (IsSaveGameAvailable())
+        if (IsCheckpointActive())
         {
-            bufferedModifierKey = SettingsKeys.TimeLimitKey;
-            bufferedModifierValue = isEnabled;
+            bufferedToggle = BufferedToggleChange.TimeLimit;
+            bufferedToggleValue = isEnabled;
 
             bufferedCheckpointMode = -1; // clear other buffer
             ActivateDecisionWindow();
+            return;
         }
-        else
-        {
-            ChangeTimeLimit(isEnabled);
-        }
+
+        ChangeTimeLimit(isEnabled);
     }
 
     private void ChangeTimeLimit(bool isEnabled)
     {
-        timeLimitImage.sprite = isEnabled ? enableTimeLimitSprite : disableTimeLimitSprite;
-        
-        // Save to SaveData.modifiers
-        if (SaveManager.Current != null)
-        {
-            if (SaveManager.Current.modifiers == null)
-                SaveManager.Current.modifiers = new ModifiersData();
-                
-            SaveManager.Current.modifiers.timeLimitEnabled = isEnabled;
-            SaveManager.Save();
-        }
-        
-        // Also save to PlayerPrefs for backward compatibility
-        PlayerPrefs.SetInt(SettingsKeys.TimeLimitKey, isEnabled ? 1 : 0);
+        if (timeLimitImage != null)
+            timeLimitImage.sprite = isEnabled ? enableTimeLimitSprite : disableTimeLimitSprite;
+
+        EnsureModifiersExist();
+        SaveManager.Current.modifiers.timeLimitEnabled = isEnabled;
+        SaveManager.Save();
+
         GlobalVariables.stopTimeLimit = isEnabled;
     }
 
-    /* SAVE GAME */
-    private bool IsSaveGameAvailable()
+    private bool ReadTimeLimitFromSave()
     {
-        // Check new save system first
-        if (SaveManager.Current != null && SaveManager.Current.checkpoint != null)
-        {
-            return SaveManager.Current.checkpoint.hasCheckpoint;
-        }
-        
-        // Fallback to old PlayerPrefs system
-        return PlayerPrefs.HasKey("SavedLevel");
+        return SaveManager.Current != null
+               && SaveManager.Current.modifiers != null
+               && SaveManager.Current.modifiers.timeLimitEnabled;
     }
 
+    private bool IsCheckpointActive()
+    {
+        return SaveManager.Current != null
+               && SaveManager.Current.checkpoint != null
+               && SaveManager.Current.checkpoint.hasCheckpoint;
+    }
+
+    private void EnsureModifiersExist()
+    {
+        if (SaveManager.Current == null) return;
+
+        if (SaveManager.Current.modifiers == null)
+            SaveManager.Current.modifiers = new ModifiersData();
+    }
+    
     private void ActivateDecisionWindow()
     {
-        previouslySelected = EventSystem.current.currentSelectedGameObject;
+        previouslySelected = EventSystem.current != null ? EventSystem.current.currentSelectedGameObject : null;
 
-        // Disable main UI
         if (mainCanvasGroup != null)
         {
             mainCanvasGroup.interactable = false;
             mainCanvasGroup.blocksRaycasts = false;
         }
 
-        // Enable decision window
         if (decisionCanvasGroup != null)
         {
             decisionCanvasGroup.interactable = true;
             decisionCanvasGroup.blocksRaycasts = true;
         }
-        
+
         if (decisionWindow != null)
             decisionWindow.SetActive(true);
 
-        // Select the confirm button
-        if (confirmDeleteButton != null)
+        // Select confirm button
+        if (EventSystem.current != null && confirmDeleteButton != null)
             EventSystem.current.SetSelectedGameObject(confirmDeleteButton.gameObject);
     }
 
     private void DeactivateDecisionWindow()
     {
-        // Enable main UI
         if (mainCanvasGroup != null)
         {
             mainCanvasGroup.interactable = true;
             mainCanvasGroup.blocksRaycasts = true;
         }
 
-        // Disable decision window
         if (decisionCanvasGroup != null)
         {
             decisionCanvasGroup.interactable = false;
             decisionCanvasGroup.blocksRaycasts = false;
         }
-        
+
         if (decisionWindow != null)
             decisionWindow.SetActive(false);
 
         // Restore selection
-        if (previouslySelected != null)
-        {
+        if (EventSystem.current != null && previouslySelected != null)
             EventSystem.current.SetSelectedGameObject(previouslySelected);
-        }
     }
 
     private void OnConfirmDeleteCheckpoint()
     {
-        // Clear saved checkpoint data in NEW system
+        // Clear saved checkpoint data (NEW system only)
         if (SaveManager.Current != null && SaveManager.Current.checkpoint != null)
         {
             SaveManager.Current.checkpoint.hasCheckpoint = false;
@@ -342,15 +301,11 @@ public class ModifiersSettings : MonoBehaviour
             SaveManager.Current.checkpoint.greenCoinsInRun = null;
             SaveManager.Save();
         }
-        
-        // Clear saved checkpoint data in OLD system (for backward compatibility)
-        PlayerPrefs.DeleteKey("SavedLevel");
-        PlayerPrefs.DeleteKey("SavedCheckpoint");
 
         // Refresh any UI that shows checkpoint status
         if (LevelSelectionManager.Instance != null)
             LevelSelectionManager.Instance.RefreshCheckpointFlags();
-        
+
         DeactivateDecisionWindow();
 
         // If the pending change was a checkpoint mode request, apply it now
@@ -358,19 +313,22 @@ public class ModifiersSettings : MonoBehaviour
         {
             SetCheckpointMode(bufferedCheckpointMode, animated: true);
             bufferedCheckpointMode = -1;
+            bufferedToggle = BufferedToggleChange.None;
             return;
         }
 
         // Otherwise apply the buffered toggle modifier change
-        switch (bufferedModifierKey)
+        switch (bufferedToggle)
         {
-            case SettingsKeys.InfiniteLivesKey:
-                ChangeInfiniteLives(bufferedModifierValue);
+            case BufferedToggleChange.InfiniteLives:
+                ChangeInfiniteLives(bufferedToggleValue);
                 break;
-            case SettingsKeys.TimeLimitKey:
-                ChangeTimeLimit(bufferedModifierValue);
+            case BufferedToggleChange.TimeLimit:
+                ChangeTimeLimit(bufferedToggleValue);
                 break;
         }
+
+        bufferedToggle = BufferedToggleChange.None;
     }
 
     public void OnCancelDeleteCheckpoint()
@@ -378,9 +336,17 @@ public class ModifiersSettings : MonoBehaviour
         // If we were cancelling a checkpoint mode change, revert UI back to saved mode
         if (bufferedCheckpointMode != -1 && checkpointCycleUI != null)
         {
-            int savedMode = ReadCheckpointModeWithFallback();
+            int savedMode = ReadCheckpointModeFromSave();
             checkpointCycleUI.SetModeInstant(savedMode);
             bufferedCheckpointMode = -1;
+        }
+
+        // If we were cancelling a toggle change, revert UI back to saved values
+        if (bufferedToggle != BufferedToggleChange.None)
+        {
+            ConfigureInfiniteLives();
+            ConfigureTimeLimit();
+            bufferedToggle = BufferedToggleChange.None;
         }
 
         DeactivateDecisionWindow();

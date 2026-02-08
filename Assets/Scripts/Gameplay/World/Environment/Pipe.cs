@@ -95,6 +95,17 @@ public class Pipe : MonoBehaviour
         isEnteringPipe = true;
         PlayWarpEnterSound();
 
+        if (marioMovement != null)
+        {
+            marioMovement.ForceExitCrouch();
+        }
+
+        if (marioMovement)
+        {
+            marioMovement.moveInput = Vector2.zero;
+            marioMovement.direction = Vector2.zero;
+        }
+
         if (playerRb){ playerRb.velocity = Vector2.zero; playerRb.isKinematic = true; }
         if (playerCol) playerCol.enabled = false;
 
@@ -320,7 +331,7 @@ public class Pipe : MonoBehaviour
         StartCoroutine(EnterNPC(rider));
     }
     
-    // Generic entry for non-player riders (CheepCheep etc.)
+    // This is just a generic entry for non-player riders (we'll use it on the cheep cheep)
     private IEnumerator EnterNPC(Transform rider)
     {
         // Disable rider movement/collisions while traveling
@@ -339,8 +350,8 @@ public class Pipe : MonoBehaviour
         Vector2 enterVec = DirectionToVector(enterDirection) * enterDistance;
         Vector3 enterPos = transform.position + (Vector3)enterVec;
 
-        // If your pipe supports Slow/Fast/Instant, you can branch here like your player coroutine.
         // For simplicity, we "Instant" align on the axis perpendicular to the movement:
+        // but we can branch here like the player coroutine does
         Vector3 temp = rider.position;
         switch (enterDirection)
         {

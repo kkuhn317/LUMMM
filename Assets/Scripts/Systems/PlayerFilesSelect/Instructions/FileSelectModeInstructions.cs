@@ -16,6 +16,7 @@ public class FileSelectModeInstructions : MonoBehaviour
     public GameObject copySelectDest;
     public GameObject importSelectDest;
     public GameObject exportSelectSource;
+    public GameObject renameSelectTarget;
 
     [Header("Animator Triggers")]
     public string downTrigger = "Down";
@@ -69,6 +70,7 @@ public class FileSelectModeInstructions : MonoBehaviour
         SafeSetActive(copySelectDest, false);
         SafeSetActive(importSelectDest, false);
         SafeSetActive(exportSelectSource, false);
+        SafeSetActive(renameSelectTarget, false);
 
         current = go;
 
@@ -209,6 +211,7 @@ public class FileSelectModeInstructions : MonoBehaviour
             SaveSlotManager.InteractionMode.CopySelectDestination => copySelectDest,
             SaveSlotManager.InteractionMode.ImportSelectDestination => importSelectDest,
             SaveSlotManager.InteractionMode.ExportSelectSource => exportSelectSource,
+            SaveSlotManager.InteractionMode.RenameSelectTarget => renameSelectTarget,
             _ => normal
         };
     }

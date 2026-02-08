@@ -232,6 +232,8 @@ public class QuestionBlock : BumpableBlock
             SpawnAllAtOnce(player);
         }
 
+        GameManager.Instance.AddScorePoints(50);
+
         var breakable = GetComponent<BreakableBlocks>();
         if (breakable != null)
             breakable.Break();

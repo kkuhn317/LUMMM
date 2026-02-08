@@ -61,23 +61,13 @@ public class SaveLoadSystem : PersistentSingleton<SaveLoadSystem>
     public bool IsLevelCompleted(string levelID)
     {
         var progress = GetLevelProgress(levelID);
-        if (progress != null)
-        {
-            return progress.completed;
-        }
-
-        return PlayerPrefs.GetInt("LevelCompleted_" + levelID, 0) == 1;
+        return progress != null && progress.completed;
     }
 
     public bool IsLevelPerfect(string levelID)
     {
         var progress = GetLevelProgress(levelID);
-        if (progress != null)
-        {
-            return progress.perfect;
-        }
-        
-        return PlayerPrefs.GetInt("LevelPerfect_" + levelID, 0) == 1;
+        return progress != null && progress.perfect;
     }
 
     public bool[] GetGreenCoins(string levelID)

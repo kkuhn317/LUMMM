@@ -245,7 +245,10 @@ public class LevelSelectionManager : MonoBehaviour
     /// </summary>
     private double GetBestTimeMs(string levelID)
     {
-        double bestMs = 0;
+        var progress = SaveLoadSystem.Instance?.GetLevelProgress(levelID);
+        return (progress != null && progress.bestTimeMs > 0) ? progress.bestTimeMs : 0;
+
+        /*double bestMs = 0;
 
         // New save system first
         var progress = SaveLoadSystem.Instance?.GetLevelProgress(levelID);
@@ -266,7 +269,7 @@ public class LevelSelectionManager : MonoBehaviour
             }
         }
 
-        return bestMs;
+        return bestMs;*/
     }
 
     /// <summary>
@@ -299,7 +302,7 @@ public class LevelSelectionManager : MonoBehaviour
     /// Loads checkpoint data from the legacy PlayerPrefs keys if they belong to this level.
     /// Returns true if a valid legacy save was loaded.
     /// </summary>
-    private bool TryLoadCheckpointFromPlayerPrefs(string levelID)
+    /*private bool TryLoadCheckpointFromPlayerPrefs(string levelID)
     {
         string savedLevel = PlayerPrefs.GetString("SavedLevel", "none");
         if (savedLevel != levelID)
@@ -330,7 +333,7 @@ public class LevelSelectionManager : MonoBehaviour
 
         Debug.Log($"Loading LEGACY checkpoint from PlayerPrefs for level {levelID}");
         return true;
-    }
+    }*/
 
     private void StartLevel()
     {
@@ -358,10 +361,10 @@ public class LevelSelectionManager : MonoBehaviour
         }
 
         // If there is no save-data checkpoint, try legacy PlayerPrefs
-        if (!loadedCheckpoint)
+        /*if (!loadedCheckpoint)
         {
             loadedCheckpoint = TryLoadCheckpointFromPlayerPrefs(levelID);
-        }
+        }*/
 
         // If nothing could be loaded, start fresh
         if (!loadedCheckpoint)

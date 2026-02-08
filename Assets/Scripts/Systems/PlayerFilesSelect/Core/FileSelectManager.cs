@@ -104,18 +104,28 @@ public class FileSelectManager : MonoBehaviour
 
             case FileSelectActionType.CopySlot:
             {
+                yield return ExitDeleteModeCleanRoutine();
                 slotManager.EnterCopyMode();
+                break;
+            }
+
+            case FileSelectActionType.RenameSlot:
+            {
+                yield return ExitDeleteModeCleanRoutine();
+                slotManager.EnterRenameMode();
                 break;
             }
 
             case FileSelectActionType.Import:
             {
+                yield return ExitDeleteModeCleanRoutine();
                 slotManager.EnterImportMode();
                 break;
             }
 
             case FileSelectActionType.Export:
             {
+                yield return ExitDeleteModeCleanRoutine();
                 slotManager.EnterExportMode();
                 break;
             }
@@ -188,13 +198,35 @@ public class FileSelectManager : MonoBehaviour
         }
     }
 
+    private IEnumerator ExitDeleteModeCleanRoutine()
+    {
+        if (slotManager == null) yield break;
+
+        bool wasDelete = slotManager.CurrentMode == SaveSlotManager.InteractionMode.Delete;
+        if (!wasDelete) yield break;
+
+        slotManager.CancelCurrentMode(); // salir de delete
+
+        if (mario != null)
+        {
+            mario.SetFollowSelection(false);
+
+            mario.SetTransformIntoObject();
+            if (cancelTransformDelay > 0f)
+                yield return new WaitForSecondsRealtime(cancelTransformDelay);
+
+            mario.SetIdle();
+            mario.SetFollowSelection(true);
+        }
+    }
+
     #region UI Buttons
 
     // Attach this to every action UI button onClick event
     public void OnUIButtonClicked(GameObject clicked)
     {
         // If a modal popup is open, do not allow underlying UI clicks to start sequences.
-        if (ConfirmPopup.IsAnyPopupOpen) return;
+        if (ConfirmPopup.IsAnyPopupOpen || SaveSlotRename.IsAnyPopupOpen) return;
 
         if (isBusy || clicked == null) return;
 

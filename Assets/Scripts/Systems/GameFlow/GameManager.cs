@@ -92,7 +92,7 @@ public class GameManager : MonoBehaviour
 
     public InputActionAsset playerInputActions; // Used to force update player input actions on resume from pause
 
-    void SaveCollectedCoins()
+    /*void SaveCollectedCoins()
     {
         if (greenCoins == null || greenCoins.Length == 0)
             return;
@@ -110,7 +110,7 @@ public class GameManager : MonoBehaviour
         }
 
         PlayerPrefs.Save();
-    }
+    }*/
     
     // There are 2 KINDS of collected green coins:
     // 1. Green coins that you get and then beat the level. These show in the level selection screen. 
@@ -125,8 +125,8 @@ public class GameManager : MonoBehaviour
         collectedGreenCoins.Clear();
         collectedGreenCoinsInRun.Clear();
 
-        bool usedSaveSystemPersistent = false;
-        bool usedSaveSystemCheckpoint = false;
+        // bool usedSaveSystemPersistent = false;
+        // bool usedSaveSystemCheckpoint = false;
 
         var currentSave = SaveManager.Current;
 
@@ -137,7 +137,7 @@ public class GameManager : MonoBehaviour
             var levelProgress = currentSave.levels?.Find(l => l.levelID == levelID);
             if (levelProgress?.greenCoins != null)
             {
-                usedSaveSystemPersistent = true;
+                // usedSaveSystemPersistent = true;
 
                 int count = Mathf.Min(greenCoins.Length, levelProgress.greenCoins.Length);
                 for (int i = 0; i < count; i++)
@@ -173,7 +173,7 @@ public class GameManager : MonoBehaviour
                 currentSave.checkpoint.levelID == levelID &&
                 currentSave.checkpoint.greenCoinsInRun != null)
             {
-                usedSaveSystemCheckpoint = true;
+                // usedSaveSystemCheckpoint = true;
 
                 int count = Mathf.Min(greenCoins.Length, currentSave.checkpoint.greenCoinsInRun.Length);
                 for (int i = 0; i < count; i++)
@@ -201,7 +201,7 @@ public class GameManager : MonoBehaviour
         }
 
         // FALLBACK SOURCE: Legacy PlayerPrefs (OLD SAVE SYSTEM)
-        for (int i = 0; i < greenCoins.Length; i++)
+        /*for (int i = 0; i < greenCoins.Length; i++)
         {
             if (greenCoins[i] == null)
                 continue;
@@ -251,7 +251,7 @@ public class GameManager : MonoBehaviour
                     }
                 }
             }
-        }
+        }*/
     }
     #endregion
 
@@ -294,7 +294,7 @@ public class GameManager : MonoBehaviour
     public int scoreForCRank = 5000;
     public int scoreForDRank = 3000;
 
-    private PlayerRank highestRank; // The highest rank achieved after the level is completed (saved and loaded from PlayerPrefs)
+    private PlayerRank highestRank; // The highest rank achieved after the level is completed (saved and loaded from SaveManager)
     private PlayerRank prevRank;  // The previous rank, to see if the rank has changed
     private PlayerRank currentRank; // The current rank
 
@@ -402,10 +402,10 @@ public class GameManager : MonoBehaviour
         }
         
         // Fallback to PlayerPrefs for backward compatibility
-        if (PlayerPrefs.HasKey("HighestPlayerRank_" + levelID))
+        /*if (PlayerPrefs.HasKey("HighestPlayerRank_" + levelID))
         {
             return (PlayerRank)PlayerPrefs.GetInt("HighestPlayerRank_" + levelID, (int)PlayerRank.Default);
-        }
+        }*/
         
         return PlayerRank.Default;
     }
@@ -527,10 +527,10 @@ public class GameManager : MonoBehaviour
             }
 
             // Fallback: Also check PlayerPrefs for backward compatibility
-            if (highScore == 0 && PlayerPrefs.HasKey("HighScore_" + levelID)) // Optional: level-specific PlayerPrefs
+            /*if (highScore == 0 && PlayerPrefs.HasKey("HighScore_" + levelID)) // Optional: level-specific PlayerPrefs
             {
                 highScore = PlayerPrefs.GetInt("HighScore_" + levelID, 0);
-            }
+            }*/
 
             // Load the highest rank from PlayerPrefs
             highestRank = LoadHighestRank();
@@ -871,7 +871,7 @@ public class GameManager : MonoBehaviour
             // Check if the player has run out of lives
             if (GlobalVariables.lives <= 0)
             {
-                PlayerPrefs.Save();
+                // PlayerPrefs.Save();
                 pauseable = false;
                 // Enable the Game Over screen
                 GameOverScreenGameObject.SetActive(true);
@@ -990,8 +990,8 @@ public class GameManager : MonoBehaviour
 
         // Legacy fallback: keep PlayerPrefs in sync for old builds
         // so any code still reading PlayerPrefs gets a sensible value.
-        PlayerPrefs.SetInt("HighScore_" + levelID, highScore);
-        PlayerPrefs.Save();
+        /*PlayerPrefs.SetInt("HighScore_" + levelID, highScore);
+        PlayerPrefs.Save();*/
 
         // Refresh UI
         UpdateHighScoreUI();
@@ -1062,7 +1062,7 @@ public class GameManager : MonoBehaviour
         }
         
         // ALSO keep PlayerPrefs for backward compatibility during transition
-        string key = BestTimeKey(levelID);
+        /*string key = BestTimeKey(levelID);
         string prev = PlayerPrefs.GetString(key, "");
         bool hasPrev = double.TryParse(prev, NumberStyles.Float, CultureInfo.InvariantCulture, out double prevMs);
         
@@ -1070,7 +1070,7 @@ public class GameManager : MonoBehaviour
         {
             PlayerPrefs.SetString(key, newMs.ToString(CultureInfo.InvariantCulture));
             PlayerPrefs.Save();
-        }
+        }*/
     }
 
     private void CheckForInfiniteTime()
@@ -1183,36 +1183,6 @@ public class GameManager : MonoBehaviour
     }
 
     #region Update Save Data
-    private void UpdateSaveDataGreenCoin(int coinIndex)
-    {
-        var saveData = SaveManager.Current;
-        string levelID = GlobalVariables.levelInfo.levelID;
-
-        // Find or create LevelProgressData for this level
-        var levelData = saveData.levels.Find(l => l.levelID == levelID);
-        if (levelData == null)
-        {
-            levelData = new LevelProgressData
-            {
-                levelID = levelID,
-                greenCoins = new bool[greenCoins.Length] // Or use LevelInfo's greenCoinCount
-            };
-            saveData.levels.Add(levelData);
-        }
-
-        // Make sure the array is large enough
-        if (levelData.greenCoins == null || levelData.greenCoins.Length <= coinIndex)
-        {
-            bool[] newArray = new bool[coinIndex + 1];
-            if (levelData.greenCoins != null)
-                levelData.greenCoins.CopyTo(newArray, 0);
-            levelData.greenCoins = newArray;
-        }
-
-        // Mark coin as collected
-        levelData.greenCoins[coinIndex] = true;
-    }
-
     private void UpdateSaveDataOnLevelComplete()
     {
         var saveData = SaveManager.Current;
@@ -1242,10 +1212,14 @@ public class GameManager : MonoBehaviour
         
         // Calculate "perfect" - all coins + no modifiers
         bool allCoinsCollected = collectedGreenCoins.Count == greenCoins.Length;
-        levelData.perfect = allCoinsCollected && 
-                        !GlobalVariables.infiniteLivesMode && 
-                        !GlobalVariables.enableCheckpoints && 
-                        !GlobalVariables.stopTimeLimit;
+
+        bool perfectThisRun =
+            allCoinsCollected &&
+            !GlobalVariables.infiniteLivesMode &&
+            !GlobalVariables.enableCheckpoints &&
+            !GlobalVariables.stopTimeLimit;
+
+        levelData.perfect |= perfectThisRun;
         
         // Initialize green coins array if needed
         if (levelData.greenCoins == null || levelData.greenCoins.Length != greenCoins.Length)
@@ -1263,7 +1237,7 @@ public class GameManager : MonoBehaviour
             }
         }
 
-        SaveCollectedCoins();
+        // SaveCollectedCoins();
         
         // Update best time (keep fastest)
         double currentTimeMs = GlobalVariables.elapsedTime.TotalMilliseconds;
@@ -1389,7 +1363,7 @@ public class GameManager : MonoBehaviour
             }
             
             // ALSO keep PlayerPrefs for backward compatibility
-            PlayerPrefs.SetInt("LevelPerfect_" + levelID, 1);
+            // PlayerPrefs.SetInt("LevelPerfect_" + levelID, 1);
         }
     }
 
@@ -1453,14 +1427,14 @@ public class GameManager : MonoBehaviour
     public void RemoveProgress()
     {
         // Clear old PlayerPrefs system
-        PlayerPrefs.DeleteKey("SavedLives");
+        /*PlayerPrefs.DeleteKey("SavedLives");
         PlayerPrefs.DeleteKey("SavedCoins");
         PlayerPrefs.DeleteKey("SavedCheckpoint");
         PlayerPrefs.DeleteKey("SavedLevel");
         for (int i = 0; i < greenCoins.Length; i++)
         {
             PlayerPrefs.DeleteKey("SavedGreenCoin" + i);
-        }
+        }*/
         
         // ALSO clear new SaveManager checkpoint
         if (SaveManager.Current != null && SaveManager.Current.checkpoint != null)
@@ -1474,7 +1448,7 @@ public class GameManager : MonoBehaviour
     // Quit Level
     public void QuitLevel()
     {
-        PlayerPrefs.Save();
+        // PlayerPrefs.Save();
 
         // Destroy all music objects
         foreach (GameObject musicObj in GameObject.FindGameObjectsWithTag("GameMusic"))

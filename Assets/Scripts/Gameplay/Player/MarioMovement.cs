@@ -1875,6 +1875,16 @@ public class MarioMovement : MonoBehaviour
         Destroy(gameObject);
     }
 
+    public void ForceExitCrouch()
+    {
+        inCrouchState = false;
+        animator.SetBool("isCrouching", false);
+        
+        // Reset collider to normal size
+        GetComponent<BoxCollider2D>().size = new Vector2(GetComponent<BoxCollider2D>().size.x, colliderY);
+        GetComponent<BoxCollider2D>().offset = new Vector2(GetComponent<BoxCollider2D>().offset.x, collideroffsetY);
+    }
+
     public void ChangePowerup(GameObject newMarioObject)
     {
         if (isTransforming)

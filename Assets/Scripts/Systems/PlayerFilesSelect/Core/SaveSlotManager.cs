@@ -21,7 +21,8 @@ public class SaveSlotManager : MonoBehaviour
         CopySelectSource,
         CopySelectDestination,
         ImportSelectDestination,
-        ExportSelectSource
+        ExportSelectSource,
+        RenameSelectTarget,
     }
 
     public InteractionMode CurrentMode { get; private set; } = InteractionMode.Normal;
@@ -41,6 +42,9 @@ public class SaveSlotManager : MonoBehaviour
     [Tooltip("If empty, Application.persistentDataPath/ExportedSaves will be used.")]
     public string defaultExportDirectory = "";
 
+    [Header("Name / Rename Popup")]
+    public SaveSlotRename renamePopup;
+
     [Header("Confirm Popup")]
     public ConfirmPopup confirmPopup;
     [SerializeField] private LocalizedString importOverwriteMsg;
@@ -55,6 +59,7 @@ public class SaveSlotManager : MonoBehaviour
     public UIInputLock uiInputLock;
 
     public int FocusedSlotIndex { get; private set; } = 0;
+    public int LastFocusedSlotIndex { get; private set; } = 0;
 
     // For copy mode (source slot chosen in step 1)
     private int copySourceIndex = -1;
@@ -79,6 +84,12 @@ public class SaveSlotManager : MonoBehaviour
         RefreshAllSlots();
         FocusSlot(0);
         SetMode(CurrentMode, refreshVisuals: true, notify: true);
+        
+        if (renamePopup != null)
+        {
+            renamePopup.onNameConfirmed.AddListener(OnPopupNameConfirmed);
+            renamePopup.onRenameCancelled.AddListener(OnPopupCancelled);
+        }
     }
 
     private void FixDefaultProfileNameForSlot(int slotIndex)
@@ -170,6 +181,8 @@ public class SaveSlotManager : MonoBehaviour
         else
             FocusedSlotIndex = Mathf.Clamp(index, 0, slotCards.Length - 1);
 
+        LastFocusedSlotIndex = FocusedSlotIndex;
+
         for (int i = 0; i < slotCards.Length; i++)
         {
             if (slotCards[i] != null)
@@ -251,6 +264,27 @@ public class SaveSlotManager : MonoBehaviour
     }
 
     /// <summary>
+    /// Called by the Rename button.
+    /// First press enters Rename mode.
+    /// Pressing agagin while in Rename button cancels and returns to Normal.
+    /// </summary>
+    public void EnterRenameMode()
+    {
+        if (CurrentMode == InteractionMode.RenameSelectTarget)
+        {
+            CancelCurrentMode(); // goes back to normal
+            return;
+        }
+
+        // If you’re in any other special mode, go back to normal first
+        if (CurrentMode != InteractionMode.Normal)
+            CancelCurrentMode();
+
+        SetMode(InteractionMode.RenameSelectTarget);
+        Debug.Log("SaveSlotManager: RENAME MODE enabled. Next submit on a slot will rename.");
+    }
+
+    /// <summary>
     /// Cancels any current special mode (Delete, Copy, Import, Export) and returns to Normal mode.
     /// Should be called by the Cancel input (e.g., B / Esc).
     /// </summary>
@@ -309,6 +343,10 @@ public class SaveSlotManager : MonoBehaviour
 
             case InteractionMode.ExportSelectSource:
                 HandleExportSource(index);
+                break;
+            
+            case InteractionMode.RenameSelectTarget:
+                HandleRenameSelectTarget(index);
                 break;
 
             case InteractionMode.Normal:
@@ -717,38 +755,56 @@ public class SaveSlotManager : MonoBehaviour
         StartCoroutine(ResetFileDialogFlagsNextFrame());
 #endif
     }
+
+    private void HandleRenameSelectTarget(int index)
+    {
+        int slotIndex = Mathf.Clamp(index, 0, slotCards.Length - 1);
+
+        if (!SaveManager.SlotExists(slotIndex))
+        {
+            Debug.Log("SaveSlotManager: Cannot rename an empty slot.");
+            // stay in Rename mode, player can choose another slot
+            return;
+        }
+
+        if (renamePopup == null)
+        {
+            Debug.LogWarning("SaveSlotManager: renamePopup is missing.");
+            SetMode(InteractionMode.Normal);
+            return;
+        }
+
+        // Unlock before showing popup so UI can interact
+        uiInputLock?.Unlock(restoreSelection: false);
+
+        string currentName = GetSlotProfileName(slotIndex);
+        renamePopup.OpenForRename(slotIndex, currentName);
+    }
+
     #endregion
 
     #region Original Behaviour
     public void PlaySlot(int index)
     {
-        // Safety: do not allow scene transitions while in a special mode
-        if (CurrentMode != InteractionMode.Normal)
-        {
-            Debug.LogWarning($"PlaySlot was called while in mode {CurrentMode}. Ignoring play request.");
-            return;
-        }
+        if (CurrentMode != InteractionMode.Normal) return;
+        if (isFileDialogOpen || isFileOperationInProgress) return;
 
-        // Also prevent scene transitions right when a file operation just finished
-        if (isFileDialogOpen || isFileOperationInProgress)
+        // If this is a NEW slot, ask for a name first (create flow).
+        if (!SaveManager.SlotExists(index) && renamePopup != null)
         {
-            Debug.LogWarning("PlaySlot was called while a file dialog is open or just closed. Ignoring play request.");
+            // Unlock BEFORE showing popup so navigation works.
+            if (uiInputLock != null && uiInputLock.GetLockCount() > 0)
+                uiInputLock.Unlock(restoreSelection: false);
+
+            renamePopup.OpenForNewSlot(index);
             return;
         }
 
         ActiveSlotIndex = index;
-
-        // This will either load an existing save or create a new one for an empty slot
         SaveManager.Load(index);
 
-        // Ensure UI for this slot is updated now, so it stops showing "NEW"
-        if (slotCards != null &&
-            index >= 0 &&
-            index < slotCards.Length &&
-            slotCards[index] != null)
-        {
+        if (slotCards != null && index >= 0 && index < slotCards.Length && slotCards[index] != null)
             slotCards[index].Refresh(index);
-        }
 
         AudioManager.Instance?.Play(transitionSound, SoundCategory.SFX);
 
@@ -966,6 +1022,109 @@ public class SaveSlotManager : MonoBehaviour
         ExportFocusedSlot();
     }
     #endregion
+
+    #region Naming / Renaming
+    public void BeginRenameFocusedSlot()
+    {
+        if (renamePopup == null) return;
+
+        int slotIndex = FocusedSlotIndex >= 0 ? FocusedSlotIndex : LastFocusedSlotIndex;
+        slotIndex = Mathf.Clamp(slotIndex, 0, slotCards.Length - 1);
+
+        if (!SaveManager.SlotExists(slotIndex))
+        {
+            Debug.Log("SaveSlotManager: Cannot rename an empty slot.");
+            return;
+        }
+
+        // Unlock BEFORE showing popup so navigation works.
+        if (uiInputLock != null && uiInputLock.GetLockCount() > 0)
+            uiInputLock.Unlock(restoreSelection: false);
+
+        string currentName = GetSlotProfileName(slotIndex);
+        renamePopup.OpenForRename(slotIndex, currentName);
+    }
+
+    private void OnPopupNameConfirmed(int slotIndex, string newName)
+    {
+        // If we were in Rename mode, rename and exit mode
+        if (CurrentMode == InteractionMode.RenameSelectTarget)
+        {
+            RenameSlot(slotIndex, newName);
+            SetMode(InteractionMode.Normal);
+            return;
+        }
+
+        // Otherwise, Create flow is handled by PipeEnterSequence (see below)
+        // so we typically do nothing here for create.
+    }
+
+    private void OnPopupCancelled()
+    {
+        // If we were renaming, exit rename mode on cancel
+        if (CurrentMode == InteractionMode.RenameSelectTarget)
+            SetMode(InteractionMode.Normal);
+    }
+
+    private string GetSlotProfileName(int slotIndex)
+    {
+        int prevSlot = SaveManager.CurrentSlot;
+        SaveManager.Load(slotIndex);
+
+        string name = SaveManager.Current != null ? SaveManager.Current.profileName : "";
+        if (string.IsNullOrWhiteSpace(name))
+            name = SaveSlotNaming.DefaultNameFor((SaveSlotId)slotIndex);
+
+        if (prevSlot != slotIndex)
+            SaveManager.Load(prevSlot);
+
+        return name;
+    }
+
+    private void RenameSlot(int slotIndex, string newName)
+    {
+        int prevSlot = SaveManager.CurrentSlot;
+
+        SaveManager.Load(slotIndex);
+
+        if (SaveManager.Current != null)
+        {
+            SaveManager.Current.profileName = newName;
+            SaveManager.Save();
+        }
+
+        if (slotCards != null && slotIndex >= 0 && slotIndex < slotCards.Length && slotCards[slotIndex] != null)
+            slotCards[slotIndex].Refresh(slotIndex);
+
+        if (prevSlot != slotIndex)
+            SaveManager.Load(prevSlot);
+    }
+
+    private void CreateSlotWithNameAndEnter(int slotIndex, string newName)
+    {
+        // This will create the file if missing
+        ActiveSlotIndex = slotIndex;
+        SaveManager.Load(slotIndex);
+
+        if (SaveManager.Current != null)
+        {
+            SaveManager.Current.profileName = newName;
+            SaveManager.Save();
+        }
+
+        // Update the UI for this slot so it stops showing NEW
+        if (slotCards != null && slotIndex >= 0 && slotIndex < slotCards.Length && slotCards[slotIndex] != null)
+            slotCards[slotIndex].Refresh(slotIndex);
+
+        AudioManager.Instance?.Play(transitionSound, SoundCategory.SFX);
+
+        if (FadeInOutScene.Instance != null)
+            FadeInOutScene.Instance.LoadSceneWithFade(levelSelectSceneName);
+        else
+            SceneManager.LoadScene(levelSelectSceneName);
+    }
+    #endregion
+
 
     #region File Dialog State Helpers
     /// <summary>

@@ -7,7 +7,8 @@ public enum FileSelectActionType
     DeleteSlot,
     CopySlot,
     Import,
-    Export
+    Export,
+    RenameSlot
 }
 
 public class FileSelectInteractable : MonoBehaviour

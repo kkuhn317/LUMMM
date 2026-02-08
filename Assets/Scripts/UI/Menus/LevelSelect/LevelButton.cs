@@ -128,7 +128,8 @@ public class LevelButton : MonoBehaviour
         }
 
         // Legacy fallback: old PlayerPrefs key
-        return PlayerPrefs.GetInt("LevelCompleted_" + levelInfo.levelID, 0) == 1;
+        // return PlayerPrefs.GetInt("LevelCompleted_" + levelInfo.levelID, 0) == 1;
+        return SaveLoadSystem.Instance != null && SaveLoadSystem.Instance.IsLevelCompleted(levelInfo.levelID);
     }
 
     void Start()

@@ -52,7 +52,6 @@ public class FileSelectMarioController : MonoBehaviour
         }
     }
 
-    // Use this when a sequence wants full control.
     public void SetFollowSelection(bool value) => followSelection = value;
 
     public IEnumerator MoveTo(Transform destination)
@@ -67,34 +66,67 @@ public class FileSelectMarioController : MonoBehaviour
         IsBusy = false;
     }
 
-    // Animation state triggers
-    public void SetIdle() => TriggerIfValid(idleTrigger);
+    public void SetIdle()
+    {
+        ResetAllOneShotTriggers();
+        TriggerIfValid(idleTrigger);
+    }
 
     public void SetJump(bool playSfx = true)
     {
+        ResetTriggerIfValid(idleTrigger);
+        ResetTriggerIfValid(bombTrigger);
+        ResetTriggerIfValid(transformIntoObjectTrigger);
+        ResetTriggerIfValid(bombJump);
+        ResetTriggerIfValid(celebrationTrigger);
+
         TriggerIfValid(jumpTrigger);
         if (playSfx) PlaySfx(jumpSound);
     }
 
     public void SetBomb()
     {
+        ResetTriggerIfValid(idleTrigger);
+        ResetTriggerIfValid(jumpTrigger);
+        ResetTriggerIfValid(transformIntoObjectTrigger);
+        ResetTriggerIfValid(bombJump);
+        ResetTriggerIfValid(celebrationTrigger);
+
         TriggerIfValid(bombTrigger);
     }
 
     public void SetTransformIntoObject(bool playSfx = true)
     {
+        ResetTriggerIfValid(idleTrigger);
+        ResetTriggerIfValid(jumpTrigger);
+        ResetTriggerIfValid(bombTrigger);
+        ResetTriggerIfValid(bombJump);
+        ResetTriggerIfValid(celebrationTrigger);
+
         TriggerIfValid(transformIntoObjectTrigger);
         if (playSfx) PlaySfx(transformSound);
     }
 
     public void SetBombJump(bool playSfx = true)
     {
+        ResetTriggerIfValid(idleTrigger);
+        ResetTriggerIfValid(jumpTrigger);
+        ResetTriggerIfValid(bombTrigger);
+        ResetTriggerIfValid(transformIntoObjectTrigger);
+        ResetTriggerIfValid(celebrationTrigger);
+
         TriggerIfValid(bombJump);
         if (playSfx) PlaySfx(jumpSound);
     }
 
     public void SetCelebrate(bool playSfx = true)
     {
+        ResetTriggerIfValid(idleTrigger);
+        ResetTriggerIfValid(jumpTrigger);
+        ResetTriggerIfValid(bombTrigger);
+        ResetTriggerIfValid(transformIntoObjectTrigger);
+        ResetTriggerIfValid(bombJump);
+
         TriggerIfValid(celebrationTrigger);
         if (playSfx) PlaySfx(celebrationSound);
     }
@@ -104,10 +136,20 @@ public class FileSelectMarioController : MonoBehaviour
         PlaySfx(bombSound);
     }
 
-    private void PlaySfx(AudioClip clip)
+    private void ResetAllOneShotTriggers()
     {
-        if (clip == null) return;
-        AudioManager.Instance?.Play(clip, SoundCategory.SFX);
+        ResetTriggerIfValid(jumpTrigger);
+        ResetTriggerIfValid(bombTrigger);
+        ResetTriggerIfValid(transformIntoObjectTrigger);
+        ResetTriggerIfValid(bombJump);
+        ResetTriggerIfValid(celebrationTrigger);
+        ResetTriggerIfValid(idleTrigger);
+    }
+
+    private void ResetTriggerIfValid(string trigger)
+    {
+        if (animator == null || string.IsNullOrEmpty(trigger)) return;
+        animator.ResetTrigger(trigger);
     }
 
     private void TriggerIfValid(string trigger)
@@ -116,7 +158,12 @@ public class FileSelectMarioController : MonoBehaviour
         animator.SetTrigger(trigger);
     }
 
-    // Attach/detach to/from pipe containers for pipe sequences.
+    private void PlaySfx(AudioClip clip)
+    {
+        if (clip == null) return;
+        AudioManager.Instance?.Play(clip, SoundCategory.SFX);
+    }
+
     public void AttachTo(Transform parent, bool worldPositionStays = true)
     {
         if (parent == null) return;
