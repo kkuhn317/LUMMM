@@ -1551,8 +1551,11 @@ public class GameManager : MonoBehaviour
         Time.timeScale = 0f; // Set time scale to 0 (pause)
         GlobalVariables.speedrunTimer.Stop(); // Stop speedrun timer
 
-        originalVolume = MusicManager.Instance.GetCurrentVolume();
-        MusicManager.Instance.SetCurrentVolume(originalVolume * 0.25f);
+        if (!isOptionsMenuLevel)
+        {
+            originalVolume = MusicManager.Instance.GetCurrentVolume();
+            MusicManager.Instance.SetCurrentVolume(originalVolume * 0.25f);
+        }
 
         CursorHelper.ShowCursor();
 
@@ -1594,8 +1597,10 @@ public class GameManager : MonoBehaviour
             GlobalVariables.speedrunTimer.Start(); // Resume speedrun timer
         }
 
-        MusicManager.Instance.SetCurrentVolume(originalVolume);
-
+        if (!isOptionsMenuLevel)
+        {
+            MusicManager.Instance.SetCurrentVolume(originalVolume);
+        }
             
         if (hideCursor)
         {
