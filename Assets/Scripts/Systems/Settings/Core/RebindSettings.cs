@@ -34,7 +34,7 @@ public class RebindSettings : MonoBehaviour, IPauseToggleGate
 
     void OnEnable()
     {
-        DisableTogglePause(); 
+        EnableTogglePause(); 
 
         // Disable interactability of the options canvas group
         optionsCanvasGroup.interactable = false;
@@ -64,7 +64,7 @@ public class RebindSettings : MonoBehaviour, IPauseToggleGate
 
     void OnDisable()
     {
-        EnableTogglePause(); 
+        DisableTogglePause(); 
 
         // Enable interactability of the options canvas group
         optionsCanvasGroup.interactable = true;

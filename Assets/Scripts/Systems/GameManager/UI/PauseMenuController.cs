@@ -213,6 +213,8 @@ public class PauseMenuController : MonoBehaviour
 
     private void OnCancelPerformed(InputAction.CallbackContext ctx)
     {
+        //TODO: Both pause and cancel are activated on pressing escape. Because of "ToggleAlreadyHandledThisFrame", one can stop the other from working.
+        // Usually pause happens before cancel, but that might not always be true
         if (!CanTogglePauseNow())
             return;
 
@@ -330,10 +332,8 @@ public class PauseMenuController : MonoBehaviour
 
         optionsPauseHandler?.OnResume();
 
-        // IMPORTANT:
-        // In StandaloneOptionsMenu, pauseMenu is the whole UI and must NOT be hidden on resume.
-        if (pauseMenu != null && mode == PauseMenuMode.InGamePauseMenu)
-            pauseMenu.SetActive(false);
+        // In rebind menu, the "pause menu" is just the "PAUSE" overlay, which should also be disabled
+        if (pauseMenu != null)pauseMenu.SetActive(false);
 
         if (disablingMenusOnResume != null)
         {
