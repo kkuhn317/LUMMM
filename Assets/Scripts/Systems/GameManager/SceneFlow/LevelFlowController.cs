@@ -16,6 +16,9 @@ public class LevelFlowController : MonoBehaviour
     private LifeSystem lifeSystem;
     private PauseMenuController pauseController;
 
+    public static bool IsEndingLevel { get; private set; }
+    public static void MarkEndingLevel() => IsEndingLevel = true;
+
     private bool winSequenceRunning;
     private bool deathSequenceRunning;
 

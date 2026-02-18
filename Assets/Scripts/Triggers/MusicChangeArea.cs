@@ -90,6 +90,7 @@ public class MusicChangeArea : MonoBehaviour
     {
         if (permanent) return;
         if (usePosition) return;
+        if (LevelFlowController.IsEndingLevel) return;
 
         /* (other.gameObject.tag == "Player")
         {

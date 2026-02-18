@@ -253,9 +253,9 @@ public class Flag : MonoBehaviour
             var mario = other.GetComponent<MarioMovement>();
 
             TryGrantFlagpoleReward(other, mario);
-
-            // Refactor: timers belong to TimerManager now
+            
             var timerManager = GameManager.Instance.GetSystem<TimerManager>();
+            LevelFlowController.MarkEndingLevel();
             timerManager?.StopAllTimers();
             timerManager?.StopTimeWarningMusic();
 
