@@ -356,7 +356,7 @@ public class MarioMovement : MonoBehaviour
 
         // Should happen after everything else so that the player transformation cheats work
         // GameManager.Instance.SetPlayer(this, playerNumber);
-        var gm = GameManagerRefactored.Instance;
+        var gm = GameManager.Instance;
             var registry = gm != null ? gm.GetSystem<PlayerRegistry>() : null;
             if (registry == null) registry = FindObjectOfType<PlayerRegistry>(true);
             registry?.RegisterPlayer(this, playerNumber);
@@ -460,7 +460,7 @@ public class MarioMovement : MonoBehaviour
             toDead();
         }*/
 
-        var gm = GameManagerRefactored.Instance;
+        var gm = GameManager.Instance;
         var timer = gm != null ? gm.GetSystem<TimerManager>() : null;
         if (timer == null) timer = FindObjectOfType<TimerManager>(true);
         if (timer != null && timer.CurrentTime <= 0)

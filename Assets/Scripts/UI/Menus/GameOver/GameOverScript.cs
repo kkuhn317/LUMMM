@@ -81,8 +81,8 @@ public class GameOverScript : MonoBehaviour
         /*if (GameManager.Instance != null)
             GameManager.Instance.RestartLevelFromBeginningWithFadeOut();*/
 
-        if (GameManagerRefactored.Instance != null)
-            GameManagerRefactored.Instance.RestartLevelFromBeginning();
+        if (GameManager.Instance != null)
+            GameManager.Instance.RestartLevelFromBeginning();
     }
 
     public void OnQuitButtonPressed()

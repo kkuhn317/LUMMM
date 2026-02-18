@@ -541,8 +541,8 @@ public class CheepCheep : EnemyAI
 
     public void QueueScriptedChase()
     {
-        var keyInv = GameManagerRefactored.Instance != null
-            ? GameManagerRefactored.Instance.GetSystem<KeyInventorySystem>()
+        var keyInv = GameManager.Instance != null
+            ? GameManager.Instance.GetSystem<KeyInventorySystem>()
             : null;
 
         bool playerHasKey = keyInv != null && keyInv.HasKey();

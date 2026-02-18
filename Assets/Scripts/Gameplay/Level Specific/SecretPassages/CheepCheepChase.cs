@@ -11,8 +11,8 @@ public class CheepCheepChase : MonoBehaviour
     {
         if (keyInventory != null) return;
 
-        if (GameManagerRefactored.Instance != null)
-            keyInventory = GameManagerRefactored.Instance.GetSystem<KeyInventorySystem>();
+        if (GameManager.Instance != null)
+            keyInventory = GameManager.Instance.GetSystem<KeyInventorySystem>();
 
         if (keyInventory == null)
             keyInventory = FindObjectOfType<KeyInventorySystem>(true);

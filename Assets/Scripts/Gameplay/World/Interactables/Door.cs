@@ -48,10 +48,10 @@ public class Door : MonoBehaviour
     private void CacheSystems()
     {
         // Prefer getting them through the refactored GM if you have GetSystem<T>()
-        if (GameManagerRefactored.Instance != null)
+        if (GameManager.Instance != null)
         {
-            playerRegistry = GameManagerRefactored.Instance.GetSystem<PlayerRegistry>();
-            keyInventory  = GameManagerRefactored.Instance.GetSystem<KeyInventorySystem>();
+            playerRegistry = GameManager.Instance.GetSystem<PlayerRegistry>();
+            keyInventory  = GameManager.Instance.GetSystem<KeyInventorySystem>();
         }
 
         // Fallback (in case Door runs before GM systems are ready)

@@ -5,7 +5,7 @@ using static PowerStates;
 public struct CutsceneContext
 {
     // Core global stuff
-    public GameManagerRefactored gameManager;
+    public GameManager gameManager;
     public Scene scene;
 
     public MarioMovement mainPlayer;

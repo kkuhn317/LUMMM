@@ -155,7 +155,7 @@ public class WinScreenController : MonoBehaviour
 
     private void OnRestartClicked()
     {
-        if (GameManagerRefactored.Instance == null)
+        if (GameManager.Instance == null)
         {
             Debug.LogError("WinScreenController: GameManagerRefactored.Instance is null");
             return;
@@ -163,12 +163,12 @@ public class WinScreenController : MonoBehaviour
 
         LockWinScreenInput();
 
-        GameManagerRefactored.Instance.RestartLevelFromBeginningWithFadeOut();
+        GameManager.Instance.RestartLevelFromBeginningWithFadeOut();
     }
 
     private void OnQuitClicked()
     {
-        if (GameManagerRefactored.Instance == null)
+        if (GameManager.Instance == null)
         {
             Debug.LogError("WinScreenController: GameManagerRefactored.Instance is null");
             return;
@@ -176,7 +176,7 @@ public class WinScreenController : MonoBehaviour
 
         LockWinScreenInput();
 
-        GameManagerRefactored.Instance.QuitLevel();
+        GameManager.Instance.QuitLevel();
     }
 
     private void LockWinScreenInput()

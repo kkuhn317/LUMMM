@@ -47,8 +47,8 @@ public class CircleTransition : MonoBehaviour
 
     private void CacheRegistry()
     {
-        if (GameManagerRefactored.Instance != null)
-            playerRegistry = GameManagerRefactored.Instance.GetSystem<PlayerRegistry>();
+        if (GameManager.Instance != null)
+            playerRegistry = GameManager.Instance.GetSystem<PlayerRegistry>();
 
         if (playerRegistry == null)
             playerRegistry = FindObjectOfType<PlayerRegistry>(true);

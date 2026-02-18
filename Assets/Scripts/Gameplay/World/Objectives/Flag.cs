@@ -142,7 +142,7 @@ public class Flag : MonoBehaviour
         if (flagPoints <= 0) return;
 
         // Refactor: score lives in ScoreSystem now
-        GameManagerRefactored.Instance.GetSystem<ScoreSystem>().AddScore(flagPoints);
+        GameManager.Instance.GetSystem<ScoreSystem>().AddScore(flagPoints);
 
         if (ScorePopupManager.Instance != null && mario != null)
         {
@@ -255,7 +255,7 @@ public class Flag : MonoBehaviour
             TryGrantFlagpoleReward(other, mario);
 
             // Refactor: timers belong to TimerManager now
-            var timerManager = GameManagerRefactored.Instance.GetSystem<TimerManager>();
+            var timerManager = GameManager.Instance.GetSystem<TimerManager>();
             timerManager?.StopAllTimers();
             timerManager?.StopTimeWarningMusic();
 

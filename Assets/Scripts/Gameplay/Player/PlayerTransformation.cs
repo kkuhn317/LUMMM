@@ -55,8 +55,8 @@ public class PlayerTransformation : MonoBehaviour
 
         if (registry == null)
         {
-            registry = GameManagerRefactored.Instance != null
-                ? GameManagerRefactored.Instance.GetSystem<PlayerRegistry>()
+            registry = GameManager.Instance != null
+                ? GameManager.Instance.GetSystem<PlayerRegistry>()
                 : FindObjectOfType<PlayerRegistry>(true);
         }
 

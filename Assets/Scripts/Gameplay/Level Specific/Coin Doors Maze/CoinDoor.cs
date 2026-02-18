@@ -115,7 +115,7 @@ public class CoinDoor : Door
     protected virtual void SubtractOneCoin()
     {
         // GameManager.Instance.RemoveCoins(1);
-        GameManagerRefactored.Instance.GetSystem<CoinSystem>()?.RemoveCoins(1);
+        GameManager.Instance.GetSystem<CoinSystem>()?.RemoveCoins(1);
     }
 
     protected IEnumerator MoveUpAndFadeOut(GameObject gameObject)

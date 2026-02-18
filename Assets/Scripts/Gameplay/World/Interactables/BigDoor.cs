@@ -28,7 +28,7 @@ public class BigDoor : Door
         // Ensure player reference (mirrors base Door’s fetch pattern)
         if (player == null)
         {
-            var mm = GameManagerRefactored.Instance.GetSystem<PlayerRegistry>()?.GetPlayer(0);
+            var mm = GameManager.Instance.GetSystem<PlayerRegistry>()?.GetPlayer(0);
             if (mm) player = mm.gameObject;
             if (player == null) return;
         }

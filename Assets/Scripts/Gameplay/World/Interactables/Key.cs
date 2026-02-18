@@ -130,7 +130,7 @@ public class Key : MonoBehaviour
             inv.AddKey(gameObject);*/
 
             // GameManager.Instance.keys.Add(gameObject);
-            var keys = GameManagerRefactored.Instance.GetSystem<KeyInventorySystem>();
+            var keys = GameManager.Instance.GetSystem<KeyInventorySystem>();
             keys?.AddKey(gameObject);
             
             GetComponent<AudioSource>().Play();

@@ -25,8 +25,8 @@ public class EndlessMode : MonoBehaviour
     private void CacheRegistry()
     {
         // Try getting registry from the refactored GameManager first
-        if (GameManagerRefactored.Instance != null)
-            playerRegistry = GameManagerRefactored.Instance.GetSystem<PlayerRegistry>();
+        if (GameManager.Instance != null)
+            playerRegistry = GameManager.Instance.GetSystem<PlayerRegistry>();
 
         // Fallback: find it in scene (useful for additive scenes / init order)
         if (playerRegistry == null)

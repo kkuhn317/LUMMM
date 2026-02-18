@@ -67,7 +67,7 @@ public class GameOverController : MonoBehaviour
     
     private void OnRetryPressed()
     {
-        GameManagerRefactored.Instance?.RestartLevelFromBeginning();
+        GameManager.Instance?.RestartLevelFromBeginning();
     }
     
     private void OnQuitPressed()

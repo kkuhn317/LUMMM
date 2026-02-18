@@ -104,11 +104,11 @@ public class Axe : MonoBehaviour
 
     private void CacheSystems()
     {
-        if (GameManagerRefactored.Instance == null) return;
+        if (GameManager.Instance == null) return;
 
-        pauseables = GameManagerRefactored.Instance.GetSystem<PauseableObjectsController>();
-        timerManager = GameManagerRefactored.Instance.GetSystem<TimerManager>();
-        levelFlow = GameManagerRefactored.Instance.GetSystem<LevelFlowController>();
+        pauseables = GameManager.Instance.GetSystem<PauseableObjectsController>();
+        timerManager = GameManager.Instance.GetSystem<TimerManager>();
+        levelFlow = GameManager.Instance.GetSystem<LevelFlowController>();
     }
 
     private void Update()

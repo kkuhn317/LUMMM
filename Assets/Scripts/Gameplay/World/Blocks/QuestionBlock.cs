@@ -232,7 +232,7 @@ public class QuestionBlock : BumpableBlock
             SpawnAllAtOnce(player);
         }
 
-        GameManagerRefactored.Instance?.GetSystem<ScoreSystem>()?.AddScore(50);
+        GameManager.Instance?.GetSystem<ScoreSystem>()?.AddScore(50);
 
         var breakable = GetComponent<BreakableBlocks>();
         if (breakable != null)

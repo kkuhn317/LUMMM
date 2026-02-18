@@ -5,9 +5,9 @@ using UnityEngine.SceneManagement;
 /// Minimal game manager that serves only as a central entry point and coordinator.
 /// All specific game logic has been delegated to specialized systems.
 /// </summary>
-public class GameManagerRefactored : MonoBehaviour, IGameManager
+public class GameManager : MonoBehaviour, IGameManager
 {
-    public static GameManagerRefactored Instance { get; private set; }
+    public static GameManager Instance { get; private set; }
 
     [Header("Core Flow Controllers (Required)")]
     [SerializeField] private LevelFlowController levelFlowController;
@@ -16,7 +16,7 @@ public class GameManagerRefactored : MonoBehaviour, IGameManager
     [Header("Optional: Inspector Visibility Only")]
     [SerializeField] private bool showSystemReferencesInInspector = false;
 
-    // Inspector-only references (debug visibility)
+    // Inspector-only references
     [SerializeField, HideInInspector] private TimerManager timerManager;
     [SerializeField, HideInInspector] private ScoreSystem scoreSystem;
     [SerializeField, HideInInspector] private CoinSystem coinSystem;
@@ -125,10 +125,10 @@ public class GameManagerRefactored : MonoBehaviour, IGameManager
     private void ValidateRequiredReferences()
     {
         if (levelFlowController == null)
-            Debug.LogError($"{nameof(GameManagerRefactored)}: {nameof(levelFlowController)} is required (assign it in the Inspector).");
+            Debug.LogError($"{nameof(GameManager)}: {nameof(levelFlowController)} is required (assign it in the Inspector).");
 
         if (pauseMenuController == null)
-            Debug.LogError($"{nameof(GameManagerRefactored)}: {nameof(pauseMenuController)} is required (assign it in the Inspector).");
+            Debug.LogError($"{nameof(GameManager)}: {nameof(pauseMenuController)} is required (assign it in the Inspector).");
     }
 
     private void RebindSceneReferencesStrict()
@@ -138,10 +138,10 @@ public class GameManagerRefactored : MonoBehaviour, IGameManager
         pauseMenuController = FindObjectOfType<PauseMenuController>();
 
         if (levelFlowController == null)
-            Debug.LogError($"{nameof(GameManagerRefactored)}: {nameof(LevelFlowController)} was not found in the loaded scene.");
+            Debug.LogError($"{nameof(GameManager)}: {nameof(LevelFlowController)} was not found in the loaded scene.");
 
         if (pauseMenuController == null)
-            Debug.LogError($"{nameof(GameManagerRefactored)}: {nameof(PauseMenuController)} was not found in the loaded scene.");
+            Debug.LogError($"{nameof(GameManager)}: {nameof(PauseMenuController)} was not found in the loaded scene.");
 
         CacheSystemReferencesIfEnabled();
     }
@@ -175,7 +175,7 @@ public class GameManagerRefactored : MonoBehaviour, IGameManager
         // Keep in mind that CheckpointManager must exist in the scene if checkpoints are enabled
         var cp = FindObjectOfType<CheckpointManager>();
         if (cp == null)
-            Debug.LogError($"{nameof(GameManagerRefactored)}: {nameof(CheckpointManager)} not found when restarting from beginning.");
+            Debug.LogError($"{nameof(GameManager)}: {nameof(CheckpointManager)} not found when restarting from beginning.");
         else
             cp.ClearCheckpoint();
 
@@ -201,7 +201,7 @@ public class GameManagerRefactored : MonoBehaviour, IGameManager
 
         var cp = FindObjectOfType<CheckpointManager>();
         if (cp == null)
-            Debug.LogError($"{nameof(GameManagerRefactored)}: {nameof(CheckpointManager)} not found when restarting from beginning.");
+            Debug.LogError($"{nameof(GameManager)}: {nameof(CheckpointManager)} not found when restarting from beginning.");
         else
             cp.ClearCheckpoint();
 

@@ -163,7 +163,7 @@ public class LevelFlowController : MonoBehaviour
         else
         {
             Debug.LogWarning($"{nameof(LevelFlowController)}: No lose life scene set or infinite lives mode enabled, reloading current scene on death.");
-            GameManagerRefactored.Instance?.ReloadScene();
+            GameManager.Instance?.ReloadScene();
         }
 
         deathSequenceRunning = false;

@@ -133,9 +133,9 @@ public class CheckpointManager : MonoBehaviour
 
     private string ResolveLevelId()
     {
-        if (GameManagerRefactored.Instance != null &&
-            !string.IsNullOrEmpty(GameManagerRefactored.Instance.CurrentLevelId))
-            return GameManagerRefactored.Instance.CurrentLevelId;
+        if (GameManager.Instance != null &&
+            !string.IsNullOrEmpty(GameManager.Instance.CurrentLevelId))
+            return GameManager.Instance.CurrentLevelId;
 
         var id = GlobalVariables.levelInfo != null ? GlobalVariables.levelInfo.levelID : null;
         if (!string.IsNullOrEmpty(id)) return id;

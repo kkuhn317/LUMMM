@@ -51,8 +51,8 @@ public class CutsceneSelector : MonoBehaviour
 
         director.playableAsset = def.timeline;
 
-        var levelFlow = GameManagerRefactored.Instance != null
-            ? GameManagerRefactored.Instance.GetSystem<LevelFlowController>()
+        var levelFlow = GameManager.Instance != null
+            ? GameManager.Instance.GetSystem<LevelFlowController>()
             : FindObjectOfType<LevelFlowController>(true);
 
         if (levelFlow == null)

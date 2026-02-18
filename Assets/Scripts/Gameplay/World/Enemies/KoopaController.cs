@@ -155,7 +155,7 @@ public class KoopaController : EnemyAI
             ComboResult result = ComboManager.Instance.RegisterShellKick(kickPoints, kickPopup);
 
             // GameManager.Instance.AddScorePoints(result.amount);
-            GameManagerRefactored.Instance.GetSystem<ScoreSystem>().AddScore(result.amount);
+            GameManager.Instance.GetSystem<ScoreSystem>().AddScore(result.amount);
 
             if (ScorePopupManager.Instance != null)
             {

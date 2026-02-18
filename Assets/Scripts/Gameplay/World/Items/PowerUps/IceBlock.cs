@@ -72,7 +72,7 @@ public class IceBlock : ObjectPhysics, IGroundPoundable
 
         Vector3 popupPos = transform.position + Vector3.up * 0.5f;
         // GameManager.Instance.AddScorePoints(100);
-        GameManagerRefactored.Instance.GetSystem<ScoreSystem>().AddScore(100);
+        GameManager.Instance.GetSystem<ScoreSystem>().AddScore(100);
         if (ScorePopupManager.Instance != null)
         {
             ComboResult result = new ComboResult(RewardType.Score, PopupID.Score100, 100);

@@ -90,7 +90,7 @@ public class MobileControlButton : MonoBehaviour
 
     void TurnOn()
     {
-        if (GameManagerRefactored.Instance.GetSystem<PauseMenuController>().IsPaused && !canPressIfPaused) return;
+        if (GameManager.Instance.GetSystem<PauseMenuController>().IsPaused && !canPressIfPaused) return;
 
         buttonPressed = true;
         if (isRunButton) GlobalVariables.mobileRunButtonPressed = true;

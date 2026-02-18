@@ -110,7 +110,7 @@ public class GiantThwomp : EnemyAI, IGroundPoundable
     }
 
     private void DetectPlayer() {
-        MarioMovement player = GameManagerRefactored.Instance.GetSystem<PlayerRegistry>()?.GetPlayer(0);
+        MarioMovement player = GameManager.Instance.GetSystem<PlayerRegistry>()?.GetPlayer(0);
 
         if (player != null)
         {
@@ -661,7 +661,7 @@ public class GiantThwomp : EnemyAI, IGroundPoundable
             // Destroy(gameObject);  
 
             // GameManager.Instance.StopTimer();
-            GameManagerRefactored.Instance.GetSystem<TimerManager>()?.StopAllTimers();
+            GameManager.Instance.GetSystem<TimerManager>()?.StopAllTimers();
 
             // Start my own cutscene (Death Thwomp Cutscene)
             GetComponent<PlayableDirector>().Play();
@@ -675,7 +675,7 @@ public class GiantThwomp : EnemyAI, IGroundPoundable
     {
         // Note: the cutscene already hides the ui so it is technically not needed here
         // StartCoroutine(GameManager.Instance.TriggerEndLevelCutscene(defeatTimeline, 0, cutsceneTime, true, true, true));
-        GameManagerRefactored.Instance.GetSystem<LevelFlowController>()?.TriggerCutsceneEnding(defeatTimeline, cutsceneTime, destroyPlayersImmediately: true, stopMusicImmediately: true);
+        GameManager.Instance.GetSystem<LevelFlowController>()?.TriggerCutsceneEnding(defeatTimeline, cutsceneTime, destroyPlayersImmediately: true, stopMusicImmediately: true);
     }
 
     protected override void OnTriggerEnter2D(Collider2D other) {

@@ -35,7 +35,7 @@ public class Fireball : ObjectPhysics
 
             // ALWAYS award 200 points for fire kills
             // GameManager.Instance.AddScorePoints(200);
-            GameManagerRefactored.Instance.GetSystem<ScoreSystem>().AddScore(200);
+            GameManager.Instance.GetSystem<ScoreSystem>().AddScore(200);
 
             if (ScorePopupManager.Instance != null)
             {

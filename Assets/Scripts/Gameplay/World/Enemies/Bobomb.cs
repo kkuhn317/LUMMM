@@ -164,7 +164,7 @@ public class Bobomb : EnemyAI
 
                     int points = 100;
                     // GameManager.Instance.AddScorePoints(points);
-                    GameManagerRefactored.Instance.GetSystem<ScoreSystem>()?.AddScore(points);
+                    GameManager.Instance.GetSystem<ScoreSystem>()?.AddScore(points);
 
                     if (ScorePopupManager.Instance != null)
                     {

@@ -376,9 +376,9 @@ public class GameSettings : MonoBehaviour
             GameManager.Instance.UpdateMobileControls();
         }*/
 
-        if (GameManagerRefactored.Instance != null)
+        if (GameManager.Instance != null)
         {
-            GameManagerRefactored.Instance.GetSystem<MobileControlsManager>().UpdateControlsVisibility();
+            GameManager.Instance.GetSystem<MobileControlsManager>().UpdateControlsVisibility();
         }
     }
 
@@ -403,9 +403,9 @@ public class GameSettings : MonoBehaviour
             GameManager.Instance.UpdateSpeedrunTimerVisiblity();
         }*/
 
-        if (GameManagerRefactored.Instance != null)
+        if (GameManager.Instance != null)
         {
-            var hudController = GameManagerRefactored.Instance.GetSystem<HUDController>();
+            var hudController = GameManager.Instance.GetSystem<HUDController>();
             if (hudController != null) hudController.SetSpeedrunTimerVisibility(isSpeedrunModeEnabled);
         }
     }

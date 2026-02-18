@@ -21,8 +21,8 @@ public class DeadMario : MonoBehaviour
 
     void loseLife()
     {
-        var levelFlow = GameManagerRefactored.Instance != null
-            ? GameManagerRefactored.Instance.GetSystem<LevelFlowController>()
+        var levelFlow = GameManager.Instance != null
+            ? GameManager.Instance.GetSystem<LevelFlowController>()
             : FindObjectOfType<LevelFlowController>(true);
 
         if (levelFlow != null)

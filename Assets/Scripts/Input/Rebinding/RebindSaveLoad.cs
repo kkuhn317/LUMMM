@@ -102,10 +102,10 @@ public class RebindSaveLoad : MonoBehaviour
 
     private void CacheSystems()
     {
-        if (GameManagerRefactored.Instance != null)
+        if (GameManager.Instance != null)
         {
             // Mobile controls are managed by a dedicated system now
-            mobileControlsManager = GameManagerRefactored.Instance.GetSystem<MobileControlsManager>();
+            mobileControlsManager = GameManager.Instance.GetSystem<MobileControlsManager>();
         }
 
         if (mobileControlsManager == null)
@@ -142,9 +142,9 @@ public class RebindSaveLoad : MonoBehaviour
     /// </summary>
     private static void NotifyMobileControlsChangedStatic()
     {
-        if (GameManagerRefactored.Instance == null) return;
+        if (GameManager.Instance == null) return;
 
-        var manager = GameManagerRefactored.Instance.GetSystem<MobileControlsManager>();
+        var manager = GameManager.Instance.GetSystem<MobileControlsManager>();
         if (manager == null) return;
 
         manager.UpdateControlsVisibility();

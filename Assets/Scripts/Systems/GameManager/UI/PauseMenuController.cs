@@ -464,19 +464,19 @@ public class PauseMenuController : MonoBehaviour
     public void RestartFromBeginning()
     {
         ResumeGame();
-        GameManagerRefactored.Instance?.RestartLevelFromBeginning();
+        GameManager.Instance?.RestartLevelFromBeginning();
     }
 
     public void RestartFromCheckpoint()
     {
         ResumeGame();
-        GameManagerRefactored.Instance?.RestartLevelFromCheckpoint();
+        GameManager.Instance?.RestartLevelFromCheckpoint();
     }
 
     public void QuitLevel()
     {
         ResumeGame();
-        GameManagerRefactored.Instance?.QuitLevel();
+        GameManager.Instance?.QuitLevel();
     }
 
     #endregion
