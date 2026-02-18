@@ -86,13 +86,13 @@ public class HUDController : MonoBehaviour
         currentScore = GlobalVariables.score;
         currentLives = GlobalVariables.lives;
         currentCoins = GlobalVariables.coinCount;
-        currentTime = GlobalVariables.stopTimeLimit ? 0 : 300f;
+        currentTime = GlobalVariables.infiniteTimeMode ? 0 : 300f;
 
         // Load high score
         LoadHighScore();
 
         // Check modifiers
-        infiniteTimeActive = GlobalVariables.stopTimeLimit;
+        infiniteTimeActive = GlobalVariables.infiniteTimeMode;
         infiniteLivesActive = GlobalVariables.infiniteLivesMode;
         speedrunTimerVisible = GlobalVariables.SpeedrunMode;
 
@@ -195,7 +195,7 @@ public class HUDController : MonoBehaviour
         currentScore = GlobalVariables.score;
         currentLives = GlobalVariables.lives;
         currentCoins = GlobalVariables.coinCount;
-        currentTime = GlobalVariables.stopTimeLimit ? 0 : startingTimeFromLevel;
+        currentTime = GlobalVariables.infiniteTimeMode ? 0 : startingTimeFromLevel;
 
         LoadHighScore();
         LoadHighestRank();
@@ -211,8 +211,8 @@ public class HUDController : MonoBehaviour
         startingTimeFromLevel = ctx.StartingTime > 0 ? ctx.StartingTime : 300f;
 
         // Match legacy: timer starts at startingTime unless infinite time
-        currentTime = GlobalVariables.stopTimeLimit ? 0 : startingTimeFromLevel;
-        infiniteTimeActive = GlobalVariables.stopTimeLimit;
+        currentTime = GlobalVariables.infiniteTimeMode ? 0 : startingTimeFromLevel;
+        infiniteTimeActive = GlobalVariables.infiniteTimeMode;
 
         UpdateLevelNameUI();
         UpdateTimerUI();

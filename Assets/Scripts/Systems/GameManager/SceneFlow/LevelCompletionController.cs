@@ -80,7 +80,7 @@ public class LevelCompletionController : MonoBehaviour
         bool allCoins = greenCoinSystem != null && greenCoinSystem.AreAllCoinsCollected();
         bool noInfiniteLives = !GlobalVariables.infiniteLivesMode;
         bool checkpointsDisabled = !GlobalVariables.enableCheckpoints;
-        bool timeLimitEnabled = !GlobalVariables.stopTimeLimit;
+        bool timeLimitEnabled = !GlobalVariables.infiniteTimeMode;
         
         return allCoins && noInfiniteLives && checkpointsDisabled && timeLimitEnabled;
     }

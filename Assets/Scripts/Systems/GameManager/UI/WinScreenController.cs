@@ -65,7 +65,7 @@ public class WinScreenController : MonoBehaviour
 
         currentScore = GlobalVariables.score;
         currentCoins = GlobalVariables.coinCount;
-        currentTime = GlobalVariables.stopTimeLimit ? 0 : 300f;
+        currentTime = GlobalVariables.infiniteTimeMode ? 0 : 300f;
 
         speedrunTimerVisible = GlobalVariables.SpeedrunMode;
 
@@ -393,7 +393,7 @@ public class WinScreenController : MonoBehaviour
         if (winScreenTimerText == null)
             return;
 
-        if (GlobalVariables.stopTimeLimit)
+        if (GlobalVariables.infiniteTimeMode)
         {
             winScreenTimerText.text = "INF!";
             return;

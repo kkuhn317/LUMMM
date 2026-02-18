@@ -32,7 +32,7 @@ public class CheckpointSave
 public class ModifiersData
 {
     public bool infiniteLivesEnabled = false;
-    public bool timeLimitEnabled = true;
+    public bool infiniteTimeEnabled = false;
     public int checkpointMode = 0;
 }
 

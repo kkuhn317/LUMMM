@@ -27,7 +27,7 @@ public class TimerManager : MonoBehaviour
 
     private void Update()
     {
-        if (GlobalVariables.stopTimeLimit || stopTimer) return;
+        if (GlobalVariables.infiniteTimeMode || stopTimer) return;
 
         if (currentTime > 0)
         {

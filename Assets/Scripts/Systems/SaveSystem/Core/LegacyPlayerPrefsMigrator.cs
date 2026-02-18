@@ -86,7 +86,7 @@ public static class LegacyPlayerPrefsMigrator
 
         Debug.Log($"[LegacyMigration] Migration completed into slot {targetSlot}.");
         Debug.Log($"[LegacyMigration] Final checkpoint: has={data.checkpoint?.hasCheckpoint}, level={data.checkpoint?.levelID}");
-        Debug.Log($"[LegacyMigration] Final modifiers: inf={data.modifiers?.infiniteLivesEnabled}, mode={data.modifiers?.checkpointMode}, timeLimit={data.modifiers?.timeLimitEnabled}");
+        Debug.Log($"[LegacyMigration] Final modifiers: inf={data.modifiers?.infiniteLivesEnabled}, mode={data.modifiers?.checkpointMode}, timeLimit={data.modifiers?.infiniteTimeEnabled}");
     }
 
     // Detection helpers
@@ -325,11 +325,11 @@ public static class LegacyPlayerPrefsMigrator
         m.checkpointMode = Mathf.Clamp(checkpointMode, 0, 2);
 
         // Time Limit Enabled
-        m.timeLimitEnabled = PlayerPrefs.GetInt(SettingsKeys.TimeLimitKey, 0) == 1;
+        m.infiniteTimeEnabled = PlayerPrefs.GetInt(SettingsKeys.TimeLimitKey, 0) == 1;
 
         Debug.Log(
             $"[LegacyMigration] Modifiers migrated → " +
-            $"infiniteLives={m.infiniteLivesEnabled}, checkpointMode={m.checkpointMode}, timeLimit={m.timeLimitEnabled}"
+            $"infiniteLives={m.infiniteLivesEnabled}, checkpointMode={m.checkpointMode}, timeLimit={m.infiniteTimeEnabled}"
         );
     }
 }

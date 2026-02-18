@@ -127,7 +127,7 @@ public class CheckpointManager : MonoBehaviour
         if (SaveManager.Current != null && SaveManager.Current.modifiers != null)
         {
             GlobalVariables.infiniteLivesMode = SaveManager.Current.modifiers.infiniteLivesEnabled;
-            GlobalVariables.stopTimeLimit = SaveManager.Current.modifiers.timeLimitEnabled;
+            GlobalVariables.infiniteTimeMode = SaveManager.Current.modifiers.infiniteTimeEnabled;
         }
     }
 

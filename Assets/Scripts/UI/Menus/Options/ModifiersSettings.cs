@@ -190,7 +190,7 @@ public class ModifiersSettings : MonoBehaviour
         if (timeLimitImage != null)
             timeLimitImage.sprite = enabled ? enableTimeLimitSprite : disableTimeLimitSprite;
 
-        GlobalVariables.stopTimeLimit = enabled;
+        GlobalVariables.infiniteTimeMode = enabled;
     }
 
     private void OnTimeLimitClick(bool isEnabled)
@@ -214,17 +214,17 @@ public class ModifiersSettings : MonoBehaviour
             timeLimitImage.sprite = isEnabled ? enableTimeLimitSprite : disableTimeLimitSprite;
 
         EnsureModifiersExist();
-        SaveManager.Current.modifiers.timeLimitEnabled = isEnabled;
+        SaveManager.Current.modifiers.infiniteTimeEnabled = isEnabled;
         SaveManager.Save();
 
-        GlobalVariables.stopTimeLimit = isEnabled;
+        GlobalVariables.infiniteTimeMode = isEnabled;
     }
 
     private bool ReadTimeLimitFromSave()
     {
         return SaveManager.Current != null
                && SaveManager.Current.modifiers != null
-               && SaveManager.Current.modifiers.timeLimitEnabled;
+               && SaveManager.Current.modifiers.infiniteTimeEnabled;
     }
 
     private bool IsCheckpointActive()

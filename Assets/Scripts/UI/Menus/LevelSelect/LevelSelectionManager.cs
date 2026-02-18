@@ -409,7 +409,7 @@ public class LevelSelectionManager : MonoBehaviour
         if (modifiers != null)
         {
             GlobalVariables.infiniteLivesMode = modifiers.infiniteLivesEnabled;
-            GlobalVariables.stopTimeLimit = modifiers.timeLimitEnabled;
+            GlobalVariables.infiniteTimeMode = modifiers.infiniteTimeEnabled;
             GlobalVariables.enableCheckpoints = modifiers.checkpointMode != 0;
             GlobalVariables.checkpointMode = modifiers.checkpointMode;
         }

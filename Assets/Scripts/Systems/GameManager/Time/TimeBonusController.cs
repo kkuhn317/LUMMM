@@ -77,7 +77,7 @@ public class TimeBonusController : MonoBehaviour
     public IEnumerator AnimateTimeBonus()
     {
         if (!animateTimeBonus) yield break;
-        if (GlobalVariables.stopTimeLimit) yield break;
+        if (GlobalVariables.infiniteTimeMode) yield break;
         if (timerManager == null) yield break;
 
         int timeLeft = Mathf.Max(0, Mathf.FloorToInt(timerManager.CurrentTime));
@@ -135,7 +135,7 @@ public class TimeBonusController : MonoBehaviour
 
     public void AwardTimeBonusInstant()
     {
-        if (GlobalVariables.stopTimeLimit) return;
+        if (GlobalVariables.infiniteTimeMode) return;
         if (timerManager == null) return;
 
         int timeLeft = Mathf.Max(0, Mathf.FloorToInt(timerManager.CurrentTime));

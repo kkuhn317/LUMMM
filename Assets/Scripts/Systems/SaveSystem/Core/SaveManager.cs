@@ -57,7 +57,7 @@ public static class SaveManager
             if (Current.modifiers == null)
                 Current.modifiers = new ModifiersData();
             
-            Current.modifiers.timeLimitEnabled = false;
+            Current.modifiers.infiniteTimeEnabled = false;
             Current.modifiers.infiniteLivesEnabled = false;
             Current.modifiers.checkpointMode = 0;
             
