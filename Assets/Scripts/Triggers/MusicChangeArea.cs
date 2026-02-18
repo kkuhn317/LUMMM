@@ -30,12 +30,14 @@ public class MusicChangeArea : MonoBehaviour
 
     void StartNewMusic()
     {
-        GetComponent<AudioSource>().Play();
+        // GetComponent<AudioSource>().Play();
         MusicManager.Instance.PushMusicOverride(gameObject, MusicManager.MusicStartMode.Restart);
     }
 
     void ResumeOldMusic()
     {
+        StopLocalMusic();
+
         // If you want the old music to restart when exiting the area, use Restart.
         var mode = restartOldMusicOnExit
             ? MusicManager.MusicStartMode.Restart
@@ -43,6 +45,19 @@ public class MusicChangeArea : MonoBehaviour
 
         MusicManager.Instance.PopMusicOverride(gameObject, mode);
         GetComponent<AudioSource>().Stop();
+    }
+
+    private void StopLocalMusic()
+    {
+        var looper = GetComponent<IntroLoopMusicPlayer>();
+        if (looper != null)
+        {
+            looper.Stop();
+            return;
+        }
+
+        var src = GetComponent<AudioSource>();
+        if (src != null) src.Stop();
     }
 
     private void OnTriggerEnter2D(Collider2D other)

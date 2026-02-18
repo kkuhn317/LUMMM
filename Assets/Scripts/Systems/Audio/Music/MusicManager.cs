@@ -144,7 +144,9 @@ public class MusicManager : MonoBehaviour
 
         if (!wasCurrent) return;
 
-        // Pick next track: last override or main
+        // STOP the override we are leaving (critical for IntroLoopMusicPlayer)
+        StopTrack(musicOverride);
+
         if (overrideStack.Count > 0)
             currentlyPlayingMusic = overrideStack[^1];
         else
@@ -152,6 +154,21 @@ public class MusicManager : MonoBehaviour
 
         if (currentlyPlayingMusic != null)
             ApplyCurrentMusic(mode);
+    }
+
+    private static void StopTrack(GameObject obj)
+    {
+        if (obj == null) return;
+
+        var looper = obj.GetComponent<IntroLoopMusicPlayer>();
+        if (looper != null)
+        {
+            looper.Stop();
+            return;
+        }
+
+        var src = obj.GetComponent<AudioSource>();
+        if (src != null) src.Stop();
     }
 
     public void ClearMusicOverrides(MusicStartMode mode)

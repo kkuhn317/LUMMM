@@ -340,7 +340,7 @@ public class Axe : MonoBehaviour
         levelFlow?.TriggerCutsceneEnding(
             endingScene,
             timeUntilWinScreen,
-            destroyPlayersImmediately: false,
+            destroyPlayersImmediately: true,
             stopMusicImmediately: false
         );
     }
