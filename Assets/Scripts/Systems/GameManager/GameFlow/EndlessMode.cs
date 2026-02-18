@@ -13,17 +13,39 @@ public class EndlessMode : MonoBehaviour
     public int maxHeight = 5;
     public TileBase groundTile; // Assign this in the Inspector
 
+    private PlayerRegistry playerRegistry;
+
     // Start is called before the first frame update
     void Start()
     {
         distanceWritten = startDistance;
+        CacheRegistry();
+    }
+
+    private void CacheRegistry()
+    {
+        // Try getting registry from the refactored GameManager first
+        if (GameManagerRefactored.Instance != null)
+            playerRegistry = GameManagerRefactored.Instance.GetSystem<PlayerRegistry>();
+
+        // Fallback: find it in scene (useful for additive scenes / init order)
+        if (playerRegistry == null)
+            playerRegistry = FindObjectOfType<PlayerRegistry>(true);
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (GameManager.Instance.GetPlayer(0) == null) return;
-        float playerDistance = Mathf.Abs(tilemap.transform.position.x - GameManager.Instance.GetPlayer(0).transform.position.x);
+        // Ensure we have the registry (covers cases where GM loads later)
+        if (playerRegistry == null) CacheRegistry();
+
+        /*if (GameManager.Instance.GetPlayer(0) == null) return;
+            float playerDistance = Mathf.Abs(tilemap.transform.position.x - GameManager.Instance.GetPlayer(0).transform.position.x);*/
+        
+        MarioMovement p1 = playerRegistry != null ? playerRegistry.GetPlayer(0) : null;
+        if (p1 == null) return;
+
+        float playerDistance = Mathf.Abs(tilemap.transform.position.x - p1.transform.position.x);
 
         if (playerDistance > distanceWritten - 20)
         {
@@ -32,7 +54,6 @@ public class EndlessMode : MonoBehaviour
             createEnemies(distanceWritten, newDistance);
             distanceWritten = newDistance;
         }
-
     }
 
     void createTiles(int start, int end)

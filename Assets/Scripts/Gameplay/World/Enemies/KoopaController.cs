@@ -154,7 +154,8 @@ public class KoopaController : EnemyAI
             // Kick = step 0 of shell chain (first kill becomes step 1)
             ComboResult result = ComboManager.Instance.RegisterShellKick(kickPoints, kickPopup);
 
-            GameManager.Instance.AddScorePoints(result.amount);
+            // GameManager.Instance.AddScorePoints(result.amount);
+            GameManagerRefactored.Instance.GetSystem<ScoreSystem>().AddScore(result.amount);
 
             if (ScorePopupManager.Instance != null)
             {

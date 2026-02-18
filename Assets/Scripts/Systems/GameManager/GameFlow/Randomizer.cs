@@ -16,8 +16,20 @@ public class Randomizer : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        if (!GlobalVariables.cheatRandomizer) return;
+        if (!GlobalVariables.cheatRandomizer) 
+        {
+            enabled = false;
+            return;
+        }
 
+        RandomizeNow();
+    }
+
+    /// <summary>
+    /// Called by CheatController when randomizer cheat toggles
+    /// </summary>
+    public void RandomizeNow()
+    {
         if (tilemap != null && groundTile != null)
         {
             RandomizeTiles();
@@ -36,7 +48,6 @@ public class Randomizer : MonoBehaviour
             Debug.Log("Enemies not assigned in the inspector. Will not randomize enemies.");
         }
     }
-
 
     void RandomizeTiles()
     {
@@ -82,5 +93,4 @@ public class Randomizer : MonoBehaviour
             }
         }
     }
-
 }

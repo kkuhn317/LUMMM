@@ -83,7 +83,8 @@ public class PowerUp : ObjectPhysics
         GetComponent<AudioSource>().Play();
 
         // Grant life using GameManager so UI updates and animations play
-        GameManager.Instance.AddLives();
+        // GameManager.Instance.AddLives();
+        GameManagerRefactored.Instance.GetSystem<LifeSystem>()?.AddLife();
 
         // Show a "1UP" popup using the global popup system
         if (ScorePopupManager.Instance != null)
@@ -103,7 +104,8 @@ public class PowerUp : ObjectPhysics
         var marioMovement = other.GetComponent<MarioMovement>();
         marioMovement.startStarPower(starTime);
 
-        GameManager.Instance.AddScorePoints(1000);
+        // GameManager.Instance.AddScorePoints(1000);
+        GameManagerRefactored.Instance.GetSystem<ScoreSystem>().AddScore(1000);
         
         if (ScorePopupManager.Instance != null)
         {
@@ -130,7 +132,8 @@ public class PowerUp : ObjectPhysics
         var marioMovement = other.GetComponent<MarioMovement>();
         if (marioMovement == null) return;
 
-        GameManager.Instance.AddScorePoints(1000);
+        // GameManager.Instance.AddScorePoints(1000);
+        GameManagerRefactored.Instance.GetSystem<ScoreSystem>().AddScore(1000);
 
         // Show "1000" popup at the power-up position
         if (ScorePopupManager.Instance != null)

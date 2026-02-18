@@ -10,12 +10,14 @@ public class KnockAwayOnStompEnemy : EnemyAI
         MarioMovement playerscript = player.GetComponent<MarioMovement>();
         playerscript.Jump();
         KnockAway(false);
-        GameManager.Instance.AddScorePoints(100); // Gives a hundred points to the player
+        // GameManager.Instance.AddScorePoints(100); // Gives a hundred points to the player
+        GameManagerRefactored.Instance.GetSystem<ScoreSystem>().AddScore(100); // Gives a hundred points to the player
     }
 
     protected override void hitByGroundPound(MarioMovement player)
     {
         KnockAway(false);
-        GameManager.Instance.AddScorePoints(100); // Gives a hundred points to the player
+        // GameManager.Instance.AddScorePoints(100); // Gives a hundred points to the player
+        GameManagerRefactored.Instance.GetSystem<ScoreSystem>().AddScore(100); // Gives a hundred points to the player
     }
 }

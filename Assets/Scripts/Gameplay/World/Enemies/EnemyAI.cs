@@ -96,7 +96,8 @@ public class EnemyAI : ObjectPhysics
 
     protected void AwardFlatScoreReward(int points, Vector3 popupWorldPosition)
     {
-        GameManager.Instance.AddScorePoints(points);
+        // GameManager.Instance.AddScorePoints(points);
+        GameManagerRefactored.Instance?.GetSystem<ScoreSystem>()?.AddScore(points);
 
         if (ScorePopupManager.Instance != null)
         {
@@ -130,11 +131,13 @@ public class EnemyAI : ObjectPhysics
 
         if (result.rewardType == RewardType.OneUp)
         {
-            GameManager.Instance.AddLives();
+            // GameManager.Instance.AddLives();
+            GameManagerRefactored.Instance?.GetSystem<LifeSystem>()?.AddLife();
         }
         else if (result.amount > 0)
         {
-            GameManager.Instance.AddScorePoints(result.amount);
+            // GameManager.Instance.AddScorePoints(result.amount);
+            GameManagerRefactored.Instance?.GetSystem<ScoreSystem>()?.AddScore(result.amount);
         }
 
         if (ScorePopupManager.Instance != null && result.popupID != PopupID.None)
@@ -144,7 +147,7 @@ public class EnemyAI : ObjectPhysics
             ScorePopupManager.Instance.ShowPopup(
                 result,
                 popupWorldPosition,
-                mario != null ? mario.powerupState : PowerStates.PowerupState.big
+                mario != null ? mario.powerupState : PowerupState.big
             );
         }
     }
@@ -160,11 +163,13 @@ public class EnemyAI : ObjectPhysics
 
         if (result.rewardType == RewardType.OneUp)
         {
-            GameManager.Instance.AddLives();
+            // GameManager.Instance.AddLives();
+            GameManagerRefactored.Instance?.GetSystem<LifeSystem>()?.AddLife();
         }
         else if (result.amount > 0)
         {
-            GameManager.Instance.AddScorePoints(result.amount);
+            // GameManager.Instance.AddScorePoints(result.amount);
+            GameManagerRefactored.Instance?.GetSystem<ScoreSystem>()?.AddScore(result.amount);
         }
 
         if (ScorePopupManager.Instance != null && result.popupID != PopupID.None)

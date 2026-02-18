@@ -2511,6 +2511,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 2103407389}
+        m_TargetAssemblyTypeName: UIInputLock, Assembly-CSharp
+        m_MethodName: Lock
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 1
+        m_CallState: 2
 --- !u!114 &477609225
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3700,9 +3712,9 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 9432003}
-        m_TargetAssemblyTypeName: UnityEngine.Behaviour, UnityEngine
-        m_MethodName: set_enabled
+      - m_Target: {fileID: 2103407389}
+        m_TargetAssemblyTypeName: UIInputLock, Assembly-CSharp
+        m_MethodName: Lock
         m_Mode: 6
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -3710,7 +3722,7 @@ MonoBehaviour:
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
-          m_BoolArgument: 0
+          m_BoolArgument: 1
         m_CallState: 2
 --- !u!114 &722241499
 MonoBehaviour:
@@ -6793,9 +6805,9 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 9432003}
-        m_TargetAssemblyTypeName: UnityEngine.Behaviour, UnityEngine
-        m_MethodName: set_enabled
+      - m_Target: {fileID: 2103407389}
+        m_TargetAssemblyTypeName: UIInputLock, Assembly-CSharp
+        m_MethodName: Lock
         m_Mode: 6
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -6803,7 +6815,7 @@ MonoBehaviour:
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
-          m_BoolArgument: 0
+          m_BoolArgument: 1
         m_CallState: 2
 --- !u!114 &1601349779
 MonoBehaviour:
@@ -7184,9 +7196,9 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 9432003}
-        m_TargetAssemblyTypeName: UnityEngine.Behaviour, UnityEngine
-        m_MethodName: set_enabled
+      - m_Target: {fileID: 2103407389}
+        m_TargetAssemblyTypeName: UIInputLock, Assembly-CSharp
+        m_MethodName: Lock
         m_Mode: 6
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -7194,7 +7206,7 @@ MonoBehaviour:
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
-          m_BoolArgument: 0
+          m_BoolArgument: 1
         m_CallState: 2
 --- !u!114 &1755613485
 MonoBehaviour:
@@ -8349,6 +8361,86 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2044518811}
   m_CullTransparentMesh: 1
+--- !u!1001 &2103407388
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 3402560473502733556, guid: 1917dd50efdcd3d4f98e96a6e5577b78, type: 3}
+      propertyPath: inputModule
+      value: 
+      objectReference: {fileID: 956525937}
+    - target: {fileID: 3402560473502733556, guid: 1917dd50efdcd3d4f98e96a6e5577b78, type: 3}
+      propertyPath: canvasesToDisable.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3402560473502733556, guid: 1917dd50efdcd3d4f98e96a6e5577b78, type: 3}
+      propertyPath: canvasesToDisable.Array.data[0]
+      value: 
+      objectReference: {fileID: 9432005}
+    - target: {fileID: 4079719987369677673, guid: 1917dd50efdcd3d4f98e96a6e5577b78, type: 3}
+      propertyPath: m_Name
+      value: UIInputLock
+      objectReference: {fileID: 0}
+    - target: {fileID: 8614563164975321580, guid: 1917dd50efdcd3d4f98e96a6e5577b78, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8614563164975321580, guid: 1917dd50efdcd3d4f98e96a6e5577b78, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8614563164975321580, guid: 1917dd50efdcd3d4f98e96a6e5577b78, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8614563164975321580, guid: 1917dd50efdcd3d4f98e96a6e5577b78, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8614563164975321580, guid: 1917dd50efdcd3d4f98e96a6e5577b78, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8614563164975321580, guid: 1917dd50efdcd3d4f98e96a6e5577b78, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8614563164975321580, guid: 1917dd50efdcd3d4f98e96a6e5577b78, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8614563164975321580, guid: 1917dd50efdcd3d4f98e96a6e5577b78, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8614563164975321580, guid: 1917dd50efdcd3d4f98e96a6e5577b78, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8614563164975321580, guid: 1917dd50efdcd3d4f98e96a6e5577b78, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 1917dd50efdcd3d4f98e96a6e5577b78, type: 3}
+--- !u!114 &2103407389 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3402560473502733556, guid: 1917dd50efdcd3d4f98e96a6e5577b78, type: 3}
+  m_PrefabInstance: {fileID: 2103407388}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f9e3ac0c94760c443909356ad0535810, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2104166739
 GameObject:
   m_ObjectHideFlags: 0
@@ -9404,4 +9496,5 @@ SceneRoots:
   - {fileID: 2987948688834250383}
   - {fileID: 1673029680}
   - {fileID: 1781440346}
+  - {fileID: 2103407388}
   - {fileID: 956525936}

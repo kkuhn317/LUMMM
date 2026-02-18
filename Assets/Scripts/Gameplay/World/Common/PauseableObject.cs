@@ -1,85 +1,77 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-// This script is added to objects that need to be paused and resumed
-// For example: When Mario touches an axe, the enemies on the bridge need to be paused
 public class PauseableObject : MonoBehaviour
 {
     [Header("During Pause")]
     public bool dontPauseObjectAnimator = false;
+
     [Header("During Resume")]
     public bool resumeObjectAnimator = false;
 
     private ObjectPhysics.ObjectMovement oldMovement;
     private ObjectPhysics objectPhysics;
 
-    private Animator animator; // Reference to the Animator component
-    private AnimatedSprite animatedSprite; // Reference to the AnimatedSprite component
+    private Animator animator;
+    private AnimatedSprite animatedSprite;
 
-    private void Start()
+    private PauseableObjectsController controller;
+
+    private void Awake()
     {
-        // Get the Animator component
         animator = GetComponent<Animator>();
-        // Get the AnimatedSprite component
         animatedSprite = GetComponent<AnimatedSprite>();
+        objectPhysics = GetComponent<ObjectPhysics>();
 
-        // Ensure GameManager.Instance is not null before registering the PauseableObject
-        if (GameManager.Instance != null)
+        controller = FindObjectOfType<PauseableObjectsController>();
+        if (controller == null)
         {
-            GameManager.Instance.RegisterPauseableObject(this);
-            objectPhysics = GetComponent<ObjectPhysics>();
-        }
-        else
-        {
-            Debug.LogError("GameManager.Instance is null!");
+            Debug.LogError($"{nameof(PauseableObject)} requires {nameof(PauseableObjectsController)} in the scene.");
         }
     }
 
-    private void OnDestroy()
+    private void OnEnable()
     {
-        // Ensure GameManager.Instance is not null before unregistering the PauseableObject
-        if (GameManager.Instance != null)
-        {
-            GameManager.Instance.UnregisterPauseableObject(this);
-        }
+        controller?.Register(this);
+    }
+
+    private void OnDisable()
+    {
+        controller?.Unregister(this);
     }
 
     public void Pause()
     {
+        if (objectPhysics == null) return;
+
         oldMovement = objectPhysics.movement;
         objectPhysics.movement = ObjectPhysics.ObjectMovement.still;
 
         if (animator != null && !dontPauseObjectAnimator)
-        {
-            animator.enabled = false; // Disable the Animator to pause the animation
-        }
-        // Pause the animation if the AnimatedSprite component is available
+            animator.enabled = false;
+
         if (animatedSprite != null && !dontPauseObjectAnimator)
-        {
             animatedSprite.PauseAnimation();
-        }
     }
 
     public void Resume()
     {
+        if (objectPhysics == null) return;
+
         objectPhysics.movement = oldMovement;
 
         if (animator != null && !resumeObjectAnimator)
-        {
-            animator.enabled = true; // Disable the Animator to pause the animation
-        }
-        // Pause the animation if the AnimatedSprite component is available
+            animator.enabled = true;
+
         if (animatedSprite != null && !resumeObjectAnimator)
-        {
             animatedSprite.ResumeAnimation();
-        }
     }
 
     public void FallStraightDown()
     {
+        if (objectPhysics == null) return;
+
         objectPhysics.velocity = new Vector2(0, 0);
-        
+
         objectPhysics.floorMask = 0;
         objectPhysics.wallMask = 0;
         objectPhysics.movement = ObjectPhysics.ObjectMovement.sliding;

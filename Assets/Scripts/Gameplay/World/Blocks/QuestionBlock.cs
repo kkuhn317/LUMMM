@@ -95,7 +95,7 @@ public class QuestionBlock : BumpableBlock
         if (spawnMode == SpawnMode.Sequential)
             return HasRemainingSpawnables() || hasConditional || hasEventListeners;
 
-        // AllAtOnce: always allow if we have content or event listeners
+        // AllAtOnce always allow if we have content or event listeners
         return true;
     }
 
@@ -232,7 +232,7 @@ public class QuestionBlock : BumpableBlock
             SpawnAllAtOnce(player);
         }
 
-        GameManager.Instance.AddScorePoints(50);
+        GameManagerRefactored.Instance?.GetSystem<ScoreSystem>()?.AddScore(50);
 
         var breakable = GetComponent<BreakableBlocks>();
         if (breakable != null)

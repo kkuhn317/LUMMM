@@ -254,7 +254,7 @@ public static class LegacyPlayerPrefsMigrator
             // Highest Rank
             if (PlayerPrefs.HasKey("HighestPlayerRank_" + levelID))
             {
-                int legacyRank = PlayerPrefs.GetInt("HighestPlayerRank_" + levelID, (int)GameManager.PlayerRank.Default);
+                int legacyRank = PlayerPrefs.GetInt("HighestPlayerRank_" + levelID, (int)PlayerRank.Default);
                 if (legacyRank > lp.highestRank)
                     lp.highestRank = legacyRank;
             }

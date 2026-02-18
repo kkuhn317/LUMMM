@@ -1099,30 +1099,6 @@ public class SaveSlotManager : MonoBehaviour
         if (prevSlot != slotIndex)
             SaveManager.Load(prevSlot);
     }
-
-    private void CreateSlotWithNameAndEnter(int slotIndex, string newName)
-    {
-        // This will create the file if missing
-        ActiveSlotIndex = slotIndex;
-        SaveManager.Load(slotIndex);
-
-        if (SaveManager.Current != null)
-        {
-            SaveManager.Current.profileName = newName;
-            SaveManager.Save();
-        }
-
-        // Update the UI for this slot so it stops showing NEW
-        if (slotCards != null && slotIndex >= 0 && slotIndex < slotCards.Length && slotCards[slotIndex] != null)
-            slotCards[slotIndex].Refresh(slotIndex);
-
-        AudioManager.Instance?.Play(transitionSound, SoundCategory.SFX);
-
-        if (FadeInOutScene.Instance != null)
-            FadeInOutScene.Instance.LoadSceneWithFade(levelSelectSceneName);
-        else
-            SceneManager.LoadScene(levelSelectSceneName);
-    }
     #endregion
 
 

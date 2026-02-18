@@ -117,6 +117,8 @@ public class SaveSlotRename : MonoBehaviour
         {
             renameUI.SetActive(true);
             ActivePopup = this;
+            // Ensure popup renders above Mario UI even if Mario was re-ordered during detach
+            gameObject.transform.SetAsLastSibling();
         }
 
         OnInputChanged(nameInputField != null ? nameInputField.text : "");
@@ -146,6 +148,8 @@ public class SaveSlotRename : MonoBehaviour
         {
             renameUI.SetActive(true);
             ActivePopup = this;
+            // Ensure popup renders above Mario UI even if Mario was re-ordered during detach
+            gameObject.transform.SetAsLastSibling();
         }
 
         OnInputChanged(nameInputField != null ? nameInputField.text : "");

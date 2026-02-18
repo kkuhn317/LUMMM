@@ -28,6 +28,9 @@ public class Door : MonoBehaviour
     public bool snapCameraX;
     public bool snapCameraY;
 
+    private PlayerRegistry playerRegistry;
+    private KeyInventorySystem keyInventory;
+
     // Start is called before the first frame update
     protected virtual void Start()
     {
@@ -38,11 +41,28 @@ public class Door : MonoBehaviour
         {
             otherDoor = destination.GetComponent<Door>();
         }
+
+        CacheSystems();
+    }
+
+    private void CacheSystems()
+    {
+        // Prefer getting them through the refactored GM if you have GetSystem<T>()
+        if (GameManagerRefactored.Instance != null)
+        {
+            playerRegistry = GameManagerRefactored.Instance.GetSystem<PlayerRegistry>();
+            keyInventory  = GameManagerRefactored.Instance.GetSystem<KeyInventorySystem>();
+        }
+
+        // Fallback (in case Door runs before GM systems are ready)
+        if (playerRegistry == null) playerRegistry = FindObjectOfType<PlayerRegistry>(true);
+        if (keyInventory == null)  keyInventory  = FindObjectOfType<KeyInventorySystem>(true);
     }
 
     void findPlayer()
     {
-        MarioMovement playerScript = GameManager.Instance.GetPlayer(0);
+        // MarioMovement playerScript = GameManager.Instance.GetPlayer(0);
+        MarioMovement playerScript = playerRegistry.GetPlayer(0);
         if (playerScript)
         {
             player = playerScript.gameObject;
@@ -127,18 +147,29 @@ public class Door : MonoBehaviour
 
     protected virtual bool CheckForKey()
     {
-        if (GameManager.Instance.keys.Count > 0)
+        /*if (GameManager.Instance.keys.Count > 0)
         {
             return true;
         }
-        return false;
+        return false;*/
+
+        if (keyInventory == null) CacheSystems();
+        if (keyInventory == null) return false;
+
+        return keyInventory.HasKey();
     }
 
     protected virtual void SpendKey()
     {
-        GameObject usedKey = GameManager.Instance.keys[0];
+        /*GameObject usedKey = GameManager.Instance.keys[0];
         GameManager.Instance.keys.RemoveAt(0);
-        Destroy(usedKey);
+        Destroy(usedKey);*/
+
+        if (keyInventory == null) CacheSystems();
+        if (keyInventory == null) return;
+        
+        GameObject usedKey = keyInventory.ConsumeKey();
+        if (usedKey != null) Destroy(usedKey);
     }
 
     protected virtual void FreezePlayer()

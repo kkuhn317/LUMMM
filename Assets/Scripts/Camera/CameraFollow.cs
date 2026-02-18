@@ -5,6 +5,7 @@ using System.Linq;
 public class CameraFollow : MonoBehaviour
 {
     private GameObject[] players;
+    private PlayerRegistry playerRegistry;
 
     [Header("Follow Smoothing")]
     [Tooltip("Time constant used by SmoothDamp for panning.")]
@@ -59,21 +60,42 @@ public class CameraFollow : MonoBehaviour
         {
             Debug.LogWarning("No CameraZones found in scene. Add at least one CameraZone.");
         }
+
+        CacheRegistry();
+    }
+
+    private void CacheRegistry()
+    {
+        if (GameManagerRefactored.Instance != null)
+            playerRegistry = GameManagerRefactored.Instance.GetSystem<PlayerRegistry>();
+
+        if (playerRegistry == null)
+            playerRegistry = FindObjectOfType<PlayerRegistry>(true);
     }
 
     void Update()
     {
-        players = GameManager.Instance.GetPlayerObjects();
+        // players = GameManager.Instance.GetPlayerObjects();
+        
+        if (playerRegistry == null) CacheRegistry();
+        players = playerRegistry != null ? playerRegistry.GetAllPlayerObjects() : null;
+
         if (players == null || players.Length == 0) return;
 
-        // 1) Compute target (players centroid) -----------------------------------------------
+        // 1) Compute target (players centroid)
         Vector2 target = Vector2.zero;
-        foreach (var player in players)
-        {
-            if (player) target += (Vector2)player.transform.position;
-        }
-        target /= players.Length;
+        int validCount = 0;
 
+        foreach (var p in players)
+        {
+            if (!p) continue;
+            target += (Vector2)p.transform.position;
+            validCount++;
+        }
+
+        if (validCount == 0) return;
+        target /= validCount;
+        
         // 2) Select zone by target position
         var zone = GetCurrentZone(target);
         currentZone = zone;
@@ -125,7 +147,7 @@ public class CameraFollow : MonoBehaviour
             targetY += offset.y;
         }
 
-        // 4) Snap vs Smooth -----------------------------------------------------------------
+        // 4) Snap vs Smooth
         Vector3 newPos;
         if (justEnteredSnapZone)
         {
@@ -142,11 +164,11 @@ public class CameraFollow : MonoBehaviour
         transform.position = newPos;
         lastTargetPosition = new Vector2(targetX, targetY);
 
-        // 5) Smooth zoom --------------------------------------------------------------------
+        // 5) Smooth zoom
         cam.orthographicSize = Mathf.SmoothDamp(
             cam.orthographicSize, targetOrthographicSize, ref smoothDampVelocity.z, zoomSmoothTime);
 
-        // 6) Clamp position for the stay (policy-driven) ------------------------------------
+        // 6) Clamp position for the stay (policy-driven)
         if (clampInThisZoneStay)
         {
             Vector2 clampedPos = new(

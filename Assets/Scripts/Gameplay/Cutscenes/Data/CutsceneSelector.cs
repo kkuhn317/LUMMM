@@ -43,7 +43,6 @@ public class CutsceneSelector : MonoBehaviour
 
         if (director == null)
             director = GetComponent<PlayableDirector>();
-
         if (director == null)
         {
             Debug.LogWarning("CutsceneSelector: No PlayableDirector assigned.");
@@ -52,14 +51,34 @@ public class CutsceneSelector : MonoBehaviour
 
         director.playableAsset = def.timeline;
 
+        var levelFlow = GameManagerRefactored.Instance != null
+            ? GameManagerRefactored.Instance.GetSystem<LevelFlowController>()
+            : FindObjectOfType<LevelFlowController>(true);
+
+        if (levelFlow == null)
+        {
+            Debug.LogError("CutsceneSelector: LevelFlowController not found.");
+            yield break;
+        }
+
+        // delay (you were passing 0f before)
+        yield return null;
+
         // Use your existing GameManager coroutine
-        yield return GameManager.Instance.TriggerEndLevelCutscene(
+        /*yield return GameManager.Instance.TriggerEndLevelCutscene(
             director,
             0f,                // extra delay before cutscene
             def.cutsceneTime,
             def.destroyPlayers,
             def.stopMusic,
             def.hideUI
+        );*/
+
+        levelFlow.TriggerCutsceneEnding(
+            director,
+            def.cutsceneTime,
+            def.destroyPlayers,
+            def.stopMusic
         );
     }
 }

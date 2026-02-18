@@ -163,7 +163,8 @@ public class Bobomb : EnemyAI
                     var mario = FindObjectOfType<MarioMovement>();
 
                     int points = 100;
-                    GameManager.Instance.AddScorePoints(points);
+                    // GameManager.Instance.AddScorePoints(points);
+                    GameManagerRefactored.Instance.GetSystem<ScoreSystem>()?.AddScore(points);
 
                     if (ScorePopupManager.Instance != null)
                     {

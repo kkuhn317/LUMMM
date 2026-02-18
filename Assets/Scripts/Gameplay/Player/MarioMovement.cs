@@ -246,6 +246,7 @@ public class MarioMovement : MonoBehaviour
     [Range(0f, 1f)] public float midairSpinHorizontalPreserve = 0.8f;
 
     private bool isMidairSpinning = false;
+    public bool IsMidairSpinning => isMidairSpinning;
     private bool midairSpinUsedThisJump = false;
     private float midairSpinStartTime = 0f;
     private float midairSpinEndTime = 0f;
@@ -312,6 +313,28 @@ public class MarioMovement : MonoBehaviour
         playerInput.ActivateInput(); // Re-enables input after unpausing
     }
 
+    [System.Serializable]
+    private struct AbilitySnapshot
+    {
+        public bool canCrawl;
+        public bool canWallJump;
+        public bool canSpinJump;
+        public bool canGroundPound;
+        public bool canMidairSpin;
+
+        public bool hasCapeComponent;
+        public bool capeEnabled;
+    }
+
+    private bool hasAbilitySnapshot;
+    private AbilitySnapshot abilitySnapshot;
+
+    void OnEnable()
+    {
+        var registry = FindObjectOfType<PlayerRegistry>(true);
+        registry?.RegisterPlayer(this, 0);
+    }
+
     // Start is called before the first frame update
     void Start()
     {
@@ -331,26 +354,98 @@ public class MarioMovement : MonoBehaviour
         originalPosition = transform.position;
         checkpointFlag.SetActive(false);
 
-        // Abilities cheat
-        if (GlobalVariables.cheatAllAbilities)
+        // Should happen after everything else so that the player transformation cheats work
+        // GameManager.Instance.SetPlayer(this, playerNumber);
+        var gm = GameManagerRefactored.Instance;
+            var registry = gm != null ? gm.GetSystem<PlayerRegistry>() : null;
+            if (registry == null) registry = FindObjectOfType<PlayerRegistry>(true);
+            registry?.RegisterPlayer(this, playerNumber);
+        
+        StartCoroutine(SpawnBubbles());
+    }
+
+    #region Cheat Methods
+    private void CaptureAbilitySnapshot()
+    {
+        var cape = GetComponent<CapeAttack>();
+
+        abilitySnapshot = new AbilitySnapshot
         {
+            canCrawl = canCrawl,
+            canWallJump = canWallJump,
+            canSpinJump = canSpinJump,
+            canGroundPound = canGroundPound,
+            canMidairSpin = canMidairSpin,
+
+            hasCapeComponent = cape != null,
+            capeEnabled = cape != null && cape.enabled
+        };
+
+        hasAbilitySnapshot = true;
+    }
+
+    private void RestoreAbilitySnapshot()
+    {
+        if (!hasAbilitySnapshot)
+            return;
+
+        canCrawl = abilitySnapshot.canCrawl;
+        canWallJump = abilitySnapshot.canWallJump;
+        canSpinJump = abilitySnapshot.canSpinJump;
+        canGroundPound = abilitySnapshot.canGroundPound;
+        canMidairSpin = abilitySnapshot.canMidairSpin;
+
+        var cape = GetComponent<CapeAttack>();
+
+        if (cape != null)
+        {
+            cape.enabled = abilitySnapshot.capeEnabled;
+        }
+        else if (abilitySnapshot.hasCapeComponent && abilitySnapshot.capeEnabled)
+        {
+            // If it existed and was enabled in the snapshot, add it back
+            cape = gameObject.AddComponent<CapeAttack>();
+            cape.enabled = true;
+            if (!abilities.Contains(cape)) abilities.Add(cape);
+        }
+    }
+
+    public void EnableAllAbilities(bool enabled)
+    {
+        if (enabled)
+        {
+            // Save what the level/player currently has before overriding.
+            CaptureAbilitySnapshot();
+
+            // Override ON: force everything on
             canCrawl = true;
             canWallJump = true;
             canSpinJump = true;
             canGroundPound = true;
-            // Add cape attack script
-            if (GetComponent<CapeAttack>() == null)
-            {
-                CapeAttack capeAttack = gameObject.AddComponent<CapeAttack>();
+            canMidairSpin = true;
+
+            var capeAttack = GetComponent<CapeAttack>();
+            if (capeAttack == null) capeAttack = gameObject.AddComponent<CapeAttack>();
+
+            if (!abilities.Contains(capeAttack))
                 abilities.Add(capeAttack);
-            }
+
+            capeAttack.enabled = true;
+
+            Debug.Log("[MarioMovement] All Abilities cheat ON");
         }
-
-        // Should happen after everything else so that the player transformation cheats work
-        GameManager.Instance.SetPlayer(this, playerNumber);
-
-        StartCoroutine(SpawnBubbles());
+        else
+        {
+            RestoreAbilitySnapshot();
+            Debug.Log("[MarioMovement] All Abilities cheat OFF (restored snapshot)");
+        }
     }
+
+    public void EnableInvincibility(bool enabled)
+    {
+        GlobalVariables.cheatInvincibility = enabled;
+    }
+    #endregion
 
     // Update is called once per frame
     void Update()
@@ -360,7 +455,15 @@ public class MarioMovement : MonoBehaviour
         SpriteRenderer sprite = GetComponent<SpriteRenderer>();
 
         // die
-        if (GameManager.Instance.currentTime <= 0)
+        /*if (GameManager.Instance.currentTime <= 0)
+        {
+            toDead();
+        }*/
+
+        var gm = GameManagerRefactored.Instance;
+        var timer = gm != null ? gm.GetSystem<TimerManager>() : null;
+        if (timer == null) timer = FindObjectOfType<TimerManager>(true);
+        if (timer != null && timer.CurrentTime <= 0)
         {
             toDead();
         }
@@ -1870,7 +1973,7 @@ public class MarioMovement : MonoBehaviour
         newMarioMovement.playDamageSound();
         playerTransformation.oldPlayer = gameObject;
         playerTransformation.newPlayer = powerDownMario;
-        playerTransformation.startTransformation();
+        playerTransformation.StartTransformation();
 
         Destroy(gameObject);
     }
@@ -1904,7 +2007,7 @@ public class MarioMovement : MonoBehaviour
 
         playerTransformation.oldPlayer = gameObject;
         playerTransformation.newPlayer = newMarioObject;
-        playerTransformation.startTransformation();
+        playerTransformation.StartTransformation();
 
         Destroy(gameObject);
     }
@@ -2427,6 +2530,9 @@ public class MarioMovement : MonoBehaviour
     {
         if (inputLocked)
             return;
+        
+        if (isCapeActive)
+            return;
 
         if (context.performed)
         {
@@ -2526,9 +2632,26 @@ public class MarioMovement : MonoBehaviour
     }
     public void onShootPressed()
     {
-        foreach (MarioAbility ability in abilities)
+        /*foreach (MarioAbility ability in abilities)
         {
             shootPressed = true;
+            ability.onShootPressed();
+        }*/
+
+        shootPressed = true;
+
+        // Iterate backwards so we can remove destroyed entries safely
+        for (int i = abilities.Count - 1; i >= 0; i--)
+        {
+            var ability = abilities[i];
+
+            // destroy objects evaluate as null
+            if (ability == null)
+            {
+                abilities.RemoveAt(i);
+                continue;
+            }
+
             ability.onShootPressed();
         }
     }
@@ -2554,8 +2677,23 @@ public class MarioMovement : MonoBehaviour
     }
     public void onExtraActionPressed()
     {
-        foreach (MarioAbility ability in abilities)
+        /*foreach (MarioAbility ability in abilities)
         {
+            ability.onExtraActionPressed();
+        }*/
+
+        // Iterate backwards so we can remove destroyed entries safely
+        for (int i = abilities.Count - 1; i >= 0; i--)
+        {
+            var ability = abilities[i];
+
+            // Unity destroyed objects evaluate as null
+            if (ability == null)
+            {
+                abilities.RemoveAt(i);
+                continue;
+            }
+
             ability.onExtraActionPressed();
         }
     }

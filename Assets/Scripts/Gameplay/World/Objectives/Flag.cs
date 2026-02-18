@@ -37,6 +37,9 @@ public class Flag : MonoBehaviour
     [Header("Cutscene System")]
     [SerializeField] private CutsceneSelector cutsceneSelector;
 
+    // Level flow (refactor) - owns end-level sequences
+    private LevelFlowController levelFlowController;
+
     // flagpole scoring
     [System.Serializable]
     public struct FlagScoreBand
@@ -66,6 +69,14 @@ public class Flag : MonoBehaviour
         new FlagScoreBand { minT = 0.83f, maxT = 0.99f, points = 4000 },
         new FlagScoreBand { minT = 0.99f, maxT = 1.00f, points = 5000 },
     };
+
+    private void CacheLevelFlow()
+    {
+        // We don't want any fallback to the legacy GameManager.
+        // LevelFlowController is part of the refactor pipeline.
+        if (levelFlowController == null)
+            levelFlowController = FindObjectOfType<LevelFlowController>(true);
+    }
 
     private bool TryGetPoleRange(out float bottomY, out float topY)
     {
@@ -130,7 +141,8 @@ public class Flag : MonoBehaviour
         int flagPoints = GetFlagpolePoints(other);
         if (flagPoints <= 0) return;
 
-        GameManager.Instance.AddScorePoints(flagPoints);
+        // Refactor: score lives in ScoreSystem now
+        GameManagerRefactored.Instance.GetSystem<ScoreSystem>().AddScore(flagPoints);
 
         if (ScorePopupManager.Instance != null && mario != null)
         {
@@ -157,13 +169,13 @@ public class Flag : MonoBehaviour
     {
         return points switch
         {
-            100  => PopupID.Score100,
-            400  => PopupID.Score400,
-            800  => PopupID.Score800,
+            100 => PopupID.Score100,
+            400 => PopupID.Score400,
+            800 => PopupID.Score800,
             2000 => PopupID.Score2000,
             4000 => PopupID.Score4000,
             5000 => PopupID.Score5000,
-            _    => PopupID.None
+            _ => PopupID.None
         };
     }
 
@@ -176,7 +188,10 @@ public class Flag : MonoBehaviour
 
     FlagState state = FlagState.Idle;
 
-    protected virtual void Start() { }
+    protected virtual void Start()
+    {
+        CacheLevelFlow();
+    }
 
     protected virtual void Update()
     {
@@ -214,18 +229,18 @@ public class Flag : MonoBehaviour
     // might be of use later but for now it's useless (I was testing so this is why this is here)
     private CutsceneContext BuildContext()
     {
-        var gm = GameManager.Instance;
+        // Refactor-friendly version:
+        // If CutsceneContext expects a type different from GameManagerRefactored, keep only what you need.
         var mario = FindObjectOfType<MarioMovement>();
 
         return new CutsceneContext
         {
-            gameManager = gm,
             scene = SceneManager.GetActiveScene(),
             mainPlayer = mario,
-            playerPosition = mario.transform.position,
-            powerupState = mario.powerupState,
-            hasStarPower = mario.starPower,
-            isDead = mario.Dead,
+            playerPosition = mario != null ? mario.transform.position : Vector3.zero,
+            powerupState = mario != null ? mario.powerupState : PowerupState.small,
+            hasStarPower = mario != null && mario.starPower,
+            isDead = mario != null && mario.Dead,
         };
     }
 
@@ -233,12 +248,16 @@ public class Flag : MonoBehaviour
     {
         if (other.gameObject.CompareTag("Player") && state == FlagState.Idle)
         {
+            CacheLevelFlow();
+
             var mario = other.GetComponent<MarioMovement>();
-            
+
             TryGrantFlagpoleReward(other, mario);
 
-            GameManager.Instance.StopTimer();
-            GameManager.Instance.StopTimeWarningMusic();
+            // Refactor: timers belong to TimerManager now
+            var timerManager = GameManagerRefactored.Instance.GetSystem<TimerManager>();
+            timerManager?.StopAllTimers();
+            timerManager?.StopTimeWarningMusic();
 
             csMario = cutsceneMario;
 
@@ -279,9 +298,10 @@ public class Flag : MonoBehaviour
 
     private CutsceneContext BuildCutsceneContext()
     {
+        // If your cutscene system needs a "gameManager" reference, you should adapt CutsceneContext
+        // to accept IGameManager instead of the legacy class.
         return new CutsceneContext
         {
-            gameManager = GameManager.Instance,
             scene = SceneManager.GetActiveScene()
         };
     }
@@ -301,15 +321,20 @@ public class Flag : MonoBehaviour
         }
         else
         {
-            // fallback
-            StartCoroutine(GameManager.Instance.TriggerEndLevelCutscene(
-                GetComponent<PlayableDirector>(), // PlayableDirector
-                0f, // No additional delay for cutscene
-                cutsceneTime, // Duration of the cutscene
-                false, // Players are already destroyed
-                false, // Music is already stopped
-                true // Hide UI
-            ));
+            // Refactor: delegate end-level cutscene flow to LevelFlowController (NO legacy GameManager)
+            var director = GetComponent<PlayableDirector>();
+            if (levelFlowController != null && director != null)
+            {
+                // Parameters:
+                // - cutsceneLength: how long the cutscene lasts before ending level
+                // - destroyPlayersImmediately: we already hid the player, so false
+                // - stopMusicImmediately: we already muted music, so false
+                levelFlowController.TriggerCutsceneEnding(director, cutsceneTime, false, false);
+            }
+            else
+            {
+                Debug.LogWarning("Flag: No CutsceneSelector and no LevelFlowController/PlayableDirector found. Unable to finish level cutscene properly.");
+            }
         }
     }
 

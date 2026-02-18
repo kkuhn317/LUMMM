@@ -184,7 +184,8 @@ public abstract class BumpableBlock : MonoBehaviour, IBumpable, IGroundPoundable
 
                 // treat bumped enemy as "Koopa Kick" / bump 100 pts
                 ComboResult combo = new ComboResult(RewardType.Score, PopupID.Score100, 100);
-                GameManager.Instance.AddScorePoints(100);
+                // GameManager.Instance.AddScorePoints(100);
+                GameManagerRefactored.Instance?.GetSystem<ScoreSystem>()?.AddScore(100);
 
                 if (ScorePopupManager.Instance != null)
                     ScorePopupManager.Instance.ShowPopup(combo, enemy.transform.position, player.powerupState);

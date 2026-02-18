@@ -5,14 +5,13 @@ using UnityEngine.Localization.Settings;
 using UnityEngine.InputSystem;
 using TMPro;
 
-
 public class CheatsMenu : MenuBase
 {
     public TMP_InputField cheatInputField;
     public TMP_Text infoText;
     public GameObject cheatList;
     public GameObject cheatListItemPrefab;
-    [SerializeField] private InputActionReference submitAction; // bind to Enter, gamepad South, etc.
+    [SerializeField] private InputActionReference submitAction;
 
     [System.Serializable]
     public class Cheat
@@ -29,7 +28,6 @@ public class CheatsMenu : MenuBase
             this.deactivateCheat = deactivateCheat;
             this.isActive = isActive;
         }
-
     }
 
     public class CheatBinding
@@ -45,18 +43,21 @@ public class CheatsMenu : MenuBase
             this.setter = setter;
         }
     }
-
+    
     public static readonly CheatBinding[] cheatBindings = new CheatBinding[]
     {
-        new CheatBinding("club", () => GlobalVariables.cheatPlushies, v => GlobalVariables.cheatPlushies = v),
-        new CheatBinding("supersecretbeta", () => GlobalVariables.cheatBetaMode, v => GlobalVariables.cheatBetaMode = v),
-        new CheatBinding("immortal", () => GlobalVariables.cheatInvincibility, v => GlobalVariables.cheatInvincibility = v),
-        new CheatBinding("abilityfreak", () => GlobalVariables.cheatAllAbilities, v => GlobalVariables.cheatAllAbilities = v),
-        new CheatBinding("minimushroom", () => GlobalVariables.cheatStartTiny, v => GlobalVariables.cheatStartTiny = v),
-        new CheatBinding("iceflower", () => GlobalVariables.cheatStartIce, v => GlobalVariables.cheatStartIce = v),
-        new CheatBinding("flamethrower", () => GlobalVariables.cheatFlamethrower, v => GlobalVariables.cheatFlamethrower = v),
-        new CheatBinding("midnight", () => GlobalVariables.cheatDarkness, v => GlobalVariables.cheatDarkness = v),
-        new CheatBinding("corruption", () => GlobalVariables.cheatRandomizer, v => GlobalVariables.cheatRandomizer = v)
+        new CheatBinding("club", () => CheatFlags.Plushies, v => CheatFlags.Plushies = v),
+        new CheatBinding("supersecretbeta", () => CheatFlags.BetaMode, v => CheatFlags.BetaMode = v),
+        new CheatBinding("immortal", () => CheatFlags.Invincibility, v => CheatFlags.Invincibility = v),
+        new CheatBinding("abilityfreak", () => CheatFlags.AllAbilities, v => CheatFlags.AllAbilities = v),
+        new CheatBinding("minimushroom", () => CheatFlags.StartPowerup == StartPowerupMode.Tiny, 
+            v => CheatFlags.StartPowerup = v ? StartPowerupMode.Tiny : StartPowerupMode.None),
+        new CheatBinding("iceflower", () => CheatFlags.StartPowerup == StartPowerupMode.Ice,
+            v => CheatFlags.StartPowerup = v ? StartPowerupMode.Ice : StartPowerupMode.None),
+        new CheatBinding("flamethrower", () => CheatFlags.StartPowerup == StartPowerupMode.Flamethrower,
+            v => CheatFlags.StartPowerup = v ? StartPowerupMode.Flamethrower : StartPowerupMode.None),
+        new CheatBinding("midnight", () => CheatFlags.Darkness, v => CheatFlags.Darkness = v),
+        new CheatBinding("corruption", () => CheatFlags.Randomizer, v => CheatFlags.Randomizer = v)
     };
 
     private class CheatObject
@@ -77,7 +78,6 @@ public class CheatsMenu : MenuBase
 
     private void OnEnable()
     {
-        // Build cheats list from bindings on first enable
         if (cheats == null || cheats.Count == 0)
         {
             cheats = new List<Cheat>();
@@ -92,7 +92,6 @@ public class CheatsMenu : MenuBase
             }
         }
 
-        // The language could've changed, so refresh descriptions
         foreach (var cheatObject in activeCheatObjects)
         {
             cheatObject.listItem.GetComponentInChildren<TMP_Text>().text = GetCheatDescription(cheatObject.cheat.code);
@@ -113,19 +112,16 @@ public class CheatsMenu : MenuBase
 
     private void OnSubmitAction(InputAction.CallbackContext ctx)
     {
-        // Only when typing in this field
         if (cheatInputField != null && cheatInputField.isFocused)
         {
             OnEnterButtonPressed();
         }
     }
 
-
     private void Start()
     {
         audioSource = GetComponent<AudioSource>();
 
-        // Populate active cheats list
         foreach (var cheat in cheats)
         {
             if (cheat.isActive())
@@ -166,7 +162,7 @@ public class CheatsMenu : MenuBase
         cheat.applyCheat.Invoke();
         audioSource.Play();
         infoText.text = LocalizationSettings.StringDatabase.GetLocalizedString("Menu_CheatInfoActivated");
-        // Add to the list if not already present
+        
         if (!activeCheatObjects.Exists(co => co.cheat.code == cheat.code))
         {
             var item = Instantiate(cheatListItemPrefab, cheatList.transform);
@@ -181,7 +177,7 @@ public class CheatsMenu : MenuBase
         cheat.deactivateCheat.Invoke();
         audioSource.Play();
         infoText.text = LocalizationSettings.StringDatabase.GetLocalizedString("Menu_CheatInfoDeactivated");
-        // Remove from the list
+        
         var cheatObject = activeCheatObjects.Find(co => co.cheat.code == cheat.code);
         if (cheatObject != null)
         {
@@ -192,8 +188,6 @@ public class CheatsMenu : MenuBase
 
     public static string GetCheatDescription(string code)
     {
-        if (code == "club")
-            return "Enable Plushies";
         return LocalizationSettings.StringDatabase.GetLocalizedString($"Cheat_{code}");
     }
 }

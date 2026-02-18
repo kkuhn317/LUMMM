@@ -43,8 +43,9 @@ public class CapeAttack : MarioAbility
         EnsureCachedComponents();
 
         // Prevent cape attack while ground pounding, spinning, or wall sliding
-        if (!canCape || marioMovement.groundPounding || marioMovement.spinning || marioMovement.wallSliding)
+        if (!canCape || marioMovement.groundPounding || marioMovement.spinning || marioMovement.wallSliding || marioMovement.IsMidairSpinning)
             return;
+
 
         marioMovement.isCapeActive = true; // Set cape attack active
         animator.SetBool("cape", true);

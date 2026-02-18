@@ -110,7 +110,7 @@ public class GiantThwomp : EnemyAI, IGroundPoundable
     }
 
     private void DetectPlayer() {
-        MarioMovement player = GameManager.Instance.GetPlayer(0);
+        MarioMovement player = GameManagerRefactored.Instance.GetSystem<PlayerRegistry>()?.GetPlayer(0);
 
         if (player != null)
         {
@@ -660,7 +660,8 @@ public class GiantThwomp : EnemyAI, IGroundPoundable
             // https://discussions.unity.com/t/coroutines-after-destruction/864315/2
             // Destroy(gameObject);  
 
-            GameManager.Instance.StopTimer();
+            // GameManager.Instance.StopTimer();
+            GameManagerRefactored.Instance.GetSystem<TimerManager>()?.StopAllTimers();
 
             // Start my own cutscene (Death Thwomp Cutscene)
             GetComponent<PlayableDirector>().Play();
@@ -673,7 +674,8 @@ public class GiantThwomp : EnemyAI, IGroundPoundable
     void TriggerEndCutscene()
     {
         // Note: the cutscene already hides the ui so it is technically not needed here
-        StartCoroutine(GameManager.Instance.TriggerEndLevelCutscene(defeatTimeline, 0, cutsceneTime, true, true, true));
+        // StartCoroutine(GameManager.Instance.TriggerEndLevelCutscene(defeatTimeline, 0, cutsceneTime, true, true, true));
+        GameManagerRefactored.Instance.GetSystem<LevelFlowController>()?.TriggerCutsceneEnding(defeatTimeline, cutsceneTime, destroyPlayersImmediately: true, stopMusicImmediately: true);
     }
 
     protected override void OnTriggerEnter2D(Collider2D other) {

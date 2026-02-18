@@ -15,22 +15,33 @@ public class DeadMario : MonoBehaviour
     void Start()
     {
 
-        Invoke("loseLife", timeBeforeLoseLife);
+        Invoke(nameof(loseLife), timeBeforeLoseLife);
         
     }
 
     void loseLife()
     {
+        var levelFlow = GameManagerRefactored.Instance != null
+            ? GameManagerRefactored.Instance.GetSystem<LevelFlowController>()
+            : FindObjectOfType<LevelFlowController>(true);
+
+        if (levelFlow != null)
+            levelFlow.TriggerDeath();
+        else
+            Debug.LogError("DeadMario: LevelFlowController not found!");
+
         // Ensure GameManager.Instance is not null before calling DecrementLives()
-        if (GameManager.Instance != null)
+        /*if (GameManager.Instance != null)
         {
-            GameManager.Instance.DecrementLives();
+            // GameManager.Instance.DecrementLives();
+            GameManagerRefactored.Instance.GetSystem<LevelFlowController>()?.TriggerDeath();
         }
         else
         {
             Debug.LogError("GameManager.Instance is null!");
-        }
+        }*/
     }
+
 
     // Update is called once per frame
     void Update()

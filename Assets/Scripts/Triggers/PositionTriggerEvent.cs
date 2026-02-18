@@ -11,32 +11,31 @@ public class PositionTriggerEvent : MonoBehaviour
     [SerializeField] UnityEvent onPlayerExit;
     [SerializeField] bool autoDeactivate = false;
 
-    GameObject player;  // dont use this directly, use getPlayer() instead
-
-    bool playerInside = false;
+    bool playerInside = false; // True when at least ONE player is inside.
 
     public bool active = true;
 
-    public float EnterDelay = 0f;    // Delay before enter action happens
+    public float EnterDelay = 0f;   // Delay before enter action happens
     public float ExitDelay = 0f;    // Delay before exit action happens
-    
 
-    private GameObject getPlayer()
+    private PlayerRegistry playerRegistry;
+
+    // this is used to prevent multiple coroutines from stacking in weird edge cases
+    private Coroutine enterRoutine;
+    private Coroutine exitRoutine;
+
+    private void Start()
     {
-        if (player == null)
-        {
-            // TODO: support multiple players
-            MarioMovement playerscript = GameManager.Instance.GetPlayer(0);
-            if (playerscript != null)
-            {
-                player = playerscript.gameObject;
-            }
-            else
-            {
-                return null;
-            }
-        }
-        return player;
+        CacheRegistry();
+    }
+
+    private void CacheRegistry()
+    {
+        if (GameManagerRefactored.Instance != null)
+            playerRegistry = GameManagerRefactored.Instance.GetSystem<PlayerRegistry>();
+
+        if (playerRegistry == null)
+            playerRegistry = FindObjectOfType<PlayerRegistry>(true);
     }
 
     void Update()
@@ -44,16 +43,26 @@ public class PositionTriggerEvent : MonoBehaviour
         if (!active) return;
         if (onPlayerEnter == null) return;
 
-        if (PlayerIsInTrigger())
+        if (playerRegistry == null) CacheRegistry();
+        if (playerRegistry == null) return;
+
+        bool anyPlayerInTrigger = AnyPlayerIsInTrigger();
+
+        if (anyPlayerInTrigger)
         {
             if (!playerInside)
             {
                 playerInside = true;
-                StartCoroutine(DoAction(onPlayerEnter, EnterDelay));
+
+                // Avoid stacking enter/exit routines if something toggles fast
+                if (exitRoutine != null) { StopCoroutine(exitRoutine); exitRoutine = null; }
+                if (enterRoutine != null) StopCoroutine(enterRoutine);
+
+                enterRoutine = StartCoroutine(DoAction(onPlayerEnter, EnterDelay));
 
                 if (autoDeactivate)
                 {
-                    // Deactivate the trigger
+                    // Deactivate the trigger (same behavior as before)
                     active = false;
                 }
             }
@@ -63,11 +72,16 @@ public class PositionTriggerEvent : MonoBehaviour
             if (playerInside)
             {
                 playerInside = false;
-                StartCoroutine(DoAction(onPlayerExit, ExitDelay));
+
+                // Avoid stacking enter/exit routines if something toggles fast
+                if (enterRoutine != null) { StopCoroutine(enterRoutine); enterRoutine = null; }
+                if (exitRoutine != null) StopCoroutine(exitRoutine);
+
+                exitRoutine = StartCoroutine(DoAction(onPlayerExit, ExitDelay));
 
                 if (autoDeactivate)
                 {
-                    // Deactivate the trigger
+                    // Deactivate the trigger (same behavior as before)
                     active = false;
                 }
             }
@@ -80,7 +94,7 @@ public class PositionTriggerEvent : MonoBehaviour
         {
             yield return new WaitForSeconds(delay);
         }
-        
+
         action.Invoke();
     }
 
@@ -95,19 +109,31 @@ public class PositionTriggerEvent : MonoBehaviour
         active = false;
     }
 
-
     Vector2 topLeft => (Vector2)transform.position + new Vector2(-size.x / 2, size.y / 2);
     Vector2 topRight => (Vector2)transform.position + new Vector2(size.x / 2, size.y / 2);
     Vector2 bottomLeft => (Vector2)transform.position + new Vector2(-size.x / 2, -size.y / 2);
     Vector2 bottomRight => (Vector2)transform.position + new Vector2(size.x / 2, -size.y / 2);
 
-    bool PlayerIsInTrigger()
+    bool AnyPlayerIsInTrigger()
     {
-        GameObject player = getPlayer();
-        if (player == null) return false;
-        Vector2 playerPos = player.transform.position;
-        Vector2 triggerPos = transform.position;
-        return playerPos.x > bottomLeft.x && playerPos.x < topRight.x && playerPos.y > bottomLeft.y && playerPos.y < topRight.y;
+        GameObject[] players = playerRegistry.GetAllPlayerObjects();
+        if (players == null || players.Length == 0) return false;
+
+        for (int i = 0; i < players.Length; i++)
+        {
+            var p = players[i];
+            if (p == null) continue;
+
+            Vector2 pos = p.transform.position;
+
+            if (pos.x > bottomLeft.x && pos.x < topRight.x &&
+                pos.y > bottomLeft.y && pos.y < topRight.y)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     // Draw the trigger area
@@ -119,5 +145,4 @@ public class PositionTriggerEvent : MonoBehaviour
         Gizmos.DrawLine(bottomRight, bottomLeft);
         Gizmos.DrawLine(bottomLeft, topLeft);
     }
-
 }

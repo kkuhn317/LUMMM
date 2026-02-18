@@ -34,13 +34,23 @@ public class FileSelectManager : MonoBehaviour
         isBusy = true;
         uiInputLock?.Lock();
 
+        // If this action will trigger a scene transition (EnterSlot on an existing slot in NORMAL mode),
+        // we must keep input locked so the user can't navigate during the fade-out.
+        bool keepInputLockedForSceneTransition =
+            interactable != null &&
+            interactable.actionType == FileSelectActionType.EnterSlot &&
+            slotManager != null &&
+            slotManager.CurrentMode == SaveSlotManager.InteractionMode.Normal &&
+            SaveManager.SlotExists(interactable.slotIndex) &&
+            FadeInOutScene.Instance != null;
+
         try
         {
             // 1) Move Mario to that object's anchor (or do nothing if none)
             if (mario != null && anchor != null)
                 yield return StartCoroutine(mario.MoveTo(anchor));
 
-            // 2) Optional per-object custom sequence hook (pipe/bounce/parenting/etc)
+            // 2) Do per-object custom sequence hook (like pipe/bounce/parenting/etc)
             var ctx = new FileSelectSequenceContext
             {
                 manager = this,
@@ -64,12 +74,22 @@ public class FileSelectManager : MonoBehaviour
         }
         finally
         {
-            if (uiInputLock != null && uiInputLock.GetLockCount() > 0)
+            // If we are transitioning away, do NOT unlock (prevents navigation during fade).
+            if (keepInputLockedForSceneTransition)
             {
-                bool restoreSelection = !ConfirmPopup.IsAnyPopupOpen;
-                uiInputLock.Unlock(restoreSelection);
+                // Clear selection so EventSystem navigation can't move highlight while fading.
+                if (EventSystem.current != null)
+                    EventSystem.current.SetSelectedGameObject(null);
             }
-
+            else
+            {
+                if (uiInputLock != null && uiInputLock.GetLockCount() > 0)
+                {
+                    bool restoreSelection = !ConfirmPopup.IsAnyPopupOpen && !SaveSlotRename.IsAnyPopupOpen;
+                    uiInputLock.Unlock(restoreSelection);
+                }
+            }
+            
             isBusy = false;
         }
     }
@@ -309,7 +329,7 @@ public class FileSelectManager : MonoBehaviour
             // Ignore and fall back below
         }
 
-        // Conservative fallback: if we can't read it, assume it's still locked
+        // if we can't read it, assume it's still locked
         return 1;
     }
 }

@@ -1260,7 +1260,7 @@ MonoBehaviour:
   OnRespawnActivation:
     m_PersistentCalls:
       m_Calls: []
-  CheckpointSound: {fileID: 8300000, guid: 0a06a44e13ee9ea419e8d66509366006, type: 3}
+  checkpointSound: {fileID: 0}
   passive: {fileID: -724414142, guid: 01d29b99acc81084dbf22bbe3a18b906, type: 3}
   active:
   - {fileID: 153895903, guid: 01d29b99acc81084dbf22bbe3a18b906, type: 3}
@@ -1273,9 +1273,6 @@ MonoBehaviour:
   spawnOffset: {x: 0, y: 0}
   giveScoreOnTouch: 1
   checkpointScore: 2000
-  scorePopupOffset: {x: 0, y: 1, z: 0}
-  usePlayerPowerState: 0
-  checkpointPowerState: 1
 --- !u!61 &160070415
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -4553,7 +4550,7 @@ MonoBehaviour:
   OnRespawnActivation:
     m_PersistentCalls:
       m_Calls: []
-  CheckpointSound: {fileID: 8300000, guid: 0a06a44e13ee9ea419e8d66509366006, type: 3}
+  checkpointSound: {fileID: 0}
   passive: {fileID: -724414142, guid: 01d29b99acc81084dbf22bbe3a18b906, type: 3}
   active:
   - {fileID: 153895903, guid: 01d29b99acc81084dbf22bbe3a18b906, type: 3}
@@ -4566,9 +4563,6 @@ MonoBehaviour:
   spawnOffset: {x: 0, y: 0}
   giveScoreOnTouch: 1
   checkpointScore: 2000
-  scorePopupOffset: {x: 0, y: 1, z: 0}
-  usePlayerPowerState: 0
-  checkpointPowerState: 1
 --- !u!61 &649794556
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -4952,7 +4946,7 @@ MonoBehaviour:
   OnRespawnActivation:
     m_PersistentCalls:
       m_Calls: []
-  CheckpointSound: {fileID: 8300000, guid: 0a06a44e13ee9ea419e8d66509366006, type: 3}
+  checkpointSound: {fileID: 0}
   passive: {fileID: -724414142, guid: 01d29b99acc81084dbf22bbe3a18b906, type: 3}
   active:
   - {fileID: 153895903, guid: 01d29b99acc81084dbf22bbe3a18b906, type: 3}
@@ -4965,9 +4959,6 @@ MonoBehaviour:
   spawnOffset: {x: 0, y: 0}
   giveScoreOnTouch: 1
   checkpointScore: 2000
-  scorePopupOffset: {x: 0, y: 1, z: 0}
-  usePlayerPowerState: 0
-  checkpointPowerState: 1
 --- !u!61 &693186073
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -5063,7 +5054,7 @@ MonoBehaviour:
   OnRespawnActivation:
     m_PersistentCalls:
       m_Calls: []
-  CheckpointSound: {fileID: 8300000, guid: 0a06a44e13ee9ea419e8d66509366006, type: 3}
+  checkpointSound: {fileID: 0}
   passive: {fileID: -724414142, guid: 01d29b99acc81084dbf22bbe3a18b906, type: 3}
   active:
   - {fileID: 153895903, guid: 01d29b99acc81084dbf22bbe3a18b906, type: 3}
@@ -5076,9 +5067,6 @@ MonoBehaviour:
   spawnOffset: {x: 0, y: 0}
   giveScoreOnTouch: 1
   checkpointScore: 2000
-  scorePopupOffset: {x: 0, y: 1, z: 0}
-  usePlayerPowerState: 0
-  checkpointPowerState: 1
 --- !u!61 &697029048
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -5622,6 +5610,26 @@ PrefabInstance:
     - target: {fileID: 6335031943125184861, guid: 6c3da054316607e43b17e4af15d611e6, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 25.400002
+      objectReference: {fileID: 0}
+    - target: {fileID: 6388473333792438409, guid: 6c3da054316607e43b17e4af15d611e6, type: 3}
+      propertyPath: scoreForARank
+      value: 50000
+      objectReference: {fileID: 0}
+    - target: {fileID: 6388473333792438409, guid: 6c3da054316607e43b17e4af15d611e6, type: 3}
+      propertyPath: scoreForBRank
+      value: 45000
+      objectReference: {fileID: 0}
+    - target: {fileID: 6388473333792438409, guid: 6c3da054316607e43b17e4af15d611e6, type: 3}
+      propertyPath: scoreForCRank
+      value: 40000
+      objectReference: {fileID: 0}
+    - target: {fileID: 6388473333792438409, guid: 6c3da054316607e43b17e4af15d611e6, type: 3}
+      propertyPath: scoreForDRank
+      value: 20000
+      objectReference: {fileID: 0}
+    - target: {fileID: 6388473333792438409, guid: 6c3da054316607e43b17e4af15d611e6, type: 3}
+      propertyPath: scoreForSRank
+      value: 56000
       objectReference: {fileID: 0}
     - target: {fileID: 6934493766031231242, guid: 6c3da054316607e43b17e4af15d611e6, type: 3}
       propertyPath: tilemap
@@ -12610,7 +12618,7 @@ MonoBehaviour:
   OnRespawnActivation:
     m_PersistentCalls:
       m_Calls: []
-  CheckpointSound: {fileID: 8300000, guid: 0a06a44e13ee9ea419e8d66509366006, type: 3}
+  checkpointSound: {fileID: 0}
   passive: {fileID: -724414142, guid: 01d29b99acc81084dbf22bbe3a18b906, type: 3}
   active:
   - {fileID: 153895903, guid: 01d29b99acc81084dbf22bbe3a18b906, type: 3}
@@ -12623,9 +12631,6 @@ MonoBehaviour:
   spawnOffset: {x: 0, y: 0}
   giveScoreOnTouch: 1
   checkpointScore: 2000
-  scorePopupOffset: {x: 0, y: 1, z: 0}
-  usePlayerPowerState: 0
-  checkpointPowerState: 1
 --- !u!61 &2073771220
 BoxCollider2D:
   m_ObjectHideFlags: 0

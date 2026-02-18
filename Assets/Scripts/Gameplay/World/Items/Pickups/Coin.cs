@@ -106,13 +106,15 @@ public class Coin : MonoBehaviour
 
         if (type != Amount.green)
         {
-            GameManager.Instance.AddCoin(coinValue);
+            // GameManager.Instance.AddCoin(coinValue);
+            GameManagerRefactored.Instance.GetSystem<CoinSystem>()?.AddCoin(coinValue);
         }
         else
         {
             ComboResult result = new ComboResult(RewardType.Score, PopupID.Score2000, 0);
             ScorePopupManager.Instance.ShowPopup(result, transform.position, popupSize);
-            GameManager.Instance.CollectGreenCoin(gameObject);
+            // GameManager.Instance.CollectGreenCoin(gameObject);
+            GameManagerRefactored.Instance.GetSystem<GreenCoinSystem>()?.CollectGreenCoin(gameObject);
         }
     }
 

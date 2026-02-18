@@ -88,13 +88,29 @@ public class Axe : MonoBehaviour
     public UnityEvent onStartAutoMove;
     public UnityEvent onReachTarget;
 
+    private PauseableObjectsController pauseables;
+    private TimerManager timerManager;
+    private LevelFlowController levelFlow;
+
     private void Start()
     {
         // Get the AudioSource component attached to the same GameObject or add one if missing.
         audioSource = GetComponent<AudioSource>();
         axeCollider = GetComponent<BoxCollider2D>();
         animatedSprite = GetComponent<AnimatedSprite>();
+
+        CacheSystems();
     }
+
+    private void CacheSystems()
+    {
+        if (GameManagerRefactored.Instance == null) return;
+
+        pauseables = GameManagerRefactored.Instance.GetSystem<PauseableObjectsController>();
+        timerManager = GameManagerRefactored.Instance.GetSystem<TimerManager>();
+        levelFlow = GameManagerRefactored.Instance.GetSystem<LevelFlowController>();
+    }
+
     private void Update()
     {
         if (isRotating)
@@ -134,8 +150,11 @@ public class Axe : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Player") && !isRotating)
         {
+            if (pauseables == null) CacheSystems();
+
             // Pause the pauseable objects when starting the bridge destruction.
-            GameManager.Instance.PausePauseableObjects();
+            // GameManager.Instance.PausePauseableObjects();
+            pauseables?.PauseAll();
 
             // freeze player
             if (freezePlayerOnHit)
@@ -183,8 +202,12 @@ public class Axe : MonoBehaviour
         // Check if timer should be stopped (shared behavior for both axes).
         if (timerStop)
         {
-            GameManager.Instance.StopTimer();
-            GameManager.Instance.StopTimeWarningMusic();
+            // GameManager.Instance.StopTimer();
+            // GameManager.Instance.StopTimeWarningMusic();
+            if (timerManager == null) CacheSystems();
+
+            timerManager?.StopAllTimers();
+            timerManager?.StopTimeWarningMusic();
         }
 
         Invoke(nameof(DestroyBridge), bridgeDestroyDelay);
@@ -281,8 +304,13 @@ public class Axe : MonoBehaviour
             MusicManager.Instance.MuteAllMusic();
         }
 
-        // If there's an ending cutscene, trigger it.
         if (endingScene != null)
+        {
+            StartCoroutine(TriggerEndingCutsceneRefactored());
+        }
+
+        // If there's an ending cutscene, trigger it.
+        /*if (endingScene != null)
         {
             StartCoroutine(GameManager.Instance.TriggerEndLevelCutscene(
                 endingScene,           // PlayableDirector for the cutscene
@@ -292,7 +320,29 @@ public class Axe : MonoBehaviour
                 false,                 // Do not stop music immediately
                 true                   // Hide UI during the cutscene
             ));
-        }
+        }*/
+    }
+
+    private IEnumerator TriggerEndingCutsceneRefactored()
+    {
+        if (levelFlow == null) CacheSystems();
+
+        // old: endingSceneDelay param
+        if (endingSceneDelay > 0f)
+            yield return new WaitForSeconds(endingSceneDelay);
+
+        // If you need to hide UI and your LevelFlow doesn't do it automatically,
+        // trigger your own HUD hide here (depends on your project).
+        // Example placeholder:
+        // GameEvents.TriggerHudVisibility(false);
+
+        // new: duration + flags
+        levelFlow?.TriggerCutsceneEnding(
+            endingScene,
+            timeUntilWinScreen,
+            destroyPlayersImmediately: false,
+            stopMusicImmediately: false
+        );
     }
 
     private IEnumerator FallTile(GameObject tile)
@@ -366,16 +416,11 @@ public class Axe : MonoBehaviour
         // play sound
         if (enemyFallSound != null)
             audioSource.PlayOneShot(enemyFallSound);
+        
+        if (pauseables == null) CacheSystems();
 
         // Resume the pauseable objects
-        GameManager.Instance.FallPauseableObjects();
-    }
-
-    private void resumePlayer() {
-        // Check if the player variable is not null before unfreezing the player.
-        if (player != null)
-        {
-            player.GetComponent<MarioMovement>().Unfreeze();
-        }
+        // GameManager.Instance.FallPauseableObjects();
+        pauseables?.FallAll();
     }
 }

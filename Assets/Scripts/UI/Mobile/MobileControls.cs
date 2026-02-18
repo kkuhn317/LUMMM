@@ -14,12 +14,40 @@ public class MobileControls : MonoBehaviour
     // https://docs.unity3d.com/Packages/com.unity.inputsystem@1.0/api/UnityEngine.InputSystem.PlayerInput.html
 
     private MarioMovement player1;
+    private PlayerRegistry playerRegistry;
+
+    void Start()
+    {
+        CacheRegistry();
+        gameObject.SetActive(GlobalVariables.OnScreenControls);
+    }
+
+    private void CacheRegistry()
+    {
+        if (GameManagerRefactored.Instance != null)
+            playerRegistry = GameManagerRefactored.Instance.GetSystem<PlayerRegistry>();
+
+        if (playerRegistry == null)
+            playerRegistry = FindObjectOfType<PlayerRegistry>(true);
+    }
+
+    private void CachePlayer1()
+    {
+        if (playerRegistry == null) CacheRegistry();
+        player1 = playerRegistry != null ? playerRegistry.GetPlayer(0) : null;
+    }
 
     private MarioMovement getPlayer1()
     {
-        if (player1 == null || player1.gameObject == null)
+        /*if (player1 == null || player1.gameObject == null)
         {
             player1 = GameManager.Instance.GetPlayer(0);
+        }
+        return player1;*/
+        
+        if (player1 == null || player1.gameObject == null)
+        {
+            CachePlayer1();
         }
         return player1;
     }
@@ -33,18 +61,6 @@ public class MobileControls : MonoBehaviour
         {
             myButtons.Add(button);
         }
-    }
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        gameObject.SetActive(GlobalVariables.OnScreenControls);
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 
     public void UpdateButtonPosScaleOpacity() {
@@ -67,27 +83,33 @@ public class MobileControls : MonoBehaviour
     {
         getPlayer1().onMobileLeftPressed();
     }
+
     public void onLeftRelease()
     {
         getPlayer1().onMobileLeftReleased();
     }
+
     public void onRightPress()
     {
         getPlayer1().onMobileRightPressed();
     }
+
     public void onRightRelease()
     {
         getPlayer1().onMobileRightReleased();
     }
+
     public void onUpPressed()
     {
         getPlayer1().onMobileUpPressed();
         getPlayer1().onUsePressed();
     }
+
     public void onUpReleased()
     {
         getPlayer1().onMobileUpReleased();
     }
+
    public void onDownPressed()
     {
         getPlayer1().onMobileDownPressed();
@@ -97,39 +119,48 @@ public class MobileControls : MonoBehaviour
     {
         getPlayer1().onMobileDownReleased();
     }
+
     public void onJumpPress()
     {
         getPlayer1().onJumpPressed();
     }
+
     public void onJumpRelease()
     {
         getPlayer1().onJumpReleased();
     }
+
     public void onRunPress()
     {
         getPlayer1().onRunPressed();
     }
+
     public void onRunRelease()
     {
         getPlayer1().onRunReleased();
     }
+
     public void onUsePressed()
     {
         //getPlayer1().onUsePressed();
         getPlayer1().onShootPressed();
     }
+
     public void onUseReleased()
     {
         getPlayer1().onShootReleased();
     }
+
     public void onSpinPressed()
     {
         getPlayer1().onSpinPressed();
     }
+
     public void onSpinReleased()
     {
         getPlayer1().onSpinReleased();
     }
+
     public void onExtraPressed()
     {
         getPlayer1().onExtraActionPressed();

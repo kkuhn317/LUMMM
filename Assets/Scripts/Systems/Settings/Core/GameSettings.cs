@@ -371,9 +371,14 @@ public class GameSettings : MonoBehaviour
 
         GlobalVariables.OnScreenControls = isOnScreenControlsEnabled;
 
-        if (GameManager.Instance != null)
+        /*if (GameManager.Instance != null)
         {
             GameManager.Instance.UpdateMobileControls();
+        }*/
+
+        if (GameManagerRefactored.Instance != null)
+        {
+            GameManagerRefactored.Instance.GetSystem<MobileControlsManager>().UpdateControlsVisibility();
         }
     }
 
@@ -393,9 +398,15 @@ public class GameSettings : MonoBehaviour
         GlobalVariables.SpeedrunMode = isSpeedrunModeEnabled;
         SpeedrunModeImage.sprite = isSpeedrunModeEnabled ? enabledSpeedrunMode : disabledSpeedrunMode;
 
-        if (GameManager.Instance != null)
+        /*if (GameManager.Instance != null)
         {
             GameManager.Instance.UpdateSpeedrunTimerVisiblity();
+        }*/
+
+        if (GameManagerRefactored.Instance != null)
+        {
+            var hudController = GameManagerRefactored.Instance.GetSystem<HUDController>();
+            if (hudController != null) hudController.SetSpeedrunTimerVisibility(isSpeedrunModeEnabled);
         }
     }
 }

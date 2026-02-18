@@ -120,7 +120,19 @@ public class Key : MonoBehaviour
             actualposition = transform.position;
             player = other.gameObject;
             collected = true;
-            GameManager.Instance.keys.Add(gameObject);
+
+            /*var inv = FindObjectOfType<KeyInventorySystem>();
+            if (inv == null)
+            {
+                Debug.LogError($"{nameof(Key)} requires {nameof(KeyInventorySystem)} in the scene.");
+                return;
+            }
+            inv.AddKey(gameObject);*/
+
+            // GameManager.Instance.keys.Add(gameObject);
+            var keys = GameManagerRefactored.Instance.GetSystem<KeyInventorySystem>();
+            keys?.AddKey(gameObject);
+            
             GetComponent<AudioSource>().Play();
             spawnParticles();
             // if the parent has a WingedObject script, call WingsFall

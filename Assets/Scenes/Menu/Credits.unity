@@ -1629,6 +1629,82 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1009619422}
   m_CullTransparentMesh: 1
+--- !u!1001 &1345769431
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 3402560473502733556, guid: 1917dd50efdcd3d4f98e96a6e5577b78, type: 3}
+      propertyPath: canvasesToDisable.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3402560473502733556, guid: 1917dd50efdcd3d4f98e96a6e5577b78, type: 3}
+      propertyPath: canvasesToDisable.Array.data[0]
+      value: 
+      objectReference: {fileID: 1542756816}
+    - target: {fileID: 4079719987369677673, guid: 1917dd50efdcd3d4f98e96a6e5577b78, type: 3}
+      propertyPath: m_Name
+      value: UIInputLock
+      objectReference: {fileID: 0}
+    - target: {fileID: 8614563164975321580, guid: 1917dd50efdcd3d4f98e96a6e5577b78, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8614563164975321580, guid: 1917dd50efdcd3d4f98e96a6e5577b78, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8614563164975321580, guid: 1917dd50efdcd3d4f98e96a6e5577b78, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8614563164975321580, guid: 1917dd50efdcd3d4f98e96a6e5577b78, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8614563164975321580, guid: 1917dd50efdcd3d4f98e96a6e5577b78, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8614563164975321580, guid: 1917dd50efdcd3d4f98e96a6e5577b78, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8614563164975321580, guid: 1917dd50efdcd3d4f98e96a6e5577b78, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8614563164975321580, guid: 1917dd50efdcd3d4f98e96a6e5577b78, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8614563164975321580, guid: 1917dd50efdcd3d4f98e96a6e5577b78, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8614563164975321580, guid: 1917dd50efdcd3d4f98e96a6e5577b78, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 1917dd50efdcd3d4f98e96a6e5577b78, type: 3}
+--- !u!114 &1345769432 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3402560473502733556, guid: 1917dd50efdcd3d4f98e96a6e5577b78, type: 3}
+  m_PrefabInstance: {fileID: 1345769431}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f9e3ac0c94760c443909356ad0535810, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1378466653
 GameObject:
   m_ObjectHideFlags: 0
@@ -1737,9 +1813,9 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 1542756814}
-        m_TargetAssemblyTypeName: UnityEngine.Behaviour, UnityEngine
-        m_MethodName: set_enabled
+      - m_Target: {fileID: 1345769432}
+        m_TargetAssemblyTypeName: UIInputLock, Assembly-CSharp
+        m_MethodName: Lock
         m_Mode: 6
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1747,7 +1823,7 @@ MonoBehaviour:
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
-          m_BoolArgument: 0
+          m_BoolArgument: 1
         m_CallState: 2
 --- !u!114 &1378466657
 MonoBehaviour:
@@ -2407,3 +2483,4 @@ SceneRoots:
   - {fileID: 171776034}
   - {fileID: 814110531}
   - {fileID: 798566079}
+  - {fileID: 1345769431}

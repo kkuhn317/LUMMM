@@ -22,36 +22,45 @@ public class PlayerTransformation : MonoBehaviour
     private float cachedOldFeetY;
     private Vector3 cachedSpawnPosition;
 
-    void Start()
-    {
-    }
+    private PlayerRegistry registry;
+    private int cachedPlayerIndex = -1;
 
-    public void startTransformation()
+    public void StartTransformation()
     {
         // Cache the position we want to spawn at (transformation object's position)
         cachedSpawnPosition = transform.position;
 
         // Cache "feet Y" from the OLD player right now (safe, oldPlayer still exists at this moment)
         cachedOldFeetY = cachedSpawnPosition.y;
-        if (oldPlayer != null)
-        {
-            var oldCol = oldPlayer.GetComponent<Collider2D>();
-            if (oldCol != null)
-            {
-                cachedOldFeetY = oldCol.bounds.min.y;
-            }
-            else
-            {
-                cachedOldFeetY = oldPlayer.transform.position.y;
-            }
-        }
+
+        if (oldPlayer == null || newPlayer == null) return;
+
+        var oldCol = oldPlayer.GetComponent<Collider2D>();
+        if (oldCol != null) cachedOldFeetY = oldCol.bounds.min.y;
+        else cachedOldFeetY = oldPlayer.transform.position.y;
 
         // Existing logic
         MarioMovement oldPlayerScript = oldPlayer.GetComponent<MarioMovement>();
         MarioMovement newPlayerScript = newPlayer.GetComponent<MarioMovement>();
 
+        if (oldPlayerScript == null || newPlayerScript == null) return;
+        
+        var selfMove = GetComponent<MarioMovement>();
+        if (selfMove == null) return;
+
+        cachedPlayerIndex = oldPlayerScript.playerNumber;
+
         // Make the GameManager assign this transformation player to the same player number as the old player
-        GameManager.Instance.SetPlayer(GetComponent<MarioMovement>(), oldPlayerScript.playerNumber);
+        // GameManager.Instance.SetPlayer(GetComponent<MarioMovement>(), oldPlayerScript.playerNumber);
+
+        if (registry == null)
+        {
+            registry = GameManagerRefactored.Instance != null
+                ? GameManagerRefactored.Instance.GetSystem<PlayerRegistry>()
+                : FindObjectOfType<PlayerRegistry>(true);
+        }
+
+        registry?.RegisterPlayer(selfMove, cachedPlayerIndex);
 
         oldPowerupState = oldPlayerScript.powerupState;
         newPowerupState = newPlayerScript.powerupState;
@@ -76,7 +85,7 @@ public class PlayerTransformation : MonoBehaviour
         newChild.transform.localScale = newPlayer.transform.localScale;
 
         // Flip the sprites if the player is facing left
-        if (!GetComponent<MarioMovement>().facingRight)
+        if (!selfMove.facingRight)
         {
             oldChild.GetComponent<SpriteRenderer>().flipX = true;
             newChild.GetComponent<SpriteRenderer>().flipX = true;
@@ -110,10 +119,10 @@ public class PlayerTransformation : MonoBehaviour
             animator.Play("BigToBig");
         }
 
-        Invoke(nameof(transformPlayer), time);
+        Invoke(nameof(TransformPlayer), time);
     }
 
-    public void transformPlayer()
+    public void TransformPlayer()
     {
         // Instantiate the new player at the transformation object's position
         GameObject newMario = Instantiate(newPlayer, cachedSpawnPosition, Quaternion.identity);
@@ -129,6 +138,12 @@ public class PlayerTransformation : MonoBehaviour
 
         // Transfer gameplay state (velocity, devices, etc.)
         GetComponent<MarioMovement>().transferProperties(newMario);
+
+        var newMove = newMario.GetComponent<MarioMovement>();
+        if (newMove != null && registry != null && cachedPlayerIndex >= 0)
+        {
+            registry.RegisterPlayer(newMove, cachedPlayerIndex);
+        }
 
         Destroy(gameObject);
     }

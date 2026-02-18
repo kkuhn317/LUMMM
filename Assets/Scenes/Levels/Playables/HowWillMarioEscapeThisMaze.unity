@@ -172,7 +172,7 @@ MonoBehaviour:
   OnRespawnActivation:
     m_PersistentCalls:
       m_Calls: []
-  CheckpointSound: {fileID: 8300000, guid: 0a06a44e13ee9ea419e8d66509366006, type: 3}
+  checkpointSound: {fileID: 0}
   passive: {fileID: -724414142, guid: 01d29b99acc81084dbf22bbe3a18b906, type: 3}
   active:
   - {fileID: 153895903, guid: 01d29b99acc81084dbf22bbe3a18b906, type: 3}
@@ -185,9 +185,6 @@ MonoBehaviour:
   spawnOffset: {x: 0, y: 0}
   giveScoreOnTouch: 1
   checkpointScore: 2000
-  scorePopupOffset: {x: 0, y: 1, z: 0}
-  usePlayerPowerState: 0
-  checkpointPowerState: 0
 --- !u!61 &56105136
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -3747,6 +3744,26 @@ PrefabInstance:
       propertyPath: m_Color.r
       value: 0.8509804
       objectReference: {fileID: 0}
+    - target: {fileID: 6388473333792438409, guid: 6c3da054316607e43b17e4af15d611e6, type: 3}
+      propertyPath: scoreForARank
+      value: 40000
+      objectReference: {fileID: 0}
+    - target: {fileID: 6388473333792438409, guid: 6c3da054316607e43b17e4af15d611e6, type: 3}
+      propertyPath: scoreForBRank
+      value: 35000
+      objectReference: {fileID: 0}
+    - target: {fileID: 6388473333792438409, guid: 6c3da054316607e43b17e4af15d611e6, type: 3}
+      propertyPath: scoreForCRank
+      value: 25000
+      objectReference: {fileID: 0}
+    - target: {fileID: 6388473333792438409, guid: 6c3da054316607e43b17e4af15d611e6, type: 3}
+      propertyPath: scoreForDRank
+      value: 15000
+      objectReference: {fileID: 0}
+    - target: {fileID: 6388473333792438409, guid: 6c3da054316607e43b17e4af15d611e6, type: 3}
+      propertyPath: scoreForSRank
+      value: 46000
+      objectReference: {fileID: 0}
     - target: {fileID: 6934493766031231242, guid: 6c3da054316607e43b17e4af15d611e6, type: 3}
       propertyPath: tilemap
       value: 
@@ -3814,6 +3831,10 @@ PrefabInstance:
     - target: {fileID: 8837084945859138940, guid: 6c3da054316607e43b17e4af15d611e6, type: 3}
       propertyPath: m_SortingLayerID
       value: 1497974571
+      objectReference: {fileID: 0}
+    - target: {fileID: 8976815178753058339, guid: 6c3da054316607e43b17e4af15d611e6, type: 3}
+      propertyPath: startingTime
+      value: 200
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -5928,7 +5949,7 @@ MonoBehaviour:
   OnRespawnActivation:
     m_PersistentCalls:
       m_Calls: []
-  CheckpointSound: {fileID: 8300000, guid: 0a06a44e13ee9ea419e8d66509366006, type: 3}
+  checkpointSound: {fileID: 0}
   passive: {fileID: -724414142, guid: 01d29b99acc81084dbf22bbe3a18b906, type: 3}
   active:
   - {fileID: 153895903, guid: 01d29b99acc81084dbf22bbe3a18b906, type: 3}
@@ -5941,9 +5962,6 @@ MonoBehaviour:
   spawnOffset: {x: 0, y: 0}
   giveScoreOnTouch: 1
   checkpointScore: 2000
-  scorePopupOffset: {x: 0, y: 1, z: 0}
-  usePlayerPowerState: 0
-  checkpointPowerState: 0
 --- !u!61 &1573916233
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -6639,7 +6657,7 @@ MonoBehaviour:
   OnRespawnActivation:
     m_PersistentCalls:
       m_Calls: []
-  CheckpointSound: {fileID: 8300000, guid: 0a06a44e13ee9ea419e8d66509366006, type: 3}
+  checkpointSound: {fileID: 0}
   passive: {fileID: -724414142, guid: 01d29b99acc81084dbf22bbe3a18b906, type: 3}
   active:
   - {fileID: 153895903, guid: 01d29b99acc81084dbf22bbe3a18b906, type: 3}
@@ -6652,9 +6670,6 @@ MonoBehaviour:
   spawnOffset: {x: 0, y: 0}
   giveScoreOnTouch: 1
   checkpointScore: 2000
-  scorePopupOffset: {x: 0, y: 1, z: 0}
-  usePlayerPowerState: 0
-  checkpointPowerState: 0
 --- !u!61 &1789385555
 BoxCollider2D:
   m_ObjectHideFlags: 0

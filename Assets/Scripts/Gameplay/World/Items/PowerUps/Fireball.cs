@@ -33,8 +33,9 @@ public class Fireball : ObjectPhysics
             // Popup position
             Vector3 popupPos = enemy.transform.position + Vector3.up * 0.3f;
 
-            // ALWAYS award 1000 points for fire kills
-            GameManager.Instance.AddScorePoints(200);
+            // ALWAYS award 200 points for fire kills
+            // GameManager.Instance.AddScorePoints(200);
+            GameManagerRefactored.Instance.GetSystem<ScoreSystem>().AddScore(200);
 
             if (ScorePopupManager.Instance != null)
             {

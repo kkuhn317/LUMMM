@@ -76,10 +76,13 @@ public class GameOverScript : MonoBehaviour
         optionChosen = true;
         canPressButtons = false;
 
-        StartCoroutine(LockUIAfterFrame());
+        StartCoroutine(LockUIAfterFrame());   
 
-        if (GameManager.Instance != null)
-            GameManager.Instance.RestartLevelFromBeginningWithFadeOut();
+        /*if (GameManager.Instance != null)
+            GameManager.Instance.RestartLevelFromBeginningWithFadeOut();*/
+
+        if (GameManagerRefactored.Instance != null)
+            GameManagerRefactored.Instance.RestartLevelFromBeginning();
     }
 
     public void OnQuitButtonPressed()

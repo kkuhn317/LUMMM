@@ -11,14 +11,23 @@ public class CircleTransition : MonoBehaviour
 
     private Vector2 _playerCanvasPos;
 
-    private float duration = 4f; // How long the transition should take
-    private float maxSize = 2f; // Max size of the circle (should be bigger than the whole screen)
+    [Header("Transition Settings")]
+    [SerializeField] private float normalDuration = 4f;
+    [SerializeField] private float normalMaxSize = 2f;
+    
+    [Header("Darkness Mode Settings")]
+    [SerializeField] private float darknessDuration = 0.5f;
+    [SerializeField] private float darknessMaxSize = 0.1f;
+
+    private float currentDuration;
+    private float currentMaxSize;
 
     private static readonly int RADIUS = Shader.PropertyToID("_Radius");
     private static readonly int CENTER_X = Shader.PropertyToID("_CenterX");
     private static readonly int CENTER_Y = Shader.PropertyToID("_CenterY");
 
-
+    private PlayerRegistry playerRegistry;
+    
     private void Awake()
     {
         _canvas = GetComponent<Canvas>();
@@ -27,12 +36,22 @@ public class CircleTransition : MonoBehaviour
 
     private void Start()
     {
-        if (GlobalVariables.cheatDarkness)
-        {
-            maxSize = 0.1f;
-            duration = 0.5f;
-        }
+        CacheRegistry();
+
+        // Set parameters based on darkness cheat
+        currentDuration = GlobalVariables.cheatDarkness ? darknessDuration : normalDuration;
+        currentMaxSize = GlobalVariables.cheatDarkness ? darknessMaxSize : normalMaxSize;
+        
         OpenBlackScreen();
+    }
+
+    private void CacheRegistry()
+    {
+        if (GameManagerRefactored.Instance != null)
+            playerRegistry = GameManagerRefactored.Instance.GetSystem<PlayerRegistry>();
+
+        if (playerRegistry == null)
+            playerRegistry = FindObjectOfType<PlayerRegistry>(true);
     }
 
     private void Update()
@@ -40,17 +59,33 @@ public class CircleTransition : MonoBehaviour
         DrawBlackScreen();
     }
 
+    /// <summary>
+    /// Called by CheatController when darkness cheat is toggled mid-level.
+    /// </summary>
+    public void SetDarknessMode(bool enabled)
+    {
+        currentDuration = enabled ? darknessDuration : normalDuration;
+        currentMaxSize = enabled ? darknessMaxSize : normalMaxSize;
+        
+        // If the black screen is currently active, update its target size
+        if (_blackScreen != null && _blackScreen.gameObject.activeInHierarchy)
+        {
+            StopAllCoroutines();
+            StartCoroutine(Transition(0, currentMaxSize));
+        }
+    }
+
     public void OpenBlackScreen()
     {
         _blackScreen.gameObject.SetActive(true);
         DrawBlackScreen();
-        StartCoroutine(Transition(0, maxSize));
+        StartCoroutine(Transition(0, currentMaxSize));
     }
 
     public void CloseBlackScreen()
     {
         DrawBlackScreen();
-        StartCoroutine(Transition(maxSize, 0));
+        StartCoroutine(Transition(currentMaxSize, 0));
     }
 
     private void DrawBlackScreen()
@@ -58,23 +93,18 @@ public class CircleTransition : MonoBehaviour
         var screenWidth = Screen.width;
         var screenHeight = Screen.height;
 
-        MarioMovement playerscript = GameManager.Instance.GetPlayer(0);
-        // Need a target
+        // MarioMovement playerscript = GameManager.Instance.GetPlayer(0);
+        MarioMovement playerscript = playerRegistry != null ? playerRegistry.GetPlayer(0) : null;
         if (playerscript == null)
-        {
             return;
-        }
+            
         Transform player = playerscript.transform;
-        
         var playerScreenPos = Camera.main.WorldToScreenPoint(player.position);
 
-        // To Draw to Image to Full Screen, we get the Canvas Rect size
         var canvasRect = _canvas.GetComponent<RectTransform>().rect;
         var canvasWidth = canvasRect.width + 100;
         var canvasHeight = canvasRect.height + 100;
 
-        // But because the Black Screen is now square (different to Screen). So we much added the different of width/height to it
-        // Now we convert Screen Pos to Canvas Pos
         _playerCanvasPos = new Vector2
         {
             x = (playerScreenPos.x / screenWidth) * canvasWidth,
@@ -84,13 +114,11 @@ public class CircleTransition : MonoBehaviour
         var squareValue = 0f;
         if (canvasWidth > canvasHeight)
         {
-            // Landscape
             squareValue = canvasWidth;
             _playerCanvasPos.y += (canvasWidth - canvasHeight) * 0.5f;
         }
         else
         {
-            // Portrait            
             squareValue = canvasHeight;
             _playerCanvasPos.x += (canvasHeight - canvasWidth) * 0.5f;
         }
@@ -102,39 +130,30 @@ public class CircleTransition : MonoBehaviour
         mat.SetFloat(CENTER_Y, _playerCanvasPos.y);
 
         _blackScreen.rectTransform.sizeDelta = new Vector2(squareValue, squareValue);
-
-        // Now we want the circle to follow the player position
-        // So First, we must get the player world position, convert it to screen position, and normalize it (0 -> 1)
-        // And input into the shader
     }
 
     private IEnumerator Transition(float beginRadius, float endRadius)
     {
         var mat = _blackScreen.material;
         var time = 0f;
-        while (time <= duration)
+        
+        while (time <= currentDuration)
         {
             time += Time.deltaTime;
-            var t = time / duration;
+            var t = time / currentDuration;
             var radius = Mathf.Lerp(beginRadius, endRadius, t);
-
             mat.SetFloat(RADIUS, radius);
-
             yield return null;
         }
 
-        // Make sure we end exactly at target value
         mat.SetFloat(RADIUS, endRadius);
 
-        // Then, disable the black screen when fully zoomed out
-        if (endRadius >= maxSize)
+        if (endRadius >= currentMaxSize)
         {
             _blackScreen.gameObject.SetActive(false);
         }
     }
 
-    // In the editor, set the material floats back to default
-    // Because when its changed it actually changes the material in the project
     private void OnDisable()
     {
         var mat = _blackScreen.material;

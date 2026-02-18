@@ -5,6 +5,18 @@ public class CheepCheepChase : MonoBehaviour
 {
     private Transform target;
     public CheepCheep cheepCheepScript;
+    private KeyInventorySystem keyInventory;
+
+    private void CacheSystems()
+    {
+        if (keyInventory != null) return;
+
+        if (GameManagerRefactored.Instance != null)
+            keyInventory = GameManagerRefactored.Instance.GetSystem<KeyInventorySystem>();
+
+        if (keyInventory == null)
+            keyInventory = FindObjectOfType<KeyInventorySystem>(true);
+    }
 
     private void OnTriggerEnter2D(Collider2D other)
     {
@@ -39,10 +51,13 @@ public class CheepCheepChase : MonoBehaviour
     // Check if the player has a key
     private bool CheckForKey()
     {
-        if (GameManager.Instance.keys.Count > 0)
+        /*if (GameManager.Instance.keys.Count > 0)
         {
             return true; // player has a key
         }
-        return false; // player does not have a key
+        return false; // player does not have a key*/
+
+        if (keyInventory == null) CacheSystems();
+        return keyInventory != null && keyInventory.HasKey();
     }
 }

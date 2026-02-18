@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -11,8 +9,8 @@ public class Checkpoint : MonoBehaviour
 {
     public enum CheckpointMode
     {
-        Visual,     // Uses sprite / audio / particles
-        Invisible   // Only updates respawn; only aound feedback required
+        Visual,     // Uses sprite/audio/particles
+        Invisible   // Only updates respawn (minimal feedback)
     }
 
     [Header("Checkpoint")]
@@ -20,79 +18,79 @@ public class Checkpoint : MonoBehaviour
     public CheckpointMode checkpointMode = CheckpointMode.Visual;
 
     [Header("Events")]
-    [Tooltip("Triggers when player RESPAWNS at this checkpoint (including on level load)")]
+    [Tooltip("Triggers when player RESPAWNS at this checkpoint (including on level load).")]
     public UnityEvent OnRespawnActivation;
-    
+
     [Header("Feedback (Visual mode only)")]
-    public AudioClip CheckpointSound;
+    public AudioClip checkpointSound;
     public Sprite passive;
     public Sprite[] active;
     public ParticleSystem checkpointParticles;
-    public GameObject particle; // Custom star particle prefab
+    public GameObject particle; // Custom star particle prefab (optional)
 
     [Header("Behaviour")]
     public bool disableColliderOnActivate = true;
+
+    [Header("Spawn")]
+    public Vector2 spawnOffset = Vector2.zero;
+
+    [Header("Score Reward (optional)")]
+    public bool giveScoreOnTouch = true;
+    public int checkpointScore = 2000;
 
     private SpriteRenderer spriteRenderer;
     private AudioSource audioSource;
     private Collider2D checkpointCollider;
 
-    [Header("Spawn")]
-    public Vector2 spawnOffset = new(0, 0);
+    private CheckpointManager checkpointManager;
+    private bool respawnInvokedThisLoad;
 
-    [Header("Score Reward")]
-    public bool giveScoreOnTouch = true;
-    public int checkpointScore = 2000;
-    public Vector3 scorePopupOffset = new Vector3(0f, 1.0f, 0f);
-    [Tooltip("If true, use the player's current powerup state for the popup instead of the fixed checkpointPowerState.")]
-    public bool usePlayerPowerState = false;
+    public bool IsEnabledByMode { get; private set; }
 
-    public PowerStates.PowerupState checkpointPowerState;
-
-    // Position used by GameManager to place the player
-    public Vector2 SpawnPosition
-    {
-        get
-        {
-            return transform.position + (Vector3)spawnOffset + new Vector3(0, 0, -1);
-        }
-    }
+    // Position used by other systems to place the player
+    public Vector2 SpawnPosition => transform.position + (Vector3)spawnOffset + new Vector3(0, 0, -1);
 
     private void Awake()
     {
         checkpointCollider = GetComponent<Collider2D>();
         if (checkpointCollider == null)
-        {
             Debug.LogWarning($"Checkpoint '{name}' has no Collider2D. It needs a trigger collider to work.");
-        }
 
-        // These are only needed for Visual mode
         if (checkpointMode == CheckpointMode.Visual)
         {
             spriteRenderer = GetComponent<SpriteRenderer>();
             audioSource = GetComponent<AudioSource>();
         }
 
-        // Enable/disable based on BOTH "checkpoints enabled" and the selected checkpoint type (0/1/2)
-        if (IsAllowedByGlobalMode())
-        {
-            EnableCheckpoint();
-        }
-        else
-        {
-            DisableCheckpoint();
-        }
+        RefreshEnabledState();
+
+        // If enabled and not active yet, ensure passive sprite in Visual mode
+        if (checkpointMode == CheckpointMode.Visual && spriteRenderer != null && passive != null)
+            spriteRenderer.sprite = passive;
+    }
+
+    private void OnEnable()
+    {
+        // Register early (Awake/OnEnable happens before most Start calls)
+        checkpointManager = FindObjectOfType<CheckpointManager>();
+        if (checkpointManager != null)
+            checkpointManager.RegisterCheckpoint(this);
+
+        GameEvents.OnCheckpointLoaded += HandleCheckpointLoaded;
     }
 
     private void Start()
     {
-        GameManager.Instance.AddCheckpoint(this);
+        // Fallback: if something loads checkpoint before we subscribed
+        TryInvokeRespawnActivationIfActive();
+    }
 
-        if (GlobalVariables.checkpoint == checkpointID)
-        {
-            // This means we're loading at this checkpoint (after death or level load)
-            OnRespawnActivation?.Invoke();
-        }
+    private void OnDisable()
+    {
+        GameEvents.OnCheckpointLoaded -= HandleCheckpointLoaded;
+
+        if (checkpointManager != null)
+            checkpointManager.UnregisterCheckpoint(this);
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
@@ -100,34 +98,26 @@ public class Checkpoint : MonoBehaviour
         if (!collision.CompareTag("Player"))
             return;
 
-        if (!IsAllowedByGlobalMode())
+        RefreshEnabledState();
+        if (!IsEnabledByMode)
             return;
 
-        // Get Mario once, reuse it
-        MarioMovement mario = collision.GetComponent<MarioMovement>();
-
-        // Activate this checkpoint
-        SetActive();
-
+        // Optional score reward BEFORE saving (so it’s included in SaveCurrentCheckpoint)
         if (giveScoreOnTouch)
         {
-            GiveScoreReward(mario);
+            GlobalVariables.score += checkpointScore;
+            GameEvents.TriggerScoreChanged(GlobalVariables.score);
         }
 
-        GlobalVariables.checkpoint = checkpointID;
-
-        if (checkpointMode == CheckpointMode.Invisible && mario != null)
-        {
-            mario.ShowCheckpointFlag();
-        }
-
-        // refresh all checkpoints so only the correct one is visually active
-        GameManager.Instance.OnCheckpointActivated(this);
-
-        GameManager.Instance.SaveProgress();
+        // Delegate activation + save to manager (refactor style)
+        checkpointManager ??= FindObjectOfType<CheckpointManager>();
+        if (checkpointManager != null)
+            checkpointManager.ActivateCheckpoint(this);
+        else
+            Debug.LogError($"{nameof(Checkpoint)}: No {nameof(CheckpointManager)} found in scene.");
     }
 
-    // Centralized rule for 0/1/2 behavior
+    // OldCheckpoint-style centralized rule for 0/1/2 behavior
     private bool IsAllowedByGlobalMode()
     {
         // 0: off, 1: visual-only, 2: invisible-only
@@ -140,24 +130,43 @@ public class Checkpoint : MonoBehaviour
             || (mode == 2 && checkpointMode == CheckpointMode.Invisible);
     }
 
+    public void RefreshEnabledState()
+    {
+        IsEnabledByMode = IsAllowedByGlobalMode();
+
+        if (!IsEnabledByMode)
+        {
+            // Don’t disable GameObject (keeps registration stable). Just disable interaction/visuals.
+            if (checkpointCollider != null)
+                checkpointCollider.enabled = false;
+
+            if (spriteRenderer != null)
+                spriteRenderer.enabled = false;
+
+            return;
+        }
+
+        // Enabled
+        if (checkpointCollider != null)
+            checkpointCollider.enabled = true;
+
+        if (checkpointMode == CheckpointMode.Visual && spriteRenderer != null)
+            spriteRenderer.enabled = true;
+    }
+
     /// <summary>
-    /// Activates this checkpoint.
+    /// Active visual state + optional transient feedback.
     /// playFeedback:
-    ///   true  -> changes sprite, plays sound, particles (when the player touches it).
-    ///   false -> only static visual state (active sprite), no sound/particle burst (when respawning / loading).
+    ///   true  -> plays sound/particles (when touched)
+    ///   false -> only sets active sprite (when loading/respawning)
     /// </summary>
     public void SetActive(bool playFeedback = true)
     {
-        Debug.Log($"Checkpoint {checkpointID} activated ({checkpointMode})");
-
         // Optionally disable the collider after activation
         if (disableColliderOnActivate && checkpointCollider != null)
-        {
             checkpointCollider.enabled = false;
-        }
 
-        // For Visual mode, always show the active sprite when the checkpoint is active,
-        // regardless of whether we play full feedback or not.
+        // Always show active sprite in Visual mode (even if playFeedback is false)
         if (checkpointMode == CheckpointMode.Visual &&
             spriteRenderer != null &&
             active != null &&
@@ -166,97 +175,71 @@ public class Checkpoint : MonoBehaviour
             spriteRenderer.sprite = active[0];
         }
 
-        // If we should not play feedback (for example when respawning)
-        // or this is a SilentTrigger checkpoint, then skip sound/particles.
+        // Skip transient feedback when respawning/loading
         if (!playFeedback)
             return;
 
-        // From here on, this is only the transient feedback (sound / particles)
-        if (CheckpointSound != null && AudioManager.Instance != null)
-        {
-            AudioManager.Instance.Play(CheckpointSound, SoundCategory.SFX);
-        }
-
-        // Particles ONLY for Visual checkpoints
+        // Feedback only for Visual checkpoints
         if (checkpointMode == CheckpointMode.Visual)
         {
-            // Built-in particle system
-            if (checkpointParticles != null)
+            if (checkpointSound != null)
             {
-                checkpointParticles.Play();
+                if (audioSource != null) audioSource.PlayOneShot(checkpointSound);
+                else AudioSource.PlayClipAtPoint(checkpointSound, transform.position);
             }
 
-            // Custom star particles
+            if (checkpointParticles != null)
+                checkpointParticles.Play();
+
             if (particle != null)
-            {
                 SpawnParticles();
-            }
         }
     }
 
-    public void EnableCheckpoint()
+    public void SetPassive()
     {
-        gameObject.SetActive(true);
-
-        if (checkpointCollider != null)
+        // Re-enable collider if we’re in passive state (unless disabled by mode)
+        if (checkpointCollider != null && IsEnabledByMode)
             checkpointCollider.enabled = true;
 
-        // When enabled and not yet activated, show the passive sprite in Visual mode
         if (checkpointMode == CheckpointMode.Visual && spriteRenderer != null && passive != null)
-        {
             spriteRenderer.sprite = passive;
-        }
     }
 
-    public void DisableCheckpoint()
+    public void InvokeRespawnActivation()
     {
-        gameObject.SetActive(false);
-
-        if (checkpointCollider != null)
-            checkpointCollider.enabled = false;
+        // This is what OldCheckpoint did: fire event when spawning here.
+        OnRespawnActivation?.Invoke();
     }
 
-    private void GiveScoreReward(MarioMovement mario)
+    private void HandleCheckpointLoaded()
     {
-        if (checkpointScore <= 0)
-            return;
-        
-        GameManager.Instance.AddScorePoints(checkpointScore);
+        // When manager loads from save, fire respawn activation on the active checkpoint
+        TryInvokeRespawnActivationIfActive();
+    }
 
-        if (ScorePopupManager.Instance == null)
-            return;
+    private void TryInvokeRespawnActivationIfActive()
+    {
+        if (respawnInvokedThisLoad) return;
 
-        // Decide which power state to use for the popup
-        PowerStates.PowerupState popupPowerState = checkpointPowerState;
-
-        if (usePlayerPowerState && mario != null)
+        if (GlobalVariables.checkpoint == checkpointID)
         {
-            // Use the player's current power-up state instead
-            popupPowerState = mario.powerupState;
+            respawnInvokedThisLoad = true;
+            InvokeRespawnActivation();
         }
-
-        ComboResult result = new ComboResult(
-            RewardType.Score,
-            PopupID.Score2000,
-            checkpointScore
-        );
-
-        Vector3 popupPos = transform.position + scorePopupOffset;
-        ScorePopupManager.Instance.ShowPopup(result, popupPos, popupPowerState);
     }
 
     #region Particles
     private void SpawnParticles()
     {
         // Spawn 8 particles around the checkpoint and move them outwards
-        int[] verticalDirections = new int[] { -1, 0, 1 };
-        int[] horizontalDirections = new int[] { -1, 0, 1 };
+        int[] verticalDirections = { -1, 0, 1 };
+        int[] horizontalDirections = { -1, 0, 1 };
 
         for (int i = 0; i < verticalDirections.Length; i++)
         {
             for (int j = 0; j < horizontalDirections.Length; j++)
             {
-                // Skip the (0,0) direction
                 if (verticalDirections[i] == 0 && horizontalDirections[j] == 0)
                     continue;
 
@@ -265,7 +248,7 @@ public class Checkpoint : MonoBehaviour
 
                 GameObject newParticle = Instantiate(particle, transform.position + startOffset, Quaternion.identity);
 
-                // Make the particles move outwards at a constant speed
+                // Optional: if you have StarMoveOutward in the project (OldCheckpoint style)
                 var moveOut = newParticle.GetComponent<StarMoveOutward>();
                 if (moveOut != null)
                 {
@@ -280,18 +263,13 @@ public class Checkpoint : MonoBehaviour
     #region Gizmos
     private void OnDrawGizmos()
     {
-        // Draw spawn position based on spawnOffset so you can see where the player will appear
         Vector3 basePosition = transform.position;
         Vector3 spawnPosition = (Vector3)SpawnPosition;
 
-        // Line from checkpoint origin to spawn position
         Gizmos.color = Color.green;
         Gizmos.DrawLine(basePosition, spawnPosition);
-
-        // Small sphere at the spawn position
         Gizmos.DrawWireSphere(spawnPosition, 0.2f);
 
-        // Draw the checkpoint ID as a label in the Scene view
 #if UNITY_EDITOR
         Handles.Label(spawnPosition + Vector3.up * 0.3f, $"ID {checkpointID}");
 #endif

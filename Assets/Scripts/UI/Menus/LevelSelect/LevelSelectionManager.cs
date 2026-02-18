@@ -45,9 +45,22 @@ public class LevelSelectionManager : MonoBehaviour
     public Sprite[] minirankTypes;   // 0 - poison, 1 - mushroom, 2 - flower, 3 - 1up, 4 - star
     public LevelButton selectedLevelButton;
 
+    [Header("Input Lock")]
+    [SerializeField] private UIInputLock uiInputLock;
+
     [Header("Events")]
     public UnityEvent onSceneStart;
     public UnityEvent onValidLevelSelected;
+
+    private void OnEnable()
+    {
+        GameEvents.OnCheatToggled += OnCheatToggled;
+    }
+
+    private void OnDisable()
+    {
+        GameEvents.OnCheatToggled -= OnCheatToggled;
+    }
 
     void Awake()
     {
@@ -58,6 +71,11 @@ public class LevelSelectionManager : MonoBehaviour
         else
         {
             Destroy(gameObject);
+        }
+
+        if (uiInputLock == null)
+        {
+            uiInputLock = FindObjectOfType<UIInputLock>();
         }
     }
 
@@ -87,6 +105,18 @@ public class LevelSelectionManager : MonoBehaviour
 
         if (bestTimeText != null)
             bestTimeText.text = "--:--.--";
+    }
+
+    private void OnCheatToggled(string cheatName, bool enabled)
+    {
+        if (cheatName == "BetaMode")
+        {
+            Debug.Log($"[LevelSelectionManager] Beta Mode: {enabled}");
+            RefreshAllLevelButtons();
+            
+            if (selectedLevelButton != null)
+                OnLevelButtonClick(selectedLevelButton);
+        }
     }
 
     public static bool IsLevelPlayable(LevelButton button)
@@ -383,6 +413,10 @@ public class LevelSelectionManager : MonoBehaviour
             GlobalVariables.enableCheckpoints = modifiers.checkpointMode != 0;
             GlobalVariables.checkpointMode = modifiers.checkpointMode;
         }
+
+        // Lock UI input so the player can't keep navigating/clicking during the fade/scene load
+        if (uiInputLock != null)
+            uiInputLock.Lock(rememberSelection: false);
 
         // Load the scene
         if (FadeInOutScene.Instance != null)

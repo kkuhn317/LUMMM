@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 using UnityEngine.Localization.Settings;
 using UnityEngine.EventSystems;
 using UnityEngine.Events;
+using System;
 
 [System.Serializable]
 public class RebindLayoutData
@@ -42,7 +43,9 @@ public class RebindSaveLoad : MonoBehaviour
 
     [Header("Events")]
     public UnityEvent onSaveNewLayoutCompleted; // Event for SaveNewLayout completion
-    public UnityEvent onEditLayoutCompleted; 
+    public UnityEvent onEditLayoutCompleted;
+
+    private MobileControlsManager mobileControlsManager;
 
     // Quicker reference to the layouts from GlobalVariables
     private static Dictionary<string, RebindLayoutData> LoadedLayouts {
@@ -82,17 +85,73 @@ public class RebindSaveLoad : MonoBehaviour
         editLayoutNameInput.onValueChanged.AddListener(delegate { ForceUppercase(editLayoutNameInput); });
 
         // Set selected input field when opening create or edit layout
-        createNewLayoutButton.GetComponent<Button>().onClick.AddListener(() => 
+        createNewLayoutButton.GetComponent<Button>().onClick.AddListener(() =>
             EventSystem.current.SetSelectedGameObject(layoutNameInput.gameObject));
 
-        editLayoutButton.GetComponent<Button>().onClick.AddListener(() => 
+        editLayoutButton.GetComponent<Button>().onClick.AddListener(() =>
             EventSystem.current.SetSelectedGameObject(editLayoutNameInput.gameObject));
 
-        cancelNewLayoutButton.GetComponent<Button>().onClick.AddListener(() => 
+        cancelNewLayoutButton.GetComponent<Button>().onClick.AddListener(() =>
             EventSystem.current.SetSelectedGameObject(createNewLayoutButton.gameObject));
-        canceleditLayoutButton.GetComponent<Button>().onClick.AddListener(() => 
+        canceleditLayoutButton.GetComponent<Button>().onClick.AddListener(() =>
             EventSystem.current.SetSelectedGameObject(editLayoutButton.gameObject));
-        
+
+        // Cache systems for in-game updates (no fallback to old GameManager)
+        CacheSystems();
+    }
+
+    private void CacheSystems()
+    {
+        if (GameManagerRefactored.Instance != null)
+        {
+            // Mobile controls are managed by a dedicated system now
+            mobileControlsManager = GameManagerRefactored.Instance.GetSystem<MobileControlsManager>();
+        }
+
+        if (mobileControlsManager == null)
+        {
+            mobileControlsManager = FindObjectOfType<MobileControlsManager>(true);
+        }
+    }
+
+    /// <summary>
+    /// Notifies the refactored MobileControlsManager (if present) that mobile controls should refresh.
+    /// Avoids any dependency on the legacy GameManager.
+    /// </summary>
+    private void NotifyMobileControlsChanged(float pressedOpacity, float unpressedOpacity)
+    {
+        if (mobileControlsManager == null) CacheSystems();
+        if (mobileControlsManager == null) return;
+
+        // Always keep visibility in sync with the global setting.
+        mobileControlsManager.UpdateControlsVisibility();
+
+        // Optional: some versions of MobileControlsManager expose extra refresh methods.
+        // Call them via reflection so this script compiles even if the methods don't exist.
+        var t = mobileControlsManager.GetType();
+
+        t.GetMethod("UpdateButtonOpacity", new[] { typeof(float), typeof(float) })
+            ?.Invoke(mobileControlsManager, new object[] { pressedOpacity, unpressedOpacity });
+
+        t.GetMethod("UpdateButtonPosScaleOpacity", Type.EmptyTypes)
+            ?.Invoke(mobileControlsManager, null);
+    }
+
+    /// <summary>
+    /// Static version used by static methods (SaveMobileBindings / ResetMobileBindings).
+    /// </summary>
+    private static void NotifyMobileControlsChangedStatic()
+    {
+        if (GameManagerRefactored.Instance == null) return;
+
+        var manager = GameManagerRefactored.Instance.GetSystem<MobileControlsManager>();
+        if (manager == null) return;
+
+        manager.UpdateControlsVisibility();
+
+        var t = manager.GetType();
+        t.GetMethod("UpdateButtonPosScaleOpacity", Type.EmptyTypes)
+            ?.Invoke(manager, null);
     }
 
     private void ForceUppercase(TMP_InputField inputField)
@@ -104,7 +163,7 @@ public class RebindSaveLoad : MonoBehaviour
     {
         string localizedMessage = LocalizationSettings.StringDatabase.GetLocalizedString("RebindError_" + messageKey);
         errorText.text = localizedMessage; // Set error text in UI
-        errorText.gameObject.SetActive(true); 
+        errorText.gameObject.SetActive(true);
     }
 
     public void OnDisable()
@@ -134,7 +193,7 @@ public class RebindSaveLoad : MonoBehaviour
             Debug.Log("No saved layouts found. Default layout will be created when rebind menu is opened");
         }
     }
-    
+
     /// <summary>
     /// Saves the current bindings as a new layout.
     /// </summary>
@@ -207,10 +266,7 @@ public class RebindSaveLoad : MonoBehaviour
         PlayerPrefs.Save();
 
         // Update in-game (opacity)
-        if (GameManager.Instance != null)
-        {
-            GameManager.Instance.UpdateMobileControls();
-        }
+        NotifyMobileControlsChanged(buttonPressedOpacitySlider.value, buttonUnpressedOpacitySlider.value);
     }
 
     /// <summary>
@@ -225,11 +281,8 @@ public class RebindSaveLoad : MonoBehaviour
         PlayerPrefs.SetString(LayoutsKey, json);
         PlayerPrefs.Save();
 
-        // Update in-game
-        if (GameManager.Instance != null)
-        {
-            GameManager.Instance.UpdateMobileControls();
-        }
+        // Update in-game (no legacy GameManager)
+        NotifyMobileControlsChangedStatic();
     }
 
     /// <summary>
@@ -244,11 +297,8 @@ public class RebindSaveLoad : MonoBehaviour
         PlayerPrefs.SetString(LayoutsKey, json);
         PlayerPrefs.Save();
 
-        // Update in-game
-        if (GameManager.Instance != null)
-        {
-            GameManager.Instance.UpdateMobileControls();
-        }
+        // Update in-game (no legacy GameManager)
+        NotifyMobileControlsChangedStatic();
     }
 
     /// <summary>
@@ -269,11 +319,8 @@ public class RebindSaveLoad : MonoBehaviour
             currentLoadedLayout = layoutName; // Track loaded layout
             editLayoutNameInput.text = layoutName; // edit the layout name input field
 
-            // Update mobile controls in-game
-            if (GameManager.Instance != null)
-            {
-                GameManager.Instance.UpdateMobileControls();
-            }
+            // Update mobile controls in-game (no legacy GameManager)
+            NotifyMobileControlsChanged(buttonPressedOpacitySlider.value, buttonUnpressedOpacitySlider.value);
         }
         else
         {
@@ -289,7 +336,7 @@ public class RebindSaveLoad : MonoBehaviour
     {
         // Save current bindings to the currently loaded layout before switching
         SaveCurrentBindings(currentLoadedLayout);
-        
+
         // Load the new layout
         string selectedLayout = layoutDropdown.options[layoutDropdown.value].text;
         LoadLayout(selectedLayout);
@@ -347,7 +394,7 @@ public class RebindSaveLoad : MonoBehaviour
             // If no current layout is saved or it is not present in LoadedLayouts, default to the first available layout
             // This will likely be the "Default" layout
             currentLayout = GetSavedLayouts()[0];
-        } else 
+        } else
         {
             LoadLayout(currentLayout);
         }
@@ -443,7 +490,7 @@ public class RebindSaveLoad : MonoBehaviour
         EventSystem.current.SetSelectedGameObject(editLayoutButton.gameObject);
         editLayout.SetActive(false);
         errorText.gameObject.SetActive(false);
-        
+
         Debug.Log($"Renamed layout '{currentLoadedLayout}' to '{newLayoutName}'");
     }
 
@@ -461,12 +508,8 @@ public class RebindSaveLoad : MonoBehaviour
 
         buttonPressedOpacitySlider.value = MobileRebindingData.DefaultPressedOpacity;
         buttonUnpressedOpacitySlider.value = MobileRebindingData.DefaultUnpressedOpacity;
-
-        // Update in-game
-        if (GameManager.Instance != null)
-        {
-            GameManager.Instance.UpdateMobileControls();
-        }
+        
+        NotifyMobileControlsChanged(buttonPressedOpacitySlider.value, buttonUnpressedOpacitySlider.value);
     }
 
     // <summary>
@@ -476,7 +519,7 @@ public class RebindSaveLoad : MonoBehaviour
     {
         // Reset to default
         ResetBindings();
-        
+
         // Not calling SaveCurrentBindings because of the sliders
         // (not sure if its an issue, but being on the safe side just in case)
         string rebindJson = actions.SaveBindingOverridesAsJson();

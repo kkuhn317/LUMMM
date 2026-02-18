@@ -162,6 +162,15 @@ public partial class @Mario: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Pause"",
+                    ""type"": ""Button"",
+                    ""id"": ""4d194031-9a55-4f90-ae7a-c150b9133009"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -481,6 +490,39 @@ public partial class @Mario: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": ""Keyboard&Mouse"",
                     ""action"": ""ExtraAction"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""b3ed5bcb-4f45-47ce-89b4-c59e97dc1507"",
+                    ""path"": ""<Keyboard>/escape"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""Pause"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""63ef63ff-809c-4abf-8243-28a915011d4c"",
+                    ""path"": ""<Keyboard>/p"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""Pause"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""4884a8be-b1e8-48ce-88fb-8a819b7db020"",
+                    ""path"": ""<Gamepad>/start"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Gamepad"",
+                    ""action"": ""Pause"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -1180,6 +1222,7 @@ public partial class @Mario: IInputActionCollection2, IDisposable
         m_Mariomove_Spin = m_Mariomove.FindAction("Spin", throwIfNotFound: true);
         m_Mariomove_Use = m_Mariomove.FindAction("Use", throwIfNotFound: true);
         m_Mariomove_ExtraAction = m_Mariomove.FindAction("ExtraAction", throwIfNotFound: true);
+        m_Mariomove_Pause = m_Mariomove.FindAction("Pause", throwIfNotFound: true);
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
         m_UI_Navigate = m_UI.FindAction("Navigate", throwIfNotFound: true);
@@ -1284,6 +1327,7 @@ public partial class @Mario: IInputActionCollection2, IDisposable
     private readonly InputAction m_Mariomove_Spin;
     private readonly InputAction m_Mariomove_Use;
     private readonly InputAction m_Mariomove_ExtraAction;
+    private readonly InputAction m_Mariomove_Pause;
     /// <summary>
     /// Provides access to input actions defined in input action map "Mariomove".
     /// </summary>
@@ -1327,6 +1371,10 @@ public partial class @Mario: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Mariomove/ExtraAction".
         /// </summary>
         public InputAction @ExtraAction => m_Wrapper.m_Mariomove_ExtraAction;
+        /// <summary>
+        /// Provides access to the underlying input action "Mariomove/Pause".
+        /// </summary>
+        public InputAction @Pause => m_Wrapper.m_Mariomove_Pause;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -1377,6 +1425,9 @@ public partial class @Mario: IInputActionCollection2, IDisposable
             @ExtraAction.started += instance.OnExtraAction;
             @ExtraAction.performed += instance.OnExtraAction;
             @ExtraAction.canceled += instance.OnExtraAction;
+            @Pause.started += instance.OnPause;
+            @Pause.performed += instance.OnPause;
+            @Pause.canceled += instance.OnPause;
         }
 
         /// <summary>
@@ -1412,6 +1463,9 @@ public partial class @Mario: IInputActionCollection2, IDisposable
             @ExtraAction.started -= instance.OnExtraAction;
             @ExtraAction.performed -= instance.OnExtraAction;
             @ExtraAction.canceled -= instance.OnExtraAction;
+            @Pause.started -= instance.OnPause;
+            @Pause.performed -= instance.OnPause;
+            @Pause.canceled -= instance.OnPause;
         }
 
         /// <summary>
@@ -1801,6 +1855,13 @@ public partial class @Mario: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnExtraAction(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Pause" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnPause(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "UI" which allows adding and removing callbacks.

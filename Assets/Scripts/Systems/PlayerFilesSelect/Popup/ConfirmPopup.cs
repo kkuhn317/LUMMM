@@ -7,7 +7,6 @@ using UnityEngine.EventSystems;
 using UnityEngine.Localization;
 using UnityEngine.UI;
 using UnityEngine.Events;
-using System.Xml.Serialization;
 using UnityEngine.InputSystem;
 
 public class ConfirmPopup : MonoBehaviour
