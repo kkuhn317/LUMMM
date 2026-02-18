@@ -4,6 +4,8 @@ using UnityEngine.UI;
 using System;
 using System.Collections;
 using UnityEngine.Localization.Settings;
+using UnityEngine.SceneManagement;
+using UnityEngine.Localization;
 
 public class HUDController : MonoBehaviour
 {
@@ -24,6 +26,7 @@ public class HUDController : MonoBehaviour
     [SerializeField] private Image infiniteLivesImage;
 
     [Header("Level UI")]
+    [SerializeField] private LevelDatabase levelDatabase;
     [SerializeField] private TMP_Text levelNameText;
     [SerializeField] private GameObject checkpointIndicator;
 
@@ -66,6 +69,7 @@ public class HUDController : MonoBehaviour
     
     private Coroutine livesFlashRoutine;
     private Coroutine timerFlashRoutine;
+    private Coroutine levelNameRoutine;
 
     private void Awake()
     {
@@ -134,7 +138,12 @@ public class HUDController : MonoBehaviour
         GameEvents.OnWinScreenShown += OnWinScreenShown;
         
         GameEvents.OnLevelStarted += OnLevelStarted;
+
+        SceneManager.sceneLoaded += OnSceneLoaded;
+        LocalizationSettings.SelectedLocaleChanged += OnLocaleChanged;
+
         RefreshCheckpointIndicatorFromScene();
+        RefreshLevelContextForDebug();
     }
 
     private void OnDisable()
@@ -170,6 +179,9 @@ public class HUDController : MonoBehaviour
         GameEvents.OnWinScreenShown -= OnWinScreenShown;
         
         GameEvents.OnLevelStarted -= OnLevelStarted;
+
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+        LocalizationSettings.SelectedLocaleChanged -= OnLocaleChanged;
     }
 
     #region Event Handlers
@@ -230,21 +242,69 @@ public class HUDController : MonoBehaviour
         RefreshCheckpointIndicatorFromScene(checkpointId);
     }
 
+    private void RefreshLevelContextForDebug()
+    {
+        string activeScene = SceneManager.GetActiveScene().name;
+
+        if (GlobalVariables.levelInfo != null && GlobalVariables.levelInfo.levelScene == activeScene)
+        {
+            currentLevelId = GlobalVariables.levelInfo.levelID;
+            UpdateLevelNameUI();
+            return;
+        }
+
+        if (levelDatabase != null && levelDatabase.TryGetByScene(activeScene, out var inferred))
+        {
+            GlobalVariables.levelInfo = inferred;
+            currentLevelId = inferred.levelID;
+        }
+        else
+        {
+            currentLevelId = activeScene;
+        }
+
+        UpdateLevelNameUI();
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        RefreshLevelContextForDebug();
+    }
+
+    private void OnLocaleChanged(Locale newLocale)
+    {
+        UpdateLevelNameUI();
+    }
+
     private void UpdateLevelNameUI()
     {
         if (levelNameText == null) return;
 
-        try
+        if (levelNameRoutine != null) StopCoroutine(levelNameRoutine);
+        levelNameRoutine = StartCoroutine(UpdateLevelNameUIRoutine());
+    }
+
+    private IEnumerator UpdateLevelNameUIRoutine()
+    {
+        // Ensure localization system is initialized
+        yield return LocalizationSettings.InitializationOperation;
+
+        string key = "Level_" + currentLevelId;
+
+        var op = LocalizationSettings.StringDatabase.GetLocalizedStringAsync("Game Text", key);
+        yield return op;
+
+        if (op.Status == UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationStatus.Succeeded
+            && !string.IsNullOrEmpty(op.Result))
         {
-            // Matches legacy key: "Level_" + levelID
-            string key = "Level_" + currentLevelId;
-            levelNameText.text = LocalizationSettings.StringDatabase.GetLocalizedString("LevelNames", key);
+            levelNameText.text = op.Result;
         }
-        catch
+        else
         {
-            // Safe fallback if localization table/key isn't found
             levelNameText.text = currentLevelId;
         }
+
+        levelNameRoutine = null;
     }
 
     private void OnScoreChanged(int newScore)
