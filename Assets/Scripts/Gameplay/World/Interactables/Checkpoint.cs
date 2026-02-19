@@ -48,7 +48,7 @@ public class Checkpoint : MonoBehaviour
     public bool IsEnabledByMode { get; private set; }
 
     // Position used by other systems to place the player
-    public Vector2 SpawnPosition => transform.position + (Vector3)spawnOffset + new Vector3(0, 0, -1);
+    public Vector2 SpawnPosition => (Vector2)transform.TransformPoint(spawnOffset);
 
     private void Awake()
     {
@@ -264,15 +264,15 @@ public class Checkpoint : MonoBehaviour
     private void OnDrawGizmos()
     {
         Vector3 basePosition = transform.position;
-        Vector3 spawnPosition = (Vector3)SpawnPosition;
+        Vector3 spawnPosition = transform.TransformPoint(spawnOffset);
 
         Gizmos.color = Color.green;
         Gizmos.DrawLine(basePosition, spawnPosition);
         Gizmos.DrawWireSphere(spawnPosition, 0.2f);
 
-#if UNITY_EDITOR
+    #if UNITY_EDITOR
         Handles.Label(spawnPosition + Vector3.up * 0.3f, $"ID {checkpointID}");
-#endif
+    #endif
     }
     #endregion
 }
