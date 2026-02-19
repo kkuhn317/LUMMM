@@ -46,7 +46,6 @@ public class PauseMenuController : MonoBehaviour
 
     [Header("Legacy Parity")]
     [SerializeField] private GameObject[] disablingMenusOnResume;
-    [SerializeField] private bool hideCursorOnResume = true;
 
     [Header("UI Blocking While Paused")]
     [Tooltip("CanvasGroups to make non-interactable while paused (also blocks raycasts so clicks don't pass through).")]
@@ -93,6 +92,7 @@ public class PauseMenuController : MonoBehaviour
             originalMusicVolume = MusicManager.Instance.GetCurrentVolume();
 
         ResolveExternalHandler();
+        CursorHelper.HideCursor();
     }
 
     private void OnEnable()
@@ -344,8 +344,7 @@ public class PauseMenuController : MonoBehaviour
         EnablePlayerInputs();
         ReassignPlayerActionsIfNeeded();
 
-        if (hideCursorOnResume)
-            CursorHelper.HideCursor();
+        CursorHelper.HideCursor();  
 
         GameEvents.TriggerGameResumed();
     }

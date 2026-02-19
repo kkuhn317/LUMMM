@@ -27,13 +27,11 @@ public class Coin : MonoBehaviour
 
     private SpriteRenderer spriteRenderer;
     private BoxCollider2D boxCollider2D;
-    private AudioSource audioSource;
-
+    
     private void Awake() 
     {
         spriteRenderer = GetComponentInChildren<SpriteRenderer>();
         boxCollider2D = GetComponent<BoxCollider2D>();
-        audioSource = GetComponent<AudioSource>();
     }
     
     // Method to get the coin value
@@ -64,20 +62,9 @@ public class Coin : MonoBehaviour
 
     public void PlayCoinSound()
     {
-        // Lazily initialize AudioSource if it hasn't been assigned
-        if (audioSource == null)
+        if (AudioManager.Instance != null)
         {
-            audioSource = GetComponent<AudioSource>();
-            if (audioSource == null)
-            {
-                Debug.LogWarning("AudioSource component is missing on the coin prefab!");
-                return;
-            }
-        }
-
-        if (coinSound != null)
-        {
-            audioSource.PlayOneShot(coinSound);
+            AudioManager.Instance.Play(coinSound, SoundCategory.SFX);
         }
     }
 

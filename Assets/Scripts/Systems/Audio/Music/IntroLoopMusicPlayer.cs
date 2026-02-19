@@ -48,7 +48,7 @@ public class IntroLoopMusicPlayer : MonoBehaviour
         if (!introClip || !loopClip || !source || !loopSource) return;
 
         // Prevent duplicate scheduling (key to avoid overlaps from re-entrant calls)
-        if (_isScheduled) return;
+        // if (_isScheduled) return;
 
         StopInternal(cancelScheduled: true);
 

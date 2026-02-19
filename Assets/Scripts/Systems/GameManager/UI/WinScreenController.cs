@@ -54,6 +54,8 @@ public class WinScreenController : MonoBehaviour
 
     private PlayerRank currentRank = PlayerRank.Default;
     private PlayerRank highestRank = PlayerRank.Default;
+    private PlayerRank highestRankAtLevelStart = PlayerRank.Default;
+    private bool gotNewBestRankThisRun = false;
 
     private bool speedrunTimerVisible = false;
     private bool isWinScreenActive = false;
@@ -70,6 +72,7 @@ public class WinScreenController : MonoBehaviour
         speedrunTimerVisible = GlobalVariables.SpeedrunMode;
 
         LoadHighScore();
+        CaptureHighestRankAtStart();
         ResetWinScreenNotifications();
     }
 
@@ -231,6 +234,7 @@ public class WinScreenController : MonoBehaviour
         if (winScreenContainer != null)
             winScreenContainer.SetActive(false);
 
+        CaptureHighestRankAtStart();
         ResetWinScreenNotifications();
     }
 
@@ -317,6 +321,8 @@ public class WinScreenController : MonoBehaviour
     private void OnHighestRankChanged(PlayerRank rank)
     {
         highestRank = rank;
+        gotNewBestRankThisRun = highestRank > highestRankAtLevelStart;
+
         if (isWinScreenActive)
         {
             UpdateWinScreenRank();
@@ -365,6 +371,19 @@ public class WinScreenController : MonoBehaviour
         UpdateWinScreenNotifications();
     }
 
+    private void CaptureHighestRankAtStart()
+    {
+        string levelId = GlobalVariables.levelInfo?.levelID ?? "unknown";
+        var ps = new ProgressStore();
+
+        if (ps.TryGetLevel(levelId, out var levelData))
+            highestRankAtLevelStart = (PlayerRank)levelData.highestRank;
+        else
+            highestRankAtLevelStart = PlayerRank.Default;
+
+        gotNewBestRankThisRun = false;
+    }
+
     private void ResetWinScreenNotifications()
     {
         if (newHighScoreText != null) newHighScoreText.SetActive(false);
@@ -379,7 +398,7 @@ public class WinScreenController : MonoBehaviour
 
         // New Best Rank (only show if we got a rank better than Default, to avoid showing it on first playthrough with no rank)
         if (newBestRankText != null)
-            newBestRankText.SetActive(highestRank > PlayerRank.Default);
+            newBestRankText.SetActive(gotNewBestRankThisRun);
     }
 
     private void UpdateWinScreenScore()
@@ -411,13 +430,13 @@ public class WinScreenController : MonoBehaviour
     private void UpdateWinScreenCoins()
     {
         if (winScreenCollectedCoinsText != null)
-            winScreenCollectedCoinsText.text = currentCoins.ToString("D2");
+            winScreenCollectedCoinsText.text = currentCoins.ToString("D3");
     }
 
     private void UpdateWinScreenTotalCoins()
     {
         if (winScreenTotalCoinsText != null)
-            winScreenTotalCoinsText.text = totalCoinsInLevel.ToString("D2");
+            winScreenTotalCoinsText.text = totalCoinsInLevel.ToString("D3");
     }
 
     private void UpdateWinScreenSpeedrunTime()

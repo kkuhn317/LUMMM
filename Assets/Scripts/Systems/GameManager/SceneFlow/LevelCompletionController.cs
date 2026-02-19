@@ -61,6 +61,17 @@ public class LevelCompletionController : MonoBehaviour
         }
         
         progressStore.Save();
+
+        if (progressStore.TryGetCheckpoint(levelId, out var cp))
+        {
+            // only clear if it's for THIS level
+            progressStore.ClearCheckpoint();
+            progressStore.Save();
+
+            GlobalVariables.checkpoint = -1;
+            GameEvents.TriggerCheckpointCleared();
+            GameEvents.TriggerCheckpointChanged(GlobalVariables.checkpoint);
+        }
         
         // Check for new high score
         if (GlobalVariables.score > levelData.highScore)
