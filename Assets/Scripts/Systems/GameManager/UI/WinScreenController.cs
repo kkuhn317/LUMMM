@@ -41,7 +41,6 @@ public class WinScreenController : MonoBehaviour
     [SerializeField] private UIInputLock uiInputLock;
     [Tooltip("Failsafe: if for some reason a scene transition does NOT happen, unlock after this many real-time seconds. Set to 0 to never auto-unlock.")]
     [SerializeField] private float unlockFailsafeSeconds = 0.75f;
-    private bool optionPressed;
 
     private int currentScore = 0;
     private int currentHighScore = 0;
@@ -217,7 +216,6 @@ public class WinScreenController : MonoBehaviour
         // If we didn't transition away, re-enable input so the player isn't stuck.
         if (isWinScreenActive)
         {
-            optionPressed = false;
             UnlockWinScreenInput();
 
             // Restore selection to restart button for controller flow

@@ -21,7 +21,6 @@ public class CheepCheep : EnemyAI
 
     [Header("Rotation Limits")]
     [Range(0, 90)] [SerializeField] private float maxAimPitchDeg = 60f; // max up/down from forward 
-    [SerializeField] private float aimHysteresisDeg = 3f; // small buffer to avoid edge jitter
 
     [Header("Bubbles")]
     public GameObject bubble;

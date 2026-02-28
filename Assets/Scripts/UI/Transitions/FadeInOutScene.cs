@@ -143,7 +143,7 @@ public class FadeInOutScene : MonoBehaviour
             }
 
             fadeImage.color = Color.Lerp(startColor, targetColor, elapsed / duration);
-            elapsed += Time.deltaTime;
+            elapsed += Time.unscaledDeltaTime;
             yield return null;
         }
 

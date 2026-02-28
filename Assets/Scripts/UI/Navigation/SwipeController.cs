@@ -152,6 +152,36 @@ public class SwipeController : MonoBehaviour, IDragHandler, IEndDragHandler
         MovePage();
     }
 
+    public void GoToPageInstant(int targetPage)
+    {
+        targetPage = Mathf.Clamp(targetPage, 1, maxPage);
+
+        if (targetPage == currentPage)
+            return;
+
+        // Stop any running page sequence coroutine
+        if (pageSequenceRoutine != null)
+        {
+            StopCoroutine(pageSequenceRoutine);
+            pageSequenceRoutine = null;
+        }
+
+        // Cancel any active tween
+        if (activeTweenId != -1)
+        {
+            LeanTween.cancel(activeTweenId);
+            activeTweenId = -1;
+        }
+
+        currentPage = targetPage;
+        targetPos = initialPosition + (targetPage - 1) * pageStep;
+
+        if (levelPagesRect != null)
+            levelPagesRect.localPosition = targetPos;
+
+        ApplyPageVisualsAndEvents();
+    }
+
     /// <summary>
     /// Applies UI updates and fires OnPageChanged.
     /// Called by both normal MovePage() and sequential steps.

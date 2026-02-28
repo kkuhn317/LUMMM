@@ -57,7 +57,6 @@ public class GiantPipe : MonoBehaviour
     private AudioSource audioSource;
     private Animator animator;
     private bool isRunning = false;
-    private bool isVisible = false;
 
     void Start()
     {
@@ -139,7 +138,6 @@ public class GiantPipe : MonoBehaviour
 
     private void OnBecameVisible()
     {
-        isVisible = true;
         if (!isRunning)
         {
             StartCoroutine(RunAllSequences());
@@ -148,7 +146,7 @@ public class GiantPipe : MonoBehaviour
 
     void OnBecameInvisible()
     {
-        isVisible = false;
+        
     }
 
     void OnDrawGizmos()

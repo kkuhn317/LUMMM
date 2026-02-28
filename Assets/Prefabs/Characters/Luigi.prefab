@@ -81,6 +81,7 @@ GameObject:
   - component: {fileID: 7419182181435639173}
   - component: {fileID: 7419182181435639174}
   - component: {fileID: 7419182181435639175}
+  - component: {fileID: -4451265875668064027}
   m_Layer: 9
   m_Name: Luigi
   m_TagString: Player
@@ -195,6 +196,8 @@ MonoBehaviour:
   pickupSound: {fileID: 8300000, guid: 22ebcc2300d5fe9439867fabd6330357, type: 3}
   dropSound: {fileID: 8300000, guid: 22ebcc2300d5fe9439867fabd6330357, type: 3}
   throwSound: {fileID: 8300000, guid: 62467461e51dddb40931164fd2db1170, type: 3}
+  checkpointFlag: {fileID: 0}
+  checkpointFlagDuration: 2
   canCrawl: 0
   canWallJump: 1
   canWallJumpWhenHoldingObject: 0
@@ -541,3 +544,17 @@ MonoBehaviour:
   m_labelHash: 0
   m_SpriteKey: 0
   m_SpriteHash: 0
+--- !u!114 &-4451265875668064027
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7419182181435639192}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c8a67115d2d1cdf46b1f7889d5785850, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pauseController: {fileID: 0}
+  pauseActionName: Pause

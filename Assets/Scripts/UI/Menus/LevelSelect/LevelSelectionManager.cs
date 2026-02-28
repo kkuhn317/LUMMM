@@ -123,7 +123,7 @@ public class LevelSelectionManager : MonoBehaviour
     {
         if (button == null || button.levelInfo == null) return false;
         return !string.IsNullOrEmpty(button.levelInfo.levelScene) &&
-               (!button.levelInfo.beta || GlobalVariables.cheatBetaMode);
+               (!button.levelInfo.beta || CheatFlags.BetaMode); /*GlobalVariables.cheatBetaMode*/
     }
 
     public void OnLevelButtonClick(LevelButton button)

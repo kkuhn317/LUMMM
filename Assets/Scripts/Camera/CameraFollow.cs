@@ -28,9 +28,6 @@ public class CameraFollow : MonoBehaviour
 
     private Vector3 originalPosition;
     private bool isShaking = false;
-    private float shakeDuration = 0f;
-    private float shakeIntensity = 0.1f;
-    private float shakeDecreaseFactor = 1.0f;
 
     private bool isLookingUp = false;
     public Vector3 offset;

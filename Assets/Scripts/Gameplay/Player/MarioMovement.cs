@@ -19,13 +19,13 @@ public class MarioMovement : MonoBehaviour
     // Other scripts can access these variables to get the player's input
     // Do not use the old input system or raw keyboard input anywhere in the game
     public bool inputLocked = false;
+    private bool isPaused;
     [HideInInspector] public Vector2 moveInput; // The raw directional input from the player's controller
     private const float lowerDeadzone = 0.3f; // The lower limit of the deadzone
     private const float upperDeadzone = 0.9f; // The upper limit of the deadzone
     [HideInInspector] public bool groundPoundInWater = false;
     private float waterGroundPoundDuration = 1f; // Allowed duration in the water
     [HideInInspector] public float waterGroundPoundStartTime;
-    private float lastCancelTime = -1f; // Tracks the time of the last cancel
     private bool jumpPressed = false;
     private bool runPressed = false;
     private bool spinPressed = false;
@@ -450,6 +450,8 @@ public class MarioMovement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        // if (isPaused) return;
+
         direction = moveInput;
 
         SpriteRenderer sprite = GetComponent<SpriteRenderer>();
@@ -615,6 +617,8 @@ public class MarioMovement : MonoBehaviour
 
     private void FixedUpdate()
     {
+        // if (isPaused) return;
+        
         if (frozen)
         {
             return;
@@ -2969,5 +2973,26 @@ public class MarioMovement : MonoBehaviour
 
         checkpointFlag.SetActive(false);
         checkpointFlagRoutine = null;
+    }
+
+    public void SetPaused(bool paused)
+    {
+        isPaused = paused;
+
+        if (paused)
+        {
+            // Stop velocity immediately
+            if (rb != null)
+                rb.velocity = new Vector2(0f, rb.velocity.y);
+
+            // stop animations
+            if (animator != null)
+                animator.speed = 0f;
+        }
+        else
+        {
+            if (animator != null)
+                animator.speed = 1f;
+        }
     }
 }

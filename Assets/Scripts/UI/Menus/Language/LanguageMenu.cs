@@ -1,6 +1,5 @@
 using System.Linq;
 using System.Collections;
-using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -8,7 +7,7 @@ using UnityEngine.Localization;
 using UnityEngine.Localization.Settings;
 using System.Collections.Generic;
 
-public class LanguageMenu : MenuBase
+public class LanguageMenu : MonoBehaviour
 {
     public List<Button> languageButtons;
     public List<string> languageCodes;
@@ -24,24 +23,17 @@ public class LanguageMenu : MenuBase
 
     void OnEnable()
     {
-        // Instant visual selection from saved preference (doesn't depend on Localization init)
+        // Notify global system
+        GlobalEventHandler.TriggerMenuOpened("LanguageMenu");
+        
         SelectFromPrefsOrDefault();
-
-        // When Localization finishes initializing, reconcile selection with the actual runtime locale
         StartCoroutine(ReselectWhenLocalizationReady());
-
         LocalizationSettings.SelectedLocaleChanged += OnSelectedLocaleChanged;
     }
 
     void OnDisable()
     {
         LocalizationSettings.SelectedLocaleChanged -= OnSelectedLocaleChanged;
-    }
-
-    public override void Open()
-    {
-        base.Open();
-        SelectFromPrefsOrDefault();
     }
 
     private IEnumerator ReselectWhenLocalizationReady()
@@ -85,16 +77,14 @@ public class LanguageMenu : MenuBase
             return;
         }
 
-        // Already selected? Do nothing to avoid the “while already selecting” warning.
         if (es.currentSelectedGameObject == go) return;
 
-        // Defer to the next frame to avoid race with other SetSelectedGameObject calls
         StartCoroutine(SelectNextFrame(go));
     }
 
     private IEnumerator SelectNextFrame(GameObject go)
     {
-        yield return null; // wait one frame
+        yield return null;
         var es = EventSystem.current;
         if (es != null && go != null) es.SetSelectedGameObject(go);
     }
@@ -103,7 +93,6 @@ public class LanguageMenu : MenuBase
     {
         try
         {
-            // Ensure Localization is ready before touching AvailableLocales/SelectedLocale
             await LocalizationSettings.InitializationOperation.Task;
 
             var locale = LocalizationSettings.AvailableLocales.Locales

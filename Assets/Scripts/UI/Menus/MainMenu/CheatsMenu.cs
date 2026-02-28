@@ -5,7 +5,7 @@ using UnityEngine.Localization.Settings;
 using UnityEngine.InputSystem;
 using TMPro;
 
-public class CheatsMenu : MenuBase
+public class CheatsMenu : MonoBehaviour, IMenuTransition
 {
     public TMP_InputField cheatInputField;
     public TMP_Text infoText;
@@ -76,8 +76,51 @@ public class CheatsMenu : MenuBase
     private List<CheatObject> activeCheatObjects = new();
     private AudioSource audioSource;
 
-    private void OnEnable()
+    [Header("Animation")]
+    [SerializeField] private Animator animator;
+    [SerializeField] private string showTrigger = "Show";
+    [SerializeField] private string hideTrigger = "Hide";
+
+    public void OnShow(System.Action onComplete)
     {
+        if (animator == null)
+        {
+            Open();
+            onComplete?.Invoke();
+            return;
+        }
+
+        animator.SetTrigger(showTrigger);
+        StartCoroutine(WaitForAnimation(onComplete, onDone: Open));
+    }
+
+    public void OnHide(System.Action onComplete)
+    {
+        if (animator == null)
+        {
+            onComplete?.Invoke();
+            return;
+        }
+
+        animator.SetTrigger(hideTrigger);
+        StartCoroutine(WaitForAnimation(onComplete));
+    }
+
+    private System.Collections.IEnumerator WaitForAnimation(System.Action onComplete, System.Action onDone = null)
+    {
+        // Wait one frame for animator to start transitioning
+        yield return null;
+        while (animator.IsInTransition(0) ||
+               animator.GetCurrentAnimatorStateInfo(0).normalizedTime < 1f)
+            yield return null;
+
+        onDone?.Invoke();
+        onComplete?.Invoke();
+    }
+
+    private void Awake()
+    {
+        // Initialize cheats if needed
         if (cheats == null || cheats.Count == 0)
         {
             cheats = new List<Cheat>();
@@ -91,12 +134,14 @@ public class CheatsMenu : MenuBase
                 ));
             }
         }
+    }
 
-        foreach (var cheatObject in activeCheatObjects)
-        {
-            cheatObject.listItem.GetComponentInChildren<TMP_Text>().text = GetCheatDescription(cheatObject.cheat.code);
-        }
+    private void OnEnable()
+    {
+        // Refresh active cheats display
+        RefreshActiveCheatsDisplay();
 
+        // Subscribe to input
         if (submitAction != null && submitAction.action != null)
         {
             submitAction.action.started += OnSubmitAction;
@@ -106,8 +151,53 @@ public class CheatsMenu : MenuBase
 
     private void OnDisable()
     {
+        // Unsubscribe from input
         if (submitAction != null && submitAction.action != null)
             submitAction.action.started -= OnSubmitAction;
+    }
+
+    private void Start()
+    {
+        audioSource = GetComponent<AudioSource>();
+        
+        // Initialize active cheats display
+        RefreshActiveCheatsDisplay();
+    }
+
+    private void RefreshActiveCheatsDisplay()
+    {
+        // Clear existing list items
+        foreach (var cheatObject in activeCheatObjects)
+        {
+            if (cheatObject.listItem != null)
+                Destroy(cheatObject.listItem);
+        }
+        activeCheatObjects.Clear();
+
+        // Rebuild list from current cheat states
+        foreach (var cheat in cheats)
+        {
+            if (cheat.isActive())
+            {
+                CreateCheatListItem(cheat);
+            }
+        }
+    }
+
+    private void CreateCheatListItem(Cheat cheat)
+    {
+        if (cheatList == null || cheatListItemPrefab == null) return;
+
+        var item = Instantiate(cheatListItemPrefab, cheatList.transform);
+        var textComponent = item.GetComponentInChildren<TMP_Text>();
+        if (textComponent != null)
+            textComponent.text = GetCheatDescription(cheat.code);
+        
+        var button = item.GetComponentInChildren<Button>();
+        if (button != null)
+            button.onClick.AddListener(() => DeactivateCheat(cheat));
+        
+        activeCheatObjects.Add(new CheatObject(cheat, item));
     }
 
     private void OnSubmitAction(InputAction.CallbackContext ctx)
@@ -117,32 +207,22 @@ public class CheatsMenu : MenuBase
             OnEnterButtonPressed();
         }
     }
-
-    private void Start()
-    {
-        audioSource = GetComponent<AudioSource>();
-
-        foreach (var cheat in cheats)
-        {
-            if (cheat.isActive())
-            {
-                var item = Instantiate(cheatListItemPrefab, cheatList.transform);
-                item.GetComponentInChildren<TMP_Text>().text = GetCheatDescription(cheat.code);
-                item.GetComponentInChildren<Button>().onClick.AddListener(() => DeactivateCheat(cheat));
-                activeCheatObjects.Add(new CheatObject(cheat, item));
-            }
-        }
-    }
     
-    public override void Open()
+    public void Open()
     {
-        base.Open();
         cheatInputField.Select();
+        cheatInputField.text = "";
     }
 
     public void OnEnterButtonPressed()
     {
         string inputCode = cheatInputField.text.ToLower().Trim();
+
+        if (string.IsNullOrEmpty(inputCode))
+        {
+            cheatInputField.Select();
+            return;
+        }
 
         Cheat cheat = cheats.Find(c => c.code == inputCode);
         if (cheat != null)
@@ -159,35 +239,69 @@ public class CheatsMenu : MenuBase
 
     private void ActivateCheat(Cheat cheat)
     {
+        if (cheat.isActive())
+        {
+            infoText.text = LocalizationSettings.StringDatabase.GetLocalizedString("Menu_CheatInfoAlreadyActive");
+            cheatInputField.Select();
+            return;
+        }
+
         cheat.applyCheat.Invoke();
-        audioSource.Play();
+        
+        if (audioSource != null)
+            audioSource.Play();
+            
         infoText.text = LocalizationSettings.StringDatabase.GetLocalizedString("Menu_CheatInfoActivated");
         
+        // Add to active list if not already there
         if (!activeCheatObjects.Exists(co => co.cheat.code == cheat.code))
         {
-            var item = Instantiate(cheatListItemPrefab, cheatList.transform);
-            item.GetComponentInChildren<TMP_Text>().text = GetCheatDescription(cheat.code);
-            item.GetComponentInChildren<Button>().onClick.AddListener(() => DeactivateCheat(cheat));
-            activeCheatObjects.Add(new CheatObject(cheat, item));
+            CreateCheatListItem(cheat);
         }
+
+        // Notify that cheat was activated
+        GlobalEventHandler.TriggerMenuOpened($"CheatActivated:{cheat.code}");
     }
 
     private void DeactivateCheat(Cheat cheat)
     {
+        if (!cheat.isActive()) return;
+
         cheat.deactivateCheat.Invoke();
-        audioSource.Play();
+        
+        if (audioSource != null)
+            audioSource.Play();
+            
         infoText.text = LocalizationSettings.StringDatabase.GetLocalizedString("Menu_CheatInfoDeactivated");
         
+        // Remove from active list
         var cheatObject = activeCheatObjects.Find(co => co.cheat.code == cheat.code);
         if (cheatObject != null)
         {
             activeCheatObjects.Remove(cheatObject);
-            Destroy(cheatObject.listItem);
+            if (cheatObject.listItem != null)
+                Destroy(cheatObject.listItem);
         }
+
+        // Notify that cheat was deactivated
+        GlobalEventHandler.TriggerMenuOpened($"CheatDeactivated:{cheat.code}");
     }
 
     public static string GetCheatDescription(string code)
     {
         return LocalizationSettings.StringDatabase.GetLocalizedString($"Cheat_{code}");
+    }
+
+    // Handle closing/back navigation
+    public void OnBackPressed()
+    {
+        if (GUIManager.Instance != null)
+        {
+            GUIManager.Instance.Back();
+        }
+        else
+        {
+            gameObject.SetActive(false);
+        }
     }
 }

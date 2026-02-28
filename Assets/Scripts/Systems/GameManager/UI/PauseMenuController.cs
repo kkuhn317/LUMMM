@@ -13,6 +13,11 @@ public interface IPauseToggleGate
     bool CanTogglePause { get; }
 }
 
+public interface IPausableGameplay
+{
+    void SetPaused(bool paused);
+}
+
 public class PauseMenuController : MonoBehaviour
 {
     public enum PauseMenuMode
@@ -23,32 +28,20 @@ public class PauseMenuController : MonoBehaviour
 
     [Header("UI References")]
     [SerializeField] private GameObject pauseMenu;
-    [SerializeField] private GameObject mainMenuPanel;
-    [SerializeField] private GameObject optionsPanel;
-    [SerializeField] private GameObject resetConfirmPanel;
 
     [Header("Button References")]
     [SerializeField] private Button resumeButton;
-    [SerializeField] private Button optionsButton;
     [SerializeField] private Button restartButton;
     [SerializeField] private Button quitButton;
-    [SerializeField] private Button optionsBackButton;
-    [SerializeField] private Button restartFromBeginningButton;
-    [SerializeField] private Button restartFromCheckpointButton;
+
+    [Header("Reset Confirm")]
+    [SerializeField] private string resetConfirmMenuId = "ResetConfirmMenu";
 
     [Header("Pause Settings")]
     [SerializeField] private float pauseMusicVolumeMultiplier = 0.25f;
     [SerializeField] private bool canPause = true;
 
-    [Header("Input")]
-    [SerializeField] private InputActionReference pauseActionRef;
-    [SerializeField] private InputActionReference cancelActionRef;
-
-    [Header("Legacy Parity")]
-    [SerializeField] private GameObject[] disablingMenusOnResume;
-
     [Header("UI Blocking While Paused")]
-    [Tooltip("CanvasGroups to make non-interactable while paused (also blocks raycasts so clicks don't pass through).")]
     [SerializeField] private CanvasGroup[] blockWhilePaused;
 
     [Header("Shared Player Actions (Optional)")]
@@ -58,84 +51,87 @@ public class PauseMenuController : MonoBehaviour
     [SerializeField] private PauseMenuMode mode = PauseMenuMode.InGamePauseMenu;
 
     [Header("External Pause Handler (Optional)")]
-    [Tooltip("If assigned, this behaviour can react to Pause/Resume and can gate pause toggling (implements IOptionsPauseHandler and/or IPauseToggleGate).")]
-    [SerializeField] private MonoBehaviour optionsPauseHandlerBehaviour; // may implement IOptionsPauseHandler / IPauseToggleGate
+    [SerializeField] private MonoBehaviour optionsPauseHandlerBehaviour;
+
+    [Header("GUIManager Integration")]
+    [SerializeField] private GUIManager guiManager;
+
+    [Header("Cancel Routing (Optional)")]
+    [SerializeField] private UICancelRouter cancelRouter;
+
+    [Tooltip("MenuId used by GUIManager for the pause menu root.")]
+    [SerializeField] private string pauseMenuId;
+
+    [Tooltip("If true, Pause will open pause root via GUIManager.")]
+    [SerializeField] private bool useGUIManagerForNavigation = true;
+
+    [Header("Action Map Switching")]
+    [SerializeField] private string gameplayActionMap = "Mariomove";
+    [SerializeField] private string uiActionMap = "UI";
+
+    [Header("Standalone Options Owner (Optional)")]
+    [SerializeField] private PlayerInput standaloneOwner;
 
     private IOptionsPauseHandler optionsPauseHandler;
-    private IPauseToggleGate pauseToggleGate; // optional single gate from handler
+    private IPauseToggleGate pauseToggleGate;
 
     private bool isPaused = false;
     private float originalMusicVolume = 1f;
     private float previousTimeScale = 1f;
     private int toggleGuardFrame = -1;
-    private InputAction pauseAction;
-    private InputAction cancelAction;
+    private PlayerInput pauseOwner;
 
-    private enum MenuState
-    {
-        Main,
-        Options,
-        ResetConfirm
-    }
+    public PlayerInput PauseOwner => pauseOwner;
+    public bool IsPaused => isPaused;
+    public PauseMenuMode Mode => mode;
 
-    private MenuState currentMenuState = MenuState.Main;
+    private int cancelConsumedFrame = -1;
+
+    // FIX: Cambiado el nombre para coincidir con lo que UICancelRouter llama
+    public void NotifyCancelConsumed() => cancelConsumedFrame = Time.frameCount;
+    public void MarkCancelConsumedThisFrame() => cancelConsumedFrame = Time.frameCount;
+    
+    public bool WasCancelConsumedThisFrame() => cancelConsumedFrame == Time.frameCount;
 
     private void Awake()
     {
-        if (pauseActionRef != null) pauseAction = pauseActionRef.action;
-        if (cancelActionRef != null) cancelAction = cancelActionRef.action;
-
-        if (pauseAction == null)
-            Debug.LogWarning("Pause Action Reference is not assigned in PauseMenuController");
-
         if (MusicManager.Instance != null)
             originalMusicVolume = MusicManager.Instance.GetCurrentVolume();
 
         ResolveExternalHandler();
-        CursorHelper.HideCursor();
+
+        if (mode != PauseMenuMode.StandaloneOptionsMenu)
+            CursorHelper.HideCursor();
     }
 
     private void OnEnable()
     {
-        if (pauseAction != null)
-        {
-            pauseAction.performed += OnPausePerformed;
-            pauseAction.Enable();
-        }
-
-        if (cancelAction != null)
-        {
-            cancelAction.performed += OnCancelPerformed;
-            cancelAction.Enable();
-        }
-
         GameEvents.OnGameOver += OnGameOver;
+        GlobalEventHandler.OnExitRequested += HandleExitRequested;
     }
 
     private void OnDisable()
     {
-        if (pauseAction != null)
-        {
-            pauseAction.performed -= OnPausePerformed;
-            pauseAction.Disable();
-        }
-
-        if (cancelAction != null)
-        {
-            cancelAction.performed -= OnCancelPerformed;
-            cancelAction.Disable();
-        }
-
         GameEvents.OnGameOver -= OnGameOver;
+        GlobalEventHandler.OnExitRequested -= HandleExitRequested;
     }
 
     private void Start()
     {
-        SetupButtonListeners();
+        if (guiManager == null) guiManager = FindObjectOfType<GUIManager>(true);
+        if (cancelRouter == null) cancelRouter = FindObjectOfType<UICancelRouter>(true);
 
-        // In-game pause menu starts hidden.
         if (pauseMenu != null && mode == PauseMenuMode.InGamePauseMenu)
             pauseMenu.SetActive(false);
+
+        if (resumeButton != null)
+            resumeButton.onClick.AddListener(ResumeGame);
+
+        if (restartButton != null)
+            restartButton.onClick.AddListener(OnRestartPressed);
+
+        if (quitButton != null)
+            quitButton.onClick.AddListener(QuitLevel);
     }
 
     private void OnDestroy()
@@ -147,13 +143,25 @@ public class PauseMenuController : MonoBehaviour
         }
     }
 
+    public bool IsAtPauseRoot()
+    {
+        if (guiManager == null) return false;
+        var top = guiManager.GetTopMenuObject();
+        string topName = guiManager.GetMenuName(top);
+        return string.Equals(topName, pauseMenuId);
+    }
+
+    public bool IsMenuOpen(string menuId)
+    {
+        if (guiManager == null || string.IsNullOrEmpty(menuId)) return false;
+        var top = guiManager.GetTopMenuObject();
+        return string.Equals(guiManager.GetMenuName(top), menuId);
+    }
+
     public void InitializeForLevel()
     {
         ResolveExternalHandler();
-
-        // Normalize state on init
-        if (isPaused)
-            ResumeGame();
+        if (isPaused) ResumeGame();
 
         if (MusicManager.Instance != null)
             originalMusicVolume = MusicManager.Instance.GetCurrentVolume();
@@ -162,13 +170,17 @@ public class PauseMenuController : MonoBehaviour
         isPaused = false;
         previousTimeScale = 1f;
         Time.timeScale = 1f;
-        currentMenuState = MenuState.Main;
+        pauseOwner = null;
 
         if (mode == PauseMenuMode.StandaloneOptionsMenu)
         {
-            // Standalone options scene starts paused, but the UI should remain visible always.
             if (pauseMenu != null) pauseMenu.SetActive(true);
-            if (!isPaused) PauseGame();
+            PauseGameInternal(owner: GetStandaloneOwner());
+            if (useGUIManagerForNavigation && guiManager != null)
+            {
+                if (!IsAtPauseRoot())
+                    guiManager.OpenMenu(pauseMenuId, false);
+            }
         }
         else
         {
@@ -179,108 +191,46 @@ public class PauseMenuController : MonoBehaviour
     private void ResolveExternalHandler()
     {
         optionsPauseHandler = optionsPauseHandlerBehaviour as IOptionsPauseHandler;
-        pauseToggleGate = optionsPauseHandlerBehaviour as IPauseToggleGate;
+        pauseToggleGate     = optionsPauseHandlerBehaviour as IPauseToggleGate;
     }
 
-    private bool ToggleAlreadyHandledThisFrame() => toggleGuardFrame == Time.frameCount;
-    private void MarkToggleHandledThisFrame() => toggleGuardFrame = Time.frameCount;
-
-    private void SetupButtonListeners()
+    public void RequestTogglePause(PlayerInput requester)
     {
-        if (resumeButton != null) resumeButton.onClick.AddListener(ResumeGame);
-        if (optionsButton != null) optionsButton.onClick.AddListener(ShowOptions);
-        if (restartButton != null) restartButton.onClick.AddListener(OnRestartPressed);
-        if (quitButton != null) quitButton.onClick.AddListener(QuitLevel);
-        if (optionsBackButton != null) optionsBackButton.onClick.AddListener(ShowMainMenu);
+        if (!CanTogglePauseNow() || !canPause || toggleGuardFrame == Time.frameCount) return;
+        toggleGuardFrame = Time.frameCount;
 
-        if (restartFromBeginningButton != null)
-            restartFromBeginningButton.onClick.AddListener(RestartFromBeginning);
-
-        if (restartFromCheckpointButton != null)
-            restartFromCheckpointButton.onClick.AddListener(RestartFromCheckpoint);
-    }
-
-    private void OnPausePerformed(InputAction.CallbackContext ctx)
-    {
-        if (!CanTogglePauseNow())
-            return;
-
-        if (ToggleAlreadyHandledThisFrame()) return;
-        MarkToggleHandledThisFrame();
-
-        TogglePause();
-    }
-
-    private void OnCancelPerformed(InputAction.CallbackContext ctx)
-    {
-        //TODO: Both pause and cancel are activated on pressing escape. Because of "ToggleAlreadyHandledThisFrame", one can stop the other from working.
-        // Usually pause happens before cancel, but that might not always be true
-        if (!CanTogglePauseNow())
-            return;
-
-        if (!isPaused) return;
-
-        if (ToggleAlreadyHandledThisFrame()) return;
-        MarkToggleHandledThisFrame();
-
-        switch (currentMenuState)
+        if (!isPaused)
         {
-            case MenuState.Options:
-            case MenuState.ResetConfirm:
-                ShowMainMenu();
-                break;
+            pauseOwner = requester != null ? requester : FindObjectOfType<PlayerInput>(true);
+            PauseGameInternal(pauseOwner);
 
-            case MenuState.Main:
-                // In standalone options scene, Cancel should not "resume" and hide the menu.
-                if (mode == PauseMenuMode.InGamePauseMenu)
-                    ResumeGame();
-                break;
+            if (mode == PauseMenuMode.InGamePauseMenu && useGUIManagerForNavigation && guiManager != null)
+                guiManager.OpenMenu(pauseMenuId, hidePrevious: false);
+            return;
         }
-    }
 
-    private void OnGameOver()
-    {
-        if (isPaused)
-            ResumeGame();
-
-        canPause = false;
-    }
-
-    public void TogglePause()
-    {
-        if (!canPause) return;
-
-        if (isPaused) ResumeGame();
-        else PauseGame();
+        if (pauseOwner != null && requester != null && requester != pauseOwner) return;
+        ResumeGame();
     }
 
     private bool CanTogglePauseNow()
     {
-        // First: allow a single handler gate if provided (optional)
-        if (pauseToggleGate != null && !pauseToggleGate.CanTogglePause)
-            return false;
-
-        // Then: scan any active/enabled gates in the scene (RebindSettings, etc.)
+        if (pauseToggleGate != null && !pauseToggleGate.CanTogglePause) return false;
         var behaviours = FindObjectsOfType<MonoBehaviour>(true);
         foreach (var mb in behaviours)
         {
-            if (!(mb is IPauseToggleGate gate)) continue;
-
-            // Only treat the gate as blocking if the component is active & enabled
-            if (!mb.isActiveAndEnabled) continue;
-
-            if (!gate.CanTogglePause)
-                return false;
+            if (mb is IPauseToggleGate gate && mb.isActiveAndEnabled && !gate.CanTogglePause) return false;
         }
-
         return true;
     }
 
-    public void PauseGame()
+    private void PauseGameInternal(PlayerInput owner)
     {
         if (!canPause || isPaused) return;
-
+        
         isPaused = true;
+        pauseOwner = owner ?? pauseOwner ?? FindObjectOfType<PlayerInput>(true);
+        
         previousTimeScale = Time.timeScale;
         Time.timeScale = 0f;
 
@@ -292,22 +242,26 @@ public class PauseMenuController : MonoBehaviour
             foreach (var cg in blockWhilePaused)
             {
                 if (cg == null) continue;
-                cg.interactable = false;
+                cg.interactable   = false;
                 cg.blocksRaycasts = true;
             }
         }
 
-        // Pause menu should be visible in both modes when paused.
         if (pauseMenu != null) pauseMenu.SetActive(true);
+        
+        if (cancelRouter != null) cancelRouter.SetInputSource(pauseOwner);
+        if (guiManager != null) guiManager.SetOwner(pauseOwner);
 
         optionsPauseHandler?.OnPause();
+        SetGameplayControllersPaused(true);
+        SwitchOwnerToUIMap(pauseOwner);
 
-        ShowMainMenu();
+        if (useGUIManagerForNavigation && guiManager != null)
+        {
+            if (!IsAtPauseRoot())
+                guiManager.OpenMenu(pauseMenuId, hidePrevious: false);
+        }
 
-        if (resumeButton != null && resumeButton.gameObject.activeInHierarchy)
-            resumeButton.Select();
-
-        DisablePlayerInputs();
         GameEvents.TriggerGamePaused();
     }
 
@@ -317,37 +271,54 @@ public class PauseMenuController : MonoBehaviour
 
         isPaused = false;
         Time.timeScale = previousTimeScale;
-
         RestoreMusicVolume();
 
         if (blockWhilePaused != null)
         {
             foreach (var cg in blockWhilePaused)
             {
-                if (cg == null) continue;
-                cg.interactable = true;
-                cg.blocksRaycasts = true;
+                if (cg != null) { cg.interactable = true; cg.blocksRaycasts = true; }
             }
         }
 
         optionsPauseHandler?.OnResume();
 
-        // In rebind menu, the "pause menu" is just the "PAUSE" overlay, which should also be disabled
-        if (pauseMenu != null)pauseMenu.SetActive(false);
-
-        if (disablingMenusOnResume != null)
+        if (mode == PauseMenuMode.InGamePauseMenu && useGUIManagerForNavigation && guiManager != null)
         {
-            foreach (var go in disablingMenusOnResume)
-                if (go != null) go.SetActive(false);
+            guiManager.CloseAllMenus();
         }
 
-        EnablePlayerInputs();
-        ReassignPlayerActionsIfNeeded();
+        pauseMenu.SetActive(false);
 
-        CursorHelper.HideCursor();  
+        SetGameplayControllersPaused(false);
+        CursorHelper.HideCursor();
+        
+        var freshInput = ResolveFreshPlayerInput(pauseOwner);
+        SwitchOwnerToGameplayMap(freshInput);
 
+        if (cancelRouter != null) cancelRouter.SetInputSource(null);
+        if (guiManager != null) guiManager.SetOwner(null);
+
+        pauseOwner = null;
         GameEvents.TriggerGameResumed();
     }
+
+    private void OnGameOver() { if (isPaused) ResumeGame(); canPause = false; }
+    private void HandleExitRequested() { if (isPaused) ResumeGame(); }
+
+    private void OnRestartPressed()
+    {
+        if (HasCheckpointSaved() && useGUIManagerForNavigation && guiManager != null && !string.IsNullOrEmpty(resetConfirmMenuId))
+            guiManager.OpenMenu(resetConfirmMenuId, hidePrevious: false);
+        else
+            RestartFromBeginning();
+    }
+
+    private bool HasCheckpointSaved() => FindObjectOfType<CheckpointManager>(true)?.HasCheckpoint ?? false;
+
+    public void RestartFromBeginning() { ResumeGame(); GameManager.Instance?.RestartLevelFromBeginning(); }
+    public void RestartFromCheckpoint() { ResumeGame(); GameManager.Instance?.RestartLevelFromCheckpoint(); }
+    public void QuitLevel() { ResumeGame(); GlobalEventHandler.TriggerExitRequested(); GameManager.Instance?.QuitLevel(); }
 
     private void ReduceMusicVolume()
     {
@@ -358,129 +329,60 @@ public class PauseMenuController : MonoBehaviour
         }
     }
 
-    private void RestoreMusicVolume()
-    {
-        if (MusicManager.Instance != null)
-            MusicManager.Instance.SetCurrentVolume(originalMusicVolume);
-    }
+    private void RestoreMusicVolume() { MusicManager.Instance?.SetCurrentVolume(originalMusicVolume); }
 
-    private void DisablePlayerInputs()
+    private PlayerInput ResolveFreshPlayerInput(PlayerInput reference)
     {
-        var registry = FindObjectOfType<PlayerRegistry>();
+        if (reference == null) return null;
+        int targetIndex = reference.playerIndex;
+        var registry = FindObjectOfType<PlayerRegistry>(true);
         if (registry != null)
         {
             foreach (var player in registry.GetAllPlayers())
-                player?.DisableInputs();
+            {
+                if (player == null) continue;
+                var pi = player.GetComponent<PlayerInput>();
+                if (pi != null && pi.playerIndex == targetIndex) return pi;
+            }
         }
+        return reference;
     }
 
-    private void EnablePlayerInputs()
+    private void SwitchOwnerToUIMap(PlayerInput owner)
     {
-        var registry = FindObjectOfType<PlayerRegistry>();
-        if (registry != null)
-        {
-            foreach (var player in registry.GetAllPlayers())
-                player?.EnableInputs();
-        }
+        if (owner == null || string.IsNullOrEmpty(uiActionMap)) return;
+        owner.SwitchCurrentActionMap(uiActionMap);
     }
 
-    private void ReassignPlayerActionsIfNeeded()
+    private void SwitchOwnerToGameplayMap(PlayerInput owner)
     {
-        if (sharedPlayerActionsAsset == null) return;
+        if (owner == null || string.IsNullOrEmpty(gameplayActionMap)) return;
+        owner.SwitchCurrentActionMap(gameplayActionMap);
+    }
 
-        var registry = FindObjectOfType<PlayerRegistry>();
+    private void SetGameplayControllersPaused(bool paused)
+    {
+        var registry = FindObjectOfType<PlayerRegistry>(true);
         if (registry == null) return;
-
         foreach (var player in registry.GetAllPlayers())
         {
             if (player == null) continue;
-
-            var pi = player.GetComponent<PlayerInput>();
-            if (pi != null)
-                pi.actions = sharedPlayerActionsAsset;
+            foreach (var mb in player.GetComponentsInChildren<MonoBehaviour>(true))
+            {
+                if (mb is IPausableGameplay pg) pg.SetPaused(paused);
+            }
+            var mario = player.GetComponentInChildren<MarioMovement>(true);
+            if (mario != null) mario.enabled = !paused;
         }
     }
 
-    #region Menu Navigation
+    private PlayerInput GetStandaloneOwner() => standaloneOwner != null ? standaloneOwner : FindObjectOfType<PlayerInput>(true);
 
-    public void ShowMainMenu()
+    public void InvokeResumeButton()
     {
-        if (mainMenuPanel != null) mainMenuPanel.SetActive(true);
-        if (optionsPanel != null) optionsPanel.SetActive(false);
-        if (resetConfirmPanel != null) resetConfirmPanel.SetActive(false);
-
-        currentMenuState = MenuState.Main;
-
-        if (resumeButton != null && resumeButton.gameObject.activeInHierarchy)
-            resumeButton.Select();
+        if (resumeButton != null) resumeButton.onClick.Invoke();
+        else ResumeGame();
     }
-
-    public void ShowOptions()
-    {
-        if (mainMenuPanel != null) mainMenuPanel.SetActive(false);
-        if (optionsPanel != null) optionsPanel.SetActive(true);
-        if (resetConfirmPanel != null) resetConfirmPanel.SetActive(false);
-
-        currentMenuState = MenuState.Options;
-
-        if (optionsBackButton != null && optionsBackButton.gameObject.activeInHierarchy)
-            optionsBackButton.Select();
-    }
-
-    private void OnRestartPressed()
-    {
-        if (HasCheckpointSaved())
-            ShowResetConfirm();
-        else
-            RestartFromBeginning();
-    }
-
-    private bool HasCheckpointSaved()
-    {
-        var checkpointManager = FindObjectOfType<CheckpointManager>();
-        if (checkpointManager == null) return false;
-
-        return checkpointManager.HasCheckpoint;
-    }
-
-    public void ShowResetConfirm()
-    {
-        if (mainMenuPanel != null) mainMenuPanel.SetActive(false);
-        if (optionsPanel != null) optionsPanel.SetActive(false);
-        if (resetConfirmPanel != null) resetConfirmPanel.SetActive(true);
-
-        currentMenuState = MenuState.ResetConfirm;
-
-        var cancelButton = resetConfirmPanel.GetComponentInChildren<Button>(true);
-        if (cancelButton != null)
-            cancelButton.Select();
-    }
-
-    #endregion
-
-    #region Level Control
-
-    public void RestartFromBeginning()
-    {
-        ResumeGame();
-        GameManager.Instance?.RestartLevelFromBeginning();
-    }
-
-    public void RestartFromCheckpoint()
-    {
-        ResumeGame();
-        GameManager.Instance?.RestartLevelFromCheckpoint();
-    }
-
-    public void QuitLevel()
-    {
-        ResumeGame();
-        GameManager.Instance?.QuitLevel();
-    }
-
-    #endregion
 
     public void SetPauseEnabled(bool enabled) => canPause = enabled;
-
-    public bool IsPaused => isPaused;
 }

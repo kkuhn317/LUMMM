@@ -21,28 +21,24 @@ public class HoverEffect : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
     // Called when the pointer enters the UI element or object
     public void OnPointerEnter(PointerEventData eventData)
     {
-        isHovering = true;
         StartHoverEffect();
     }
 
     // Called when the pointer exits the UI element or object
     public void OnPointerExit(PointerEventData eventData)
     {
-        isHovering = false;
         StopHoverEffect();
     }
 
      // Called when the element is selected via keyboard navigation (Tab key)
     public void OnSelect(BaseEventData eventData)
     {
-        isHovering = true;
         StartHoverEffect();
     }
 
     // Called when the element is deselected
     public void OnDeselect(BaseEventData eventData)
     {
-        isHovering = false;
         StopHoverEffect();
     }
 
@@ -60,14 +56,12 @@ public class HoverEffect : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
                 if (RectTransformUtility.RectangleContainsScreenPoint(
                     GetComponent<RectTransform>(), touchPosition, Camera.main))
                 {
-                    isHovering = true;
                     StartHoverEffect();
                 }
             }
             else if (touch.phase == UnityEngine.InputSystem.TouchPhase.Ended ||
                      touch.phase == UnityEngine.InputSystem.TouchPhase.Canceled)
             {
-                isHovering = false;
                 StopHoverEffect();
             }
         }
@@ -75,6 +69,9 @@ public class HoverEffect : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
 
     private void StartHoverEffect()
     {
+        if (isHovering) return;
+        isHovering = true;
+
         // Implement what happens when the hover starts
         Debug.Log("Hover started");
         hoverPanel.SetActive(true);
@@ -82,6 +79,9 @@ public class HoverEffect : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
 
     private void StopHoverEffect()
     {
+        if (!isHovering) return;
+        isHovering = false;
+
         // Implement what happens when the hover ends
         Debug.Log("Hover ended");
         hoverPanel.SetActive(false);

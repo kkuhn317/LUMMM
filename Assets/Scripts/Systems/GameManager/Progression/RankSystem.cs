@@ -15,10 +15,20 @@ public class RankSystem : MonoBehaviour
 
     private PlayerRank currentRank = PlayerRank.Default;
     private PlayerRank highestRank = PlayerRank.Default;
-    private PlayerRank previousRank = PlayerRank.Default;
+    private PlayerRank attemptBestRank = PlayerRank.Default;
 
     private string levelId;
     private ProgressStore progressStore;
+
+    private void OnEnable()
+    {
+        GameEvents.OnLevelComplete += OnLevelComplete;
+    }
+
+    private void OnDisable()
+    {
+        GameEvents.OnLevelComplete -= OnLevelComplete;
+    }
 
     private void Start()
     {
@@ -26,11 +36,15 @@ public class RankSystem : MonoBehaviour
         progressStore = new ProgressStore();
 
         LoadHighestRank();
+
+        // attempt starts at whatever is already saved, but we won't overwrite it unless level completes
+        attemptBestRank = highestRank;
+
         ForceUpdateCurrentRank(invokeEvenIfSame: true);
-        
+
         GameEvents.TriggerRankChanged(currentRank);
         GameEvents.TriggerHighestRankChanged(highestRank);
-        
+
         onSetCurrentRank?.Invoke();
     }
 
@@ -46,22 +60,25 @@ public class RankSystem : MonoBehaviour
         if (!invokeEvenIfSame && newRank == currentRank)
             return;
 
-        if (newRank != currentRank)
+        currentRank = newRank;
+        GameEvents.TriggerRankChanged(currentRank);
+
+        if (currentRank > attemptBestRank)
         {
-            previousRank = currentRank;
-            currentRank = newRank;
-
-            GameEvents.TriggerRankChanged(currentRank);
-
-            if (currentRank > highestRank)
-            {
-                highestRank = currentRank;
-                SaveHighestRank();
-                GameEvents.TriggerHighestRankChanged(highestRank);
-            }
+            attemptBestRank = currentRank;
         }
-        
+
         onSetCurrentRank?.Invoke();
+    }
+
+    private void OnLevelComplete()
+    {
+        if (attemptBestRank > highestRank)
+        {
+            highestRank = attemptBestRank;
+            SaveHighestRank();
+            GameEvents.TriggerHighestRankChanged(highestRank);
+        }
     }
 
     private PlayerRank CalculateRank(int score)
@@ -92,12 +109,6 @@ public class RankSystem : MonoBehaviour
         }
     }
 
-    public void RefreshRank()
-    {
-        ForceUpdateCurrentRank(invokeEvenIfSame: true);
-    }
-
     public PlayerRank GetCurrentRank() => currentRank;
     public PlayerRank GetHighestRank() => highestRank;
-    public PlayerRank GetPreviousRank() => previousRank;
 }

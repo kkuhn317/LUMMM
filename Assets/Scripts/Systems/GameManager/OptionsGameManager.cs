@@ -22,7 +22,7 @@ public class OptionsGameManager : MonoBehaviour, IOptionsPauseHandler, IPauseTog
     {
         Debug.Log($"OnPause called - rebindCanvasGroup: {rebindCanvasGroup != null}, interactable was: {rebindCanvasGroup?.interactable}");
         rebindCanvasGroup.interactable = true;
-        rebindCanvasGroup.blocksRaycasts = false;
+        rebindCanvasGroup.blocksRaycasts = true;
         Debug.Log($"rebindCanvasGroup.interactable is now: {rebindCanvasGroup.interactable}");
 
         if (EventSystem.current != null)
@@ -39,8 +39,10 @@ public class OptionsGameManager : MonoBehaviour, IOptionsPauseHandler, IPauseTog
 
     public void OnResume()
     {
+        Debug.Log($"OnResume called!\n{System.Environment.StackTrace}");
+        
         rebindCanvasGroup.interactable = false;
-        rebindCanvasGroup.blocksRaycasts = true;
+        rebindCanvasGroup.blocksRaycasts = false;
 
         if (EventSystem.current != null)
             EventSystem.current.sendNavigationEvents = false;

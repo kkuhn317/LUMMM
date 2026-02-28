@@ -1,14 +1,12 @@
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
-using UnityEngine.InputSystem;
 using UnityEngine.EventSystems;
 
 public class VolumeSettingHandler : MonoBehaviour, ISettingHandler
 {
-    [SettingTypeFilter(SettingType.MasterVolumeKey, SettingType.BGMVolumeKey, SettingType.SFXVolumeKey/*, SettingType.VoiceVolumeKey*/)]
+    [SettingTypeFilter(SettingType.MasterVolumeKey, SettingType.BGMVolumeKey, SettingType.SFXVolumeKey)]
     public SettingType settingType;
-    public CustomSlider slider; // Changed from Slider to CustomSlider
+    public CustomSlider slider;
     public TMP_Text valueText;
 
     public Color minVolumeColor = new(1f, 0.2f, 0.2f);
@@ -24,34 +22,61 @@ public class VolumeSettingHandler : MonoBehaviour, ISettingHandler
 
     public SettingType SettingType => settingType;
 
+    private void EnsureInputActions()
+    {
+        if (inputActions == null)
+            inputActions = new Mario();
+    }
+
     private void Awake()
     {
-        inputActions = new Mario();
+        EnsureInputActions();
     }
 
     private void OnEnable()
     {
+        EnsureInputActions();
         inputActions.Enable();
     }
 
     private void OnDisable()
     {
-        inputActions.Disable();
+        if (inputActions != null)
+            inputActions.Disable();
     }
 
     private void OnDestroy()
     {
-        inputActions?.Dispose();
+        if (inputActions != null)
+        {
+            inputActions.Dispose();
+            inputActions = null;
+        }
     }
 
     private void Start()
     {
+        if (slider == null)
+        {
+            Debug.LogError("[VolumeSettingHandler] Slider reference is missing.", this);
+            return;
+        }
+
+        if (valueText == null)
+        {
+            Debug.LogError("[VolumeSettingHandler] ValueText reference is missing.", this);
+            return;
+        }
+
         slider.onValueChanged.AddListener(OnValueChanged);
         ApplyFromSaved();
     }
 
     private void Update()
     {
+        if (slider == null || EventSystem.current == null)
+            return;
+
         bool isSelectedNow = EventSystem.current.currentSelectedGameObject == slider.gameObject;
 
         if (wasSelected && !isSelectedNow)
@@ -91,6 +116,9 @@ public class VolumeSettingHandler : MonoBehaviour, ISettingHandler
 
     public void ApplyFromSaved()
     {
+        if (slider == null)
+            return;
+
         float saved = PlayerPrefs.GetFloat(SettingsKeys.Get(settingType), 0.5f);
         slider.SetValueWithoutNotify(saved);
         SetText(saved);
@@ -101,16 +129,27 @@ public class VolumeSettingHandler : MonoBehaviour, ISettingHandler
 
     public void Save()
     {
+        if (slider == null)
+            return;
+
         PlayerPrefs.SetFloat(SettingsKeys.Get(settingType), slider.value);
         PlayerPrefs.Save();
     }
 
     public void Apply(int index) { }
     public void Apply(bool value) { }
-    public void RefreshUI() => OnValueChanged(slider.value);
+
+    public void RefreshUI()
+    {
+        if (slider != null)
+            OnValueChanged(slider.value);
+    }
 
     private void SetText(float volume)
     {
+        if (valueText == null)
+            return;
+
         int intVolume = Mathf.RoundToInt(volume * 100);
         valueText.text = intVolume.ToString("00") + "%";
 

@@ -57,13 +57,10 @@ public class HUDController : MonoBehaviour
     private bool infiniteTimeActive = false;
     private bool infiniteLivesActive = false;
     private bool speedrunTimerVisible = false;
-    private bool isPaused = false;
     private bool isGameOverActive = false;
     private bool isWinScreenActive = false;
 
-    // Original colors for animations
-    private Color originalScoreColor;
-    private Color originalCoinColor;
+    // Original colors for animations - only keep the ones we actually use
     private Color originalTimerColor;
     private Color originalLivesColor;
     
@@ -73,11 +70,10 @@ public class HUDController : MonoBehaviour
 
     private void Awake()
     {
-        // Store original colors for animations
-        if (scoreText != null) originalScoreColor = scoreText.color;
-        if (coinText != null) originalCoinColor = coinText.color;
+        // Store original colors for animations - only for elements we animate
         if (timerText != null) originalTimerColor = timerText.color;
         if (livesText != null) originalLivesColor = livesText.color;
+        // scoreText and coinText colors are never used in animations (commented out code)
     }
 
     private void Start()
@@ -206,7 +202,7 @@ public class HUDController : MonoBehaviour
     }
 
     private void OnLevelContextChanged(GameEvents.LevelContext ctx)
-{
+    {
         currentLevelId = string.IsNullOrEmpty(ctx.LevelId) ? "unknown" : ctx.LevelId;
         startingTimeFromLevel = ctx.StartingTime > 0 ? ctx.StartingTime : 300f;
 
@@ -317,11 +313,6 @@ public class HUDController : MonoBehaviour
     {
         currentHighScore = newHighScore;
         UpdateHighScoreUI();
-        
-        /*if (enableAnimations && newHighScore > 0)
-        {
-            StartCoroutine(AnimateTextColor(highScoreText, flashColor, animationDuration));
-        }*/
     }
 
     private void OnLivesChanged(int newLives)
@@ -338,11 +329,7 @@ public class HUDController : MonoBehaviour
 
     private void OnScoreAdded(int amountAdded)
     {
-        /*if (enableAnimations && scoreText != null)
-        {
-            // Show popup text with +amount
-            StartCoroutine(AnimateTextColor(scoreText, flashColor, 0.3f));
-        }*/
+        // Animation is currently disabled in commented code
     }
 
     private void OnCoinsChanged(int newCoins)
@@ -353,10 +340,7 @@ public class HUDController : MonoBehaviour
 
     private void OnCoinsAdded(int amountAdded)
     {
-        /*if (enableAnimations && coinText != null)
-        {
-            StartCoroutine(AnimateTextColor(coinText, flashColor, 0.3f));
-        }*/
+        // Animation is currently disabled in commented code
     }
 
     private void OnExtraLifeGained()
@@ -364,7 +348,6 @@ public class HUDController : MonoBehaviour
         currentLives = GlobalVariables.lives;
         UpdateLivesUI();
         
-        // NOTE: ref is just a reference to the original, not a copy, so it will update the actual routine variable
         FlashText(ref livesFlashRoutine, livesText, originalLivesColor, Color.green, animationDuration);
     }
 
@@ -456,7 +439,6 @@ public class HUDController : MonoBehaviour
 
     private void OnGamePaused()
     {
-        isPaused = true;
         // Optional: dim HUD
         if (hudCanvas != null)
         {
@@ -470,7 +452,6 @@ public class HUDController : MonoBehaviour
 
     private void OnGameResumed()
     {
-        isPaused = false;
         // Restore HUD
         if (hudCanvas != null)
         {
@@ -717,7 +698,7 @@ public class HUDController : MonoBehaviour
 
         if (routine != null) StopCoroutine(routine);
 
-        // Importante: fuerza un "base" estable antes de animar (evita baseColor a mitad)
+        // Set base color before animating
         text.color = baseColor;
 
         routine = StartCoroutine(AnimateTextColor(text, baseColor, flash, duration));
@@ -730,7 +711,7 @@ public class HUDController : MonoBehaviour
         float t = 0f;
         while (t < duration)
         {
-            t += Time.deltaTime; // se congela con pausa y continúa al quitar pausa
+            t += Time.deltaTime;
             float k = Mathf.Clamp01(t / duration);
             text.color = Color.Lerp(baseColor, flashColor, k);
             yield return null;
@@ -753,7 +734,6 @@ public class HUDController : MonoBehaviour
         if (image == null) yield break;
         
         Vector3 originalScale = image.rectTransform.localScale;
-        Vector3 targetScaleVec = originalScale * targetScale;
         float elapsed = 0f;
         
         while (elapsed < duration)
@@ -773,7 +753,6 @@ public class HUDController : MonoBehaviour
         if (image == null) yield break;
         
         Vector3 originalScale = image.rectTransform.localScale;
-        Vector3 targetScaleVec = originalScale * targetScale;
         float elapsed = 0f;
         
         while (elapsed < duration)

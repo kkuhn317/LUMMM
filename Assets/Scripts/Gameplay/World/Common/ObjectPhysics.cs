@@ -355,7 +355,7 @@ public class ObjectPhysics : MonoBehaviour
                 CheckLava(pos);
             }
 
-            if (DontFallOffLedges && objectState == ObjectState.grounded)
+            if (DontFallOffLedges && objectState == ObjectState.grounded && !onMovingPlatform)
             {
                 CheckLedges(pos);
             }

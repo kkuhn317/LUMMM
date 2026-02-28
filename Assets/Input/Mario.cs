@@ -104,7 +104,7 @@ public partial class @Mario: IInputActionCollection2, IDisposable
                     ""name"": ""Run"",
                     ""type"": ""Button"",
                     ""id"": ""0a049029-55c7-40b8-8aa1-5f0302846462"",
-                    ""expectedControlType"": ""Button"",
+                    ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": true
@@ -166,7 +166,7 @@ public partial class @Mario: IInputActionCollection2, IDisposable
                 {
                     ""name"": ""Pause"",
                     ""type"": ""Button"",
-                    ""id"": ""4d194031-9a55-4f90-ae7a-c150b9133009"",
+                    ""id"": ""aa27c529-0777-4a47-a776-fa4fdbd2e376"",
                     ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
@@ -495,7 +495,7 @@ public partial class @Mario: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
-                    ""id"": ""b3ed5bcb-4f45-47ce-89b4-c59e97dc1507"",
+                    ""id"": ""2c6a7be0-1ab7-4e44-9009-f64d4719f376"",
                     ""path"": ""<Keyboard>/escape"",
                     ""interactions"": """",
                     ""processors"": """",
@@ -506,7 +506,7 @@ public partial class @Mario: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
-                    ""id"": ""63ef63ff-809c-4abf-8243-28a915011d4c"",
+                    ""id"": ""56daec68-1412-4ece-bff3-b4aba90c880c"",
                     ""path"": ""<Keyboard>/p"",
                     ""interactions"": """",
                     ""processors"": """",
@@ -517,7 +517,7 @@ public partial class @Mario: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
-                    ""id"": ""4884a8be-b1e8-48ce-88fb-8a819b7db020"",
+                    ""id"": ""a8877390-ec6d-4bf1-a489-750af1c2dffd"",
                     ""path"": ""<Gamepad>/start"",
                     ""interactions"": """",
                     ""processors"": """",
@@ -618,6 +618,15 @@ public partial class @Mario: IInputActionCollection2, IDisposable
                     ""type"": ""PassThrough"",
                     ""id"": ""38b2656d-7c5e-4f4b-9f87-001415c9fa93"",
                     ""expectedControlType"": ""Quaternion"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Pause"",
+                    ""type"": ""Button"",
+                    ""id"": ""7ad29d66-3992-4be8-a212-cf9d3fe8e1b7"",
+                    ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
@@ -1145,6 +1154,39 @@ public partial class @Mario: IInputActionCollection2, IDisposable
                     ""action"": ""StepModifier50"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""f09dec4e-da32-4bd2-8851-50c11d9e306a"",
+                    ""path"": ""<Keyboard>/escape"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""Pause"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""dfdadb04-16cb-4ced-90a4-c83463e3df56"",
+                    ""path"": ""<Keyboard>/p"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""Pause"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""745ee2fe-e1c3-4fab-bdd1-e62d34d2e22c"",
+                    ""path"": ""<Gamepad>/start"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Gamepad"",
+                    ""action"": ""Pause"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -1235,6 +1277,7 @@ public partial class @Mario: IInputActionCollection2, IDisposable
         m_UI_RightClick = m_UI.FindAction("RightClick", throwIfNotFound: true);
         m_UI_TrackedDevicePosition = m_UI.FindAction("TrackedDevicePosition", throwIfNotFound: true);
         m_UI_TrackedDeviceOrientation = m_UI.FindAction("TrackedDeviceOrientation", throwIfNotFound: true);
+        m_UI_Pause = m_UI.FindAction("Pause", throwIfNotFound: true);
         m_UI_StepModifier10 = m_UI.FindAction("StepModifier10", throwIfNotFound: true);
         m_UI_StepModifier25 = m_UI.FindAction("StepModifier25", throwIfNotFound: true);
         m_UI_StepModifier50 = m_UI.FindAction("StepModifier50", throwIfNotFound: true);
@@ -1513,6 +1556,7 @@ public partial class @Mario: IInputActionCollection2, IDisposable
     private readonly InputAction m_UI_RightClick;
     private readonly InputAction m_UI_TrackedDevicePosition;
     private readonly InputAction m_UI_TrackedDeviceOrientation;
+    private readonly InputAction m_UI_Pause;
     private readonly InputAction m_UI_StepModifier10;
     private readonly InputAction m_UI_StepModifier25;
     private readonly InputAction m_UI_StepModifier50;
@@ -1567,6 +1611,10 @@ public partial class @Mario: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "UI/TrackedDeviceOrientation".
         /// </summary>
         public InputAction @TrackedDeviceOrientation => m_Wrapper.m_UI_TrackedDeviceOrientation;
+        /// <summary>
+        /// Provides access to the underlying input action "UI/Pause".
+        /// </summary>
+        public InputAction @Pause => m_Wrapper.m_UI_Pause;
         /// <summary>
         /// Provides access to the underlying input action "UI/StepModifier10".
         /// </summary>
@@ -1635,6 +1683,9 @@ public partial class @Mario: IInputActionCollection2, IDisposable
             @TrackedDeviceOrientation.started += instance.OnTrackedDeviceOrientation;
             @TrackedDeviceOrientation.performed += instance.OnTrackedDeviceOrientation;
             @TrackedDeviceOrientation.canceled += instance.OnTrackedDeviceOrientation;
+            @Pause.started += instance.OnPause;
+            @Pause.performed += instance.OnPause;
+            @Pause.canceled += instance.OnPause;
             @StepModifier10.started += instance.OnStepModifier10;
             @StepModifier10.performed += instance.OnStepModifier10;
             @StepModifier10.canceled += instance.OnStepModifier10;
@@ -1685,6 +1736,9 @@ public partial class @Mario: IInputActionCollection2, IDisposable
             @TrackedDeviceOrientation.started -= instance.OnTrackedDeviceOrientation;
             @TrackedDeviceOrientation.performed -= instance.OnTrackedDeviceOrientation;
             @TrackedDeviceOrientation.canceled -= instance.OnTrackedDeviceOrientation;
+            @Pause.started -= instance.OnPause;
+            @Pause.performed -= instance.OnPause;
+            @Pause.canceled -= instance.OnPause;
             @StepModifier10.started -= instance.OnStepModifier10;
             @StepModifier10.performed -= instance.OnStepModifier10;
             @StepModifier10.canceled -= instance.OnStepModifier10;
@@ -1940,6 +1994,13 @@ public partial class @Mario: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnTrackedDeviceOrientation(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Pause" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnPause(InputAction.CallbackContext context);
         /// <summary>
         /// Method invoked when associated input action "StepModifier10" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>
