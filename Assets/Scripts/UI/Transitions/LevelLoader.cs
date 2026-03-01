@@ -38,16 +38,19 @@ public class LevelLoader : MonoBehaviour
         isTransitioning = true;
 
         if (EventSystem.current != null)
-        {
             EventSystem.current.sendNavigationEvents = false;
-            // EventSystem.current.SetSelectedGameObject(null); // Remove selected button, uncommeting this will disables the indicator as well
-        }
 
         transition.SetTrigger("Start");
         audioSource.Play();
 
+        // Start loading in background immediately, but don't activate yet
+        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(levelIndex);
+        asyncLoad.allowSceneActivation = false;
+
         yield return new WaitForSeconds(transitionChangeDelay);
-        SceneManager.LoadScene(levelIndex);
+
+        // Scene is already loaded, just activate it now
+        asyncLoad.allowSceneActivation = true;
     }
 
     IEnumerator LoadSceneByNameCoroutine(string sceneName)
@@ -55,14 +58,15 @@ public class LevelLoader : MonoBehaviour
         isTransitioning = true;
 
         if (EventSystem.current != null)
-        {
             EventSystem.current.sendNavigationEvents = false;
-            // EventSystem.current.SetSelectedGameObject(null); // Remove selected button, uncommeting this will disables the indicator as well 
-        }
 
         transition.SetTrigger("Start");
 
+        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(sceneName);
+        asyncLoad.allowSceneActivation = false;
+
         yield return new WaitForSeconds(transitionChangeDelay);
-        SceneManager.LoadScene(sceneName);
+
+        asyncLoad.allowSceneActivation = true;
     }
 }

@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Events;
+using System.Collections;
 
 public class ButtonSelector : MonoBehaviour
 {
@@ -25,6 +26,15 @@ public class ButtonSelector : MonoBehaviour
 
         lastSelectedObject = EventSystem.current?.currentSelectedGameObject;
         ignoreNextSelectionChangeSfx = true;
+
+        StartCoroutine(DelayedRefresh());
+    }
+
+    private IEnumerator DelayedRefresh()
+    {
+        // Wait for UI layout and EventSystem to fully initialize
+        yield return null;
+        yield return new WaitForEndOfFrame();
 
         ForceRefreshToCurrentSelection();
     }

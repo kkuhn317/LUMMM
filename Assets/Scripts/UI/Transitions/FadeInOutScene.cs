@@ -100,11 +100,13 @@ public class FadeInOutScene : MonoBehaviour
             pendingSceneName = ""; // Clear the queue
         }
         
-        // Load the scene
-        SceneManager.LoadScene(sceneName);
-        
-        // Wait for scene to initialize (one frame, just in case)
-        yield return null;
+        // Load the scene asynchronously so we can wait for it to fully complete
+        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(sceneName);
+        while (!asyncLoad.isDone)
+            yield return null;
+
+        // Wait an extra frame for scene objects to fully initialize
+        yield return new WaitForEndOfFrame();
         
         // Fade out if requested
         if (fadeOutAfterLoad)
@@ -130,39 +132,25 @@ public class FadeInOutScene : MonoBehaviour
 
     private IEnumerator FadeToColor(Color targetColor, float duration)
     {
+        if (fadeImage == null) yield break;
+
         fadeImage.gameObject.SetActive(true);
         Color startColor = fadeImage.color;
         float elapsed = 0f;
 
         while (elapsed < duration)
         {
-            // If a new scene was queued during fade-out, we can break early
             if (targetColor.a == 0f && !string.IsNullOrEmpty(pendingSceneName))
-            {
                 break;
-            }
 
             fadeImage.color = Color.Lerp(startColor, targetColor, elapsed / duration);
-            elapsed += Time.unscaledDeltaTime;
+            elapsed += Mathf.Min(Time.unscaledDeltaTime, 0.05f); // Clamp to max 50ms per frame
             yield return null;
         }
 
         fadeImage.color = targetColor;
 
-        // Hide the image if we're fully transparent
         if (targetColor.a == 0f)
             fadeImage.gameObject.SetActive(false);
-    }
-
-    // This is just optional helper methods to check fade state
-    // they're not strictly necessary, I just added them for convenience in the future
-    public bool IsFadingIn()
-    {
-        return isTransitioning && fadeImage.color.a < 1f;
-    }
-
-    public bool IsFadingOut()
-    {
-        return isTransitioning && fadeImage.color.a > 0f;
     }
 }
