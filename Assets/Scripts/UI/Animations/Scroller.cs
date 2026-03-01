@@ -16,24 +16,28 @@ public class Scroller : MonoBehaviour
 
     void Start()
     {
-        var c = _img.color; c.a = 1f; _img.color = c;
+        if (_img == null)
+        {
+            Debug.LogError("Scroller: RawImage is not assigned.", this);
+            enabled = false;
+            return;
+        }
 
+        _colorChangeDuration = Mathf.Max(0.01f, _colorChangeDuration);
         _rect = _img.uvRect;
         _invColorDuration = 1f / _colorChangeDuration;
     }
 
     void Update()
     {
-        // UV scroll
-        _rect.x += _x * Time.unscaledDeltaTime;
-        _rect.y += _y * Time.unscaledDeltaTime;
+        _rect.x = Mathf.Repeat(_rect.x + _x * Time.unscaledDeltaTime, 1f);
+        _rect.y = Mathf.Repeat(_rect.y + _y * Time.unscaledDeltaTime, 1f);
         _img.uvRect = _rect;
 
-        // Color interpolation
-        if (_colors.Count > 1)
+        if (_colors != null && _colors.Count > 1)
         {
             _colorChangeTimer += Time.unscaledDeltaTime;
-            float t = _colorChangeTimer * _invColorDuration;
+            float t = Mathf.Clamp01(_colorChangeTimer * _invColorDuration);
 
             _img.color = Color.Lerp(
                 _colors[_currentColorIndex],
