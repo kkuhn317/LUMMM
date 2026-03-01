@@ -306,7 +306,7 @@ public class GUIManager : MonoBehaviour
         foreach (var menu in menuHistory)
         {
             var cg = GetCanvasGroup(menu);
-            cg.interactable   = false;
+            cg.interactable = false;
             cg.blocksRaycasts = false;
         }
 
@@ -320,7 +320,7 @@ public class GUIManager : MonoBehaviour
             // Ensure the overlay panel itself is interactable before selecting.
             // Previously-closed panels may have interactable=false from Back() cleanup.
             var cg = GetCanvasGroup(menuToOpen);
-            cg.interactable   = true;
+            cg.interactable = true;
             cg.blocksRaycasts = true;
 
             SelectDefault(menuName);
@@ -339,16 +339,6 @@ public class GUIManager : MonoBehaviour
                 rootBackButton.onClick.Invoke();
             }
             return;
-        }
-
-        GameObject topMenu = menuHistory.Pop();
-        HidePanel(topMenu);
-
-        // Asegurarnos de que el menú que queda ahora arriba tenga el foco
-        if (menuHistory.Count > 0)
-        {
-            GameObject nextMenu = menuHistory.Peek();
-            SelectDefault(reverseLookup[nextMenu]); // Esto asegura que EventSystem no sea null
         }
 
         if (isTransitioning)
@@ -372,6 +362,7 @@ public class GUIManager : MonoBehaviour
                 if (returnTarget != null) SelectImmediate(returnTarget);
                 else SelectDefaultForPanel(previousMenu);
                 FinishTransition();
+                GlobalEventHandler.TriggerGUIPop();
             });
         });
     }
@@ -388,7 +379,7 @@ public class GUIManager : MonoBehaviour
 
         // Previous menu stays visible — just unblock it
         var cg = GetCanvasGroup(previousMenu);
-        cg.interactable   = true;
+        cg.interactable = true;
         cg.blocksRaycasts = true;
 
         currentActiveMenu = previousMenu;
@@ -443,7 +434,7 @@ public class GUIManager : MonoBehaviour
             // Briefly block interaction for one frame so the input that triggered
             // CloseAllMenus (e.g. gamepad B / keyboard Escape) cannot immediately
             // click a button on the root panel before the EventSystem clears it.
-            cg.interactable   = false;
+            cg.interactable = false;
             cg.blocksRaycasts = false;
 
             StartCoroutine(RestoreRootInteractionNextFrame(cg));
@@ -491,7 +482,7 @@ public class GUIManager : MonoBehaviour
                 if (currentActiveMenu != null)
                 {
                     var cg = GetCanvasGroup(currentActiveMenu);
-                    cg.interactable   = true;
+                    cg.interactable = true;
                     cg.blocksRaycasts = true;
 
                     if (returnTarget != null)
@@ -617,7 +608,7 @@ public class GUIManager : MonoBehaviour
         yield return null;
         if (cg != null)
         {
-            cg.interactable   = true;
+            cg.interactable = true;
             cg.blocksRaycasts = true;
         }
         SelectDefaultForPanel(currentActiveMenu);
