@@ -245,6 +245,8 @@ public class WinScreenController : MonoBehaviour
         
         UpdateWinScreenUI();
 
+        CursorHelper.ShowCursor();
+
         if (restartButton != null && EventSystem.current != null)
         {
             EventSystem.current.SetSelectedGameObject(null);
