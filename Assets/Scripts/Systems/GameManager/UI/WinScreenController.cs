@@ -58,6 +58,7 @@ public class WinScreenController : MonoBehaviour
 
     private bool speedrunTimerVisible = false;
     private bool isWinScreenActive = false;
+    private bool isClosingWinScreen;
 
     private void Start()
     {
@@ -159,12 +160,13 @@ public class WinScreenController : MonoBehaviour
     {
         if (GameManager.Instance == null)
         {
-            Debug.LogError("WinScreenController: GameManagerRefactored.Instance is null");
+            Debug.LogError("WinScreenController: GameManager.Instance is null");
             return;
         }
 
+        isClosingWinScreen = true;
+        isWinScreenActive = false;
         LockWinScreenInput();
-
         GameManager.Instance.RestartLevelFromBeginningWithFadeOut();
     }
 
@@ -172,12 +174,13 @@ public class WinScreenController : MonoBehaviour
     {
         if (GameManager.Instance == null)
         {
-            Debug.LogError("WinScreenController: GameManagerRefactored.Instance is null");
+            Debug.LogError("WinScreenController: GameManager.Instance is null");
             return;
         }
 
+        isClosingWinScreen = true;
+        isWinScreenActive = false;
         LockWinScreenInput();
-
         GameManager.Instance.QuitLevel();
     }
 
@@ -228,6 +231,7 @@ public class WinScreenController : MonoBehaviour
     {
         finishTimeSnapshot = -1;
         isWinScreenActive = false;
+        isClosingWinScreen = false;
 
         if (winScreenContainer != null)
             winScreenContainer.SetActive(false);
@@ -238,13 +242,15 @@ public class WinScreenController : MonoBehaviour
 
     private void OnWinScreenShown()
     {
+        isClosingWinScreen = false;
         isWinScreenActive = true;
+
+        UnlockWinScreenInput();
 
         if (winScreenContainer != null)
             winScreenContainer.SetActive(true);
-        
-        UpdateWinScreenUI();
 
+        UpdateWinScreenUI();
         CursorHelper.ShowCursor();
 
         if (restartButton != null && EventSystem.current != null)
@@ -314,6 +320,10 @@ public class WinScreenController : MonoBehaviour
     private void OnRankChanged(PlayerRank rank)
     {
         currentRank = rank;
+
+        if (isClosingWinScreen)
+            return;
+
         if (isWinScreenActive)
             UpdateWinScreenRank();
     }

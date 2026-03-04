@@ -239,7 +239,6 @@ public class GUIManager : MonoBehaviour
             return;
         }
 
-        // FIX: no duplicar el mismo menú si ya está arriba del stack
         GameObject topMenu = GetTopMenuObject();
         if (topMenu == menuToOpen)
         {
