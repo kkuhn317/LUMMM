@@ -28,9 +28,6 @@ public class OptionsGameManager : MonoBehaviour, IOptionsPauseHandler, IPauseTog
         if (EventSystem.current != null)
             EventSystem.current.sendNavigationEvents = true;
 
-        if (uiInputModule != null)
-            uiInputModule.enabled = true;
-
         onGamePaused?.Invoke();
 
         foreach (GameObject button in mobileButtons)
@@ -46,9 +43,6 @@ public class OptionsGameManager : MonoBehaviour, IOptionsPauseHandler, IPauseTog
 
         if (EventSystem.current != null)
             EventSystem.current.sendNavigationEvents = false;
-
-        if (uiInputModule != null)
-            uiInputModule.enabled = false;
 
         onGameResumed?.Invoke();
 

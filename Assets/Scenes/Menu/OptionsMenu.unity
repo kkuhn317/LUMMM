@@ -4997,6 +4997,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 3309200667772329667, guid: 8a588f495c360454e9340de68cef41cc, type: 3}
   m_PrefabInstance: {fileID: 800070280}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &821374029 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 430566965849025247, guid: 5def866f5651c7c47bfc4a27032ff760, type: 3}
+  m_PrefabInstance: {fileID: 536604447}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cfa4de8e6131d754f8a07ea37c66ceb4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &831199028
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -7706,6 +7717,10 @@ PrefabInstance:
     - target: {fileID: 2458657723472384930, guid: 4d35bff13e4582b4d9d248cf363c5313, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[2].m_TargetAssemblyTypeName
       value: UnityEngine.AudioSource, UnityEngine
+      objectReference: {fileID: 0}
+    - target: {fileID: 2458657723472384930, guid: 4d35bff13e4582b4d9d248cf363c5313, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_BoolArgument
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2626174631447191005, guid: 4d35bff13e4582b4d9d248cf363c5313, type: 3}
       propertyPath: m_IsActive
@@ -10718,6 +10733,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 5440091340732624847, guid: 4d35bff13e4582b4d9d248cf363c5313, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1628607547}
+    - targetCorrespondingSourceObject: {fileID: 5440091340732624847, guid: 4d35bff13e4582b4d9d248cf363c5313, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1628607550}
     - targetCorrespondingSourceObject: {fileID: 5440091340396767346, guid: 4d35bff13e4582b4d9d248cf363c5313, type: 3}
       insertIndex: -1
       addedObject: {fileID: 2076457399}
@@ -10869,6 +10887,22 @@ PrefabInstance:
     - target: {fileID: 1771483343543010229, guid: 0ed8634130540ee49afd6a10ccb53bf6, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1771483343543010231, guid: 0ed8634130540ee49afd6a10ccb53bf6, type: 3}
+      propertyPath: m_ActionEvents.Array.size
+      value: 23
+      objectReference: {fileID: 0}
+    - target: {fileID: 1771483343543010231, guid: 0ed8634130540ee49afd6a10ccb53bf6, type: 3}
+      propertyPath: m_ActionEvents.Array.data[21].m_ActionId
+      value: aa27c529-0777-4a47-a776-fa4fdbd2e376
+      objectReference: {fileID: 0}
+    - target: {fileID: 1771483343543010231, guid: 0ed8634130540ee49afd6a10ccb53bf6, type: 3}
+      propertyPath: m_ActionEvents.Array.data[22].m_ActionId
+      value: 7ad29d66-3992-4be8-a212-cf9d3fe8e1b7
+      objectReference: {fileID: 0}
+    - target: {fileID: 1771483343543010231, guid: 0ed8634130540ee49afd6a10ccb53bf6, type: 3}
+      propertyPath: m_ActionEvents.Array.data[22].m_ActionName
+      value: UI/Pause[/Keyboard/escape,/Keyboard/p]
       objectReference: {fileID: 0}
     - target: {fileID: 1771483343543010232, guid: 0ed8634130540ee49afd6a10ccb53bf6, type: 3}
       propertyPath: m_Name
@@ -22653,6 +22687,20 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+--- !u!114 &1628607550
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 844836000}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0c4cd701b3961094aaf277da0880c5dd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  testLevelPauseController: {fileID: 1984246045}
+  cancelPriority: 10
 --- !u!1001 &1638818239
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -23989,7 +24037,7 @@ PrefabInstance:
     - target: {fileID: 3669927169230732448, guid: 6c3da054316607e43b17e4af15d611e6, type: 3}
       propertyPath: cancelRouter
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 821374029}
     - target: {fileID: 3669927169230732448, guid: 6c3da054316607e43b17e4af15d611e6, type: 3}
       propertyPath: optionsPanel
       value: 

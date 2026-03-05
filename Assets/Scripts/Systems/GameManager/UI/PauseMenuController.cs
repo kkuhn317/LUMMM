@@ -249,7 +249,7 @@ public class PauseMenuController : MonoBehaviour
 
         if (pauseMenu != null) pauseMenu.SetActive(true);
         
-        if (cancelRouter != null) cancelRouter.SetInputSource(pauseOwner);
+        if (cancelRouter != null && mode == PauseMenuMode.InGamePauseMenu) cancelRouter.SetInputSource(pauseOwner);
         if (guiManager != null) guiManager.SetOwner(pauseOwner);
 
         optionsPauseHandler?.OnPause();
@@ -296,7 +296,7 @@ public class PauseMenuController : MonoBehaviour
         var freshInput = ResolveFreshPlayerInput(pauseOwner);
         SwitchOwnerToGameplayMap(freshInput);
 
-        if (cancelRouter != null) cancelRouter.SetInputSource(null);
+        if (cancelRouter != null && mode == PauseMenuMode.InGamePauseMenu) cancelRouter.SetInputSource(null);
         if (guiManager != null) guiManager.SetOwner(null);
 
         pauseOwner = null;
