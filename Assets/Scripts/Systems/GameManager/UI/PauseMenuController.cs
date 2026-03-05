@@ -86,8 +86,7 @@ public class PauseMenuController : MonoBehaviour
     public PauseMenuMode Mode => mode;
 
     private int cancelConsumedFrame = -1;
-
-    // FIX: Cambiado el nombre para coincidir con lo que UICancelRouter llama
+    
     public void NotifyCancelConsumed() => cancelConsumedFrame = Time.frameCount;
     public void MarkCancelConsumedThisFrame() => cancelConsumedFrame = Time.frameCount;
     

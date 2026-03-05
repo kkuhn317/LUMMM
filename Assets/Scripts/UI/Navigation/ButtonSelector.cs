@@ -24,7 +24,8 @@ public class ButtonSelector : MonoBehaviour
     {
         if (!ValidateComponents()) return;
 
-        lastSelectedObject = EventSystem.current?.currentSelectedGameObject;
+        lastSelectedObject = null;
+        currentTarget = null;
         ignoreNextSelectionChangeSfx = true;
 
         StartCoroutine(DelayedRefresh());
@@ -37,6 +38,7 @@ public class ButtonSelector : MonoBehaviour
         yield return new WaitForEndOfFrame();
 
         ForceRefreshToCurrentSelection();
+        lastSelectedObject = EventSystem.current?.currentSelectedGameObject;
     }
 
     private void OnDisable()

@@ -77,6 +77,9 @@ public class FileSelectManager : MonoBehaviour
             // If we are transitioning away, do NOT unlock (prevents navigation during fade).
             if (keepInputLockedForSceneTransition)
             {
+                // Tell the manager to hold onto the current visual state
+                slotManager?.SetTransitioning(true);
+                
                 // Clear selection so EventSystem navigation can't move highlight while fading.
                 if (EventSystem.current != null)
                     EventSystem.current.SetSelectedGameObject(null);

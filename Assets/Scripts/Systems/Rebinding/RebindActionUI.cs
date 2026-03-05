@@ -262,6 +262,9 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
             m_RebindOperation?.Cancel(); // Will null out m_RebindOperation.
             isRebinding = true;
 
+            // Store the old binding path so we can restore it if the user cancels
+            string oldBinding = action.bindings[bindingIndex].overridePath;
+
             void CleanUp()
             {
                 m_RebindOperation?.Dispose();
@@ -286,29 +289,32 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
             }
             
             // Before assigning a new binding, we remove the old binding (but save it for when the rebind is cancelled)
-            string oldBinding = action.bindings[bindingIndex].overridePath;
             action.RemoveBindingOverride(bindingIndex);
 
             // Configure the rebind.
             m_RebindOperation = action.PerformInteractiveRebinding(bindingIndex)
                 .WithControlsExcluding("<Mouse>")
+                .WithControlsExcluding("<Keyboard>/escape")
+                // Use Escape specifically to trigger the Cancel callback instead of binding it
+                .WithCancelingThrough("<Keyboard>/escape") 
                 .OnMatchWaitForAnother(0.2f) 
                 .OnCancel(
                     operation =>
                     {
-                        // TODO: The following code doesn't work. Please figure out the correct way to do this.
-                        // print("oldBinding: " + oldBinding);
-                        // if (String.IsNullOrEmpty(oldBinding)) {
-                        //     action.ApplyBindingOverride(bindingIndex, oldBinding);
-                        //     actionBindingMap[oldBinding] = action.name;
-                        // } else {
-                        //     action.RemoveBindingOverride(bindingIndex);
-                        // }
+                        // Restore the old binding override if it existed
+                        if (!string.IsNullOrEmpty(oldBinding)) 
+                        {
+                            action.ApplyBindingOverride(bindingIndex, oldBinding);
+                        }
+                        else 
+                        {
+                            action.RemoveBindingOverride(bindingIndex);
+                        }
 
-                        m_RebindStopEvent?.Invoke(this, operation);
                         if (m_RebindOverlay != null) m_RebindOverlay.SetActive(false);
-                        UpdateBindingDisplay();
                         CleanUp();
+                        UpdateBindingDisplay();
+                        m_RebindStopEvent?.Invoke(this, operation);
                     })
                 .OnComplete(
                     operation =>
@@ -321,8 +327,12 @@ namespace UnityEngine.InputSystem.Samples.RebindUI
                         {
                             Debug.LogError($"Cannot bind '{actionName}' to '{newBinding}'. Validation failed.");
                             action.RemoveBindingOverride(bindingIndex);
+                            
+                            // If validation fails, restore old binding so it doesn't stay empty
+                            if (!string.IsNullOrEmpty(oldBinding)) 
+                                action.ApplyBindingOverride(bindingIndex, oldBinding);
+
                             CleanUp();
-                            //PerformInteractiveRebind(action, bindingIndex, allCompositeParts);
                             return;
                         }     
 

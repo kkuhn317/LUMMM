@@ -74,7 +74,7 @@ public class SaveSlotManager : MonoBehaviour
     public Color deleteBackgroundColor = Color.red;
     public float backgroundTintDuration = 0.25f;
     private Coroutine backgroundTintRoutine;
-
+    private bool isTransitioning = false;
 
     public event System.Action<InteractionMode> ModeChanged;
 
@@ -122,6 +122,11 @@ public class SaveSlotManager : MonoBehaviour
 
 
     #region Refresh & Focus
+    public void SetTransitioning(bool state)
+    {
+        isTransitioning = state;
+    }
+
     private void RefreshModeVisuals()
     {
         bool isDelete = CurrentMode == InteractionMode.Delete;
@@ -176,6 +181,7 @@ public class SaveSlotManager : MonoBehaviour
 
     public void FocusSlot(int index)
     {
+        if (isTransitioning) return;
         if (index < 0)
             FocusedSlotIndex = -1;
         else
