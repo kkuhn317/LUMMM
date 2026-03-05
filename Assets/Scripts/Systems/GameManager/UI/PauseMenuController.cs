@@ -162,7 +162,7 @@ public class PauseMenuController : MonoBehaviour
         ResolveExternalHandler();
         if (isPaused) ResumeGame();
 
-        if (MusicManager.Instance != null)
+        if (MusicManager.Instance != null && mode == PauseMenuMode.InGamePauseMenu)
             originalMusicVolume = MusicManager.Instance.GetCurrentVolume();
 
         canPause = true;
@@ -233,7 +233,11 @@ public class PauseMenuController : MonoBehaviour
         previousTimeScale = Time.timeScale;
         Time.timeScale = 0f;
 
-        ReduceMusicVolume();
+        if (mode == PauseMenuMode.InGamePauseMenu)
+        {
+            ReduceMusicVolume();
+        }
+        
         CursorHelper.ShowCursor();
 
         if (blockWhilePaused != null)
@@ -270,7 +274,11 @@ public class PauseMenuController : MonoBehaviour
 
         isPaused = false;
         Time.timeScale = previousTimeScale;
-        RestoreMusicVolume();
+
+        if (mode == PauseMenuMode.InGamePauseMenu)
+        {
+            RestoreMusicVolume();
+        }
 
         if (blockWhilePaused != null)
         {
