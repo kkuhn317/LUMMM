@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.Events;
+using static PowerStates;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -26,7 +27,7 @@ public class Checkpoint : MonoBehaviour
     public Sprite passive;
     public Sprite[] active;
     public ParticleSystem checkpointParticles;
-    public GameObject particle; // Custom star particle prefab (optional)
+    public GameObject particle;
 
     [Header("Behaviour")]
     public bool disableColliderOnActivate = true;
@@ -34,14 +35,17 @@ public class Checkpoint : MonoBehaviour
     [Header("Spawn")]
     public Vector2 spawnOffset = Vector2.zero;
 
-    [Header("Score Reward (optional)")]
+    [Header("Score Reward")]
     public bool giveScoreOnTouch = true;
     public int checkpointScore = 2000;
+    public Vector3 scorePopupOffset = new Vector3(0f, 1.0f, 0f);
+
+    [Tooltip("If true, use the player's current powerup state for the popup instead of the fixed checkpointPowerState.")]
+    public bool usePlayerPowerState = false;
+    public PowerupState checkpointPowerState = PowerupState.small;
 
     private SpriteRenderer spriteRenderer;
-    private AudioSource audioSource;
     private Collider2D checkpointCollider;
-
     private CheckpointManager checkpointManager;
     private bool respawnInvokedThisLoad;
 
@@ -59,7 +63,6 @@ public class Checkpoint : MonoBehaviour
         if (checkpointMode == CheckpointMode.Visual)
         {
             spriteRenderer = GetComponent<SpriteRenderer>();
-            audioSource = GetComponent<AudioSource>();
         }
 
         RefreshEnabledState();
@@ -81,7 +84,7 @@ public class Checkpoint : MonoBehaviour
 
     private void Start()
     {
-        // Fallback: if something loads checkpoint before we subscribed
+        // if something loads checkpoint before we subscribed
         TryInvokeRespawnActivationIfActive();
     }
 
@@ -101,15 +104,21 @@ public class Checkpoint : MonoBehaviour
         RefreshEnabledState();
         if (!IsEnabledByMode)
             return;
+        
+        MarioMovement mario = collision.GetComponent<MarioMovement>();
 
-        // Optional score reward BEFORE saving (so it’s included in SaveCurrentCheckpoint)
+        // allow score reward when you touch the checkpoint
+        // this score reward is BEFORE saving (so it’s included in SaveCurrentCheckpoint)
         if (giveScoreOnTouch)
         {
-            GlobalVariables.score += checkpointScore;
-            GameEvents.TriggerScoreChanged(GlobalVariables.score);
+            GiveScoreReward(mario);
+        }
+        
+        if (checkpointMode == CheckpointMode.Invisible && mario != null)
+        {
+            mario.ShowCheckpointFlag();
         }
 
-        // Delegate activation + save to manager (refactor style)
         checkpointManager ??= FindObjectOfType<CheckpointManager>();
         if (checkpointManager != null)
             checkpointManager.ActivateCheckpoint(this);
@@ -117,7 +126,38 @@ public class Checkpoint : MonoBehaviour
             Debug.LogError($"{nameof(Checkpoint)}: No {nameof(CheckpointManager)} found in scene.");
     }
 
-    // OldCheckpoint-style centralized rule for 0/1/2 behavior
+    private void GiveScoreReward(MarioMovement mario)
+    {
+        if (checkpointScore <= 0) return;
+
+        GameEvents.TriggerScoreAdded(checkpointScore);
+
+        if (ScorePopupManager.Instance == null) return;
+
+        PowerupState popupPowerState = checkpointPowerState;
+        if (usePlayerPowerState && mario != null)
+        {
+            popupPowerState = mario.powerupState;
+        }
+        
+        Vector3 basePosition;
+        
+        if (checkpointMode == CheckpointMode.Invisible && mario != null)
+        {
+            basePosition = mario.transform.position;
+        }
+        else
+        {
+            basePosition = transform.position;
+        }
+        
+        Vector3 popupPos = basePosition + scorePopupOffset;
+        
+        ComboResult result = new ComboResult(RewardType.Score, PopupID.Score2000, checkpointScore);
+        ScorePopupManager.Instance.ShowPopup(result, popupPos, popupPowerState);
+    }
+
+    // centralized rule for 0/1/2 behavior
     private bool IsAllowedByGlobalMode()
     {
         // 0: off, 1: visual-only, 2: invisible-only
@@ -178,16 +218,15 @@ public class Checkpoint : MonoBehaviour
         // Skip transient feedback when respawning/loading
         if (!playFeedback)
             return;
+        
+        if (checkpointSound != null && AudioManager.Instance != null)
+        {
+            AudioManager.Instance.Play(checkpointSound, SoundCategory.SFX);
+        }
 
         // Feedback only for Visual checkpoints
         if (checkpointMode == CheckpointMode.Visual)
         {
-            if (checkpointSound != null)
-            {
-                if (audioSource != null) audioSource.PlayOneShot(checkpointSound);
-                else AudioSource.PlayClipAtPoint(checkpointSound, transform.position);
-            }
-
             if (checkpointParticles != null)
                 checkpointParticles.Play();
 
@@ -248,7 +287,6 @@ public class Checkpoint : MonoBehaviour
 
                 GameObject newParticle = Instantiate(particle, transform.position + startOffset, Quaternion.identity);
 
-                // Optional: if you have StarMoveOutward in the project (OldCheckpoint style)
                 var moveOut = newParticle.GetComponent<StarMoveOutward>();
                 if (moveOut != null)
                 {

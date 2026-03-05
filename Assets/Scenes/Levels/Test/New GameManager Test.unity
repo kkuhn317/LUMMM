@@ -432,6 +432,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 33167150}
+  - component: {fileID: 33167151}
   m_Layer: 9
   m_Name: Visual
   m_TagString: Untagged
@@ -456,6 +457,27 @@ Transform:
   - {fileID: 1068329697}
   m_Father: {fileID: 1676927954}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!95 &33167151
+Animator:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 33167149}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 4827ed94cfee01741a46835b1e12b5da, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1001 &43954403
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -14034,8 +14056,12 @@ MonoBehaviour:
     m_ActionName: UI/StepModifier50[/Keyboard/leftAlt]
   - m_PersistentCalls:
       m_Calls: []
-    m_ActionId: 4d194031-9a55-4f90-ae7a-c150b9133009
+    m_ActionId: aa27c529-0777-4a47-a776-fa4fdbd2e376
     m_ActionName: Mariomove/Pause[/Keyboard/escape,/Keyboard/p]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 7ad29d66-3992-4be8-a212-cf9d3fe8e1b7
+    m_ActionName: UI/Pause[/Keyboard/escape,/Keyboard/p]
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Mariomove

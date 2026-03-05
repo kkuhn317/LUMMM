@@ -1,0 +1,113 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &5474239225668572885
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8793839585986728348}
+  - component: {fileID: 8560776823456827291}
+  - component: {fileID: 5675251891273973491}
+  m_Layer: 20
+  m_Name: Silent Checkpoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8793839585986728348
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5474239225668572885}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!61 &8560776823456827291
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5474239225668572885}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: -0.0038137436, y: 7.4456925}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0, y: 0}
+    oldSize: {x: 0, y: 0}
+    newSize: {x: 0, y: 0}
+    adaptiveTilingThreshold: 0
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  serializedVersion: 2
+  m_Size: {x: 1.95714, y: 15.891383}
+  m_EdgeRadius: 0
+--- !u!114 &5675251891273973491
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5474239225668572885}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: be276873370735342bc8582da5d09867, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  checkpointID: 0
+  checkpointMode: 1
+  OnRespawnActivation:
+    m_PersistentCalls:
+      m_Calls: []
+  checkpointSound: {fileID: 8300000, guid: 0a06a44e13ee9ea419e8d66509366006, type: 3}
+  passive: {fileID: -724414142, guid: 01d29b99acc81084dbf22bbe3a18b906, type: 3}
+  active:
+  - {fileID: 153895903, guid: 01d29b99acc81084dbf22bbe3a18b906, type: 3}
+  - {fileID: -682423843, guid: 01d29b99acc81084dbf22bbe3a18b906, type: 3}
+  - {fileID: -1474250951, guid: 01d29b99acc81084dbf22bbe3a18b906, type: 3}
+  - {fileID: -1477814848, guid: 01d29b99acc81084dbf22bbe3a18b906, type: 3}
+  checkpointParticles: {fileID: 0}
+  particle: {fileID: 4811748717798332445, guid: d1d1a2fd30f44f24f8e3305a5e1248ab, type: 3}
+  disableColliderOnActivate: 1
+  spawnOffset: {x: 0, y: 0}
+  giveScoreOnTouch: 1
+  checkpointScore: 2000
+  scorePopupOffset: {x: 0, y: 1, z: 0}
+  usePlayerPowerState: 0
+  checkpointPowerState: 1
