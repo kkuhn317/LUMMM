@@ -54,8 +54,8 @@ public class CheatsMenu : MonoBehaviour, IMenuTransition
             v => CheatFlags.StartPowerup = v ? StartPowerupMode.Tiny : StartPowerupMode.None),
         new CheatBinding("iceflower", () => CheatFlags.StartPowerup == StartPowerupMode.Ice,
             v => CheatFlags.StartPowerup = v ? StartPowerupMode.Ice : StartPowerupMode.None),
-        new CheatBinding("flamethrower", () => CheatFlags.StartPowerup == StartPowerupMode.Flamethrower,
-            v => CheatFlags.StartPowerup = v ? StartPowerupMode.Flamethrower : StartPowerupMode.None),
+        new CheatBinding("flamethrower", () => CheatFlags.StartPowerup == StartPowerupMode.Fire,
+            v => CheatFlags.StartPowerup = v ? StartPowerupMode.Fire : StartPowerupMode.None),
         new CheatBinding("midnight", () => CheatFlags.Darkness, v => CheatFlags.Darkness = v),
         new CheatBinding("corruption", () => CheatFlags.Randomizer, v => CheatFlags.Randomizer = v)
     };

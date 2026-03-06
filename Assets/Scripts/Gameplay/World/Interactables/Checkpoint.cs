@@ -188,7 +188,9 @@ public class Checkpoint : MonoBehaviour
 
         // Enabled
         if (checkpointCollider != null)
-            checkpointCollider.enabled = true;
+        {
+            checkpointCollider.enabled = checkpointID > GlobalVariables.checkpoint;
+        }
 
         if (checkpointMode == CheckpointMode.Visual && spriteRenderer != null)
             spriteRenderer.enabled = true;
@@ -237,9 +239,14 @@ public class Checkpoint : MonoBehaviour
 
     public void SetPassive()
     {
-        // Re-enable collider if we’re in passive state (unless disabled by mode)
         if (checkpointCollider != null && IsEnabledByMode)
-            checkpointCollider.enabled = true;
+        {
+            // Only re-enable collider if this checkpoint is ahead of the current active one
+            if (checkpointID > GlobalVariables.checkpoint)
+                checkpointCollider.enabled = true;
+            else
+                checkpointCollider.enabled = false;
+        }
 
         if (checkpointMode == CheckpointMode.Visual && spriteRenderer != null && passive != null)
             spriteRenderer.sprite = passive;

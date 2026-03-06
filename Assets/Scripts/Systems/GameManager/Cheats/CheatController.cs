@@ -94,13 +94,13 @@ public class CheatController : MonoBehaviour
         // Update legacy global variables
         GlobalVariables.cheatStartTiny = mode == StartPowerupMode.Tiny;
         GlobalVariables.cheatStartIce = mode == StartPowerupMode.Ice;
-        GlobalVariables.cheatFlamethrower = mode == StartPowerupMode.Flamethrower;
+        GlobalVariables.cheatFlamethrower = mode == StartPowerupMode.Fire;
         
         // Notify other systems
         GameEvents.TriggerStartPowerupChanged(mode);
         GameEvents.TriggerCheatToggled("StartPowerup", mode != StartPowerupMode.None);
         
-        // DIRECT SIDE EFFECT: Apply to players already in the scene
+        // Apply to players already in the scene
         // Only at the very beginning of a level (first 0.5 seconds)
         if (Time.timeSinceLevelLoad < 0.5f)
         {
@@ -258,7 +258,7 @@ public class CheatController : MonoBehaviour
             case StartPowerupMode.Ice:
                 player.ChangePowerup(iceMarioPrefab);
                 break;
-            case StartPowerupMode.Flamethrower:
+            case StartPowerupMode.Fire:
                 player.ChangePowerup(fireMarioPrefab);
                 break;
             // None mode does nothing
@@ -353,6 +353,11 @@ public class CheatController : MonoBehaviour
         {
             ApplyPowerupToPlayer(player, CheatFlags.StartPowerup);
         }
+    }
+
+    public void ForceApplyPowerupToPlayer(MarioMovement player, StartPowerupMode mode)
+    {
+        ApplyPowerupToPlayer(player, mode);
     }
 
     #endregion
