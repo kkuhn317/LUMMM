@@ -83,7 +83,9 @@ public class PauseRequester : MonoBehaviour
         if (ctx.action.actionMap != pi.currentActionMap)
             return;
 
-        print("in onpause");
+        // If Cancel already consumed this frame, do not let Pause also toggle.
+        if (pauseController.WasCancelConsumedThisFrame())
+            return;
 
         // In StandaloneOptionsMenu, only allow Pause toggle from RebindMenu, and allow pause at same time as cancel.
         if (pauseController.Mode == PauseMenuController.PauseMenuMode.StandaloneOptionsMenu)
@@ -93,10 +95,6 @@ public class PauseRequester : MonoBehaviour
         }
         else
         {
-            // If Cancel already consumed this frame, do not let Pause also toggle.
-            if (pauseController.WasCancelConsumedThisFrame())
-                return;
-            
             if (pauseController.IsPaused)
             {
                 // In normal gameplay pause flow, only allow Pause toggle from the pause root.
