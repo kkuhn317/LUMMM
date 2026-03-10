@@ -29,7 +29,7 @@ public class SceneScriptAuditorWindow : EditorWindow
     private readonly List<Entry> _entries = new List<Entry>();
     private readonly Dictionary<string, List<Entry>> _byScript = new Dictionary<string, List<Entry>>(StringComparer.OrdinalIgnoreCase);
 
-    [MenuItem("Tools/Fullscreen Detective/Scene Script Auditor")]
+    [MenuItem("Tools/Scene Script Auditor")]
     public static void ShowWindow()
     {
         var win = GetWindow<SceneScriptAuditorWindow>("Scene Script Auditor");
