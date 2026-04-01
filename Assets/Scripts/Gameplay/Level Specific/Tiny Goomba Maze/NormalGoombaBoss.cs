@@ -141,7 +141,7 @@ public class NormalGoombaBoss : EnemyAI
         dashAttackState = DashAttackState.dash;
         animator.SetBool("dashing", true);
         movingLeft = false;
-        velocity = new Vector2(3, 1f);
+        velocity = new Vector2(5, 1f);
         Fall();
         /*if (dashPrefab != null && dashParticlesPosition != null){
             Instantiate(dashPrefab, dashParticlesPosition.transform.position, Quaternion.identity);
@@ -164,7 +164,7 @@ public class NormalGoombaBoss : EnemyAI
         } else {
             // move right
             movingLeft = false;
-            velocity.x = 0.5f; 
+            velocity.x = 1f; 
         }
     }
 
