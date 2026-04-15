@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Tilemaps;
 
 /// <summary>
 /// Owns all Mario sound effect playback.
@@ -47,6 +48,11 @@ public class MarioAudio : MonoBehaviour
     [Header("Cape")]
     public AudioClip CapePrepareAttackSound;
     public AudioClip CapeSound;
+
+    [Header("Footsteps")]
+    [SerializeField] private FootstepSoundData _footstepData;
+    [SerializeField] private float _footstepRaycastDistance = 0.6f;
+    [SerializeField] private LayerMask _footstepGroundMask;
 
     // ─── References ──────────────────────────────────────────────────────────
 
@@ -138,6 +144,55 @@ public class MarioAudio : MonoBehaviour
 
     // ─── Public ──────────────────────────────────────────────────────────────
 
+    /// <summary>
+    /// Called by Animation Events on walk/run/push clips at foot-contact frames.
+    /// Raycasts down to detect surface type two ways:
+    ///   1. SurfaceType component on the hit object or its parents (regular objects, Option A tilemaps)
+    ///   2. SurfaceTile on a Tilemap at the hit position (per-tile materials, Option B)
+    /// Falls back to FootstepSoundData.FallbackClips if neither is found.
+    /// </summary>
+    public void PlayFootstep()
+    {
+        if (_footstepData == null) return;
+
+        Vector2 origin = new Vector2(_core.Rb.position.x,
+            _core.Rb.position.y - (_core.Collider != null ? _core.Collider.bounds.extents.y : 0.4f));
+
+        RaycastHit2D hit = Physics2D.Raycast(origin, Vector2.down, _footstepRaycastDistance, _footstepGroundMask);
+
+        if (!hit.collider) return;
+
+        SurfaceMaterial material = SurfaceMaterial.Stone;
+        bool found = false;
+
+        // Check for SurfaceType component — works for regular objects and Option A tilemaps
+        var surfaceType = hit.collider.GetComponentInParent<SurfaceType>();
+        if (surfaceType != null)
+        {
+            material = surfaceType.Material;
+            found    = true;
+        }
+
+        // Check for SurfaceTile on a Tilemap and works for per-tile materialss
+        if (!found)
+        {
+            var tilemap = hit.collider.GetComponentInParent<Tilemap>();
+            if (tilemap != null)
+            {
+                // Convert world hit point to tilemap cell position
+                Vector3Int cell = tilemap.WorldToCell(hit.point - new Vector2(0f, 0.01f));
+                if (tilemap.GetTile(cell) is SurfaceTile surfaceTile)
+                {
+                    material = surfaceTile.Material;
+                    found    = true;
+                }
+            }
+        }
+
+        if (_footstepData.TryGetClip(material, out AudioClip clip, out float volume))
+            Play(clip, volume);
+    }
+    
     public void PlayDamageSound()
     {
         if (DamageSound != null)

@@ -111,9 +111,13 @@ public class FadeInOutScene : MonoBehaviour
         while (!asyncLoad.isDone)
             yield return null;
 
-        // Wait an extra frame for scene objects to fully initialize
+        // Wait an extra frame for scene objects (including CircleTransition) to fully initialize
         yield return new WaitForEndOfFrame();
-        
+
+        // Reset LoadedWithFade NOW — CircleTransition.Start() has already run by this point
+        // and read the flag. Resetting here means the next scene load starts clean.
+        LoadedWithFade = false;
+
         // Fade out if requested
         if (fadeOutAfterLoad)
         {
@@ -121,7 +125,6 @@ public class FadeInOutScene : MonoBehaviour
         }
         
         // Transition complete
-        LoadedWithFade = false;
         isTransitioning = false;
         currentFadeCoroutine = null;
         
