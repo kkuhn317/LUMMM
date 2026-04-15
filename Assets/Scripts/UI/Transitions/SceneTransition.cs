@@ -8,8 +8,8 @@ public class SceneTransition : MonoBehaviour
         FadeInOutScene.Instance.LoadSceneWithFade(sceneName);
     }
 
-    public void LoadSceneWithoutFadeOut(string sceneName)
+    public void LoadSceneWithoutFadeIn(string sceneName)
     {
-        FadeInOutScene.Instance.LoadSceneWithoutFadeOut(sceneName);
+        FadeInOutScene.Instance.LoadSceneWithoutFadeIn(sceneName);
     }     
 }

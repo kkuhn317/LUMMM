@@ -50,7 +50,7 @@ public class FadeInOutScene : MonoBehaviour
         currentFadeCoroutine = StartCoroutine(FadeAndLoadScene(sceneName, true));
     }
 
-    public void LoadSceneWithoutFadeOut(string sceneName)
+    public void LoadSceneWithoutFadeIn(string sceneName)
     {
         // If already transitioning, queue the new scene
         if (isTransitioning)
@@ -62,6 +62,44 @@ public class FadeInOutScene : MonoBehaviour
         }
         
         currentFadeCoroutine = StartCoroutine(FadeAndLoadScene(sceneName, false));
+    }
+
+    /// <summary>
+    /// Fades to black, loads the scene, then lets CircleTransition handle the reveal.
+    /// Use this for death/restart — fade out is handled here, fade in is handled by CircleTransition.
+    /// </summary>
+    public void RestartSceneWithFade(string sceneName)
+    {
+        if (isTransitioning) return;
+        currentFadeCoroutine = StartCoroutine(FadeAndRestartScene(sceneName));
+    }
+
+    public void RestartSceneWithFade(int sceneIndex)
+    {
+        string scenePath = SceneUtility.GetScenePathByBuildIndex(sceneIndex);
+        string sceneName = System.IO.Path.GetFileNameWithoutExtension(scenePath);
+        RestartSceneWithFade(sceneName);
+    }
+
+    private IEnumerator FadeAndRestartScene(string sceneName)
+    {
+        isTransitioning = true;
+
+        // Fade to black
+        yield return StartCoroutine(FadeToColor(Color.black, fadeDuration));
+
+        // Do NOT set LoadedWithFade — CircleTransition should play on the new scene
+        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(sceneName);
+        while (!asyncLoad.isDone)
+            yield return null;
+
+        yield return new WaitForEndOfFrame();
+
+        // Fade the black overlay back to clear so CircleTransition can take over
+        yield return StartCoroutine(FadeToColor(Color.clear, 0f));
+
+        isTransitioning = false;
+        currentFadeCoroutine = null;
     }
 
     public void LoadNextSceneWithFade()
@@ -136,7 +174,7 @@ public class FadeInOutScene : MonoBehaviour
             if (pendingFadeOut)
                 LoadSceneWithFade(pendingSceneName);
             else
-                LoadSceneWithoutFadeOut(pendingSceneName);
+                LoadSceneWithoutFadeIn(pendingSceneName);
         }
     }
 

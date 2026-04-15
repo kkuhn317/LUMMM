@@ -327,7 +327,7 @@ public class PauseMenuController : MonoBehaviour
     {
         ResumeGame();
         if (FadeInOutScene.Instance != null)
-            FadeInOutScene.Instance.LoadSceneWithFade(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
+            FadeInOutScene.Instance.RestartSceneWithFade(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
         else
             GameManager.Instance?.RestartLevelFromBeginning();
     }
@@ -336,7 +336,7 @@ public class PauseMenuController : MonoBehaviour
     {
         ResumeGame();
         if (FadeInOutScene.Instance != null)
-            FadeInOutScene.Instance.LoadSceneWithFade(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
+            FadeInOutScene.Instance.RestartSceneWithFade(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
         else
             GameManager.Instance?.RestartLevelFromCheckpoint();
     }
