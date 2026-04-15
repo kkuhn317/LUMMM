@@ -14,11 +14,17 @@ public class ButtonSelector : MonoBehaviour
     [SerializeField] private AudioClip selectionSfx;
     [SerializeField] private UnityEvent onSelectionChanged;
 
+    // How many frames to keep retrying if no selection is found on enable
+    [SerializeField] private int maxRefreshRetries = 10;
+
     private RectTransform currentTarget;
     private GameObject lastSelectedObject;
 
     // Ignore exactly the first selection change after this component is enabled
     private bool ignoreNextSelectionChangeSfx;
+
+    // Cached canvas camera for correct coordinate conversion
+    private Camera canvasCamera;
 
     private void OnEnable()
     {
@@ -28,15 +34,51 @@ public class ButtonSelector : MonoBehaviour
         currentTarget = null;
         ignoreNextSelectionChangeSfx = true;
 
+        CacheCanvasCamera();
         StartCoroutine(DelayedRefresh());
+    }
+
+    /// <summary>
+    /// Resolves the correct camera to use for world-to-screen conversion,
+    /// based on the render mode of the parent Canvas. Passing null to
+    /// WorldToScreenPoint only works for Screen Space - Overlay canvases.
+    /// </summary>
+    private void CacheCanvasCamera()
+    {
+        Canvas canvas = selectorImage.GetComponentInParent<Canvas>();
+        if (canvas == null)
+        {
+            canvasCamera = null;
+            return;
+        }
+
+        // For Overlay mode there is no camera; for Camera / World Space there is.
+        canvasCamera = canvas.renderMode == RenderMode.ScreenSpaceOverlay
+            ? null
+            : canvas.worldCamera;
     }
 
     private IEnumerator DelayedRefresh()
     {
-        // Wait for UI layout and EventSystem to fully initialize
+        // Wait for layout pass and EventSystem to resolve their initial selection.
         yield return null;
-        yield return new WaitForEndOfFrame();
+        yield return new WaitForEndOfFrame(); // this saved me
 
+        // Retry for several frames in case the scene is still initializing
+        for (int attempt = 0; attempt < maxRefreshRetries; attempt++)
+        {
+            GameObject selected = EventSystem.current?.currentSelectedGameObject;
+            if (selected != null && selected.GetComponent<RectTransform>() != null)
+            {
+                ForceRefreshToCurrentSelection();
+                lastSelectedObject = selected;
+                yield break;
+            }
+
+            yield return null;
+        }
+
+        // Ran out of retries — still snap to whatever is selected (may be null).
         ForceRefreshToCurrentSelection();
         lastSelectedObject = EventSystem.current?.currentSelectedGameObject;
     }
@@ -120,6 +162,7 @@ public class ButtonSelector : MonoBehaviour
         if (!TryGetTargetBounds(currentTarget, out Vector2 targetSize, out Vector3 targetPos))
             return;
 
+        CancelSelectorTweens();
         selectorImage.sizeDelta = targetSize;
         selectorImage.localPosition = targetPos;
     }
@@ -132,7 +175,6 @@ public class ButtonSelector : MonoBehaviour
         if (!TryGetTargetBounds(currentTarget, out Vector2 targetSize, out Vector3 targetPos))
             return;
 
-        // Cancel any previous tweens before starting a new one
         CancelSelectorTweens();
 
         LeanTween.size(selectorImage, targetSize, animationTime)
@@ -170,10 +212,14 @@ public class ButtonSelector : MonoBehaviour
 
         for (int i = 0; i < 4; i++)
         {
+            // Use the resolved canvasCamera instead of null — null only works
+            // correctly for Screen Space - Overlay canvases.
+            Vector2 screenPoint = RectTransformUtility.WorldToScreenPoint(canvasCamera, worldCorners[i]);
+
             RectTransformUtility.ScreenPointToLocalPointInRectangle(
                 parentRect,
-                RectTransformUtility.WorldToScreenPoint(null, worldCorners[i]),
-                null,
+                screenPoint,
+                canvasCamera,
                 out Vector2 localPoint
             );
 

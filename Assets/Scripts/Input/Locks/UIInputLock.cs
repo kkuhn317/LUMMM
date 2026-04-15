@@ -183,12 +183,14 @@ public class UIInputLock : MonoBehaviour
             isUnlocking = false;
         }
 
+        var currentSelected = EventSystem.current?.currentSelectedGameObject;
+        string currentSelectedName = (currentSelected != null && currentSelected) ? currentSelected.name : "NULL";
         Debug.Log($"[UILOCK] UNLOCK frame={Time.frameCount} " +
                 $"restoreSelection={restoreSelection} " +
                 $"lockCount={lockCount} " +
                 $"raycastersRestored={disableGraphicRaycaster} " +
                 $"savedSelected={(savedSelected ? savedSelected.name : "NULL")} " +
-                $"current={EventSystem.current?.currentSelectedGameObject?.name ?? "NULL"}");
+                $"current={currentSelectedName}");
     }
 
     public void ForceUnlockAll(bool restoreSelection = true)

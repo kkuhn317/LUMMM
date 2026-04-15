@@ -40,8 +40,8 @@ public class BulletBill : EnemyAI
     // knock away on stomp
     protected override void hitByStomp(GameObject player)
     {
-        var mario = player.GetComponent<MarioMovement>();
-        mario.Jump();
+        var mario = player.GetComponent<MarioCore>() ?? player.GetComponentInParent<MarioCore>();
+        mario.StateMachine.ForceTransition(MarioStateID.Rise);
 
         KnockAway(movingLeft, false, KnockAwayType.flip, new Vector2(1, 0));
         GetComponent<AudioSource>().Play();
@@ -50,7 +50,7 @@ public class BulletBill : EnemyAI
         AwardStompComboReward(popupPos);
     }
 
-    protected override void hitByGroundPound(MarioMovement player)
+    protected override void hitByGroundPound(MarioCore player)
     {
         KnockAway(movingLeft, false, KnockAwayType.flip, new Vector2(1,0));
         Vector3 popupPos = transform.position + Vector3.up * 0.5f;

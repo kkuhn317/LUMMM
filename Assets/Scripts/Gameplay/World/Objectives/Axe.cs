@@ -57,7 +57,7 @@ public class Axe : MonoBehaviour
 
     [Header("Stop Object Animation")]
     private AnimatedSprite animatedSprite;
-    private GameObject player;
+    private MarioCore playerCore; // cached from trigger — always the root
 
     [Header("Timing")]
     // these are timed from the time the axe hits the ground or disappears
@@ -159,8 +159,8 @@ public class Axe : MonoBehaviour
             // freeze player
             if (freezePlayerOnHit)
             {
-                player = collision.gameObject;
-                player.GetComponent<MarioMovement>().Freeze();
+                playerCore = collision.GetComponent<MarioCore>() ?? collision.GetComponentInParent<MarioCore>();
+                playerCore?.Freeze();
             }
 
             // Stop music if needed
@@ -220,7 +220,7 @@ public class Axe : MonoBehaviour
         bridgeDestroyed = true;
 
         // If player is set, resume the player movement with a delay.
-        if (player != null)
+        if (playerCore != null)
         {
             Invoke(nameof(StartPlayerAutoMove), playerResumeDelay);
         }
@@ -228,7 +228,7 @@ public class Axe : MonoBehaviour
 
     private void StartPlayerAutoMove()
     {
-        if (player != null && playerTargetPosition != null)
+        if (playerCore != null && playerTargetPosition != null)
         {
             StartCoroutine(MovePlayerToPosition());
         }
@@ -247,43 +247,41 @@ public class Axe : MonoBehaviour
     /// </summary>
     private IEnumerator MovePlayerToPosition()
     {
-        // Cache the MarioMovement component for easy access
-        var movement = player.GetComponent<MarioMovement>();
+        // Use the cached MarioCore — player is Body_Collider child, not the root
+        var movement = playerCore;
 
         // Disable player inputs so they can't interrupt the auto movement
         movement.DisableInputs();
 
         // Unfreeze the player so gravity and movement can apply normally
-        player.GetComponent<MarioMovement>().Unfreeze();
+        movement.Unfreeze();
 
         // Wait until the player is fully grounded before starting movement
-        yield return new WaitUntil(() => movement.onGround);
+        yield return new WaitUntil(() => movement.State.OnGround);
 
         onStartAutoMove?.Invoke();
 
         // Determine direction to the target (1 = right, -1 = left)
-        float dir = Mathf.Sign(playerTargetPosition.position.x - player.transform.position.x);
+        float dir = Mathf.Sign(playerTargetPosition.position.x - playerCore.transform.position.x);
 
         // Flip the player sprite to face the movement direction
-        movement.FlipTo(dir > 0);
+        movement.Physics.FlipTo(dir > 0);
 
         // Move the player toward the target until close enough
-        while (Vector2.Distance(player.transform.position, playerTargetPosition.position) > 0.1f)
+        while (Vector2.Distance(playerCore.transform.position, playerTargetPosition.position) > 0.1f)
         {
-            // Apply horizontal velocity in the direction of the target while preserving current vertical velocity
-            player.GetComponent<Rigidbody2D>().velocity = new Vector2(dir * autoMoveSpeed, player.GetComponent<Rigidbody2D>().velocity.y);
-            yield return null; // Wait for the next frame
+            playerCore.Rb.velocity = new Vector2(dir * autoMoveSpeed, playerCore.Rb.velocity.y);
+            yield return null;
         }
         
         // Snap to exact position to avoid jitter or overshoot
-        player.transform.position = new Vector3(
+        playerCore.Rb.position = new Vector2(
             playerTargetPosition.position.x,
-            player.transform.position.y,
-            player.transform.position.z
+            playerCore.Rb.position.y
         );
-        
+
         // Stop the player's movement once the destination is reached
-        player.GetComponent<Rigidbody2D>().velocity = Vector2.zero;
+        playerCore.Rb.velocity = Vector2.zero;
 
         onReachTarget?.Invoke();
 
@@ -293,9 +291,9 @@ public class Axe : MonoBehaviour
     private void ResumePlayerAndTriggerCutscene()
     {
         // Resume the player's movement.
-        if (player != null)
+        if (playerCore != null)
         {
-            player.GetComponent<MarioMovement>().Unfreeze();
+            playerCore.Unfreeze();
         }
 
         // Stop the music if needed.

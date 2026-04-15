@@ -128,7 +128,7 @@ public class KoopaController : EnemyAI
         return true;
     }
 
-    private void KickShell(MarioMovement playerScript, Transform playerTransform)
+    private void KickShell(MarioCore playerScript, Transform playerTransform)
     {
         audioSource.PlayOneShot(knockAwaySound);
         ToMovingShell(playerTransform.position.x > transform.position.x);
@@ -162,7 +162,7 @@ public class KoopaController : EnemyAI
                 ScorePopupManager.Instance.ShowPopup(
                     result,
                     transform.position + Vector3.up * 0.5f,
-                    playerScript.powerupState
+                    playerScript.State.PowerupState
                 );
             }
         }
@@ -180,12 +180,13 @@ public class KoopaController : EnemyAI
         }
 
         hitCooldownTimer = hitCooldown;
-        MarioMovement playerScript = player.GetComponent<MarioMovement>();
+        MarioCore playerScript = player.GetComponent<MarioCore>() ?? player.GetComponentInParent<MarioCore>();
+        if (playerScript == null) return;
 
         switch (state)
         {
             case EnemyState.walking:
-                playerScript.Jump();
+                playerScript.StateMachine.ForceTransition(MarioStateID.Rise);
                 audioSource.Play();
                 ToInShell();
                 AwardStompComboReward();
@@ -196,7 +197,7 @@ public class KoopaController : EnemyAI
                 break;
 
             case EnemyState.movingShell:
-                playerScript.Jump();
+                playerScript.StateMachine.ForceTransition(MarioStateID.Rise);
                 audioSource.Play();
                 ToInShell();
                 AwardStompComboReward();
@@ -210,7 +211,7 @@ public class KoopaController : EnemyAI
         }
     }
 
-    protected override void hitByGroundPound(MarioMovement player)
+    protected override void hitByGroundPound(MarioCore player)
     {
         KnockAway(false);
         AwardStompComboReward();
@@ -223,12 +224,13 @@ public class KoopaController : EnemyAI
             return;
         }
 
-        MarioMovement playerScript = player.GetComponent<MarioMovement>();
+        MarioCore playerScript = player.GetComponent<MarioCore>() ?? player.GetComponentInParent<MarioCore>();
+        if (playerScript == null) return;
 
         switch (state)
         {
             case EnemyState.walking:
-                playerScript.damageMario();
+                playerScript.Combat.DamageMario();
                 break;
 
             case EnemyState.inShell:
@@ -236,12 +238,8 @@ public class KoopaController : EnemyAI
                 break;
 
             case EnemyState.movingShell:
-                playerScript.damageMario();
-                QuestionBlock questionBlock = player.GetComponent<QuestionBlock>();
-                if (questionBlock != null)
-                {
-                    questionBlock.Bump(BlockHitDirection.Up, playerScript);
-                }
+                playerScript.Combat.DamageMario();
+                // Note: QuestionBlock interaction handled via onTouchWall, not here
                 break;
         }
     }

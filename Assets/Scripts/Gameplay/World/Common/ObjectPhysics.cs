@@ -51,7 +51,9 @@ public class ObjectPhysics : MonoBehaviour
 
     public LayerMask floorMask;
     public LayerMask wallMask;
-    private float floorAngle = 0f;  // -45 = \, 0 = _, 45 = /
+    private float   floorAngle  = 0f;    // kept for Slope component compat
+    private Vector2 _floorNormal  = Vector2.up; // actual hit normal, used for tangent
+    private GameObject _groundObject = null;     // tile/object currently stood on
 
     // should mostly be true, except for things like moving koopa shells
     public bool checkObjectCollision = true;
@@ -90,6 +92,7 @@ public class ObjectPhysics : MonoBehaviour
     private int oldOrderInLayer;
     public Vector2 throwVelocity = new Vector2(12, 10);
     private bool hasBeenThrown = false;
+    private bool hasBeenDropped = false;
     public enum ThrowVisualType
     {
         Normal,     // no visual rotation
@@ -327,9 +330,6 @@ public class ObjectPhysics : MonoBehaviour
             pos = VerticalMovement(pos);
         }
 
-        // horizontal movement
-        pos = HorizontalMovement(pos);
-        
         // fix bug where object has y velocity but walking
         // making it walk in the air
         if (objectState == ObjectState.grounded)
@@ -360,6 +360,10 @@ public class ObjectPhysics : MonoBehaviour
                 CheckLedges(pos);
             }
         }
+
+        // horizontal movement — runs after CheckGround so _floorNormal and objectState
+        // are up to date, meaning slope direction is correct on the landing frame.
+        pos = HorizontalMovement(pos);
 
         if (objectState != ObjectState.knockedAway && objectState != ObjectState.onLava)
         {
@@ -455,14 +459,22 @@ public class ObjectPhysics : MonoBehaviour
 
             GameObject groundObject = shortestRay.transform.gameObject;
 
+            // Store the raw normal — tangent is derived from it in HorizontalMovement.
+            // Fall back to Slope component override if present (backwards compat).
+            _floorNormal  = shortestRay.normal;
+            _groundObject = shortestRay.transform.gameObject;
             if (groundObject.CompareTag("Slope") && groundObject.TryGetComponent(out Slope slope))
             {
-                // Slope
-                floorAngle = slope.angle;
+                // Manual angle override — reconstruct a normal from it
+                float rad = slope.angle * Mathf.Deg2Rad;
+                _floorNormal = new Vector2(-Mathf.Sin(rad), Mathf.Cos(rad));
+                floorAngle   = slope.angle;
             }
             else
             {
-                floorAngle = 0;
+                floorAngle = Mathf.Abs(shortestRay.normal.x) > 0.1f
+                    ? Vector2.SignedAngle(shortestRay.normal, Vector2.up) * Mathf.Sign(shortestRay.normal.x)
+                    : 0f;
             }
 
             if (movement == ObjectMovement.sliding)
@@ -506,6 +518,7 @@ public class ObjectPhysics : MonoBehaviour
         else
         {
             // We didn't hit the ground
+            _groundObject = null;
 
             if (objectState != ObjectState.falling)
             {
@@ -597,13 +610,26 @@ public class ObjectPhysics : MonoBehaviour
         Vector2 c;
         GetBounds(pos, out c, out halfWidth, out halfHeight);
 
-        Vector2 originTop    = new Vector2(c.x + direction * halfWidth, c.y + halfHeight - wallRaycastSpacing);
-        Vector2 originMiddle = new Vector2(c.x + direction * halfWidth, c.y);
-        Vector2 originBottom = new Vector2(c.x + direction * halfWidth, c.y - halfHeight + wallRaycastSpacing);
+        // Declare onSlope first — used by both origin and raycast calculations below.
+        bool onSlope = Mathf.Abs(_floorNormal.x) > 0.1f || (objectState == ObjectState.grounded && Mathf.Abs(floorAngle) > 0.1f);
 
-        RaycastHit2D[] wallTop = Physics2D.RaycastAll(originTop, new Vector2(direction, 0), velocity.x * adjDeltaTime, wallMask);
+        Vector2 originTop    = new Vector2(c.x + direction * halfWidth, c.y + halfHeight - wallRaycastSpacing);
+        // On a slope raise the middle ray so it doesn't clip the slope corner geometry.
+        float middleRayY = onSlope ? c.y + halfHeight * 0.4f : c.y;
+        Vector2 originMiddle = new Vector2(c.x + direction * halfWidth, middleRayY);
+        // Keep the bottom ray in the lower quarter of the object regardless of wallRaycastSpacing.
+        // Large spacing values (e.g. shell state uses 0.65) would otherwise push the ray
+        // above center, firing it directly into slope faces and causing spurious wall hits.
+        float bottomRayY = c.y - halfHeight * 0.5f;
+        Vector2 originBottom = new Vector2(c.x + direction * halfWidth, bottomRayY);
+
+        RaycastHit2D[] wallTop    = Physics2D.RaycastAll(originTop,    new Vector2(direction, 0), velocity.x * adjDeltaTime, wallMask);
         RaycastHit2D[] wallMiddle = Physics2D.RaycastAll(originMiddle, new Vector2(direction, 0), velocity.x * adjDeltaTime, wallMask);
-        RaycastHit2D[] wallBottom = Physics2D.RaycastAll(originBottom, new Vector2(direction, 0), velocity.x * adjDeltaTime, wallMask);
+        // On a slope, skip the bottom ray entirely — it clips the slope corner geometry.
+        // The middle ray is sufficient to detect real walls while on a slope.
+        RaycastHit2D[] wallBottom = onSlope
+            ? new RaycastHit2D[0]
+            : Physics2D.RaycastAll(originBottom, new Vector2(direction, 0), velocity.x * adjDeltaTime, wallMask);
 
         RaycastHit2D[][] wallCollides = { wallTop, wallMiddle, wallBottom };
 
@@ -621,9 +647,17 @@ public class ObjectPhysics : MonoBehaviour
                 {
                     continue;
                 }
-                if (hitRay.collider.gameObject.CompareTag("Slope")) {
-                    continue;
-                }
+                // Skip surfaces whose normal has a significant upward component —
+                // these are floor-like surfaces (slopes or ledge corners) that the
+                // object should walk over rather than bounce off.
+                // True vertical walls have normal.y ≈ 0 and are never skipped.
+                // Skip any surface that isn't primarily vertical — true walls have normal.y ≈ 0.
+                if (Mathf.Abs(hitRay.normal.y) > 0.2f) continue;
+
+                // Skip surfaces that are diagonally sloped — the object moves
+                // along them via HorizontalMovement.
+                bool hitIsSloped = Mathf.Abs(hitRay.normal.x) > 0.1f && Mathf.Abs(hitRay.normal.y) > 0.1f;
+                if (hitIsSloped) continue;
                 if (hitRay.collider.gameObject.GetComponent<ObjectPhysics>())
                 {
                     if (!checkifObjectCollideValid(hitRay.collider.gameObject.GetComponent<ObjectPhysics>()))
@@ -643,12 +677,18 @@ public class ObjectPhysics : MonoBehaviour
     }
 
     protected virtual Vector3 HorizontalMovement(Vector3 pos) {
-        // move along the slope if we're on one
-        Vector2 slopeVector = new Vector2(1, 0);
-        if (objectState == ObjectState.grounded && floorAngle != 0)
-        {
-            slopeVector = new Vector2(Mathf.Cos(floorAngle * Mathf.Deg2Rad), Mathf.Sin(floorAngle * Mathf.Deg2Rad));
-        }
+        // Derive the slope tangent from the stored floor normal — rotate 90° clockwise.
+        // normal=(nx,ny) → right-tangent=(ny,-nx). Same approach as Mario's WalkRunState.
+        // On flat ground _floorNormal=(0,1) → tangent=(1,0) so flat movement is unchanged.
+        Vector2 slopeVector = objectState == ObjectState.grounded
+            ? new Vector2(_floorNormal.y, -_floorNormal.x)
+            : Vector2.right;
+
+#if UNITY_EDITOR
+        /*if (objectState == ObjectState.grounded)
+            Debug.Log($"[ObjHMove] state={objectState} floorNormal={_floorNormal} slopeVec={slopeVector} movingLeft={movingLeft} vel={velocity}");*/
+#endif
+
         pos += (movingLeft ? -1 : 1) * adjDeltaTime * velocity.x * (Vector3)slopeVector;
 
         return pos;
@@ -792,6 +832,7 @@ public class ObjectPhysics : MonoBehaviour
             ComboManager.Instance.EndShellChain();
             hasBeenThrown = false;
         }
+        hasBeenDropped = false;
 
         // Stop throw rotation and reset sprite rotation
         if (isThrowRotating && throwSpriteRenderer != null)
@@ -962,6 +1003,7 @@ public class ObjectPhysics : MonoBehaviour
     public virtual void getDropped(bool direction)
     {
         carried = false;
+        hasBeenDropped = true;
 
         velocity = new Vector2(0, 0);
         movingLeft = direction;
@@ -1062,8 +1104,8 @@ public class ObjectPhysics : MonoBehaviour
 
     protected virtual void TryApplyThrownObjectCombo(Collider2D collision)
     {
-        // Only allow this if object was thrown
-        if (!hasBeenThrown)
+        // Allow if object was thrown OR dropped (falling from carry)
+        if (!hasBeenThrown && !hasBeenDropped)
             return;
             
         if (!collision.CompareTag("Enemy"))
@@ -1103,10 +1145,10 @@ public class ObjectPhysics : MonoBehaviour
     public virtual void escapeMario()
     {
         // find mario's script (mario is 2 levels up hopefully lol)
-        MarioMovement marioScript = transform.parent.parent.gameObject.GetComponent<MarioMovement>();
+        MarioCore marioScript = transform.parent?.parent?.gameObject.GetComponent<MarioCore>();
         if (marioScript != null)
         {
-            marioScript.dropCarry();
+            marioScript?.Carry.DropCarry();
         }
     }
 

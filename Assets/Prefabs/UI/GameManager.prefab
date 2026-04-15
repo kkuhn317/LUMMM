@@ -474,7 +474,7 @@ MonoBehaviour:
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
+  m_PixelsPerUnitMultiplier: 1.3
 --- !u!114 &4743676269660020054
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1269,15 +1269,15 @@ RectTransform:
   m_GameObject: {fileID: 824633350576371951}
   m_LocalRotation: {x: 1, y: -0, z: -0, w: 0}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 108.899994, y: 108.899994, z: 108.899994}
-  m_ConstrainProportionsScale: 1
+  m_LocalScale: {x: 108.9, y: -108.9, z: 108.899994}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 7718076848184925374}
   m_LocalEulerAnglesHint: {x: 180, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: 259.72934, y: -45.40432}
-  m_SizeDelta: {x: 3.6504974, y: 2.3935013}
+  m_AnchoredPosition: {x: 235.27725, y: -45.40432}
+  m_SizeDelta: {x: 3.2014, y: 2.3935}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2388781746959835292
 CanvasRenderer:
@@ -1307,15 +1307,15 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: d726514eccf4eb247b5892afa50c403d, type: 3}
-  m_Type: 2
-  m_PreserveAspect: 0
+  m_Sprite: {fileID: 21300000, guid: ce0aa6a1e74dd8b4ca17e337723c25ec, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 1
   m_FillCenter: 1
   m_FillMethod: 4
   m_FillAmount: 1
   m_FillClockwise: 1
   m_FillOrigin: 0
-  m_UseSpriteMesh: 0
+  m_UseSpriteMesh: 1
   m_PixelsPerUnitMultiplier: 1
 --- !u!95 &4080051401076746286
 Animator:
@@ -2991,9 +2991,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 92cce143a01508547af13e4c77ca1e3b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tinyMarioPrefab: {fileID: 1529587128092636900, guid: dc62c93fe8cbfcb4c8c001e9a77561b8, type: 3}
-  iceMarioPrefab: {fileID: 4120770202150125105, guid: 7f1aa09c80c15b647946f6f0282354f7, type: 3}
-  fireMarioPrefab: {fileID: 4120770202150125105, guid: 3afa229313db09e4889a9e91fc2824c3, type: 3}
+  tinyPowerUpData: {fileID: 11400000, guid: 5155c5fc465d4514e9e787c767d34801, type: 2}
+  icePowerUpData: {fileID: 11400000, guid: a441879b9301ffd4eacf356a22469129, type: 2}
+  firePowerUpData: {fileID: 11400000, guid: 964afc43e74a1904caba45bf7085ddf8, type: 2}
   plushieTag: Plushie
   logCheatChanges: 1
 --- !u!114 &8471777555565202502
@@ -4580,7 +4580,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 45}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: 146, y: 16}
+  m_AnchoredPosition: {x: 151.2, y: 13.9}
   m_SizeDelta: {x: 1552.3654, y: 70.3977}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6641055369132422187
@@ -4977,7 +4977,7 @@ GameObject:
   - component: {fileID: 8192369898805523167}
   - component: {fileID: 6791279741594296525}
   m_Layer: 5
-  m_Name: infiniteImage
+  m_Name: infiniteLiveImage
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6123,7 +6123,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: -300.6, y: 5.9000244}
+  m_AnchoredPosition: {x: -300.6, y: 1.800003}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0, y: 0}
 --- !u!222 &8687227062498845765
@@ -6197,7 +6197,7 @@ GameObject:
   - component: {fileID: 2000967122970829499}
   - component: {fileID: 802271805250281264}
   m_Layer: 5
-  m_Name: infiniteImage
+  m_Name: infiniteTimeImage
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6842,8 +6842,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: -180, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: -42.00009, y: 113.60004}
-  m_SizeDelta: {x: 9.634899, y: 2.240097}
+  m_AnchoredPosition: {x: -48.1255, y: 114.3}
+  m_SizeDelta: {x: 9.4447, y: 2.2401}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!222 &2614327163141565510
 CanvasRenderer:
@@ -6873,8 +6873,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: d726514eccf4eb247b5892afa50c403d, type: 3}
-  m_Type: 2
+  m_Sprite: {fileID: 21300000, guid: d7b36e602ca694547adcfdece640dc0f, type: 3}
+  m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -6882,7 +6882,7 @@ MonoBehaviour:
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
+  m_PixelsPerUnitMultiplier: 1.72
 --- !u!95 &3853490221150213381
 Animator:
   serializedVersion: 5
@@ -7093,7 +7093,7 @@ MonoBehaviour:
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
+  m_PixelsPerUnitMultiplier: 1.3
 --- !u!114 &5308079478322136509
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9925,7 +9925,7 @@ MonoBehaviour:
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
+  m_PixelsPerUnitMultiplier: 1.3
 --- !u!114 &5319915972461187670
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10258,7 +10258,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: -254.99997, y: 5.9000244}
+  m_AnchoredPosition: {x: -254.99997, y: 1.800003}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0, y: 0}
 --- !u!222 &6634894022070526634
@@ -11016,7 +11016,7 @@ MonoBehaviour:
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
+  m_PixelsPerUnitMultiplier: 1.3
 --- !u!114 &7208321023594298572
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11331,7 +11331,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: -345.09995, y: 5.9000244}
+  m_AnchoredPosition: {x: -345.09995, y: 1.800003}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0, y: 0}
 --- !u!222 &6003020603123902663
@@ -12965,7 +12965,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 23.35
+  m_fontSize: 23.3
   m_fontSizeBase: 28
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -13272,7 +13272,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 39.5
+  m_fontSize: 39.65
   m_fontSizeBase: 47
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -13499,7 +13499,7 @@ GameObject:
   - component: {fileID: 3905116110643189253}
   - component: {fileID: 1538558870}
   m_Layer: 5
-  m_Name: 'PauseMenu '
+  m_Name: PauseMenu
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -14226,7 +14226,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 113.028}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: 198.90002, y: -12.900024}
+  m_AnchoredPosition: {x: 202, y: -16}
   m_SizeDelta: {x: 1552.3654, y: 70.3977}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2861653850070422577
@@ -19387,7 +19387,9 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: -93
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 5555055611828882187, guid: 4d35bff13e4582b4d9d248cf363c5313, type: 3}
+    - {fileID: 651908831144509599, guid: 4d35bff13e4582b4d9d248cf363c5313, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents:
@@ -19779,13 +19781,26 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7493519383540560669, guid: 54197ee6b4a3f8741954f7bb061d9ea4, type: 3}
+      propertyPath: onEnabled.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 7997743213691297203}
+    - target: {fileID: 7493519383540560669, guid: 54197ee6b4a3f8741954f7bb061d9ea4, type: 3}
+      propertyPath: onDisabled.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 7997743213691297203}
+    - target: {fileID: 7493519383540560669, guid: 54197ee6b4a3f8741954f7bb061d9ea4, type: 3}
+      propertyPath: onEnabled.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 7493519383540560669, guid: 54197ee6b4a3f8741954f7bb061d9ea4, type: 3}
+      propertyPath: onDisabled.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: 
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 6362915066433511030, guid: 54197ee6b4a3f8741954f7bb061d9ea4, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 420505568575364659}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 54197ee6b4a3f8741954f7bb061d9ea4, type: 3}
 --- !u!114 &3754208662771434803 stripped
 MonoBehaviour:
@@ -19824,48 +19839,6 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 6362915066433511030, guid: 54197ee6b4a3f8741954f7bb061d9ea4, type: 3}
   m_PrefabInstance: {fileID: 7805931575763990535}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &420505568575364659
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3754208663165396593}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dfbcd7f2dcfa1cc45aa6f6fc57086a79, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  onEnabled:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 7997743213691297203}
-        m_TargetAssemblyTypeName: UnityEngine.Behaviour, UnityEngine
-        m_MethodName: set_enabled
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-  onDisabled:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 7997743213691297203}
-        m_TargetAssemblyTypeName: UnityEngine.Behaviour, UnityEngine
-        m_MethodName: set_enabled
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 1
-        m_CallState: 2
 --- !u!1001 &8498481948994096561
 PrefabInstance:
   m_ObjectHideFlags: 0

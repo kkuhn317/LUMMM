@@ -98,10 +98,10 @@ public class Bobomb : EnemyAI
 
 
     protected override void hitByStomp(GameObject player) {
-        MarioMovement playerScript = player.GetComponent<MarioMovement>();
+        MarioCore playerScript = player.GetComponent<MarioCore>() ?? player.GetComponentInParent<MarioCore>();
         switch (state) {
             case EnemyState.walking:
-                playerScript.Jump();
+                playerScript.StateMachine.ForceTransition(MarioStateID.Rise);
                 AwardStompComboReward();
                 audioSource.Play();
                 ToPrimed();
@@ -113,10 +113,10 @@ public class Bobomb : EnemyAI
     }
 
     protected override void hitOnSide(GameObject player) {
-        MarioMovement playerScript = player.GetComponent<MarioMovement>();
+        MarioCore playerScript = player.GetComponentInParent<MarioCore>();
         switch (state) {
             case EnemyState.walking:
-                playerScript.damageMario();
+                playerScript.Combat.DamageMario();
                 break;
             case EnemyState.primed:
                 kickBomb(player.transform.position.x > transform.position.x);
@@ -150,7 +150,7 @@ public class Bobomb : EnemyAI
 
             switch (hitCollider.gameObject.tag) {
                 case "Player":
-                    hitCollider.gameObject.GetComponent<MarioMovement>().damageMario();
+                    hitCollider.gameObject.GetComponent<MarioCore>()?.Combat.DamageMario();
                     break;
                 case "Enemy":
                     var enemy = hitCollider.gameObject.GetComponent<EnemyAI>();
@@ -160,7 +160,7 @@ public class Bobomb : EnemyAI
                     enemy.KnockAway(transform.position.x > enemy.transform.position.x);
 
                     Vector3 enemyPos = enemy.transform.position;
-                    var mario = FindObjectOfType<MarioMovement>();
+                    var mario = FindObjectOfType<MarioCore>();
 
                     int points = 100;
                     // GameManager.Instance.AddScorePoints(points);
@@ -169,7 +169,7 @@ public class Bobomb : EnemyAI
                     if (ScorePopupManager.Instance != null)
                     {
                         ComboResult result = new ComboResult(RewardType.Score, PopupID.Score100, points);
-                        ScorePopupManager.Instance.ShowPopup(result, enemyPos, mario.powerupState);
+                        ScorePopupManager.Instance.ShowPopup(result, enemyPos, mario.State.PowerupState);
                     }
                     break;
             }

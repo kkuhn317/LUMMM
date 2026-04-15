@@ -11,16 +11,17 @@ public class UseableObject : MonoBehaviour
     public bool reuseable = false;  // "hasUsed" is not set to false after use
     public bool playerInArea = false;
 
-    public virtual void Use(MarioMovement player)
+    public virtual void Use(MarioCore player)
     {
         print("UseableObject Use");
         if (!CanUseObject())
-        {
             return;
-        }
+
+        // Suppress look-up while interacting
+        if (player != null) player.State.IsUsingObject = true;
 
         if (!resettable && !reuseable) {
-            player.RemoveUseableObject(this);
+            player.Carry.RemoveUseableObject(this);
         }
 
         if (!hasUsed)
@@ -67,7 +68,7 @@ public class UseableObject : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            other.GetComponent<MarioMovement>().AddUseableObject(this);
+            other.GetComponentInParent<MarioCore>()?.Carry.AddUseableObject(this);
             playerInArea = true;
 
             // Activate the keyActivate when the player enters the trigger zone and haven't pull the level 
@@ -81,7 +82,9 @@ public class UseableObject : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            other.GetComponent<MarioMovement>().RemoveUseableObject(this);
+            var core = other.GetComponent<MarioCore>() ?? other.GetComponentInParent<MarioCore>();
+            core?.Carry.RemoveUseableObject(this);
+            if (core != null) core.State.IsUsingObject = false;
             playerInArea = false;
 
             // Deactivate the keyActivate when the player exits the trigger zone

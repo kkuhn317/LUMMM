@@ -33,13 +33,13 @@ public class BigDoor : Door
             if (player == null) return;
         }
 
-        var mmScript = player.GetComponent<MarioMovement>();
+        var mmScript = player.GetComponent<MarioCore>();
         if (!mmScript) return;
 
         // Only react when the player is “at” the door and presses up
         if (PlayerAtDoor(mmScript))
         {
-            if (mmScript.moveInput.y > 0.5f)
+            if (mmScript.State.MoveInput.y > 0.5f)
             {
                 if (locked)
                 {
@@ -102,7 +102,7 @@ public class BigDoor : Door
         if (!player) yield break;
 
         var rb = player.GetComponent<Rigidbody2D>();
-        var mm = player.GetComponent<MarioMovement>();
+        var mm = player.GetComponent<MarioCore>();
         if (!rb || !mm) yield break;
 
         // Hand-off control to the door
@@ -115,7 +115,7 @@ public class BigDoor : Door
         {
             // Safety timeout after 1.5s in case ground is never achieved
             float t = 0f;
-            while (!mm.onGround && t < 1.5f)
+            while (!mm.State.OnGround && t < 1.5f)
             {
                 t += Time.deltaTime;
                 yield return null;
@@ -128,7 +128,7 @@ public class BigDoor : Door
         float dir = Mathf.Sign(targetX - player.transform.position.x);
 
         // Flip sprite to face the motion direction (same idea as Axe’s FlipTo)
-        mm.FlipTo(dir > 0);
+        mm.Physics.FlipTo(dir > 0);
 
         // Drive horizontal velocity until close enough
         while (Mathf.Abs(player.transform.position.x - targetX) > autoArrivalThreshold)
@@ -190,8 +190,8 @@ public class BigDoor : Door
         {
             player.transform.position = destination.transform.position;
 
-            var mm = player.GetComponent<MarioMovement>();
-            if (mm && mm.powerupState == PowerupState.small)
+            var mm = player.GetComponent<MarioCore>();
+            if (mm != null && mm.State.PowerupState == PowerupState.small)
             {
                 player.transform.position -= new Vector3(0, 0.5f, 0);
             }
@@ -205,7 +205,7 @@ public class BigDoor : Door
 
         // Give control back
         UnfreezePlayer();
-        var movement = player.GetComponent<MarioMovement>();
-        if (movement) movement.EnableInputs();
+        var movement = player.GetComponent<MarioCore>();
+        if (movement != null) movement.EnableInputs();
     }
 }

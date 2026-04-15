@@ -61,7 +61,7 @@ public class POWBlock : BumpableBlock
         return currentUses > 0;
     }
 
-    protected override bool CanActivateFromPlayer(MarioMovement player)
+    protected override bool CanActivateFromPlayer(MarioCore player)
     {
         if (!base.CanActivateFromPlayer(player)) return false;
         return currentUses > 0;
@@ -69,7 +69,7 @@ public class POWBlock : BumpableBlock
     #endregion
 
     #region Bounce Handling
-    protected override void OnBeforeBounce(BlockHitDirection direction, MarioMovement player)
+    protected override void OnBeforeBounce(BlockHitDirection direction, MarioCore player)
     {
         // If we are out of uses, cancel the bounce
         if (currentUses <= 0)
@@ -87,7 +87,7 @@ public class POWBlock : BumpableBlock
         ApplyPOWUseInternal();
     }
 
-    protected override void OnAfterBounce(BlockHitDirection direction, MarioMovement player)
+    protected override void OnAfterBounce(BlockHitDirection direction, MarioCore player)
     {
         base.OnAfterBounce(direction, player);
         HandleDepletionIfNeeded();

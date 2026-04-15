@@ -8,7 +8,7 @@ public struct CutsceneContext
     public GameManager gameManager;
     public Scene scene;
 
-    public MarioMovement mainPlayer;
+    public MarioCore mainPlayer;
 
     // Useful player data at the moment of the trigger
     public Vector3 playerPosition;

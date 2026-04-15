@@ -8,10 +8,10 @@ using System.Collections.Generic;
 /// </summary>
 public class CheatController : MonoBehaviour
 {
-    [Header("Powerup Prefabs")]
-    [SerializeField] private GameObject tinyMarioPrefab;
-    [SerializeField] private GameObject iceMarioPrefab;
-    [SerializeField] private GameObject fireMarioPrefab;
+    [Header("Powerup Data")]
+    [SerializeField] private PowerUpData tinyPowerUpData;
+    [SerializeField] private PowerUpData icePowerUpData;
+    [SerializeField] private PowerUpData firePowerUpData;
 
     [Header("Tags")]
     [SerializeField] private string plushieTag = "Plushie";
@@ -113,7 +113,6 @@ public class CheatController : MonoBehaviour
 
     /// <summary>
     /// Toggles player invincibility.
-    /// Note: You need to implement these methods in MarioMovement.cs
     /// </summary>
     private void HandleInvincibility(bool enabled)
     {
@@ -124,9 +123,9 @@ public class CheatController : MonoBehaviour
         var players = GetActivePlayers();
         foreach (var player in players)
         {
-            if (player != null)
+            if (player != null && player.Combat != null)
             {
-                player.EnableInvincibility(enabled);
+                if (enabled) player.Combat.StartStarPower(99999f); else player.Combat.StopStarPower();
             }
         }
 
@@ -136,7 +135,6 @@ public class CheatController : MonoBehaviour
 
     /// <summary>
     /// Toggles all movement abilities (wall jump, ground pound, double jump, etc.)
-    /// Note: You need to implement these methods in MarioMovement.cs
     /// </summary>
     private void HandleAllAbilities(bool enabled)
     {
@@ -149,7 +147,7 @@ public class CheatController : MonoBehaviour
         {
             if (player != null)
             {
-                player.EnableAllAbilities(enabled);
+                player.AbilityManager.EnableAllAbilities(enabled);
             }
         }
 
@@ -245,23 +243,22 @@ public class CheatController : MonoBehaviour
     /// <summary>
     /// Applies a specific powerup cheat to an individual player.
     /// </summary>
-    private void ApplyPowerupToPlayer(MarioMovement player, StartPowerupMode mode)
+    private void ApplyPowerupToPlayer(MarioCore player, StartPowerupMode mode)
     {
         if (player == null) return;
 
         switch (mode)
         {
             case StartPowerupMode.Tiny:
-                if (player.powerupState != PowerStates.PowerupState.tiny)
-                    player.ChangePowerup(tinyMarioPrefab);
+                if (player.State.PowerupState != PowerStates.PowerupState.tiny)
+                    player.Powerup.ChangePowerup(tinyPowerUpData);
                 break;
             case StartPowerupMode.Ice:
-                player.ChangePowerup(iceMarioPrefab);
+                player.Powerup.ChangePowerup(icePowerUpData);
                 break;
             case StartPowerupMode.Fire:
-                player.ChangePowerup(fireMarioPrefab);
+                player.Powerup.ChangePowerup(firePowerUpData);
                 break;
-            // None mode does nothing
         }
     }
 
@@ -273,9 +270,9 @@ public class CheatController : MonoBehaviour
     /// Gets all active players in the scene.
     /// Tries PlayerRegistry first, falls back to FindObjectsOfType.
     /// </summary>
-    private List<MarioMovement> GetActivePlayers()
+    private List<MarioCore> GetActivePlayers()
     {
-        List<MarioMovement> activePlayers = new();
+        List<MarioCore> activePlayers = new();
 
         // Try to get players from registry first (more efficient)
         if (playerRegistry != null)
@@ -291,7 +288,7 @@ public class CheatController : MonoBehaviour
         // Fallback to finding them manually
         if (activePlayers.Count == 0)
         {
-            activePlayers.AddRange(FindObjectsOfType<MarioMovement>());
+            activePlayers.AddRange(FindObjectsOfType<MarioCore>());
         }
 
         return activePlayers;
@@ -347,7 +344,7 @@ public class CheatController : MonoBehaviour
     /// Applies the start powerup cheat to a specific player.
     /// Useful for checkpoint respawns.
     /// </summary>
-    public void ApplyStartPowerupToPlayer(MarioMovement player)
+    public void ApplyStartPowerupToPlayer(MarioCore player)
     {
         if (CheatFlags.StartPowerup != StartPowerupMode.None)
         {
@@ -355,7 +352,7 @@ public class CheatController : MonoBehaviour
         }
     }
 
-    public void ForceApplyPowerupToPlayer(MarioMovement player, StartPowerupMode mode)
+    public void ForceApplyPowerupToPlayer(MarioCore player, StartPowerupMode mode)
     {
         ApplyPowerupToPlayer(player, mode);
     }

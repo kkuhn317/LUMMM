@@ -5,6 +5,7 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+    serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 2690894693950237374, guid: ff75489bc4690ac44b21755151c91047, type: 3}
@@ -63,5 +64,33 @@ PrefabInstance:
       propertyPath: m_Materials.Array.data[0]
       value: 
       objectReference: {fileID: 2100000, guid: 4af0e4f205eaa464e9c2b54f383ca1b2, type: 2}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 7019903057280878504, guid: ff75489bc4690ac44b21755151c91047, type: 3}
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 2690894693950398662, guid: ff75489bc4690ac44b21755151c91047, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8434825385615583072}
   m_SourcePrefab: {fileID: 100100000, guid: ff75489bc4690ac44b21755151c91047, type: 3}
+--- !u!1 &6845726102132303447 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2690894693950398662, guid: ff75489bc4690ac44b21755151c91047, type: 3}
+  m_PrefabInstance: {fileID: 8815547683169273489}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &8434825385615583072
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6845726102132303447}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9ce44b4be367cf04ea2a4e1d426ccd4a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gravity: 50
+  velocity: {x: 0, y: 10}
+  timeBeforeLoseLife: 1
+  gameOverScreen: {fileID: 0}

@@ -16,10 +16,9 @@ public class LivesCounter : MonoBehaviour
 
     public float delay = 1f; // Additional delay after cutscene ends before going back to level
 
-    // Start is called before the first frame update
     void Start()
     {
-        Time.timeScale = 1f; // Ensure time scale is normal
+        Time.timeScale = 1f;
         int livesNum = GlobalVariables.lives;
         if (oldNumber) livesNum += 1;
         GetComponent<TextMeshProUGUI>().text = livesNum.ToString();
@@ -36,8 +35,6 @@ public class LivesCounter : MonoBehaviour
 
             if (director != null) {
                 double timelineDuration = director.duration + delay;
-
-                // Use the timeline duration as the delay before loading the scene
                 Invoke(nameof(GoBackToLevel), (float)timelineDuration);
             } else {
                 Invoke(nameof(GoBackToLevel), 2f);
@@ -47,17 +44,26 @@ public class LivesCounter : MonoBehaviour
 
     private void GoBackToLevel()
     {
-        SceneManager.sceneLoaded += OnSceneLoaded; // Subscribe to event
+        if (GlobalVariables.levelInfo == null)
+        {
+            Debug.LogWarning("[LivesCounter] levelInfo is null — reloading current scene as fallback.");
+            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+            return;
+        }
+
+        SceneManager.sceneLoaded += OnSceneLoaded;
         SceneManager.LoadScene(GlobalVariables.levelInfo.levelScene);
     }
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
+        if (GlobalVariables.levelInfo == null) return;
+
         if (scene.name == GlobalVariables.levelInfo.levelScene)
         {
             Debug.Log($"Scene {scene.name} loaded. Resuming music.");
             ResumeGameMusic();
-            SceneManager.sceneLoaded -= OnSceneLoaded; // Unsubscribe after use
+            SceneManager.sceneLoaded -= OnSceneLoaded;
         }
     }
 

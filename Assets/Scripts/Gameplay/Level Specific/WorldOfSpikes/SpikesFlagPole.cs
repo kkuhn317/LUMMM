@@ -1,15 +1,18 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// Special flagpole for the Spikes level. Overrides reward granting to
+/// require the GiantThwomp to be defeated first. On destruction, spawns
+/// a dead Mario at the player's last position and shows the broken pole.
+/// </summary>
 public class SpikesFlagPole : Flag, IDestructible
 {
-    private bool playerReachedFlag = false;
-
+    [Header("Spikes Level")]
     public GiantThwomp giantThwomp;
-    public GameObject brokenFlagPole;
-    public GameObject deadMario;
-    public GameObject brokenflag;
+    public GameObject  brokenFlagPole;
+
+    [Tooltip("DeathCause used when the flagpole is destroyed while Mario is on it.")]
+    public DeathCause deathCause;
 
     protected override void Start()
     {
@@ -17,47 +20,42 @@ public class SpikesFlagPole : Flag, IDestructible
         brokenFlagPole.SetActive(false);
     }
 
-    protected override void Update()
+    /// <summary>Only grant reward if the Thwomp is already defeated.</summary>
+    protected override void OnGrantReward(Collider2D other, MarioCore mario)
     {
-        base.Update();
+        bool thwompDefeated = giantThwomp == null || giantThwomp.CanBeDefeatedNow;
+        if (!thwompDefeated) return;
+
+        base.OnGrantReward(other, mario);
     }
 
-    // Reward only if thwomp is already defeated when touching the pole.
-    protected override void TryGrantFlagpoleReward(Collider2D other, MarioMovement mario)
-    {
-        bool thwompDefeated = (giantThwomp == null) ? true : giantThwomp.CanBeDefeatedNow;
-
-        if (!thwompDefeated)
-            return; // NO score, NO popup
-
-        base.TryGrantFlagpoleReward(other, mario);
-    }
+    public void HidePuppets() => Slide.HideAllPuppets();
 
     public void OnDestruction()
     {
-        Debug.Log("SpikesFlagPole destroyed!");
+        // Hide all puppets immediately
+        Slide.HideAllPuppets();
 
-        if (playerReachedFlag == true && deadMario != null)
+        // Kill all players currently sliding on the pole
+        foreach (var ps in Slide.SlidingPlayers)
         {
-            deadMario.transform.position = cutsceneMario.transform.position;
-            Instantiate(deadMario, cutsceneMario.transform.position, Quaternion.identity);
+            if (ps.Mario == null) continue;
+
+            // Destroy the cutscene puppet
+            if (ps.CutsceneMarioInstance != null)
+                Destroy(ps.CutsceneMarioInstance);
+
+            // Reactivate the real Mario before killing — puppet hid them
+            ps.Mario.gameObject.SetActive(true);
+
+            if (!ps.Mario.State.IsDead)
+                ps.Mario.Combat.ToDead(deathCause);
         }
 
-        brokenflag.transform.position = flag.transform.position;
-        brokenFlagPole.SetActive(true);
+        // Activate broken pole before destroying — Destroy is deferred to end of frame
+        if (brokenFlagPole != null)
+            brokenFlagPole.SetActive(true);
 
         Destroy(gameObject);
-    }
-
-    protected override void OnTriggerEnter2D(Collider2D other)
-    {
-        base.OnTriggerEnter2D(other);
-
-        if (other.CompareTag("Player") && !playerReachedFlag)
-        {
-            other.gameObject.transform.position = transform.position;
-            playerReachedFlag = true;
-            Debug.Log("Player reached the flagpole!");
-        }
     }
 }

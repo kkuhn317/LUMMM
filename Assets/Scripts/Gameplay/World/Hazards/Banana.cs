@@ -15,12 +15,14 @@ public class Banana : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.CompareTag("Player") && !isSlipping && !other.TryGetComponent<MarioSlip>(out _))
+        MarioCore _bananaCore = other.GetComponentInParent<MarioCore>();
+        GameObject _bananaRoot = _bananaCore != null ? _bananaCore.gameObject : other.gameObject;
+        if (other.CompareTag("Player") && !isSlipping && !_bananaRoot.TryGetComponent<MarioSlip>(out _))
         {
             GetComponent<AudioSource>().Play();
             animator.SetTrigger("fall");
-            // Add the slip component to the player
-            other.gameObject.AddComponent<MarioSlip>();
+            // Add the slip component to the player root
+            _bananaRoot.AddComponent<MarioSlip>();
         }
     }
 

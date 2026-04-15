@@ -11,9 +11,9 @@ GameObject:
   - component: {fileID: 6024008382419277970}
   - component: {fileID: 8491592056906927841}
   - component: {fileID: 6803946460555095318}
-  - component: {fileID: 8667796224515074832}
   - component: {fileID: 4479599860146431896}
   - component: {fileID: -1812553495888049834}
+  - component: {fileID: -3843756837513195471}
   m_Layer: 0
   m_Name: PigMario
   m_TagString: Untagged
@@ -136,6 +136,9 @@ MonoBehaviour:
   carryable: 0
   carried: 0
   throwVelocity: {x: 12, y: 10}
+  throwVisualType: 0
+  throwSpriteRenderer: {fileID: 0}
+  throwRotateSpeed: 720
   rotateAroundCenter: 0
   knockAwayVelocity: {x: 5, y: 5}
   overrideKnockAwayGravity: 0
@@ -149,22 +152,6 @@ MonoBehaviour:
   stopAfterLand: 0
   bounceHeight: 0
   minHeightToBounce: 0.25
---- !u!114 &8667796224515074832
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8282462989337860828}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fa8b70488dc49534f952cedbe3b6b2a6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  gravity: 0
-  velocity: {x: 0, y: 0}
-  timeBeforeLoseLife: 1
-  gameOverScreen: {fileID: 0}
 --- !u!82 &4479599860146431896
 AudioSource:
   m_ObjectHideFlags: 0
@@ -274,3 +261,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   delay: 0.25
+--- !u!114 &-3843756837513195471
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8282462989337860828}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9ce44b4be367cf04ea2a4e1d426ccd4a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gravity: 50
+  timeBeforeLoseLife: 1
+  velocity: {x: 0, y: 0}
+  gameOverScreen: {fileID: 0}

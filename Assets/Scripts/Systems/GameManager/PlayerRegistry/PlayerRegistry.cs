@@ -7,13 +7,13 @@ public class PlayerRegistry : MonoBehaviour
     [Header("Input")]
     [SerializeField] private InputActionAsset playerInputActions;
 
-    private List<MarioMovement> players = new List<MarioMovement>();
+    // Changed from MarioMovement to MarioCore
+    private List<MarioCore> players = new List<MarioCore>();
 
     public InputActionAsset GetPlayerInputActions() => playerInputActions;
 
-    public void RegisterPlayer(MarioMovement player, int playerIndex)
+    public void RegisterPlayer(MarioCore player, int playerIndex)
     {
-        // playerIndex can be -1 when PlayerInput hasn't joined/initialized yet
         if (playerIndex < 0)
         {
             Debug.LogWarning($"PlayerRegistry.RegisterPlayer ignored invalid index: {playerIndex}");
@@ -23,6 +23,7 @@ public class PlayerRegistry : MonoBehaviour
         while (players.Count <= playerIndex) players.Add(null);
         players[playerIndex] = player;
 
+        // Ensure GameEvents is updated to accept MarioCore if necessary
         GameEvents.TriggerPlayerRegistered(player, playerIndex);
     }
 
@@ -43,7 +44,7 @@ public class PlayerRegistry : MonoBehaviour
         players[playerIndex] = null;
     }
 
-    public void UnregisterPlayer(MarioMovement player)
+    public void UnregisterPlayer(MarioCore player)
     {
         if (player == null) return;
 
@@ -51,13 +52,13 @@ public class PlayerRegistry : MonoBehaviour
         if (idx >= 0) players[idx] = null;
     }
 
-    public MarioMovement GetPlayer(int playerIndex)
+    public MarioCore GetPlayer(int playerIndex)
     {
         if (playerIndex < 0 || playerIndex >= players.Count) return null;
         return players[playerIndex];
     }
 
-    public MarioMovement[] GetAllPlayers()
+    public MarioCore[] GetAllPlayers()
     {
         return players.ToArray();
     }

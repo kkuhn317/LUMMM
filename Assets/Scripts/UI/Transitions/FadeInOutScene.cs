@@ -14,6 +14,9 @@ public class FadeInOutScene : MonoBehaviour
     private string pendingSceneName = "";
     private bool pendingFadeOut = true;
 
+    /// <summary>True if the current scene was loaded via FadeInOutScene — suppresses CircleTransition.</summary>
+    public static bool LoadedWithFade { get; private set; }
+
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -100,6 +103,9 @@ public class FadeInOutScene : MonoBehaviour
             pendingSceneName = ""; // Clear the queue
         }
         
+        // Signal that the incoming scene was loaded via fade — suppresses CircleTransition
+        LoadedWithFade = true;
+
         // Load the scene asynchronously so we can wait for it to fully complete
         AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(sceneName);
         while (!asyncLoad.isDone)
@@ -115,6 +121,7 @@ public class FadeInOutScene : MonoBehaviour
         }
         
         // Transition complete
+        LoadedWithFade = false;
         isTransitioning = false;
         currentFadeCoroutine = null;
         

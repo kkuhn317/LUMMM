@@ -219,10 +219,10 @@ public class NormalGoombaBoss : EnemyAI
 
     protected override void hitByStomp(GameObject player)
     {
-        MarioMovement playerscript = player.GetComponent<MarioMovement>();
+        MarioCore playerscript = player.GetComponent<MarioCore>();
         audioSource.pitch = 1.25f;
         audioSource.PlayOneShot(stompSound);
-        playerscript.Jump();
+        playerscript.StateMachine.ForceTransition(MarioStateID.Rise);
         health--;
 
         animator.SetTrigger("hurt");
@@ -278,10 +278,10 @@ public class NormalGoombaBoss : EnemyAI
         base.hitOnSide(player);
 
         // Get the player script
-        MarioMovement playerScript = player.GetComponent<MarioMovement>();
+        MarioCore playerScript = player.GetComponent<MarioCore>();
 
         // Check if goomba's health is more or equals to 3 and the player is dead and the Goomba is moving left
-        if (health >= 3 && playerScript != null && playerScript.Dead && movingLeft)
+        if (health >= 3 && playerScript != null && playerScript.State.IsDead && movingLeft)
         {
             StartCoroutine(HandlePlayerDeath());
         }

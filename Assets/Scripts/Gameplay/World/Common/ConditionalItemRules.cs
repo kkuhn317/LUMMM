@@ -69,7 +69,7 @@ public class ConditionalItemRules
     /// Resolves an item prefab for the given player. Returns null if disabled, player is null,
     /// or no rules match (depending on noMatchMode/fallbackItem).
     /// </summary>
-    public GameObject Resolve(MarioMovement player)
+    public GameObject Resolve(MarioCore player)
     {
         if (!enabled) return null;
         if (player == null) return null;
@@ -90,10 +90,10 @@ public class ConditionalItemRules
         return null;
     }
 
-    private bool Matches(PlayerCondition condition, MarioMovement player)
+    private bool Matches(PlayerCondition condition, MarioCore player)
     {
-        bool isSmall = PowerStates.IsSmall(player.powerupState);
-        bool isBig = PowerStates.IsBig(player.powerupState);
+        bool isSmall = PowerStates.IsSmall(player.State.PowerupState);
+        bool isBig = PowerStates.IsBig(player.State.PowerupState);
 
         return condition switch
         {

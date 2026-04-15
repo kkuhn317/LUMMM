@@ -323,8 +323,23 @@ public class PauseMenuController : MonoBehaviour
 
     private bool HasCheckpointSaved() => FindObjectOfType<CheckpointManager>(true)?.HasCheckpoint ?? false;
 
-    public void RestartFromBeginning() { ResumeGame(); GameManager.Instance?.RestartLevelFromBeginning(); }
-    public void RestartFromCheckpoint() { ResumeGame(); GameManager.Instance?.RestartLevelFromCheckpoint(); }
+    public void RestartFromBeginning()
+    {
+        ResumeGame();
+        if (FadeInOutScene.Instance != null)
+            FadeInOutScene.Instance.LoadSceneWithFade(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
+        else
+            GameManager.Instance?.RestartLevelFromBeginning();
+    }
+
+    public void RestartFromCheckpoint()
+    {
+        ResumeGame();
+        if (FadeInOutScene.Instance != null)
+            FadeInOutScene.Instance.LoadSceneWithFade(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
+        else
+            GameManager.Instance?.RestartLevelFromCheckpoint();
+    }
     public void QuitLevel() { ResumeGame(); GlobalEventHandler.TriggerExitRequested(); GameManager.Instance?.QuitLevel(); }
 
     private void ReduceMusicVolume()
@@ -377,9 +392,7 @@ public class PauseMenuController : MonoBehaviour
             foreach (var mb in player.GetComponentsInChildren<MonoBehaviour>(true))
             {
                 if (mb is IPausableGameplay pg) pg.SetPaused(paused);
-            }
-            var mario = player.GetComponentInChildren<MarioMovement>(true);
-            if (mario != null) mario.enabled = !paused;
+            }  
         }
     }
 

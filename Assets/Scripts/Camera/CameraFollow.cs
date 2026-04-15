@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 
@@ -32,6 +33,9 @@ public class CameraFollow : MonoBehaviour
     private bool isLookingUp = false;
     public Vector3 offset;
     private int ongoingShakes = 0;
+
+    // Override targets — set by Flag during pole slide so camera follows cutscene Marios
+    private List<GameObject> _overrideTargets = null;
 
     [Header("Change Camera Size")]
     private float originalOrthographicSize;
@@ -79,15 +83,27 @@ public class CameraFollow : MonoBehaviour
 
         if (players == null || players.Length == 0) return;
 
-        // 1) Compute target (players centroid)
+        // 1) Compute target (override targets or players centroid)
         Vector2 target = Vector2.zero;
         int validCount = 0;
 
-        foreach (var p in players)
+        if (_overrideTargets != null && _overrideTargets.Count > 0)
         {
-            if (!p) continue;
-            target += (Vector2)p.transform.position;
-            validCount++;
+            foreach (var t in _overrideTargets)
+            {
+                if (!t) continue;
+                target += (Vector2)t.transform.position;
+                validCount++;
+            }
+        }
+        else
+        {
+            foreach (var p in players)
+            {
+                if (!p) continue;
+                target += (Vector2)p.transform.position;
+                validCount++;
+            }
         }
 
         if (validCount == 0) return;
@@ -303,5 +319,22 @@ public class CameraFollow : MonoBehaviour
     public Vector2 GetLockOffset()
     {
         return currentZone != null ? currentZone.lockOffset : Vector2.zero;
+    }
+
+    // ─── Override Target API (used by Flag during pole slide) ─────────────────
+
+    /// <summary>
+    /// Forces the camera to follow the centroid of the given objects
+    /// instead of the PlayerRegistry players. Used during flagpole cutscenes.
+    /// </summary>
+    public void SetOverrideTargets(List<GameObject> targets)
+    {
+        _overrideTargets = targets;
+    }
+
+    /// <summary>Releases the override and returns to following registered players.</summary>
+    public void ClearOverrideTargets()
+    {
+        _overrideTargets = null;
     }
 }

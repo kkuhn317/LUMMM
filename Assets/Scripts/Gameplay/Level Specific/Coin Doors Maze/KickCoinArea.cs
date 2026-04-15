@@ -48,7 +48,10 @@ public class KickCoinArea : UseableObject
         if (kickEffectPrefab != null)
         {
             // Get the closest point of collision between the player and the coin
-            Collider2D playerCollider = currentPlayer.GetComponent<Collider2D>();
+            MarioCore _mc = currentPlayer.GetComponent<MarioCore>() ?? currentPlayer.GetComponentInParent<MarioCore>();
+            Collider2D playerCollider = _mc != null && _mc.Collider != null
+                ? (Collider2D)_mc.Collider
+                : currentPlayer.GetComponentInChildren<Collider2D>();
             Collider2D coinCollider = coin.GetComponent<Collider2D>();
 
             if (playerCollider != null && coinCollider != null)
@@ -69,7 +72,7 @@ public class KickCoinArea : UseableObject
         }
         
         // Check if a player enters the area
-        MarioMovement playerMovement = collision.GetComponent<MarioMovement>();
+        MarioCore playerMovement = collision.GetComponent<MarioCore>();
         if (playerMovement != null)
         {
             currentPlayer = collision.gameObject;

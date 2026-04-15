@@ -71,7 +71,7 @@ public class CoinBlock : BumpableBlock
     private bool bonusSpawned = false;
 
     // last player who hit (used for conditional bonus resolution)
-    private MarioMovement lastHitPlayer;
+    private MarioCore lastHitPlayer;
 
     private SpriteRenderer spriteRenderer;
     private Animator animator;
@@ -101,14 +101,14 @@ public class CoinBlock : BumpableBlock
         return true;
     }
 
-    protected override bool CanActivateFromPlayer(MarioMovement player)
+    protected override bool CanActivateFromPlayer(MarioCore player)
     {
         if (!base.CanActivateFromPlayer(player)) return false;
         if (isUsed) return allowBounceWhenEmpty;
         return true;
     }
 
-    protected override void OnBeforeBounce(BlockHitDirection direction, MarioMovement player)
+    protected override void OnBeforeBounce(BlockHitDirection direction, MarioCore player)
     {
         // BounceRoutine runs BEFORE OnAfterBounce in BumpableBlock,
         // so we must skip the bounce here if we don't want empty blocks to bounce.
@@ -118,7 +118,7 @@ public class CoinBlock : BumpableBlock
         }
     }
 
-    protected override void OnAfterBounce(BlockHitDirection direction, MarioMovement player)
+    protected override void OnAfterBounce(BlockHitDirection direction, MarioCore player)
     {
         lastHitPlayer = player;
 
@@ -182,7 +182,7 @@ public class CoinBlock : BumpableBlock
         }
     }
 
-    private void GiveCoin(MarioMovement player)
+    private void GiveCoin(MarioCore player)
     {
         if (coinPrefab == null) return;
 

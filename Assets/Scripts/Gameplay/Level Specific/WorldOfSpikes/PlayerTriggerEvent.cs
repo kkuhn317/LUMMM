@@ -3,25 +3,21 @@ using UnityEngine.Playables;
 
 public class PlayerTriggerEvent : MonoBehaviour
 {
-    public PlayableDirector timeline;  // Reference to the PlayableDirector for the timeline
+    public PlayableDirector timeline;
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        // Check if the object entering the trigger is the player
-        if (other.gameObject.CompareTag("Player"))
-        {
-            // Destroy the player
-            Destroy(other.gameObject);
+        if (!other.CompareTag("Player")) return;
 
-            // Play the timeline
-            if (timeline != null)
-            {
-                timeline.Play();
-            }
-            else
-            {
-                Debug.LogWarning("PlayableDirector is not assigned!");
-            }
-        }
+        // MarioCore is on the ROOT — destroy the root, not the child collider
+        var core = other.GetComponent<MarioCore>() ?? other.GetComponentInParent<MarioCore>();
+        if (core == null) return;
+
+        Destroy(core.gameObject);
+
+        if (timeline != null)
+            timeline.Play();
+        else
+            Debug.LogWarning("PlayableDirector is not assigned!");
     }
 }

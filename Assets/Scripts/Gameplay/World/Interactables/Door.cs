@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -61,8 +60,8 @@ public class Door : MonoBehaviour
 
     void findPlayer()
     {
-        // MarioMovement playerScript = GameManager.Instance.GetPlayer(0);
-        MarioMovement playerScript = playerRegistry.GetPlayer(0);
+        // MarioCore playerScript = GameManager.Instance.GetPlayer(0);
+        MarioCore playerScript = playerRegistry.GetPlayer(0);
         if (playerScript)
         {
             player = playerScript.gameObject;
@@ -87,7 +86,7 @@ public class Door : MonoBehaviour
             }
         }
 
-        MarioMovement playerScript = player.GetComponent<MarioMovement>();
+        MarioCore playerScript = player.GetComponent<MarioCore>();
 
         if (playerScript == null)
         {
@@ -98,7 +97,7 @@ public class Door : MonoBehaviour
         if (PlayerAtDoor(playerScript))
         {
             // if pressing up
-            if (playerScript.moveInput.y > 0.5)
+            if (playerScript.State.MoveInput.y > 0.5f)
             {
                 // if the door is locked
                 if (locked)
@@ -129,11 +128,11 @@ public class Door : MonoBehaviour
         }
     }
 
-    protected virtual bool PlayerAtDoor(MarioMovement playerScript)
+    protected virtual bool PlayerAtDoor(MarioCore playerScript)
     {
         Vector2 playerPos = player.transform.position;
         // TODO: base off of player's actual height (this doesn't work for tiny mario)
-        if (playerScript.powerupState == PowerupState.small)
+        if (playerScript.State.PowerupState == PowerupState.small)
         {
             playerPos.y += 0.5f;
         }
@@ -142,7 +141,7 @@ public class Door : MonoBehaviour
         float ydist = Mathf.Abs(playerPos.y - transform.position.y);
 
         // if player is at the door
-        return xdist < 0.4 && ydist < 0.1 && playerScript.onGround;
+        return xdist < 0.4 && ydist < 0.1 && playerScript.State.OnGround;
     }
 
     protected virtual bool CheckForKey()
@@ -174,37 +173,36 @@ public class Door : MonoBehaviour
 
     protected virtual void FreezePlayer()
     {
-        player.GetComponent<MarioMovement>().inputLocked = true;
-        player.GetComponent<Rigidbody2D>().simulated = false;
-        player.GetComponent<Rigidbody2D>().velocity = Vector2.zero;
-        Animator playerAnimator = player.GetComponent<Animator>();
-        playerAnimator.SetBool("onGround", true);
-        playerAnimator.SetBool("isRunning", false);
-        playerAnimator.SetBool("isSkidding", false);
+        var core = player.GetComponent<MarioCore>();
+        if (core == null) return;
 
-        // disable all scripts
-        foreach (MonoBehaviour script in player.GetComponents<MonoBehaviour>())
+        // Cancel look-up immediately so it doesn't persist through the door sequence
+        if (core.State.IsLookingUp)
         {
-            Type[] allowedTypes = { typeof(PlayerInput), typeof(SpriteLibrary), typeof(SpriteResolver) };
-            // Still allow some scripts or else it will break input or animations
-            if (Array.IndexOf(allowedTypes, script.GetType()) < 0)
-            {
-                script.enabled = false;
-            }
+            core.State.IsLookingUp = false;
+            MarioEvents.FireLookUpEnded(core.PlayerIndex);
         }
+
+        core.SetModulesEnabled(false);
+        core.DisableInputs();
+        core.State.InputLocked  = true;
+        core.State.IsUsingObject = true;
+        core.Rb.velocity        = Vector2.zero;
+        core.Rb.isKinematic     = true;
+        if (core.Collider) core.Collider.enabled = false;
     }
     protected void UnfreezePlayer()
     {
-        player.GetComponent<MarioMovement>().inputLocked = false;
-        player.GetComponent<Rigidbody2D>().simulated = true;
-        // enable all scripts
-        foreach (MonoBehaviour script in player.GetComponents<MonoBehaviour>())
-        {
-            if (script.GetType() != typeof(PlayerInput))
-            {
-                script.enabled = true;
-            }
-        }
+        var core = player.GetComponent<MarioCore>();
+        if (core == null) return;
+
+        core.Rb.isKinematic      = false;
+        if (core.Collider) core.Collider.enabled = true;
+        core.SetModulesEnabled(true);
+        core.State.InputLocked   = false;
+        core.State.IsUsingObject = false;
+        core.EnableInputs();
+        core.StateMachine.ForceTransition(MarioStateID.Idle);
     }
 
     protected virtual void Unlock()
@@ -278,12 +276,14 @@ public class Door : MonoBehaviour
     {
         if (otherDoor)
         {
-            player.transform.position = destination.transform.position;
-            // TODO: base off of player's actual height (this doesn't work for tiny mario)
-            if (player.GetComponent<MarioMovement>().powerupState == PowerupState.small)
-            {
-                player.transform.position -= new Vector3(0, 0.5f, 0);
-            }
+            var core = player.GetComponent<MarioCore>();
+            Vector2 dest = destination.transform.position;
+            if (core != null && core.State.PowerupState == PowerupState.small)
+                dest.y -= 0.5f;
+            if (core != null)
+                core.Rb.position = dest;
+            else
+                player.transform.position = destination.transform.position;
         }
 
         var camPos = Camera.main.transform.position;

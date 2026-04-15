@@ -10,7 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 4911071950371744583}
   - component: {fileID: 4911071950371744580}
-  - component: {fileID: 4911071950371744581}
   - component: {fileID: 4911071950371744578}
   - component: {fileID: -5886811245336740393}
   - component: {fileID: -1387090879760085223}
@@ -90,23 +89,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &4911071950371744581
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4911071950371744579}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4cb9da356c73567459f7339185ce3ebc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  sprites:
-  - {fileID: -1317110402, guid: 1f21a257ac3be1f4bab864f7c591980c, type: 3}
-  - {fileID: -120003946, guid: 1f21a257ac3be1f4bab864f7c591980c, type: 3}
-  framerate: 0.16666667
-  loop: 1
 --- !u!70 &4911071950371744578
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
@@ -217,6 +199,9 @@ MonoBehaviour:
   carryable: 0
   carried: 0
   throwVelocity: {x: 12, y: 10}
+  throwVisualType: 0
+  throwSpriteRenderer: {fileID: 0}
+  throwRotateSpeed: 720
   rotateAroundCenter: 0
   knockAwayVelocity: {x: 5, y: 5}
   overrideKnockAwayGravity: 0
@@ -234,7 +219,7 @@ MonoBehaviour:
   stompHeight: 0.2
   heldItem: {fileID: 0}
   itemSpawnOffset: {x: 0, y: 0, z: 0}
-  customDeath: {fileID: 0}
+  customDeathCause: {fileID: 0}
   popupOffset: {x: 0, y: 0.5}
   onPlayerDamaged:
     m_PersistentCalls:

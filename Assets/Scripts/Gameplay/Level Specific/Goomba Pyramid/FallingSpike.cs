@@ -65,9 +65,10 @@ public class FallingSpike : EnemyAI
 
     protected override void hitByPlayer(GameObject player)
     {
-        MarioMovement playerscript = player.GetComponent<MarioMovement>();
+        MarioCore playerscript = player.GetComponent<MarioCore>() ?? player.GetComponentInParent<MarioCore>();
+        if (playerscript == null) return;
 
-        if (playerscript.starPower)
+        if (playerscript.State.StarPower)
         {
             // Star power kill → counts as stomp combo kill
             KnockAway(player.transform.position.x > transform.position.x);
@@ -81,12 +82,12 @@ public class FallingSpike : EnemyAI
             // Spike already fell and is safe, then flat reward (not combo)
             KnockAway(player.transform.position.x > transform.position.x);
             ComboResult result = new ComboResult(RewardType.Score, PopupID.Score100, 100);
-            ScorePopupManager.Instance.ShowPopup(result, transform.position, playerscript.powerupState);
+            ScorePopupManager.Instance.ShowPopup(result, transform.position, playerscript.State.PowerupState);
             Die();
             return;
         }
 
-        playerscript.damageMario();
+        playerscript.Combat.DamageMario();
     }
 
     public void fallDown()

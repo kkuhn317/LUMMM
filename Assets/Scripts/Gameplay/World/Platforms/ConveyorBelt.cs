@@ -1,12 +1,6 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public enum ConveyorDirection
-{
-    Left,
-    Right
-}
+public enum ConveyorDirection { Left, Right }
 
 public class ConveyorBelt : MonoBehaviour
 {
@@ -14,47 +8,70 @@ public class ConveyorBelt : MonoBehaviour
     public GameObject middle;
     public GameObject right;
 
-    [HideInInspector]
-    public int length;
-    public float speed;
-    public ConveyorDirection direction;
-    private Animator animator;
+    [HideInInspector] public int length;
 
-    public Vector2 velocity => new Vector2(speed * GetDirectionMultiplier(), 0);
+    [field: SerializeField, Min(0f)] public float Speed { get; private set; }
+    [field: SerializeField] public ConveyorDirection Direction { get; private set; }
+
+    [Tooltip("If enabled, animation speed scales proportionally with Speed.")]
+    [SerializeField] private bool _scaleAnimationWithSpeed = false;
+
+    private Animator _animator;
+    private BoxCollider2D _collider;
+
+    public bool IsActive => Speed > 0f;
+
+    public Vector2 Velocity => new Vector2(Speed * DirectionMultiplier, 0f);
+
+    private int DirectionMultiplier => Direction == ConveyorDirection.Right ? 1 : -1;
+
+    private void Awake()
+    {
+        _animator = GetComponent<Animator>();
+        _collider = GetComponent<BoxCollider2D>();
+    }
 
     private void Start()
     {
-        animator = GetComponent<Animator>();
+        RefreshAnimator();
     }
 
-    private void Update()
+    private void OnValidate()
     {
-        animator.SetBool("direction", direction == ConveyorDirection.Right);
-        GameObject player = GameObject.FindGameObjectWithTag("Player");
-        if (!player) return;
-        if (player.transform.parent == transform)
-        {
-            Vector3 pos = transform.position;
-            float moveAmount = speed * GetDirectionMultiplier() * Time.deltaTime;
-            transform.position += new Vector3(moveAmount, 0);
-            player.transform.parent = null;
-            transform.position = pos;
-            player.transform.parent = transform;
-        }
+        RefreshAnimator();
     }
 
-    private int GetDirectionMultiplier()
+    private void RefreshAnimator()
     {
-        return direction == ConveyorDirection.Right ? 1 : -1;
+        if (_animator == null)
+            _animator = GetComponent<Animator>();
+        if (_animator == null) return;
+
+        if (!IsActive)
+            _animator.speed = 0f;
+        else
+            _animator.speed = _scaleAnimationWithSpeed ? Speed : 1f;
+
+        _animator.SetBool("direction", Direction == ConveyorDirection.Right);
     }
 
-    public void ChangeLength(int length)
+    public void ChangeLength(int newLength)
     {
-        this.length = length;
-        left.transform.localPosition = new Vector3(-(((float)length - 1) / 2), 0, 0);
-        middle.GetComponent<SpriteRenderer>().size = new Vector2(length - 2, 1);
-        right.transform.localPosition = new Vector3((((float)length - 1) / 2), 0, 0);
+        if (left == null || middle == null || right == null) return;
 
-        GetComponent<BoxCollider2D>().size = new Vector2(length, 1);
+        length = newLength;
+
+        float halfOffset = (length - 1) / 2f;
+        left.transform.localPosition  = new Vector3(-halfOffset, 0f, 0f);
+        right.transform.localPosition = new Vector3( halfOffset, 0f, 0f);
+
+        SpriteRenderer middleRenderer = middle.GetComponent<SpriteRenderer>();
+        if (middleRenderer != null)
+            middleRenderer.size = new Vector2(length - 2, 1f);
+
+        if (_collider == null)
+            _collider = GetComponent<BoxCollider2D>();
+        if (_collider != null)
+            _collider.size = new Vector2(length, 1f);
     }
 }

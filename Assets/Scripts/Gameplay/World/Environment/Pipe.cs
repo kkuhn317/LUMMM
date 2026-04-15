@@ -10,26 +10,24 @@ public class Pipe : MonoBehaviour
     public enum Direction { Up, Down, Left, Right }
     public enum AlignType
     {
-        None, // Don't align the player at all. He will just move in the direction of the pipe
-        Slow, // Slowly align the player with the pipe by moving him directly towards the enter position
-        Fast, // Quickly align the player with the pipe while he is still moving
-        Instant // Instantly teleport the player to be aligned with the pipe
+        None,    // Don't align the player at all. He will just move in the direction of the pipe
+        Slow,    // Slowly align the player with the pipe by moving him directly towards the enter position
+        Fast,    // Quickly align the player with the pipe while he is still moving
+        Instant  // Instantly teleport the player to be aligned with the pipe
     }
     public Direction enterDirection = Direction.Down;
     public Direction exitDirection = Direction.Up;
 
-    // How far in/out of the pipe the player should be when they enter/exit
-    // Should be smaller for tiny pipes
-    public float enterDistance = 1f; // How far into the pipe the player should go (relative to the position of the pipe)
-    public AlignType enterAlignType = AlignType.Slow; // How the player should align when entering the pipe
-    public float insideExitDistance = 1f; // How far the player should be inside the pipe when they start to exit (relative to the position of the exit)
-    public float exitDistance = 1f; // How far out of the pipe the player should be when they exit
+    public float enterDistance = 1f;
+    public AlignType enterAlignType = AlignType.Slow;
+    public float insideExitDistance = 1f;
+    public float exitDistance = 1f;
 
-    public bool instantExit = false; // If true, don't animate the player exiting the pipe (like 1-1 Underground)
+    public bool instantExit = false;
     public AudioClip warpEnterSound;
-    public bool requireGroundToEnter = true; // New option to require the player to be on the ground
+    public bool requireGroundToEnter = true;
     private AudioSource audioSource;
-    private bool isEnteringPipe = false; // Track if the player is already entering the pipe
+    private bool isEnteringPipe = false;
 
     public bool snapCameraX = false;
     public bool snapCameraY = false;
@@ -50,88 +48,87 @@ public class Pipe : MonoBehaviour
     {
         if (!isEnteringPipe && connection != null && other.CompareTag("Player"))
         {
-            if (!requireGroundToEnter || (requireGroundToEnter && IsPlayerOnGround(other.gameObject)))
+            if (!requireGroundToEnter || IsPlayerOnGround(other.gameObject))
             {
-                if (CorrectDirectionPressed(other.GetComponent<MarioMovement>()))
-                {
-                    StartCoroutine(Enter(other.transform));
-                }
+                // MarioCore is on the ROOT, not the child collider (Body_Collider)
+                var marioCore = other.GetComponent<MarioCore>()
+                             ?? other.GetComponentInParent<MarioCore>();
+
+                if (marioCore != null && CorrectDirectionPressed(marioCore))
+                    StartCoroutine(Enter(marioCore.transform));
             }
         }
     }
 
     private bool IsPlayerOnGround(GameObject player)
     {
-        return player.GetComponent<MarioMovement>().onGround;
+        var core = player.GetComponent<MarioCore>() ?? player.GetComponentInParent<MarioCore>();
+        return core != null && core.State.OnGround;
     }
 
-    public bool IsMarioExited()
-    {
-        return isMarioExited;
-    }
-
-    public void MarioExitsPipe()
-    {
-        isMarioExited = true;
-    }
+    public bool IsMarioExited() => isMarioExited;
+    public void MarioExitsPipe() => isMarioExited = true;
 
     private IEnumerator Enter(Transform player)
     {
-        // helpers
-        bool AnimatorHas(Animator a, string p){ if(!a) return false; foreach (var x in a.parameters) if (x.name==p) return true; return false; }
+        bool AnimatorHas(Animator a, string p) { if (!a) return false; foreach (var x in a.parameters) if (x.name == p) return true; return false; }
 
         /* ENTERING */
         OnAnyEnterStarted?.Invoke(this, player);
         onPlayerEnter?.Invoke();
 
-        var marioMovement  = player.GetComponent<MarioMovement>();
-        var playerRb = player.GetComponent<Rigidbody2D>();
-        var playerCol = player.GetComponent<Collider2D>();
-        var playerAnim = player.GetComponent<Animator>();
-        var playerSprite = player.GetComponent<SpriteRenderer>();
+        var marioCore  = player.GetComponent<MarioCore>();
+        // Rb and Collider are on the root, then cached by MarioCore
+        var playerRb     = marioCore != null ? marioCore.Rb                    : player.GetComponent<Rigidbody2D>();
+        var playerCol    = marioCore != null ? (Collider2D)marioCore.Collider  : player.GetComponentInChildren<Collider2D>();
+        // Animator and SpriteRenderer live inside the Visual child hierarchy
+        var playerAnim   = player.GetComponentInChildren<Animator>();
+        var playerSprite = player.GetComponentInChildren<SpriteRenderer>();
 
-        while (marioMovement && marioMovement.groundPoundRotating) yield return null;
+        while (marioCore != null && marioCore.State.GroundPoundRotating) yield return null;
 
         isEnteringPipe = true;
         PlayWarpEnterSound();
 
-        if (marioMovement != null)
+        if (marioCore != null)
         {
-            marioMovement.ForceExitCrouch();
+            marioCore.State.MoveInput      = Vector2.zero;
+            marioCore.State.Direction      = Vector2.zero;
+            marioCore.State.GroundPounding = false;
+            marioCore.State.InputLocked    = true;
+            marioCore.DisableInputs();
+            // Disable physics/input modules and the StateMachine (to stop
+            // CheckTransitions from snapping Mario to Idle), but leave the
+            // AnimatorController alone so the walking sprite keeps playing
+            marioCore.Input.enabled           = false;
+            marioCore.GroundDetection.enabled = false;
+            marioCore.WallDetection.enabled   = false;
+            marioCore.Rb.gravityScale         = 0f;
+            // Disable StateMachine (stops CheckTransitions snapping to Idle)
+            // and AnimatorController (stops UpdateContinuousParams overwriting
+            // isRunning=false because velocity is zero during the pipe slide)
+            marioCore.StateMachine.enabled        = false;
+            marioCore.AnimatorController.enabled  = false;
         }
 
-        if (marioMovement)
-        {
-            marioMovement.moveInput = Vector2.zero;
-            marioMovement.direction = Vector2.zero;
-        }
-
-        if (playerRb){ playerRb.velocity = Vector2.zero; playerRb.isKinematic = true; }
+        if (playerRb)  { playerRb.velocity = Vector2.zero; playerRb.isKinematic = true; }
         if (playerCol) playerCol.enabled = false;
 
         if (playerAnim)
         {
-            playerAnim.SetBool("onGround", enterDirection != Direction.Up);
+            playerAnim.SetBool("onGround",   enterDirection != Direction.Up);
             playerAnim.SetBool("isSkidding", false);
             playerAnim.SetBool("isCrouching", enterDirection == Direction.Down);
-            bool horizEnter = (enterDirection == Direction.Left || enterDirection == Direction.Right);
-            playerAnim.SetBool("isRunning", horizEnter);
+            bool horizEnter = enterDirection == Direction.Left || enterDirection == Direction.Right;
+            playerAnim.SetBool("isRunning",  horizEnter);
             playerAnim.SetFloat("Horizontal", horizEnter ? 1f : 0f);
         }
-        if (marioMovement) marioMovement.StopGroundPound();
+        if (marioCore != null) marioCore.State.GroundPounding = false;
         if (playerSprite && (enterDirection == Direction.Left || enterDirection == Direction.Right))
-            playerSprite.flipX = (enterDirection == Direction.Left);
+            playerSprite.flipX = enterDirection == Direction.Left;
 
-        if (marioMovement)
-        {
-            marioMovement.inputLocked = true;
-            marioMovement.DisableInputs();
-            marioMovement.StopGroundPound();
-            marioMovement.enabled = false;
-        }
-
-        // enter movement
-        Vector2 enterDirVec = DirectionToVector(enterDirection) * enterDistance;
+        // enter movement — same logic as the original, just using player.position directly
+        Vector2 enterDirVec     = DirectionToVector(enterDirection) * enterDistance;
         Vector3 enteredPosition = transform.position + (Vector3)enterDirVec;
         switch (enterAlignType)
         {
@@ -160,67 +157,64 @@ public class Pipe : MonoBehaviour
 
         if (!instantExit)
         {
-            // common setup that doesn't force swim/ground yet
             if (playerAnim)
             {
-                playerAnim.SetBool("isSkidding", false);
+                playerAnim.SetBool("isSkidding",  false);
                 playerAnim.SetBool("isCrouching", false);
                 bool horizExit = exitDirection == Direction.Left || exitDirection == Direction.Right;
-                playerAnim.SetBool("isRunning", horizExit);
+                playerAnim.SetBool("isRunning",   horizExit);
                 playerAnim.SetFloat("Horizontal", horizExit ? 1f : 0f);
                 if (playerSprite && horizExit) playerSprite.flipX = exitDirection == Direction.Left;
             }
 
-            Vector2 outDir = DirectionToVector(exitDirection);
+            Vector2 outDir    = DirectionToVector(exitDirection);
             Vector2 insideOff = outDir * -insideExitDistance;
-            Vector2 exitOff = outDir *  exitDistance;
+            Vector2 exitOff   = outDir *  exitDistance;
 
-            if (PowerStates.IsBig(marioMovement.powerupState) &&
+            if (marioCore != null && PowerStates.IsBig(marioCore.State.PowerupState) &&
                 (exitDirection == Direction.Down || exitDirection == Direction.Up))
-            {
                 exitOff += outDir * 0.5f;
-            }
 
-            // position just before pipe mouth
+            // Teleport to inside the exit pipe, then slide out
             player.position = connection.position + (Vector3)insideOff;
 
-            // decide destination environment BEFORE moving out
-            // sample a little *past* the final exit point to avoid being inside the pipe collider
-            Vector3 finalExitPos = connection.position + (Vector3)exitOff + (Vector3)(outDir * 0.02f);
-            bool exitingIntoWater = Physics2D.OverlapPoint(finalExitPos, LayerMask.GetMask("Water"));
+            Vector3 finalExitPos    = connection.position + (Vector3)exitOff + (Vector3)(outDir * 0.02f);
+            bool    exitingIntoWater = Physics2D.OverlapPoint(finalExitPos, LayerMask.GetMask("Water"));
 
-            // sync gameplay + animator NOW so the tween shows the correct pose
-            if (marioMovement) marioMovement.swimming = exitingIntoWater;
+            if (marioCore != null) marioCore.State.Swimming = exitingIntoWater;
             if (playerAnim)
             {
                 playerAnim.SetBool("onGround", !exitingIntoWater);
-                if (AnimatorHas(playerAnim,"swim")) playerAnim.SetBool("swim", exitingIntoWater);
-                if (AnimatorHas(playerAnim,"enterWater")) playerAnim.SetBool("enterWater", exitingIntoWater);
-                if (AnimatorHas(playerAnim,"exitWater")) playerAnim.SetBool("exitWater", !exitingIntoWater);
+                if (AnimatorHas(playerAnim, "swim"))       playerAnim.SetBool("swim",       exitingIntoWater);
+                if (AnimatorHas(playerAnim, "enterWater")) playerAnim.SetBool("enterWater", exitingIntoWater);
+                if (AnimatorHas(playerAnim, "exitWater"))  playerAnim.SetBool("exitWater",  !exitingIntoWater);
             }
 
-            // now move out while already in the correct state
             yield return Move(player, connection.position + (Vector3)exitOff, true);
         }
         else
         {
             player.position = connection.position;
 
-            // instant exit: still decide env at the final spot
             bool inWater = Physics2D.OverlapPoint(player.position, LayerMask.GetMask("Water"));
-            if (marioMovement) marioMovement.swimming = inWater;
-            var a = player.GetComponent<Animator>();
-            if (a) a.SetBool("onGround", !inWater);
+            if (marioCore != null) marioCore.State.Swimming = inWater;
+            if (playerAnim) playerAnim.SetBool("onGround", !inWater);
         }
 
-        // unfreeze
+        // unfreeze — mirror of the lock above
         if (playerRb)  playerRb.isKinematic = false;
         if (playerCol) playerCol.enabled    = true;
-        if (marioMovement)
+        if (marioCore != null)
         {
-            marioMovement.enabled = true;
-            marioMovement.inputLocked = false;
-            marioMovement.EnableInputs();
+            marioCore.Input.enabled           = true;
+            marioCore.GroundDetection.enabled = true;
+            marioCore.WallDetection.enabled   = true;
+            marioCore.Rb.gravityScale         = 1f;
+            marioCore.AnimatorController.enabled  = true;
+            marioCore.StateMachine.enabled        = true;
+            marioCore.StateMachine.ForceTransition(MarioStateID.Idle);
+            marioCore.State.InputLocked       = false;
+            marioCore.EnableInputs();
         }
 
         OnAnyExitFinished?.Invoke(this, player);
@@ -231,16 +225,11 @@ public class Pipe : MonoBehaviour
     {
         switch (direction)
         {
-            case Direction.Down:
-                return Vector2.down;
-            case Direction.Right:
-                return Vector2.right;
-            case Direction.Up:
-                return Vector2.up;
-            case Direction.Left:
-                return Vector2.left;
-            default:
-                return Vector2.zero;
+            case Direction.Down:  return Vector2.down;
+            case Direction.Right: return Vector2.right;
+            case Direction.Up:    return Vector2.up;
+            case Direction.Left:  return Vector2.left;
+            default:              return Vector2.zero;
         }
     }
 
@@ -255,123 +244,100 @@ public class Pipe : MonoBehaviour
         {
             float t = elapsed / duration;
 
-            // If fast aligning, align the player's x or y position to the pipe's x or y position in HALF the time
             if (enterAlignType == AlignType.Fast && !exiting)
             {
                 bool leftRight = enterDirection == Direction.Left || enterDirection == Direction.Right;
-                Vector3 halfPosition = leftRight ? new Vector3((endPosition.x + startPosition.x) / 2, endPosition.y, startPosition.z) : new Vector3(endPosition.x, (endPosition.y + startPosition.y) / 2, startPosition.z);
-                if (t < 0.5f)
-                {
-                    player.position = Vector3.Lerp(startPosition, halfPosition, t * 2);
-                }
-                else
-                {
-                    player.position = Vector3.Lerp(halfPosition, endPosition, (t - 0.5f) * 2);
-                }
+                Vector3 halfPosition = leftRight
+                    ? new Vector3((endPosition.x + startPosition.x) / 2, endPosition.y,   startPosition.z)
+                    : new Vector3(endPosition.x, (endPosition.y + startPosition.y) / 2,   startPosition.z);
+
+                if (t < 0.5f) player.position = Vector3.Lerp(startPosition, halfPosition, t * 2);
+                else          player.position = Vector3.Lerp(halfPosition,  endPosition,  (t - 0.5f) * 2);
             }
             else
             {
                 player.position = Vector3.Lerp(startPosition, endPosition, t);
             }
-            elapsed += Time.deltaTime;
 
+            elapsed += Time.deltaTime;
             yield return null;
         }
         player.position = endPosition;
     }
 
-    private bool CorrectDirectionPressed(MarioMovement playerMovement)
+    private bool CorrectDirectionPressed(MarioCore marioCore)
     {
-        Vector2 moveInput = playerMovement.moveInput;
-
+        Vector2 input = marioCore.State.MoveInput;
         switch (enterDirection)
         {
-            case Direction.Down:
-                return moveInput.y < 0; // Holding down
-            case Direction.Right:
-                return moveInput.x > 0; // Holding right
-            case Direction.Up:
-                return moveInput.y > 0; // Holding up
-            case Direction.Left:
-                return moveInput.x < 0; // Holding left
-            default:
-                return false;
+            case Direction.Down:  return input.y < 0;
+            case Direction.Right: return input.x > 0;
+            case Direction.Up:    return input.y > 0;
+            case Direction.Left:  return input.x < 0;
+            default:              return false;
         }
     }
 
     private void PlayWarpEnterSound()
     {
         if (warpEnterSound != null && audioSource != null)
-        {
             audioSource.PlayOneShot(warpEnterSound);
-        }
     }
 
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.red;
-
-        // Draw the enter direction as a line from the pipe's position
         Vector2 enterDirectionVector = DirectionToVector(enterDirection) * enterDistance;
         Gizmos.DrawLine(transform.position, (Vector2)transform.position + enterDirectionVector);
-        Gizmos.DrawRay(transform.position, enterDirectionVector); // Draw the arrow for the enter direction
+        Gizmos.DrawRay(transform.position, enterDirectionVector);
 
-        // Draw the exit direction as a line from the connection point
         if (connection != null)
         {
             Vector2 exitDirectionVector = DirectionToVector(exitDirection) * exitDistance;
             Gizmos.DrawLine(connection.position, (Vector2)connection.position + exitDirectionVector);
-            Gizmos.DrawRay(connection.position, exitDirectionVector); // Draw the arrow for the exit direction
+            Gizmos.DrawRay(connection.position, exitDirectionVector);
         }
     }
-    
+
     public void StartRideFor(Transform rider)
     {
         if (connection == null) return;
         StartCoroutine(EnterNPC(rider));
     }
-    
-    // This is just a generic entry for non-player riders (we'll use it on the cheep cheep)
+
     private IEnumerator EnterNPC(Transform rider)
     {
-        // Disable rider movement/collisions while traveling
-        var rb = rider.GetComponent<Rigidbody2D>();
-        var col = rider.GetComponent<Collider2D>();
-        var ai = rider.GetComponent<EnemyAI>();
+        var rb   = rider.GetComponent<Rigidbody2D>();
+        var col  = rider.GetComponent<Collider2D>();
+        var ai   = rider.GetComponent<EnemyAI>();
         var phys = rider.GetComponent<ObjectPhysics>();
 
-        if (ai != null) ai.enabled = false;
+        if (ai   != null) ai.enabled   = false;
         if (phys != null) phys.enabled = false;
+        if (rb   != null) { rb.velocity = Vector2.zero; rb.isKinematic = true; }
+        if (col  != null) col.enabled  = false;
 
-        if (rb != null) { rb.velocity = Vector2.zero; rb.isKinematic = true; }
-        if (col != null) col.enabled = false;
-
-        // ENTER: align/slide just like Mario
         Vector2 enterVec = DirectionToVector(enterDirection) * enterDistance;
         Vector3 enterPos = transform.position + (Vector3)enterVec;
 
-        // For simplicity, we "Instant" align on the axis perpendicular to the movement:
-        // but we can branch here like the player coroutine does
         Vector3 temp = rider.position;
         switch (enterDirection)
         {
             case Direction.Down:
-            case Direction.Up: temp.x = enterPos.x; break;
+            case Direction.Up:    temp.x = enterPos.x; break;
             case Direction.Left:
             case Direction.Right: temp.y = enterPos.y; break;
         }
         rider.position = temp;
 
         yield return Move(rider, enterPos, false);
-
         yield return new WaitForSeconds(1f);
 
-        // EXIT: same offsets as player, just skip camera logic
         if (!instantExit)
         {
-            Vector2 outDir = DirectionToVector(exitDirection);
-            Vector3 inside = (Vector3)(outDir * -insideExitDistance);
-            Vector3 outside = (Vector3)(outDir * exitDistance);
+            Vector2 outDir  = DirectionToVector(exitDirection);
+            Vector3 inside  = (Vector3)(outDir * -insideExitDistance);
+            Vector3 outside = (Vector3)(outDir *  exitDistance);
 
             rider.position = connection.position + inside;
             yield return Move(rider, connection.position + outside, true);
@@ -381,11 +347,9 @@ public class Pipe : MonoBehaviour
             rider.position = connection.position;
         }
 
-        // Re-enable rider systems
-        if (rb != null) rb.isKinematic = false;
-        if (col != null) col.enabled = true;
-
-        if (phys != null) phys.enabled = true;
-        if (ai != null) ai.enabled = true;
+        if (rb   != null) rb.isKinematic = false;
+        if (col  != null) col.enabled    = true;
+        if (phys != null) phys.enabled   = true;
+        if (ai   != null) ai.enabled     = true;
     }
 }

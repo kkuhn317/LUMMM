@@ -78,10 +78,9 @@ public class GameOverScript : MonoBehaviour
 
         StartCoroutine(LockUIAfterFrame());   
 
-        /*if (GameManager.Instance != null)
-            GameManager.Instance.RestartLevelFromBeginningWithFadeOut();*/
-
-        if (GameManager.Instance != null)
+        if (FadeInOutScene.Instance != null)
+            FadeInOutScene.Instance.LoadSceneWithFade(SceneManager.GetActiveScene().name);
+        else if (GameManager.Instance != null)
             GameManager.Instance.RestartLevelFromBeginning();
     }
 

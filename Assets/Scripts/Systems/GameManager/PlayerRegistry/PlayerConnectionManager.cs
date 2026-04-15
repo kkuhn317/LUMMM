@@ -146,7 +146,7 @@ public class PlayerConnectionManager : MonoBehaviour
         EnsureRegistry();
         if (registry == null) return;
 
-        var movement = playerInput.GetComponent<MarioMovement>();
+        var movement = playerInput.GetComponent<MarioCore>();
         if (movement == null) return;
 
         var current = registry.GetPlayer(playerInput.playerIndex);
@@ -177,7 +177,7 @@ public class PlayerConnectionManager : MonoBehaviour
         }
 
         // Fallback: UnregisterPlayer(MarioMovement)
-        var movement = playerInput.GetComponent<MarioMovement>();
+        var movement = playerInput.GetComponent<MarioCore>();
         if (movement != null)
             registry.UnregisterPlayer(movement);
     }

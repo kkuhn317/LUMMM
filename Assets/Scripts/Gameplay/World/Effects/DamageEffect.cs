@@ -40,10 +40,10 @@ public class DamageEffect : MonoBehaviour
 
         if (other.CompareTag("Player"))
         {
-            var mario = other.GetComponent<MarioMovement>();
+            var mario = other.GetComponent<MarioCore>() ?? other.GetComponentInParent<MarioCore>();
 
             // Check if Mario can be damaged
-            if (mario != null && mario.invincetimeremain <= 0)
+            if (mario != null && mario.State.InvincibilityTimeRemaining <= 0f)
             {
                 DamageMario(mario);
             }
@@ -56,20 +56,20 @@ public class DamageEffect : MonoBehaviour
 
         if (collision.gameObject.CompareTag("Player"))
         {
-            var mario = collision.gameObject.GetComponent<MarioMovement>();
+            var mario = collision.gameObject.GetComponent<MarioCore>() ?? collision.gameObject.GetComponentInParent<MarioCore>();
 
             // Check if Mario can be damaged
-            if (mario != null && mario.invincetimeremain <= 0)
+            if (mario != null && mario.State.InvincibilityTimeRemaining <= 0f)
             {
                 DamageMario(mario);
             }
         }
     }
 
-    private void DamageMario(MarioMovement mario)
+    private void DamageMario(MarioCore mario)
     {
         // Damage Mario
-        mario.damageMario();
+        mario.Combat.DamageMario();
 
         // Show effect
         ShowEffect(mario.gameObject);

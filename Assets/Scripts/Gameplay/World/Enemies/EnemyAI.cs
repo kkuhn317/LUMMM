@@ -12,7 +12,7 @@ public class EnemyAI : ObjectPhysics
     public float stompHeight = 0.2f;
     public GameObject heldItem;
     public Vector3 itemSpawnOffset = new Vector3(0, 0, 0);
-    public GameObject customDeath;
+    public DeathCause customDeathCause;
     [Header("Score popup")]
     [Tooltip("Offset from the enemy position where score popups will appear.")]
     [SerializeField] protected Vector2 popupOffset = new Vector2(0f, 0.5f);
@@ -142,12 +142,12 @@ public class EnemyAI : ObjectPhysics
 
         if (ScorePopupManager.Instance != null && result.popupID != PopupID.None)
         {
-            var mario = FindObjectOfType<MarioMovement>();
+            var mario = FindObjectOfType<MarioCore>();
 
             ScorePopupManager.Instance.ShowPopup(
                 result,
                 popupWorldPosition,
-                mario != null ? mario.powerupState : PowerupState.big
+                mario != null ? mario.State.PowerupState : PowerupState.big
             );
         }
     }
@@ -174,12 +174,12 @@ public class EnemyAI : ObjectPhysics
 
         if (ScorePopupManager.Instance != null && result.popupID != PopupID.None)
         {
-            var mario = FindObjectOfType<MarioMovement>();
+            var mario = FindObjectOfType<MarioCore>();
 
             ScorePopupManager.Instance.ShowPopup(
                 result,
                 popupWorldPosition,
-                mario != null ? mario.powerupState : PowerStates.PowerupState.big
+                mario != null ? mario.State.PowerupState : PowerStates.PowerupState.big
             );
         }
     }
@@ -238,24 +238,32 @@ public class EnemyAI : ObjectPhysics
 
     protected virtual void hitByPlayer(GameObject player)
     {
-        MarioMovement playerscript = player.GetComponent<MarioMovement>();
-        if (playerscript.starPower)
+        MarioCore playerscript = player.GetComponent<MarioCore>() 
+                          ?? player.GetComponentInParent<MarioCore>();
+    
+        if (playerscript == null) return;
+
+        if (playerscript.State.StarPower)
         {
             hitByStarPower(player);
             return;
         }
 
-        Rigidbody2D rb = player.GetComponent<Rigidbody2D>();
+        Rigidbody2D rb = playerscript.Rb;
 
-        float playerHeightSubtract = player.GetComponent<Collider2D>().bounds.size.y / 2 * (PowerStates.IsSmall(playerscript.powerupState) ? 0.4f : 0.7f);
+        float colliderHeight = playerscript.Collider != null
+            ? playerscript.Collider.bounds.size.y
+            : player.GetComponentInChildren<Collider2D>().bounds.size.y;
+        float playerHeightSubtract = colliderHeight / 2f
+            * (PowerStates.IsSmall(playerscript.State.PowerupState) ? 0.4f : 0.7f);
 
         if (rb.position.y - playerHeightSubtract > transform.position.y + stompHeight)
         {
-            if (playerscript.spinning)
+            if (playerscript.State.Spinning)
             {
                 hitBySpinJump(playerscript);
             }
-            else if (playerscript.groundPounding)
+            else if (playerscript.State.GroundPounding)
             {
                 hitByGroundPound(playerscript);
             }
@@ -281,14 +289,26 @@ public class EnemyAI : ObjectPhysics
         hitOnSide(player);
     }
 
-    protected virtual void hitBySpinJump(MarioMovement player) {
+    protected virtual void hitBySpinJump(MarioCore player) {
         switch (spinJumpEffect) {
             case SpinJumpEffect.bounceOff:
-                player.SpinJumpBounce(gameObject);
+                MarioEvents.FireSpinJumpBounced(player.PlayerIndex);
+                player.State.Spinning = true;
+                player.StateMachine.ForceTransition(MarioStateID.Rise);
                 break;
             case SpinJumpEffect.poof:
-                player.SpinJumpPoof(gameObject);
-                AwardStompComboReward();
+                {
+                    Collider2D col = GetComponentInChildren<Collider2D>();
+                    Vector3 spawnPos = col != null
+                        ? (Vector3)col.ClosestPoint(player.transform.position)
+                        : transform.position;
+                    MarioEvents.FireSpinJumpPoofed(player.PlayerIndex, spawnPos);
+                    player.State.Spinning = true;
+                    player.StateMachine.ForceTransition(MarioStateID.Rise);
+                    AwardStompComboReward();
+                    releaseItem();
+                    Destroy(gameObject);
+                }
                 break;
             case SpinJumpEffect.stomp:
                 hitByStomp(player.gameObject);
@@ -297,21 +317,25 @@ public class EnemyAI : ObjectPhysics
         }
     }
 
-    protected virtual void hitByGroundPound(MarioMovement player) {
+    protected virtual void hitByGroundPound(MarioCore player) {
         // Default behavior is to act like a spiny (damage mario)
         // Override to knock away or stomp like normal
         hitOnSide(player.gameObject);
     }
 
     protected virtual void hitOnSide(GameObject player) {
-        MarioMovement playerscript = player.GetComponent<MarioMovement>();
+        MarioCore playerscript = player.GetComponent<MarioCore>() 
+                          ?? player.GetComponentInParent<MarioCore>();
+    
+        if (playerscript == null) return;
 
-        if(PowerStates.IsSmall(playerscript.powerupState) && customDeath != null) {
-            playerscript.TransformIntoObject(customDeath);
-            Debug.Log($"Is player small? {PowerStates.IsSmall(playerscript.powerupState)} | Custom Death: {customDeath.name}");
-        } else {
-            // usually mario would be damaged here
-            playerscript.damageMario();
+        if (PowerStates.IsSmall(playerscript.State.PowerupState) && customDeathCause != null)
+        {
+            playerscript.Combat.ToDead(customDeathCause);
+        }
+        else
+        {
+            playerscript.Combat.DamageMario();
             onPlayerDamaged.Invoke(player);
         }
     }

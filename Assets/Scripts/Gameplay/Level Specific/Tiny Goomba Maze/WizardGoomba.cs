@@ -214,7 +214,7 @@ public class WizardGoomba : Goomba
         if (collision.gameObject.CompareTag("Player") && currentDivePos == 0) {
             // Broom hits player while diving down, so crush the player
             // Yes theres some hardcoding that only divePos 0 is allowed to crush the player, it can be changed later if needed
-            collision.gameObject.GetComponent<MarioMovement>().TransformIntoObject(crushedMario);
+            collision.gameObject.GetComponentInParent<MarioCore>()?.Combat.TransformIntoObject(crushedMario);
         }
     }
 

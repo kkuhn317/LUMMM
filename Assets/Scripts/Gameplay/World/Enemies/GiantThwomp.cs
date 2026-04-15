@@ -110,7 +110,7 @@ public class GiantThwomp : EnemyAI, IGroundPoundable
     }
 
     private void DetectPlayer() {
-        MarioMovement player = GameManager.Instance.GetSystem<PlayerRegistry>()?.GetPlayer(0);
+        MarioCore player = GameManager.Instance.GetSystem<PlayerRegistry>()?.GetPlayer(0);
 
         if (player != null)
         {
@@ -538,10 +538,10 @@ public class GiantThwomp : EnemyAI, IGroundPoundable
         if (currentState == ThwompStates.Vulnerable || currentState == ThwompStates.FallBack)
         {
             // Optional: small knockback without damage
-            MarioMovement mario = player.GetComponent<MarioMovement>();
+            MarioCore mario = player.GetComponent<MarioCore>() ?? player.GetComponentInParent<MarioCore>();
             if (mario != null)
             {
-                Rigidbody2D rb = mario.GetComponent<Rigidbody2D>();
+                Rigidbody2D rb = mario.Rb;
                 if (rb != null)
                 {
                     float dir = Mathf.Sign(player.transform.position.x - transform.position.x);
@@ -580,7 +580,7 @@ public class GiantThwomp : EnemyAI, IGroundPoundable
                     audioSource.PlayOneShot(thwompHurtSound);
                 }
 
-                player.GetComponent<MarioMovement>().Jump();
+                player.GetComponentInParent<MarioCore>()?.StateMachine.ForceTransition(MarioStateID.Rise);
 
                 // Spawn hurt effect using the proper collider (as we discussed before)
                 if (hurtEffectPrefab != null)
@@ -613,12 +613,12 @@ public class GiantThwomp : EnemyAI, IGroundPoundable
         }
     }
 
-    protected override void hitByGroundPound(MarioMovement player)
+    protected override void hitByGroundPound(MarioCore player)
     {
         switch (currentState)
         {
             case ThwompStates.Vulnerable:
-                player.CancelGroundPound();
+                player.State.GroundPounding = false; player.StateMachine.RequestTransition(MarioStateID.Fall);
                 // Treat ground pound as a stomp when he is vulnerable
                 hitByStomp(player.gameObject);
                 break;
@@ -643,7 +643,7 @@ public class GiantThwomp : EnemyAI, IGroundPoundable
         }
     }
 
-    public void OnGroundPound(MarioMovement player)
+    public void OnGroundPound(MarioCore player)
     {
         if (currentState == ThwompStates.FallBack)
         {
@@ -673,6 +673,9 @@ public class GiantThwomp : EnemyAI, IGroundPoundable
 
     void TriggerEndCutscene()
     {
+        // Hide flag puppets before the cutscene starts
+        flagpole?.HidePuppets();
+
         // Note: the cutscene already hides the ui so it is technically not needed here
         // StartCoroutine(GameManager.Instance.TriggerEndLevelCutscene(defeatTimeline, 0, cutsceneTime, true, true, true));
         GameManager.Instance.GetSystem<LevelFlowController>()?.TriggerCutsceneEnding(defeatTimeline, cutsceneTime, destroyPlayersImmediately: true, stopMusicImmediately: true);
@@ -699,15 +702,15 @@ public class GiantThwomp : EnemyAI, IGroundPoundable
 
         if (other.gameObject.CompareTag("Player"))
         {
-            MarioMovement playerScript = other.gameObject.GetComponent<MarioMovement>();
+            MarioCore playerScript = other.gameObject.GetComponent<MarioCore>() ?? other.gameObject.GetComponentInParent<MarioCore>();
 
             if (playerScript != null)
             {
                 // Only apply the trampoline effect if the Thwomp is moving up and the player is performing a spin attack
-                if (fallDirection == FallDirections.Up && currentState == ThwompStates.Falling && playerScript.spinning)
+                if (fallDirection == FallDirections.Up && currentState == ThwompStates.Falling && playerScript.State.Spinning)
                 {
                     // Apply the trampoline-like bounce with increased power
-                    Rigidbody2D playerRb = other.gameObject.GetComponent<Rigidbody2D>();
+                    Rigidbody2D playerRb = playerScript != null ? playerScript.Rb : other.gameObject.GetComponent<Rigidbody2D>();
                     if (playerRb != null)
                     {
                         // Apply a stronger upward force if the player is in a spin attack
@@ -720,7 +723,7 @@ public class GiantThwomp : EnemyAI, IGroundPoundable
                 } 
                 else
                 {
-                    Rigidbody2D playerRb = other.gameObject.GetComponent<Rigidbody2D>();
+                    Rigidbody2D playerRb = playerScript != null ? playerScript.Rb : other.gameObject.GetComponent<Rigidbody2D>();
                     if (playerRb != null)
                     {
                         playerRb.velocity = new Vector2(playerRb.velocity.x, playerRb.velocity.y);

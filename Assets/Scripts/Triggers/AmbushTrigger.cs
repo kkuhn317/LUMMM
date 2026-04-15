@@ -22,7 +22,7 @@ public class AmbushTrigger : MonoBehaviour
     public List<EnemyGroup> enemyGroups = new List<EnemyGroup>();
     private List<AudioSource> allAudioSources = new List<AudioSource>();
     private bool hasPlayedMariowhoaaa = false;
-    private bool hasTriggered = false; // This is to ensure ambush happens only once
+    private bool hasTriggered = false;
 
     public UnityEvent onAmbushBefore;
     public UnityEvent onAmbushStart;
@@ -33,142 +33,123 @@ public class AmbushTrigger : MonoBehaviour
     {
         onAmbushBefore.Invoke();
 
-        // Collect all AudioSources at the start
         foreach (EnemyGroup group in enemyGroups)
         {
-            if (group == null)
-                continue;
-
+            if (group == null) continue;
             foreach (Goomba enemy in group.enemies)
             {
-                if (enemy != null)
-                {
-                    AudioSource enemyAudioSource = enemy.GetComponent<AudioSource>();
-                    if (enemyAudioSource != null)
-                    {
-                        allAudioSources.Add(enemyAudioSource);
-                    }
-                }
+                if (enemy == null) continue;
+                AudioSource src = enemy.GetComponent<AudioSource>();
+                if (src != null) allAudioSources.Add(src);
             }
         }
     }
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.CompareTag("Player"))
-        {
-            isPlayerInTrigger = true;
+        if (!other.CompareTag("Player")) return;
 
-            if (hasTriggered)
-                return; // Prevent retriggering if ambush is completed or already triggered
+        isPlayerInTrigger = true;
+        if (hasTriggered) return;
 
-            hasTriggered = true;
-            if (spikeygoombasgodown != null)
-            {
-                spikeygoombasgodown.Play();
-            }
-            
-            StartCoroutine(TriggerAmbush(other.gameObject));
-        }
+        hasTriggered = true;
+        spikeygoombasgodown?.Play();
+
+        // MarioCore is on the ROOT — walk up from the child collider
+        var core = other.GetComponent<MarioCore>() ?? other.GetComponentInParent<MarioCore>();
+        StartCoroutine(TriggerAmbush(core));
     }
 
     private void OnTriggerExit2D(Collider2D other)
     {
-        Animator playerAnimator = other.GetComponent<Animator>();
-        if (playerAnimator != null)
-        {
-            isPlayerInTrigger = false;
-            playerAnimator.SetBool("isScared", false);
-        }
+        if (!other.CompareTag("Player")) return;
+        isPlayerInTrigger = false;
+
+        var core = other.GetComponent<MarioCore>() ?? other.GetComponentInParent<MarioCore>();
+        var anim = core != null
+            ? core.GetComponentInChildren<Animator>()
+            : other.GetComponentInChildren<Animator>();
+        anim?.SetBool("isScared", false);
     }
 
-    private IEnumerator TriggerAmbush(GameObject player)
+    private IEnumerator TriggerAmbush(MarioCore core)
     {
         yield return new WaitForSeconds(delayBeforeAmbush);
 
-        if (player == null)
-            yield break;
+        if (core == null) yield break;
 
-        // Set the "isScared" parameter of the player's animator
-        Animator playerAnimator = player.GetComponent<Animator>();
+        Animator playerAnimator = core.GetComponentInChildren<Animator>();
+
         if (playerAnimator != null && isPlayerInTrigger)
         {
-            onAmbushStart.Invoke(); // I'm assuming this only deals with Mario's sprite library change
+            onAmbushStart.Invoke();
             playerAnimator.SetBool("isScared", true);
 
-            // Play the Mariowhoaaa audio clip
             if (!hasPlayedMariowhoaaa)
             {
-                AudioSource playerAudioSource = player.GetComponent<AudioSource>();
-                playerAudioSource.PlayOneShot(Mariowhoaaa);
                 hasPlayedMariowhoaaa = true;
+                AudioSource playerAudio = core.GetComponent<AudioSource>();
+                if (playerAudio != null && Mariowhoaaa != null)
+                    playerAudio.PlayOneShot(Mariowhoaaa);
             }
         }
 
         StartCoroutine(EnemyAudio());
 
-        // Set the movement and reset bounceHeight for all enemies
         foreach (EnemyGroup group in enemyGroups)
         {
-            if (group == null)
-                continue;
-
+            if (group == null) continue;
             foreach (Goomba enemy in group.enemies)
             {
-                if (enemy != null)
-                {
-                    enemy.movement = ObjectPhysics.ObjectMovement.bouncing;
-
-                    if (enemy.movement != ObjectPhysics.ObjectMovement.still)
-                    {
-                        // Start the bouncing coroutine
-                        StartCoroutine(BounceEnemy(enemy));
-                    }
-                }
+                if (enemy == null) continue;
+                enemy.movement = ObjectPhysics.ObjectMovement.bouncing;
+                if (enemy.movement != ObjectPhysics.ObjectMovement.still)
+                    StartCoroutine(BounceEnemy(enemy));
             }
 
-            // Wait before the next group
-            yield return new WaitForSeconds(delayBetweenGroups * Time.deltaTime);
+            // FIX: delayBetweenGroups is already in seconds — multiplying by
+            // Time.deltaTime made it near-zero (~0.004s), so all groups fired
+            // almost simultaneously instead of staggered.
+            yield return new WaitForSeconds(delayBetweenGroups);
         }
 
-        StartCoroutine(CompleteAmbush(playerAnimator));   
+        StartCoroutine(CompleteAmbush(playerAnimator));
     }
 
     private IEnumerator CompleteAmbush(Animator playerAnimator)
     {
         yield return new WaitForSeconds(1.5f);
 
-        // Disable "isScared" animation
         if (playerAnimator != null)
-        {
             playerAnimator.SetBool("isScared", false);
-        }
 
-        // Now invoke the end of the ambush event
+        // FIX: The ArgumentException was thrown here because onAmbushEnd had a
+        // listener in the Inspector wired to a method that previously accepted a
+        // GameObject but whose signature changed. Re-wire onAmbushEnd in the
+        // Inspector to a no-argument method, or a method accepting no parameters.
         onAmbushEnd.Invoke();
     }
 
     private IEnumerator BounceEnemy(Goomba enemy)
     {
-        // Second jump
-        enemy.velocity.x = 3;
+        enemy.velocity.x  = 3;
         enemy.bounceHeight = 8;
 
-        // Wait for a short duration
         yield return new WaitForSeconds(1.25f);
 
-        enemy.velocity.x = 1;
-        // To stop the bounce
+        enemy.velocity.x  = 1;
         enemy.bounceHeight = 0;
     }
 
     private IEnumerator EnemyAudio()
     {
-        // Play audio sources with a delay   
         foreach (AudioSource audioSource in allAudioSources)
         {
-            audioSource.PlayOneShot(ambushAudioClip);
-            yield return new WaitForSeconds(delayBetweenAudio * Time.deltaTime);
+            if (audioSource != null && ambushAudioClip != null)
+                audioSource.PlayOneShot(ambushAudioClip);
+
+            // FIX: same as delayBetweenGroups — remove Time.deltaTime multiplication.
+            yield return new WaitForSeconds(delayBetweenAudio);
         }
     }
 }

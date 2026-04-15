@@ -99,7 +99,7 @@ public class QuestionBlock : BumpableBlock
         return true;
     }
 
-    protected override bool CanActivateFromPlayer(MarioMovement player)
+    protected override bool CanActivateFromPlayer(MarioCore player)
     {
         if (!base.CanActivateFromPlayer(player)) return false;
 
@@ -118,7 +118,7 @@ public class QuestionBlock : BumpableBlock
         return true;
     }
 
-    public void ActivateFromSide(MarioMovement player = null)
+    public void ActivateFromSide(MarioCore player = null)
     {
         if (brickBlock)
         {
@@ -144,7 +144,7 @@ public class QuestionBlock : BumpableBlock
 
     #region Bounce Handling
 
-    protected override void OnBeforeBounce(BlockHitDirection direction, MarioMovement player)
+    protected override void OnBeforeBounce(BlockHitDirection direction, MarioCore player)
     {
         if (IsUsed && !brickBlock)
         {
@@ -166,7 +166,7 @@ public class QuestionBlock : BumpableBlock
 
         if (brickBlock && player != null)
         {
-            if (!PowerStates.IsSmall(player.powerupState))
+            if (!PowerStates.IsSmall(player.State.PowerupState))
             {
                 pendingBrickBreak = true;
                 skipBounceThisHit = true;
@@ -181,7 +181,7 @@ public class QuestionBlock : BumpableBlock
         }
     }
 
-    protected override void OnAfterBounce(BlockHitDirection direction, MarioMovement player)
+    protected override void OnAfterBounce(BlockHitDirection direction, MarioCore player)
     {
         if (brickBlock)
         {
@@ -221,7 +221,7 @@ public class QuestionBlock : BumpableBlock
 
     #region Brick Logic
 
-    private void BreakBrick(MarioMovement player)
+    private void BreakBrick(MarioCore player)
     {
         bool hasSpawnables = spawnableItems != null && spawnableItems.Length > 0;
         bool hasConditional = HasConditionalContent();
@@ -281,7 +281,7 @@ public class QuestionBlock : BumpableBlock
     /// Returns null if no match and rules are set to ReturnNull.
     /// Returns fallbackItem if no match and rules are set to UseFallbackItem.
     /// </summary>
-    private GameObject ResolveConditionalItem(MarioMovement player)
+    private GameObject ResolveConditionalItem(MarioCore player)
     {
         if (conditionalItemRules != null && conditionalItemRules.enabled)
         {
@@ -294,7 +294,7 @@ public class QuestionBlock : BumpableBlock
 
     #region Item Spawning
 
-    private void SpawnAllAtOnce(MarioMovement player)
+    private void SpawnAllAtOnce(MarioCore player)
     {
         bool hasSpawnables = spawnableItems != null && spawnableItems.Length > 0;
 
@@ -352,7 +352,7 @@ public class QuestionBlock : BumpableBlock
         }
     }
 
-    private void SpawnNext(MarioMovement player)
+    private void SpawnNext(MarioCore player)
     {
         // No spawnableItems, but conditional exists -> spawn conditional once, then empty
         if (spawnableItems == null || spawnableItems.Length == 0)

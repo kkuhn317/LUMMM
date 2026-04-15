@@ -38,10 +38,19 @@ public class CircleTransition : MonoBehaviour
     {
         CacheRegistry();
 
+        Debug.Log($"[CircleTransition] Start called. PlayerRegistry: {(playerRegistry != null ? playerRegistry.name : "null")}");
+
         // Set parameters based on darkness cheat
         currentDuration = GlobalVariables.cheatDarkness ? darknessDuration : normalDuration;
         currentMaxSize = GlobalVariables.cheatDarkness ? darknessMaxSize : normalMaxSize;
-        
+
+        // Skip if scene was loaded via FadeInOutScene — it handles the transition
+        if (FadeInOutScene.LoadedWithFade)
+        {
+            _blackScreen.gameObject.SetActive(false);
+            return;
+        }
+
         OpenBlackScreen();
     }
 
@@ -92,9 +101,8 @@ public class CircleTransition : MonoBehaviour
     {
         var screenWidth = Screen.width;
         var screenHeight = Screen.height;
-
-        // MarioMovement playerscript = GameManager.Instance.GetPlayer(0);
-        MarioMovement playerscript = playerRegistry != null ? playerRegistry.GetPlayer(0) : null;
+        
+        MarioCore playerscript = playerRegistry != null ? playerRegistry.GetPlayer(0) : null;
         if (playerscript == null)
             return;
             

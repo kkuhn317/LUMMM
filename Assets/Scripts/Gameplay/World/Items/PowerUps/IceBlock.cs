@@ -100,7 +100,7 @@ public class IceBlock : ObjectPhysics, IGroundPoundable
         Destroy(gameObject, 0.5f);
     }
 
-    public void OnGroundPound(MarioMovement mario)
+    public void OnGroundPound(MarioCore mario)
     {
         BreakIce();
     }

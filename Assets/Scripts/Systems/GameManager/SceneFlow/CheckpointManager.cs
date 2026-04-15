@@ -54,7 +54,7 @@ public class CheckpointManager : MonoBehaviour
         GameEvents.OnCheckpointLoaded -= HandleCheckpointLoaded;
     }
 
-    private void HandlePlayerRespawnedFromDeath(MarioMovement player)
+    private void HandlePlayerRespawnedFromDeath(MarioCore player)
     {
         TryPlacePlayerAtActiveCheckpoint(player);
     }
@@ -66,7 +66,7 @@ public class CheckpointManager : MonoBehaviour
             TryPlacePlayerAtActiveCheckpoint(p);
     }
 
-    private void TryPlacePlayerAtActiveCheckpoint(MarioMovement player)
+    private void TryPlacePlayerAtActiveCheckpoint(MarioCore player)
     {
         if (player == null) return;
 

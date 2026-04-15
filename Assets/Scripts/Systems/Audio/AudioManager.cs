@@ -214,6 +214,23 @@ public class AudioManager : MonoBehaviour
         activeSounds.Remove(clip);
     }
 
+    public void PlayAtPosition(AudioClip clip, Vector3 position, SoundCategory category = SoundCategory.SFX, float volume = 1f, float pitch = 1f)
+    {
+        if (clip == null) return;
+
+        var go = new GameObject($"AudioPoint_{clip.name}");
+        go.transform.position = position;
+        var source = go.AddComponent<AudioSource>();
+        source.clip = clip;
+        source.volume = volume;
+        source.pitch = pitch;
+        source.spatialBlend = 1f; // 3D positional sound
+        source.outputAudioMixerGroup = category == SoundCategory.BGM ? bgmMixerGroup : sfxMixerGroup;
+        source.Play();
+
+        Destroy(go, clip.length / Mathf.Abs(pitch));
+    }
+
 
     public bool IsPlaying(AudioClip clip)
         => System.Array.Exists(GetComponents<AudioSource>(), src => src.clip == clip && src.isPlaying);

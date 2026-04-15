@@ -27,7 +27,7 @@ public class NoteBlockController : BumpableBlock
         base.OnCollisionEnter2D(other); // keeps handling bump from below
 
         // Detect if the player landed on top
-        MarioMovement player = GetPlayerFromCollision(other);
+        MarioCore player = GetPlayerFromCollision(other);
         if (player == null) return;
 
         foreach (var contact in other.contacts)
@@ -42,11 +42,11 @@ public class NoteBlockController : BumpableBlock
         }
     }
 
-    protected override void OnBeforeBounce(BlockHitDirection direction, MarioMovement player)
+    protected override void OnBeforeBounce(BlockHitDirection direction, MarioCore player)
     {
         PlayRandomNoteSound();
         
-        if (applyJumpBoost && player != null)
+        if (applyJumpBoost && player != null && direction != BlockHitDirection.Side)
         {
             ApplyJumpBoost(player);
         }
@@ -127,22 +127,24 @@ public class NoteBlockController : BumpableBlock
     #endregion
 
     #region Player Interaction
-    private void ApplyJumpBoost(MarioMovement player)
+    private void ApplyJumpBoost(MarioCore player)
     {
-        Rigidbody2D playerRb = player.GetComponent<Rigidbody2D>();
-        if (playerRb != null)
-        {
-            // Reset vertical velocity and apply boost
-            Vector2 velocity = playerRb.velocity;
-            velocity.y = Mathf.Max(velocity.y, 0f); // Only boost if not falling
-            playerRb.velocity = velocity;
-            playerRb.AddForce(Vector2.up * jumpBoostForce, ForceMode2D.Impulse);
-        }
+        Rigidbody2D playerRb = player.Rb;
+        if (playerRb == null) return;
+
+        // Only boost if player is below the block's center (hit from below or top, not side)
+        if (playerRb.position.y > transform.position.y)
+            return;
+
+        Vector2 velocity = playerRb.velocity;
+        velocity.y = Mathf.Max(velocity.y, 0f);
+        playerRb.velocity = velocity;
+        playerRb.AddForce(Vector2.up * jumpBoostForce, ForceMode2D.Impulse);
     }
     #endregion
 
     #region Enemy Interaction
-    protected override void HandleEnemies(BlockHitDirection direction, MarioMovement player)
+    protected override void HandleEnemies(BlockHitDirection direction, MarioCore player)
     {
         // Note blocks typically don't damage enemies, but you can enable this if needed but we might not need it
         // base.HandleEnemies(direction, player);
@@ -151,7 +153,7 @@ public class NoteBlockController : BumpableBlock
 
     #region Public Methods
     // Prevent multiple simultaneous activations
-    public new void Bump(BlockHitDirection direction, MarioMovement player)
+    public override void Bump(BlockHitDirection direction, MarioCore player)
     {
         if (!canBounce || isBouncing || isAnimating)
             return;

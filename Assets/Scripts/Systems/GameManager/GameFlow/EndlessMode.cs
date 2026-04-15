@@ -42,7 +42,7 @@ public class EndlessMode : MonoBehaviour
         /*if (GameManager.Instance.GetPlayer(0) == null) return;
             float playerDistance = Mathf.Abs(tilemap.transform.position.x - GameManager.Instance.GetPlayer(0).transform.position.x);*/
         
-        MarioMovement p1 = playerRegistry != null ? playerRegistry.GetPlayer(0) : null;
+        MarioCore p1 = playerRegistry != null ? playerRegistry.GetPlayer(0) : null;
         if (p1 == null) return;
 
         float playerDistance = Mathf.Abs(tilemap.transform.position.x - p1.transform.position.x);

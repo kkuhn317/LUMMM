@@ -1,38 +1,49 @@
 using UnityEngine;
 using UnityEditor;
 
-
 [CustomEditor(typeof(ConveyorBelt))]
 [CanEditMultipleObjects]
 public class ConveyorBeltEditor : Editor
 {
-    SerializedProperty length;
+    private SerializedProperty _length;
 
-    void OnEnable()
+    private void OnEnable()
     {
-        length = serializedObject.FindProperty(nameof(ConveyorBelt.length));
+        _length = serializedObject.FindProperty(nameof(ConveyorBelt.length));
     }
 
     public override void OnInspectorGUI()
     {
-        if (UnityEditor.EditorApplication.isPlaying)
-        {
-            return;
-        }
-        
-        ConveyorBelt myScript = (ConveyorBelt)target;
-
         serializedObject.Update();
 
         DrawDefaultInspector();
 
-        length.intValue = EditorGUILayout.IntField("Length", length.intValue);
+        bool isPlaying = EditorApplication.isPlaying;
 
-        if (EditorGUI.EndChangeCheck())
+        using (new EditorGUI.DisabledScope(isPlaying))
         {
-            myScript.ChangeLength(length.intValue);
+            EditorGUI.BeginChangeCheck();
+
+            int newLength = EditorGUILayout.IntField("Length", _length.intValue);
+
+            if (EditorGUI.EndChangeCheck())
+            {
+                _length.intValue = newLength;
+                serializedObject.ApplyModifiedProperties();
+
+                foreach (Object t in targets)
+                {
+                    ConveyorBelt belt = (ConveyorBelt)t;
+                    Undo.RecordObject(belt, "Change Conveyor Length");
+                    belt.ChangeLength(newLength);
+                    EditorUtility.SetDirty(belt);
+                }
+            }
         }
-        
+
+        if (isPlaying)
+            EditorGUILayout.HelpBox("Length cannot be changed in Play Mode.", MessageType.Info);
+
         serializedObject.ApplyModifiedProperties();
     }
 }

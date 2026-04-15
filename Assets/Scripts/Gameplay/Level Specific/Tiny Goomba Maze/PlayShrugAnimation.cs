@@ -19,7 +19,7 @@ public class PlayShrugAnimation : MonoBehaviour
 
         // Get Animator and MarioMovement from the player
         Animator animator = player.GetComponent<Animator>();
-        MarioMovement marioMovement = player.GetComponent<MarioMovement>();
+        MarioCore marioMovement = player.GetComponent<MarioCore>();
 
         // Check if components exist before using them
         if (animator == null)
@@ -29,7 +29,7 @@ public class PlayShrugAnimation : MonoBehaviour
         }
         if (marioMovement == null)
         {
-            Debug.LogError("MarioMovement component missing from Player!");
+            Debug.LogError("MarioCore component missing from Player!");
             return;
         }
 
@@ -37,7 +37,7 @@ public class PlayShrugAnimation : MonoBehaviour
         if (hasPlayedShrug) return;
 
         // Check if the player is still
-        if (!marioMovement.isMoving)
+        if (!marioMovement.State.IsMoving)
         {
             // Play shrug animation
             animator.Play("mario_shrug");

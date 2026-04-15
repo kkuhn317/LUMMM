@@ -373,6 +373,10 @@ GameObject:
   - component: {fileID: 29231137468488313}
   - component: {fileID: 2617173583093350246}
   - component: {fileID: 6264343462385507725}
+  - component: {fileID: 6327956217941926211}
+  - component: {fileID: 8292062429273264480}
+  - component: {fileID: 1480449943401807421}
+  - component: {fileID: 2781107686398620365}
   m_Layer: 0
   m_Name: TinyStage FlagPole
   m_TagString: Untagged
@@ -457,40 +461,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   height: 9.5
-  starParticlePrefab: {fileID: 0}
-  finishFlag: {fileID: 8300000, guid: 181de5749896a494fa3a15b0a5517e4c, type: 3}
   flag: {fileID: 7209216522528065245}
   pole: {fileID: 7209216523491637617}
-  cutsceneMario: {fileID: 2691419068191618802}
-  optCutsceneBigMario: {fileID: 0}
-  marioSlideSpeed: 3
-  flagMoveSpeed: 3
-  slideTime: 2
-  cutsceneTime: 10
   flagOnRight: 0
-  cutsceneSelector: {fileID: 0}
-  poleBottom: {fileID: 0}
-  poleTop: {fileID: 0}
-  useColliderIfNoTransforms: 1
-  scoreBands:
-  - minT: 0
-    maxT: 0.11
-    points: 100
-  - minT: 0.11
-    maxT: 0.37
-    points: 400
-  - minT: 0.37
-    maxT: 0.53
-    points: 800
-  - minT: 0.53
-    maxT: 0.83
-    points: 2000
-  - minT: 0.83
-    maxT: 0.99
-    points: 4000
-  - minT: 0.99
-    maxT: 1
-    points: 5000
+  playerSide: 0
 --- !u!82 &2617173583093350246
 AudioSource:
   m_ObjectHideFlags: 0
@@ -683,6 +657,94 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &6327956217941926211
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7209216523565525648}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 15197cd6fd747cd4fb75db0690cb84f1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  poleBottom: {fileID: 0}
+  poleTop: {fileID: 0}
+  useColliderIfNoTransforms: 1
+  scoreBands:
+  - minT: 0
+    points: 100
+  - minT: 0.11
+    points: 400
+  - minT: 0.37
+    points: 800
+  - minT: 0.53
+    points: 2000
+  - minT: 0.83
+    points: 4000
+  - minT: 0.99
+    points: 5000
+--- !u!114 &8292062429273264480
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7209216523565525648}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 078886232ae19eb4db378afb00c9891a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cutsceneMario: {fileID: 0}
+  optCutsceneBigMario: {fileID: 0}
+  marioSlideSpeed: 50
+  flagMoveSpeed: 50
+  flagOnRight: 0
+  flagVisualOnRight: 0
+  multiplayerWaitTime: 2
+  starParticlePrefab: {fileID: 0}
+--- !u!114 &1480449943401807421
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7209216523565525648}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1282025d0c90944448ecdec931030ca0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  postSlideTarget: {fileID: 0}
+  arrivalMode: 1
+  playerSpacing: 0.5
+  walkSpeed: 3
+  jumpHeight: 2
+  jumpDuration: 0.6
+  hopDistance: 0.3
+  gravity: 20
+  hidePuppetOnArrival: 0
+--- !u!114 &2781107686398620365
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7209216523565525648}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 26cc438b3f253d14fae7d68769946404, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  triggerMode: 0
+  useCutscene: 1
+  cutsceneSelector: {fileID: 0}
+  cutsceneTime: 10
+  cutsceneDelay: 0
+  slideSound: {fileID: 0}
+  endingMusic: {fileID: 0}
 --- !u!1001 &7209216523819741785
 PrefabInstance:
   m_ObjectHideFlags: 0

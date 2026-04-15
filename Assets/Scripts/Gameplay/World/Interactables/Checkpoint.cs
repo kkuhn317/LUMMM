@@ -105,7 +105,7 @@ public class Checkpoint : MonoBehaviour
         if (!IsEnabledByMode)
             return;
         
-        MarioMovement mario = collision.GetComponent<MarioMovement>();
+        MarioCore mario = collision.GetComponent<MarioCore>();
 
         // allow score reward when you touch the checkpoint
         // this score reward is BEFORE saving (so it’s included in SaveCurrentCheckpoint)
@@ -116,7 +116,7 @@ public class Checkpoint : MonoBehaviour
         
         if (checkpointMode == CheckpointMode.Invisible && mario != null)
         {
-            mario.ShowCheckpointFlag();
+            mario.Combat.ShowCheckpointFlag();
         }
 
         checkpointManager ??= FindObjectOfType<CheckpointManager>();
@@ -126,7 +126,7 @@ public class Checkpoint : MonoBehaviour
             Debug.LogError($"{nameof(Checkpoint)}: No {nameof(CheckpointManager)} found in scene.");
     }
 
-    private void GiveScoreReward(MarioMovement mario)
+    private void GiveScoreReward(MarioCore mario)
     {
         if (checkpointScore <= 0) return;
 
@@ -137,7 +137,7 @@ public class Checkpoint : MonoBehaviour
         PowerupState popupPowerState = checkpointPowerState;
         if (usePlayerPowerState && mario != null)
         {
-            popupPowerState = mario.powerupState;
+            popupPowerState = mario.State.PowerupState;
         }
         
         Vector3 basePosition;

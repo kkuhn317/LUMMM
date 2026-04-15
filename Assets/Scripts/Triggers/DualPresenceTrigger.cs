@@ -98,10 +98,10 @@ public class DualPresenceTrigger : MonoBehaviour
         GameObject player = GameObject.FindGameObjectWithTag("Player");
         if (player != null)
         {
-            MarioMovement marioMovement = player.GetComponent<MarioMovement>();
+            MarioCore marioMovement = player.GetComponentInParent<MarioCore>();
             if (marioMovement != null)
             {
-                marioMovement.resetSpriteLibrary();
+                marioMovement.Powerup.ResetSpriteLibrary();
             }
         }
     }

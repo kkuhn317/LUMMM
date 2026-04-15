@@ -39,7 +39,7 @@ public class EndCoinDoor : CoinDoor
         }
     }
 
-    protected override bool PlayerAtDoor(MarioMovement playerScript)
+    protected override bool PlayerAtDoor(MarioCore playerScript)
     {
         // Check if the coin is near the door
         if (coinTouchedDoor && pushCoin != null)
@@ -55,7 +55,7 @@ public class EndCoinDoor : CoinDoor
         }
 
         // Fallback to normal player proximity check
-        return playerInRange && (!mustBeStanding || playerScript.onGround);
+        return playerInRange && (!mustBeStanding || playerScript.State.OnGround);
     }
 
     protected override void Close()

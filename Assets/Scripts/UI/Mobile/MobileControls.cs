@@ -13,7 +13,7 @@ public class MobileControls : MonoBehaviour
     // Also something else I found, we might be able to use actionEvents property of the PlayerInput but by messing with it it doesnt seem that promising
     // https://docs.unity3d.com/Packages/com.unity.inputsystem@1.0/api/UnityEngine.InputSystem.PlayerInput.html
 
-    private MarioMovement player1;
+    private MarioCore player1;
     private PlayerRegistry playerRegistry;
 
     void Start()
@@ -37,7 +37,7 @@ public class MobileControls : MonoBehaviour
         player1 = playerRegistry != null ? playerRegistry.GetPlayer(0) : null;
     }
 
-    private MarioMovement getPlayer1()
+    private MarioCore getPlayer1()
     {
         /*if (player1 == null || player1.gameObject == null)
         {
@@ -81,88 +81,88 @@ public class MobileControls : MonoBehaviour
 
     public void onLeftPress()
     {
-        getPlayer1().onMobileLeftPressed();
+        getPlayer1().Input.OnMobileLeftPressed();
     }
 
     public void onLeftRelease()
     {
-        getPlayer1().onMobileLeftReleased();
+        getPlayer1().Input.OnMobileLeftReleased();
     }
 
     public void onRightPress()
     {
-        getPlayer1().onMobileRightPressed();
+        getPlayer1().Input.OnMobileRightPressed();
     }
 
     public void onRightRelease()
     {
-        getPlayer1().onMobileRightReleased();
+        getPlayer1().Input.OnMobileRightReleased();
     }
 
     public void onUpPressed()
     {
-        getPlayer1().onMobileUpPressed();
-        getPlayer1().onUsePressed();
+        getPlayer1().Input.OnMobileUpPressed();
+        getPlayer1().Input.OnUsePressed();
     }
 
     public void onUpReleased()
     {
-        getPlayer1().onMobileUpReleased();
+        getPlayer1().Input.OnMobileUpReleased();
     }
 
    public void onDownPressed()
     {
-        getPlayer1().onMobileDownPressed();
+        getPlayer1().Input.OnMobileDownPressed();
     }
 
     public void onDownReleased()
     {
-        getPlayer1().onMobileDownReleased();
+        getPlayer1().Input.OnMobileDownReleased();
     }
 
     public void onJumpPress()
     {
-        getPlayer1().onJumpPressed();
+        getPlayer1().Input.OnJumpPressed();
     }
 
     public void onJumpRelease()
     {
-        getPlayer1().onJumpReleased();
+        getPlayer1().Input.OnJumpReleased();
     }
 
     public void onRunPress()
     {
-        getPlayer1().onRunPressed();
+        getPlayer1().Input.OnRunPressed();
     }
 
     public void onRunRelease()
     {
-        getPlayer1().onRunReleased();
+        getPlayer1().Input.OnRunReleased();
     }
 
     public void onUsePressed()
     {
-        //getPlayer1().onUsePressed();
-        getPlayer1().onShootPressed();
+        //getPlayer1().Input.OnUsePressed();
+        getPlayer1().Input.OnShootPressed();
     }
 
     public void onUseReleased()
     {
-        getPlayer1().onShootReleased();
+        getPlayer1().Input.OnShootReleased();
     }
 
     public void onSpinPressed()
     {
-        getPlayer1().onSpinPressed();
+        getPlayer1().Input.OnSpinPressed();
     }
 
     public void onSpinReleased()
     {
-        getPlayer1().onSpinReleased();
+        getPlayer1().Input.OnSpinReleased();
     }
 
     public void onExtraPressed()
     {
-        getPlayer1().onExtraActionPressed();
+        getPlayer1().Input.OnExtraActionPressed();
     }
 }

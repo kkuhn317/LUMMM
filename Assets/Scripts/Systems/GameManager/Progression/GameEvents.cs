@@ -23,9 +23,9 @@ public static class GameEvents
     public static event Action OnLevelFailed;
     public static event Action OnGameOver;
 
-    public static event Action<MarioMovement, int> OnPlayerRegistered;
-    public static event Action<MarioMovement> OnPlayerDeath;
-    public static event Action<MarioMovement> OnPlayerRespawned;
+    public static event Action<MarioCore, int> OnPlayerRegistered;
+    public static event Action<MarioCore> OnPlayerDeath;
+    public static event Action<MarioCore> OnPlayerRespawned;
     public static event Action<PowerStates.PowerupState> OnPlayerPowerupChanged;
 
     public static event Action<int> OnLivesChanged;
@@ -79,8 +79,8 @@ public static class GameEvents
     public static event Action<bool> OnPerfectCompletion;
     public static event Action<double> OnNewBestTime;
     public static event Action<int> OnNewHighScore;
-    public static event Action<MarioMovement> OnPlayerRespawnedFromDeath;
-    public static event Action<MarioMovement> OnPlayerStateReset; 
+    public static event Action<MarioCore> OnPlayerRespawnedFromDeath;
+    public static event Action<MarioCore> OnPlayerStateReset; 
 
     // -----------------------------
     // Trigger Methods
@@ -93,13 +93,13 @@ public static class GameEvents
     public static void TriggerLevelFailed() => OnLevelFailed?.Invoke();
     public static void TriggerGameOver() => OnGameOver?.Invoke();
 
-    public static void TriggerPlayerRegistered(MarioMovement player, int playerIndex) =>
+    public static void TriggerPlayerRegistered(MarioCore player, int playerIndex) =>
         OnPlayerRegistered?.Invoke(player, playerIndex);
-    public static void TriggerPlayerDeath(MarioMovement player) => OnPlayerDeath?.Invoke(player);
-    public static void TriggerPlayerRespawned(MarioMovement player) => OnPlayerRespawned?.Invoke(player);
-    public static void TriggerPlayerRespawnedFromDeath(MarioMovement player) =>
+    public static void TriggerPlayerDeath(MarioCore player) => OnPlayerDeath?.Invoke(player);
+    public static void TriggerPlayerRespawned(MarioCore player) => OnPlayerRespawned?.Invoke(player);
+    public static void TriggerPlayerRespawnedFromDeath(MarioCore player) =>
         OnPlayerRespawnedFromDeath?.Invoke(player);
-    public static void TriggerPlayerStateReset(MarioMovement player) =>
+    public static void TriggerPlayerStateReset(MarioCore player) =>
         OnPlayerStateReset?.Invoke(player);
     public static void TriggerPlayerPowerupChanged(PowerStates.PowerupState state) =>
         OnPlayerPowerupChanged?.Invoke(state);

@@ -1,218 +1,179 @@
 using System.Collections;
 using UnityEngine;
 
-public abstract class BumpableBlock : MonoBehaviour, IBumpable, IGroundPoundable
+/// <summary>
+/// Base class for all hittable/bumpable blocks.
+///
+/// Subclasses override:
+///   CanActivate(Collision2D) — whether a physics collision activates the block
+///   CanActivateFromPlayer(MarioCore) — additional per-player gate
+///   OnBeforeBounce(direction, player) — runs before bounce; set skipBounceThisHit = true to cancel
+///   OnAfterBounce(direction, player) — runs after bounce; spawn items, decrement counters, etc.
+///   BounceRoutine(direction) — override the entire bounce animation
+///   HandleEnemies(direction, player) — handle enemies sitting on the block when bumped
+///   OnCollisionEnter2D(Collision2D) — extend collision handling (call base to keep default bump)
+/// </summary>
+public class BumpableBlock : MonoBehaviour, IBumpable
 {
-    [Header("Bump Settings")]
-    public float bounceHeight = 0.5f;
-    public float bounceSpeed = 4f;
-
-    protected Vector2 originalPosition;
     protected BoxCollider2D boxCollider;
     protected AudioSource audioSource;
+    protected Vector2 originalPosition;
 
-    protected bool isBouncing;
+    /// <summary>Whether this block can currently bounce at all.</summary>
+    protected bool canBounce  = true;
+
+    /// <summary>True while the bounce animation coroutine is running.</summary>
+    protected bool isBouncing = false;
+
+    /// <summary>
+    /// Set to true in OnBeforeBounce to skip the animation for this specific hit.
+    /// Automatically reset to false before every hit.
+    /// </summary>
     protected bool skipBounceThisHit = false;
-    protected bool canBounce = true;
 
-    private Coroutine currentBounceCoroutine;
-    
+    [Header("Bounce Settings")]
+    [SerializeField] private float bounceHeight   = 0.15f;
+    [SerializeField] private float bounceDuration = 0.1f;
+    [SerializeField] private AudioClip bumpSound;
+
     protected virtual void Awake()
     {
-        originalPosition = transform.position;
         boxCollider = GetComponent<BoxCollider2D>();
         audioSource = GetComponent<AudioSource>();
-        
-        // Add warnings for missing critical components
-        if (boxCollider == null)
-            Debug.LogWarning($"BumpableBlock on {gameObject.name} is missing BoxCollider2D", this);
+        originalPosition = transform.position;
     }
 
-    #region Activation & Collision
-    // Common collision detection for all blocks
-    protected virtual void OnCollisionEnter2D(Collision2D other)
-    {
-        if (!CanActivate(other)) return;
-        
-        MarioMovement player = GetPlayerFromCollision(other);
-        if (player == null) return;
-
-        Bump(BlockHitDirection.Up, player);
-    }
-
-    // Common ground pound implementation for all blocks
-    public virtual void OnGroundPound(MarioMovement player)
-    {
-        if (!CanActivateFromPlayer(player)) return;
-        Bump(BlockHitDirection.Down, player);
-    }
-
-    // Reusable activation checks - override in derived classes for specific logic
+    /// <summary>
+    /// Whether a physics collision should activate this block.
+    /// Base: allows hits from below only (contact normal pointing down).
+    /// </summary>
     protected virtual bool CanActivate(Collision2D other)
     {
-        return other.collider.CompareTag("Player") && CheckHitFromBelow(other);
-    }
-
-    protected virtual bool CanActivateFromPlayer(MarioMovement player)
-    {
-        return player != null;
-    }
-
-    // Reusable player extraction
-    protected MarioMovement GetPlayerFromCollision(Collision2D other)
-    {
-        return other.gameObject.GetComponent<MarioMovement>();
-    }
-
-    protected virtual bool CheckHitFromBelow(Collision2D other)
-    {
-        Vector2 impulse = Vector2.zero;
-
-        for (int i = 0; i < other.contactCount; i++)
+        foreach (ContactPoint2D contact in other.contacts)
         {
-            ContactPoint2D contact = other.GetContact(i);
-            impulse += contact.normal * contact.normalImpulse;
-            impulse.x += contact.tangentImpulse * contact.normal.y;
-            impulse.y -= contact.tangentImpulse * contact.normal.x;
+            // Normal points upward = player hit the block from below, pushing up into it.
+            // Use contact point Y vs block bottom edge to distinguish from a side hit.
+            if (contact.normal.y > 0.5f)
+            {
+                float blockBottom = boxCollider != null
+                    ? boxCollider.bounds.min.y
+                    : transform.position.y;
+                // Contact point must be near the bottom of the block, not the top
+                if (contact.point.y <= blockBottom + 0.2f)
+                    return true;
+            }
         }
+        return false;
+    }
 
-        // Prevent triggering from top corner
-        if (impulse.y <= 0 || other.transform.position.y > transform.position.y)
-            return false;
-
+    /// <summary>
+    /// Additional per-player gate called when a MarioCore is involved.
+    /// Base: always returns true.
+    /// </summary>
+    protected virtual bool CanActivateFromPlayer(MarioCore player)
+    {
         return true;
     }
-    #endregion
 
-    #region Bump Logic
-    public void Bump(BlockHitDirection direction, MarioMovement player)
+    protected virtual void OnCollisionEnter2D(Collision2D other)
     {
-        if (!canBounce || isBouncing)
-            return;
+        Debug.Log($"[Block] OnCollisionEnter2D fired by {other.gameObject.name}");
+    
+        foreach (ContactPoint2D contact in other.contacts)
+            Debug.Log($"[Block] contact normal={contact.normal} point={contact.point} blockBottom={boxCollider.bounds.min.y}");
 
-        // Stop previous coroutine if exists
-        if (currentBounceCoroutine != null)
+        if (!CanActivate(other)) return;
+
+        MarioCore player = GetPlayerFromCollision(other);
+
+        if (player != null)
         {
-            StopCoroutine(currentBounceCoroutine);
-            // Make sure it returns to original position
-            transform.position = originalPosition;
+            if (!CanActivateFromPlayer(player)) return;
+            Bump(BlockHitDirection.Up, player);
         }
-        
-        currentBounceCoroutine = StartCoroutine(BumpSequence(direction, player));
+        else
+        {
+            Bump(BlockHitDirection.Up, null);
+        }
     }
 
-    private IEnumerator BumpSequence(BlockHitDirection direction, MarioMovement player)
+    /// <summary>
+    /// Trigger a bump hit from any source (physics, scripted side hit, etc.).
+    /// </summary>
+    public virtual void Bump(BlockHitDirection direction, MarioCore player)
     {
-        isBouncing = true;
+        if (!canBounce || isBouncing) return;
+
         skipBounceThisHit = false;
-
-        originalPosition = transform.position;
-
         OnBeforeBounce(direction, player);
 
         HandleEnemies(direction, player);
 
         if (!skipBounceThisHit)
-        {
-            yield return BounceRoutine(direction);
-        }
-
-        OnAfterBounce(direction, player);
-
-        isBouncing = false;
-        currentBounceCoroutine = null;
+            StartCoroutine(BounceRoutineInternal(direction, player));
+        else
+            OnAfterBounce(direction, player);
     }
 
+    protected virtual void OnBeforeBounce(BlockHitDirection direction, MarioCore player) { }
+
+    protected virtual void OnAfterBounce(BlockHitDirection direction, MarioCore player) { }
+
+    protected virtual void HandleEnemies(BlockHitDirection direction, MarioCore player)
+    {
+        // Default: no enemy interaction. Override in subclasses as needed.
+    }
+
+    /// <summary>
+    /// Override this to replace the entire bounce animation.
+    /// Signature matches NoteBlockController's override exactly.
+    /// </summary>
     protected virtual IEnumerator BounceRoutine(BlockHitDirection direction)
     {
-        float targetOffset = direction == BlockHitDirection.Down ? -bounceHeight : bounceHeight;
-        float targetY = originalPosition.y + targetOffset;
+        float dirMult = direction == BlockHitDirection.Down ? -1f : 1f;
+        float half = bounceDuration / 2f;
+        float elapsed = 0f;
 
-        // Move towards target position (either up or down)
-        float currentY = transform.position.y;
-        
-        while (Mathf.Abs(currentY - targetY) > 0.01f)
+        while (elapsed < half)
         {
-            currentY = Mathf.MoveTowards(currentY, targetY, bounceSpeed * Time.deltaTime);
-            transform.position = new Vector3(originalPosition.x, currentY, transform.position.z);
+            elapsed += Time.deltaTime;
+            transform.position = (Vector3)originalPosition
+                + Vector3.up * (dirMult * bounceHeight * (elapsed / half));
             yield return null;
         }
 
-        // Make sure exact position is set
-        transform.position = new Vector3(originalPosition.x, targetY, transform.position.z);
-
-        // Return to original position
-        currentY = targetY;
-        
-        while (Mathf.Abs(currentY - originalPosition.y) > 0.01f)
+        elapsed = 0f;
+        while (elapsed < half)
         {
-            currentY = Mathf.MoveTowards(currentY, originalPosition.y, bounceSpeed * Time.deltaTime);
-            transform.position = new Vector3(originalPosition.x, currentY, transform.position.z);
+            elapsed += Time.deltaTime;
+            transform.position = (Vector3)originalPosition
+                + Vector3.up * (dirMult * bounceHeight * (1f - elapsed / half));
             yield return null;
         }
 
-        // Make sure exact position is set
         transform.position = originalPosition;
     }
-    #endregion
 
-    #region Enemy Interaction
-    protected virtual void HandleEnemies(BlockHitDirection direction, MarioMovement player)
+    // Internal wrapper, manages isBouncing flag and fires OnAfterBounce
+    private IEnumerator BounceRoutineInternal(BlockHitDirection direction, MarioCore player)
     {
-        if (boxCollider == null)
-            return;
+        isBouncing = true;
 
-        if (direction == BlockHitDirection.Up || direction == BlockHitDirection.Down)
-        {
-            Vector2 worldCenter = (Vector2)transform.TransformPoint(boxCollider.offset) + Vector2.up * 0.05f;
-            Vector2 worldSize = Vector2.Scale(boxCollider.size, transform.lossyScale);
+        if (bumpSound != null && audioSource != null)
+            audioSource.PlayOneShot(bumpSound);
 
-            Collider2D[] hits = Physics2D.OverlapBoxAll(
-                worldCenter,
-                worldSize,
-                0f,
-                LayerMask.GetMask("Enemy")
-            );
+        yield return StartCoroutine(BounceRoutine(direction));
 
-            foreach (var col in hits)
-            {
-                EnemyAI enemy = col.GetComponent<EnemyAI>();
-                if (enemy == null)
-                    continue;
-
-                bool hitFromLeft = transform.position.x < enemy.transform.position.x;
-
-                // treat bumped enemy as "Koopa Kick" / bump 100 pts
-                ComboResult combo = new ComboResult(RewardType.Score, PopupID.Score100, 100);
-                // GameManager.Instance.AddScorePoints(100);
-                GameManager.Instance?.GetSystem<ScoreSystem>()?.AddScore(100);
-
-                if (ScorePopupManager.Instance != null)
-                    ScorePopupManager.Instance.ShowPopup(combo, enemy.transform.position, player.powerupState);
-
-                enemy.KnockAway(hitFromLeft);
-            }
-        }
+        isBouncing = false;
+        OnAfterBounce(direction, player);
     }
-    #endregion
 
-    #region Override Points
-    protected virtual void OnBeforeBounce(BlockHitDirection direction, MarioMovement player) { }
-
-    protected virtual void OnAfterBounce(BlockHitDirection direction, MarioMovement player) { }
-    #endregion
-
-    #region Editor
-#if UNITY_EDITOR
-    private void OnDrawGizmosSelected()
+    /// <summary>
+    /// Extracts a MarioCore from a collision. Used by subclasses.
+    /// </summary>
+    protected MarioCore GetPlayerFromCollision(Collision2D other)
     {
-        if (boxCollider == null)
-            boxCollider = GetComponent<BoxCollider2D>();
-        if (boxCollider == null) return;
-
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireCube(boxCollider.bounds.center + Vector3.up * 0.05f, boxCollider.bounds.size);
+        return other.gameObject.GetComponent<MarioCore>()
+            ?? other.gameObject.GetComponentInParent<MarioCore>();
     }
-#endif
-    #endregion
 }

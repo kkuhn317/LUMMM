@@ -1,32 +1,24 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 // For simple objects that damage Mario while having a custom player death
 // DO NOT USE DAMAGING TAG ON THE OBJECT
 // Example: Firebar fireballs
-// TODO: Figure out if there's a better way to organize all this behavior
 public class DamagingCustomDeath : MonoBehaviour
 {
-    public GameObject customDeath;
+    public DeathCause customDeath;
 
+    protected virtual void OnTriggerEnter2D(Collider2D other)
+    {
+        if (!enabled) return;
 
-    protected virtual void OnTriggerEnter2D(Collider2D other) {
-        // if we are enabled
-        if (enabled == false) {
-            return;
-        }
-        
-        MarioMovement playerscript = other.GetComponent<MarioMovement>();
+        // MarioCore is on the ROOT, not the child collider (Body_Collider)
+        var playerscript = other.GetComponent<MarioCore>()
+                        ?? other.GetComponentInParent<MarioCore>();
+        if (playerscript == null) return;
 
-        if (playerscript == null) {
-            return;
-        }
-
-        if(PowerStates.IsSmall(playerscript.powerupState) && customDeath != null) {
-            playerscript.TransformIntoObject(customDeath);
-        } else {
-            playerscript.damageMario();
-        }
+        if (PowerStates.IsSmall(playerscript.State.PowerupState) && customDeath != null)
+            playerscript.Combat.ToDead(customDeath);
+        else
+            playerscript.Combat.DamageMario();
     }
 }

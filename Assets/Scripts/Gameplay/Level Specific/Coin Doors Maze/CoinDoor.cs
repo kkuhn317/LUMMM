@@ -38,27 +38,14 @@ public class CoinDoor : Door
 
     protected override void FreezePlayer()
     {
-        player.GetComponent<Rigidbody2D>().simulated = false;
-        player.GetComponent<Rigidbody2D>().velocity = Vector2.zero;
-        Animator playerAnimator = player.GetComponent<Animator>();
+        // Use base freeze (SetModulesEnabled + DisableInputs + kinematic)
+        base.FreezePlayer();
+
+        // Optionally trigger hold animation for non-standing doors
         if (!mustBeStanding)
         {
-            playerAnimator.SetTrigger("hold");
-        }
-        else
-        {
-            playerAnimator.SetBool("onGround", true);
-        }
-        
-        playerAnimator.SetBool("isRunning", false);
-        playerAnimator.SetBool("isSkidding", false);
-
-        // disable all scripts
-        foreach (MonoBehaviour script in player.GetComponents<MonoBehaviour>()) {
-            // Still allow inputs, or else controller inputs will be dropped if you hold them through the freeze
-            if (script.GetType() != typeof(PlayerInput)) {  
-                script.enabled = false;
-            }
+            var anim = player.GetComponent<MarioCore>()?.GetComponentInChildren<Animator>();
+            anim?.SetTrigger("hold");
         }
     }
 
@@ -141,9 +128,9 @@ public class CoinDoor : Door
         // we don't need to spend coins here, because we're doing it in SpawnCoinsUntilOpen
     }
 
-    protected override bool PlayerAtDoor(MarioMovement playerScript)
+    protected override bool PlayerAtDoor(MarioCore playerScript)
     {
-        return playerInRange && (!mustBeStanding || playerScript.onGround);
+        return playerInRange && (!mustBeStanding || playerScript.State.OnGround);
     }
 
     protected override void Close()
