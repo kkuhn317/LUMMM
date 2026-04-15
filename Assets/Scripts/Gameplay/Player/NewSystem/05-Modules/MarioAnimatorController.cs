@@ -445,8 +445,7 @@ public class MarioAnimatorController : MonoBehaviour
 
         _animator.SetBool(H_Yeah, true);
 
-        yield return new WaitForSeconds(
-            _core.GetComponent<MarioAudio>()?.YeahClipLength ?? 0.7f);
+        yield return new WaitForSeconds(0.7f);
 
         _animator.SetBool(H_Yeah, false);
         _isYeahPlaying = false;
@@ -469,10 +468,8 @@ public class MarioAnimatorController : MonoBehaviour
                 _animator.SetBool(H_IsWorried, true);
                 break;
             case MarioEmote.Celebrating:
-                // Driven by OnCelebrationStarted coroutine which already
-                // handles the timed yeah bool — FireEmoteStarted triggers
-                // the sprite swap, the coroutine handles the animator.
-                MarioEvents.FireCelebrationStarted(playerIndex);
+                if (!_isYeahPlaying && !_hasTriggeredYeah)
+                    StartCoroutine(PlayYeahAnimation());
                 break;
         }
     }
@@ -489,17 +486,5 @@ public class MarioAnimatorController : MonoBehaviour
         if (playerIndex != PlayerIndex) return;
         // Visual scale is already handled by MarioPhysics.Flip
         // This hook is available for any animator-level flip logic if needed
-    }
-
-    // ─── Public API (called by legacy AnimationYeah trigger) ─────────────────
-
-    public void PlayCelebration()
-    {
-        MarioEvents.FireCelebrationStarted(PlayerIndex);
-    }
-
-    public void ResetYeahTrigger()
-    {
-        _hasTriggeredYeah = false;
     }
 }

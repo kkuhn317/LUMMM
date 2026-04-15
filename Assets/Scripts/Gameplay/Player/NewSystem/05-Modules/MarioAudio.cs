@@ -48,12 +48,6 @@ public class MarioAudio : MonoBehaviour
     public AudioClip CapePrepareAttackSound;
     public AudioClip CapeSound;
 
-    [Header("Celebration")]
-    public AudioClip YeahAudioClip;
-
-    /// <summary>Exposed for MarioAnimatorController to know how long to hold the Yeah anim.</summary>
-    public float YeahClipLength => YeahAudioClip != null ? YeahAudioClip.length : 0.7f;
-
     // ─── References ──────────────────────────────────────────────────────────
 
     private MarioCore   _core;
@@ -90,7 +84,6 @@ public class MarioAudio : MonoBehaviour
         MarioEvents.OnThrown             += OnThrown;
         MarioEvents.OnCapeAttackStarted  += OnCapeAttackStarted;
         MarioEvents.OnCapeAttackSwung    += OnCapeAttackSwung;
-        MarioEvents.OnCelebrationStarted += OnCelebration;
     }
 
     private void UnsubscribeEvents()
@@ -114,7 +107,6 @@ public class MarioAudio : MonoBehaviour
         MarioEvents.OnThrown             -= OnThrown;
         MarioEvents.OnCapeAttackStarted  -= OnCapeAttackStarted;
         MarioEvents.OnCapeAttackSwung    -= OnCapeAttackSwung;
-        MarioEvents.OnCelebrationStarted -= OnCelebration;
     }
 
     // ─── Event Handlers ──────────────────────────────────────────────────────
@@ -137,7 +129,6 @@ public class MarioAudio : MonoBehaviour
     private void OnThrown(int i, ObjectPhysics o)    { if (i != PlayerIndex) return; Play(ThrowSound); }
     private void OnCapeAttackStarted(int i)  { if (i != PlayerIndex) return; Play(CapePrepareAttackSound); }
     private void OnCapeAttackSwung(int i)    { if (i != PlayerIndex) return; Play(CapeSound); }
-    private void OnCelebration(int i)        { if (i != PlayerIndex) return; Play(YeahAudioClip); }
 
     private void OnGroundPoundLanded(int i, GameObject obj)
     {
@@ -145,7 +136,7 @@ public class MarioAudio : MonoBehaviour
         Play(GroundPoundLandSound);
     }
 
-    // ─── Public (SpinJumpBounce) ─────────────────────
+    // ─── Public ──────────────────────────────────────────────────────────────
 
     public void PlayDamageSound()
     {
