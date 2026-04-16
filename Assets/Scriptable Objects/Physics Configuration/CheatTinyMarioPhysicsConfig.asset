@@ -12,29 +12,30 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a440f6113409fff428acc4bd1d0abfdb, type: 3}
   m_Name: CheatTinyMarioPhysicsConfig
   m_EditorClassIdentifier: 
-  MoveSpeed: 15
-  RunSpeed: 15
-  SlowDownForce: 5
-  MaxSpeed: 5
-  MaxRunSpeed: 10.5
+  MoveSpeed: 7.5
+  RunSpeed: 7.5
+  SlowDownForce: 2
+  MaxSpeed: 1.875
+  MaxRunSpeed: 3.75
   SkidSpeedMult: 0.7
   AirTurnMult: 1.5
   CrawlForceMult: 2
   CrawlMaxSpeedMult: 0.5
-  JumpSpeed: 11
-  WalkJumpSpeed: 12
-  WalkJumpSpeedRequired: 3
-  JumpDelay: 0.25
-  TerminalVelocity: 13
-  StartFallingSpeed: 1
+  JumpSpeed: 4.5
+  WalkJumpSpeed: 4.5
+  WalkJumpSpeedRequired: 1
+  JumpDelay: 0.1
+  TerminalVelocity: 4.6875
+  StartFallingSpeed: 0.375
   RiseGravity: 0
-  PeakGravity: 7
-  FallGravity: 8
+  PeakGravity: 2
+  FallGravity: 2.625
   Airtime: 0.3
   WalkJumpAirtime: 0.35
   CoyoteTime: 0.08
-  CrouchColliderHeight: 0.25
-  CrouchColliderOffsetY: -0.25
+  SpinJumpAirtime: 1
+  CrouchColliderHeight: 0.2
+  CrouchColliderOffsetY: -0.15
   WallJumpHoldTime: 0.25
   SpinMultiplier: 0.8
   MidairSpinDuration: 0.4
@@ -43,22 +44,29 @@ MonoBehaviour:
   MidairSpinFallSpeedCap: 3.5
   MidairSpinUpwardBoost: 3
   MidairSpinHorizontalPreserve: 0.8
-  MidairSpinCooldown: 0.2
+  MidairSpinCooldown: 0.02
   GroundPoundSpinTime: 0.5
   GroundPoundLandLockTime: 0.25
-  SwimForce: 7
+  SwimForce: 5
   SwimGravity: 1
   SwimDrag: 3
-  SwimTerminalVelocity: 3
-  BubbleSpawnDelay: 2
-  GroundLength: 0.6
-  GroundSink: 0.1
-  CeilingLength: 0.53
-  RaycastSeparation: 0.35
+  SwimTerminalVelocity: 2
+  BubbleSpawnDelay: 2.5
+  MaxWalkableAngle: 60
+  GroundLength: 0.23
+  GroundSink: -0.1
+  CeilingLength: 0.18
+  RaycastSeparation: 0.11
   RaycastOffsetX: 0
-  DoCornerCorrection: 1
-  CornerCorrection: 0.1
+  CeilingCorrectionOffset: {x: 0, y: -0.05}
+  CeilingCorrectionRayLength: -0
+  CeilingCorrectionThreshold: 0.06
+  CeilingCorrectionThresholdOffset: {x: 0, y: -0.02}
+  FloorCorrectionOffset: {x: 0, y: 0.1}
+  FloorCorrectionRayLength: 0
+  FloorCorrectionThreshold: 0.06
+  FloorCorrectionThresholdOffset: {x: 0, y: 0}
   GrabRaycastDistanceSmall: -0.1
   GrabRaycastDistanceLarge: -0.4
   DamageInvincibilityTime: 3
-  WalkAnimatorSpeed: 0.125
+  WalkAnimatorSpeed: 0.25
