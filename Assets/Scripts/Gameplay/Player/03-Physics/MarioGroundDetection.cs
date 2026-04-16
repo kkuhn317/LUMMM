@@ -106,17 +106,10 @@ public class MarioGroundDetection : MonoBehaviour
         bool hit2Valid = hit2.collider != null
             && (State.PushingObject == null || hit2.transform.gameObject != State.PushingObject.gameObject);
 
-        // Use the hit normal to detect slope — more reliable than the stale FloorAngle
-        // because it reflects the actual surface this frame.
-        // On a slope, uphill movement produces positive velocity.y which must not
-        // be treated as airborne. We allow it whenever the surface is angled.
-        // The centre ray is especially important on slope seams where the left/right
-        // rays may straddle two different collider triangles and give inconsistent normals.
         bool anyHit  = hit1Valid || hitCValid || hit2Valid;
         bool onSlope = false;
         if (anyHit)
         {
-            // Pick the highest hit point among all three rays as the best representative
             RaycastHit2D bestHit = default;
             float bestY = float.MinValue;
             if (hit1Valid && hit1.point.y > bestY) { bestHit = hit1; bestY = hit1.point.y; }
@@ -124,23 +117,15 @@ public class MarioGroundDetection : MonoBehaviour
             if (hit2Valid && hit2.point.y > bestY) { bestHit = hit2; }
             onSlope = Mathf.Abs(bestHit.normal.x) > 0.1f;
         }
-        // goingUp: true when velocity has meaningful upward component.
-        // On a slope, uphill movement produces positive vel.y naturally (e.g. vel=(3.5,3.5))
-        // so we must not treat that as "jumping". Instead we check whether the velocity
-        // is moving AWAY from the surface (outward along the normal). If it is large,
-        // Mario genuinely jumped; if small/negative, it's just slope movement.
-        // We approximate this with the raw vel.y threshold only on flat ground,
-        // and use a higher threshold on slopes to avoid killing uphill walking.
+
         bool goingUp;
         if (onSlope && anyHit)
         {
-            // Pick best hit for normal check
             RaycastHit2D slopeHit = default;
             float sY = float.MinValue;
             if (hit1Valid && hit1.point.y > sY) { slopeHit = hit1; sY = hit1.point.y; }
             if (hitCValid && hitC.point.y > sY) { slopeHit = hitC; sY = hitC.point.y; }
             if (hit2Valid && hit2.point.y > sY)    slopeHit = hit2;
-            // Moving away from surface along normal = real jump. Threshold 1.0 filters jitter.
             float awayFromSurface = Vector2.Dot(_core.Rb.velocity, -slopeHit.normal);
             goingUp = awayFromSurface > 1.0f;
         }
@@ -157,8 +142,6 @@ public class MarioGroundDetection : MonoBehaviour
 
         if (!State.OnGround) return null;
 
-        // Return the highest hit among all valid rays — on a slope this is the
-        // point closest to Mario's feet, giving the most accurate surface normal.
         RaycastHit2D best = default;
         float bestPtY = float.MinValue;
         if (hit1Valid && hit1.point.y > bestPtY) { best = hit1; bestPtY = hit1.point.y; }
@@ -199,23 +182,15 @@ public class MarioGroundDetection : MonoBehaviour
 
         // ── Conveyor ─────────────────────────────────────────────────────────
 
-        // ConveyorBelt is on the parent — the raycast hits a child collider (left/middle/right).
-        // Walk up the hierarchy to find it.
         State.OnConveyor = hit.transform.GetComponentInParent<ConveyorBelt>();
 
         // ── Slope ────────────────────────────────────────────────────────────
 
-        // Derive the angle from the hit surface normal — works on any surface
-        // automatically, no "Slope" tag needed. Flat ground normal is Vector2.up
-        // (angle = 0). Angled surfaces produce a rotated normal we convert to degrees.
-        // The Slope component can still override for manual tuning if present.
         float newAngle = 0f;
-        if (Mathf.Abs(hit.normal.x) > 0.1f)  // must match the onSlope threshold in CheckGround —
-        {                                      // both gates must agree or a surface is treated as flat
-                                               // for OnGround but angled for projection, corrupting vel.x
+        if (Mathf.Abs(hit.normal.x) > 0.1f)
+        {
             newAngle = Vector2.SignedAngle(hit.normal, Vector2.up) * Mathf.Sign(hit.normal.x);
 
-            // Slope component override (optional manual tuning)
             if (hit.transform.CompareTag("Slope")
                 && hit.transform.TryGetComponent(out Slope slope))
             {
@@ -223,25 +198,14 @@ public class MarioGroundDetection : MonoBehaviour
             }
         }
 
-        // Too steep to walk on — treat as airborne so Mario slides off
         if (Mathf.Abs(newAngle) > Cfg.MaxWalkableAngle)
         {
             State.OnGround = false;
             return;
         }
 
-#if UNITY_EDITOR
-        // Debug.Log($"[Slope] normal={hit.normal} newAngle={newAngle:F1} FloorAngle={State.FloorAngle:F1} vel={_core.Rb.velocity} OnGround={State.OnGround}");
-#endif
-
-        // Derive tangent from actual hit.normal — rotate 90° clockwise:
-        // normal=(nx,ny) → right-tangent=(ny,-nx). Correct for any slope direction.
         Vector2 slopeVec = new Vector2(hit.normal.y, -hit.normal.x);
 
-        // Transition between slopes (slope-to-slope only): reproject velocity onto new slope.
-        // Skip when coming from flat (FloorAngle==0) — the velocity constraint below
-        // handles that naturally. Reprojecting flat→slope introduces a negative-Y lurch
-        // that causes the visible hesitation when Mario walks onto a slope from flat ground.
         bool fromSlope = Mathf.Abs(State.FloorAngle) > 0.1f;
         if (newAngle != State.FloorAngle && !wasInAir && fromSlope)
         {
@@ -249,10 +213,6 @@ public class MarioGroundDetection : MonoBehaviour
             _core.Rb.velocity = slopeVec * speed;
         }
 
-        // Landing on a slope: reproject velocity onto the slope tangent so
-        // gravity-induced Y doesn't persist and trigger a false goingUp.
-        // Use dot product along the tangent rather than velocity.x alone —
-        // velocity.x misses the Y contribution on diagonal landing trajectories.
         if (newAngle != 0f && wasInAir)
         {
             float speedAlongSlope = Vector2.Dot(_core.Rb.velocity, slopeVec);
@@ -260,25 +220,13 @@ public class MarioGroundDetection : MonoBehaviour
         }
 
         State.FloorAngle  = newAngle;
-        State.FloorNormal = hit.normal; // stored so WalkRunState can derive correct tangent
+        State.FloorNormal = hit.normal;
         State.GroundPosition = hit.point;
 
         // ── Ground Snap ──────────────────────────────────────────────────────
 
         bool isFlat = Mathf.Abs(newAngle) < 1f;
 
-        // Flat-ground snap removed: gravityScale is 0 while grounded so Mario
-        // cannot sink into the surface without it. Writing rb.position every frame
-        // caused a physics discontinuity on off-grid surfaces (fractional hit.point.y)
-        // that bled horizontal velocity no matter how the condition was guarded.
-        // Slopes use the stick force below instead.
-
-        // Velocity constraint while grounded:
-        // Flat  → kill Y so Mario doesn't sink or float.
-        // Slope → kill only the component perpendicular to the surface (the normal),
-        //         which glues Mario to the slope without affecting how fast he moves
-        //         along it in either direction. This replaces the old projection onto
-        //         slopeVec which was direction-dependent and destroyed uphill movement.
         if (!_core.State.Climbing && _core.StateMachine.IsGrounded)
         {
             if (isFlat)
@@ -296,7 +244,7 @@ public class MarioGroundDetection : MonoBehaviour
                 if (_core.Rb.velocity.sqrMagnitude > 0.001f)
                     Debug.Log($"[Constraint] slope vel={_core.Rb.velocity} normal={hit.normal} away={awayFromSurface:F3} normalVelCheck={Vector2.Dot(_core.Rb.velocity, hit.normal):F3}");
 #endif
-                if (awayFromSurface < 2.0f) // raised from 0.5 so sprint entry doesn't skip the constraint
+                if (awayFromSurface < 2.0f)
                 {
                     float normalVel = Vector2.Dot(_core.Rb.velocity, hit.normal);
                     if (normalVel > 0f)
@@ -314,8 +262,6 @@ public class MarioGroundDetection : MonoBehaviour
             var gpLandState = _core.StateMachine.GetState<GroundPoundLandState>();
             if (gpLandState != null)
             {
-                // Collect all unique hit objects from both raycasts so that
-                // landing between two blocks bumps both of them.
                 float groundLen = State.IsCrouching ? Cfg.GroundLength / 2f : Cfg.GroundLength;
                 RaycastHit2D gpHit1 = Physics2D.Raycast(transform.position + RaycastLeft  + HOffset, Vector2.down, groundLen, _core.Physics.GroundLayer);
                 RaycastHit2D gpHit2 = Physics2D.Raycast(transform.position + RaycastRight + HOffset, Vector2.down, groundLen, _core.Physics.GroundLayer);
@@ -367,26 +313,22 @@ public class MarioGroundDetection : MonoBehaviour
         State.OnMovingPlatform = false;
         State.OnConveyor       = null;
 
-        // FIX: Clear FloorAngle when truly airborne so the Y-velocity gate
-        // works normally on flat ground again after leaving a slope.
-        // Also kill residual upward Y from slope tangent when walking off the top —
-        // otherwise Fall state inherits it and Mario briefly floats upward.
         if (State.FloorAngle != 0f && _core.Rb.velocity.y > 0f && !_core.StateMachine.IsAirborne)
             _core.Rb.velocity = new Vector2(_core.Rb.velocity.x, 0f);
         State.FloorAngle  = 0f;
-        State.FloorNormal = Vector2.up; // reset to flat so GetSlopeMoveDir returns Vector2.right
+        State.FloorNormal = Vector2.up;
     }
 
-    // ─── Corner Correction ───────────────────────────────────────────────────
+    // ─── Ceiling Corner Correction ───────────────────────────────────────────
 
     private void ApplyCornerCorrection()
     {
         var bounds        = _core.Collider.bounds;
-        float startHeight = bounds.size.y / 2f + (_core.Rb.velocity.y * Time.fixedDeltaTime) + 0.01f;
+        float startHeight = bounds.size.y / 2f + (_core.Rb.velocity.y * Time.fixedDeltaTime) + 0.01f + Cfg.CeilingCorrectionOffset.y;
         float halfWidth   = bounds.size.x / 2f;
-        float rayLen      = halfWidth * 1.1f;
+        float rayLen      = halfWidth + Cfg.CeilingCorrectionRayLength;
 
-        Vector3 origin = transform.position + new Vector3(0f, startHeight, 0f);
+        Vector3 origin = transform.position + new Vector3(Cfg.CeilingCorrectionOffset.x, startHeight, 0f);
 
         RaycastHit2D hitLeft  = Physics2D.Raycast(origin, Vector2.left,  rayLen, _core.Physics.GroundLayer);
         RaycastHit2D hitRight = Physics2D.Raycast(origin, Vector2.right, rayLen, _core.Physics.GroundLayer);
@@ -399,48 +341,41 @@ public class MarioGroundDetection : MonoBehaviour
 
         if (gapWidth < 0f) return;
 
-        float playerLeft  = transform.position.x - halfWidth;
-        float playerRight = transform.position.x + halfWidth;
+        float playerLeft  = transform.position.x - halfWidth + Cfg.CeilingCorrectionThresholdOffset.x;
+        float playerRight = transform.position.x + halfWidth + Cfg.CeilingCorrectionThresholdOffset.x;
 
         if (hitLeft.collider != null
-            && hitLeft.point.x < playerLeft + Cfg.CornerCorrection
+            && hitLeft.point.x < playerLeft + Cfg.CeilingCorrectionThreshold
             && hitLeft.point.x > playerLeft)
         {
-            Debug.Log($"[CornerCorrect] Nudge right (ceiling) | contact={hitLeft.point.x:F3} playerLeft={playerLeft:F3} threshold={Cfg.CornerCorrection:F3}");
+            Debug.Log($"[CornerCorrect] Nudge right (ceiling) | contact={hitLeft.point.x:F3} playerLeft={playerLeft:F3} threshold={Cfg.CeilingCorrectionThreshold:F3}");
             _ceilingCCFiredLeft = true;
             _core.Rb.position = new Vector2(hitLeft.point.x + halfWidth * 1.2f, _core.Rb.position.y);
         }
         else if (hitRight.collider != null
-            && hitRight.point.x > playerRight - Cfg.CornerCorrection
+            && hitRight.point.x > playerRight - Cfg.CeilingCorrectionThreshold
             && hitRight.point.x < playerRight)
         {
-            Debug.Log($"[CornerCorrect] Nudge left (ceiling) | contact={hitRight.point.x:F3} playerRight={playerRight:F3} threshold={Cfg.CornerCorrection:F3}");
+            Debug.Log($"[CornerCorrect] Nudge left (ceiling) | contact={hitRight.point.x:F3} playerRight={playerRight:F3} threshold={Cfg.CeilingCorrectionThreshold:F3}");
             _ceilingCCFiredRight = true;
             _core.Rb.position = new Vector2(hitRight.point.x - halfWidth * 1.2f, _core.Rb.position.y);
         }
     }
 
-    // ─── Vertical Corner Correction ─────────────────────────────────────────
-    /// <summary>
-    /// Exact mirror of ApplyCornerCorrection but for the bottom of Mario.
-    /// When falling and a bottom corner clips a wall edge, nudges Mario
-    /// horizontally so he slides into the gap. Uses the same CornerCorrection
-    /// threshold and ray length logic as the ceiling version.
-    /// </summary>
+    // ─── Floor Corner Correction ─────────────────────────────────────────────
+
     private void ApplyVerticalCornerCorrection()
     {
         var bounds        = _core.Collider.bounds;
         float startHeight = bounds.size.y / 2f + Mathf.Abs(_core.Rb.velocity.y * Time.fixedDeltaTime) + 0.01f;
         float halfWidth   = bounds.size.x / 2f;
-        float rayLen      = halfWidth * 1.1f;
+        float rayLen      = halfWidth + Cfg.FloorCorrectionRayLength;
 
-        // Origin at bottom of Mario (negative Y — mirror of ceiling's positive Y)
-        Vector3 origin = transform.position + new Vector3(0f, -startHeight, 0f);
+        Vector3 origin = transform.position + new Vector3(Cfg.FloorCorrectionOffset.x, -startHeight + Cfg.FloorCorrectionOffset.y, 0f);
 
         RaycastHit2D hitLeft  = Physics2D.Raycast(origin, Vector2.left,  rayLen, _core.Physics.GroundLayer);
         RaycastHit2D hitRight = Physics2D.Raycast(origin, Vector2.right, rayLen, _core.Physics.GroundLayer);
 
-        // Both sides must hit — only then is there a gap to slide into
         if (hitLeft.collider == null || hitRight.collider == null) return;
 
         float distLeft  = hitLeft.distance;
@@ -448,11 +383,12 @@ public class MarioGroundDetection : MonoBehaviour
         float gapWidth  = (distLeft + distRight) - bounds.size.x;
 
         if (gapWidth < 0f) return;
-        float playerLeft  = transform.position.x - halfWidth;
-        float playerRight = transform.position.x + halfWidth;
+
+        float playerLeft  = transform.position.x - halfWidth + Cfg.FloorCorrectionThresholdOffset.x;
+        float playerRight = transform.position.x + halfWidth + Cfg.FloorCorrectionThresholdOffset.x;
 
         if (hitLeft.collider != null
-            && hitLeft.point.x > playerLeft - Cfg.CornerCorrection
+            && hitLeft.point.x > playerLeft - Cfg.FloorCorrectionThreshold
             && hitLeft.point.x < playerLeft)
         {
             Debug.Log($"[VCornerCorrect] Nudge right | gapWidth={gapWidth:F3} leftContact={hitLeft.point.x:F3} playerLeft={playerLeft:F3}");
@@ -460,7 +396,7 @@ public class MarioGroundDetection : MonoBehaviour
             _core.Rb.position = new Vector2(hitLeft.point.x + halfWidth * 1.2f, _core.Rb.position.y);
         }
         else if (hitRight.collider != null
-            && hitRight.point.x < playerRight + Cfg.CornerCorrection
+            && hitRight.point.x < playerRight + Cfg.FloorCorrectionThreshold
             && hitRight.point.x > playerRight)
         {
             Debug.Log($"[VCornerCorrect] Nudge left | gapWidth={gapWidth:F3} rightContact={hitRight.point.x:F3} playerRight={playerRight:F3}");
@@ -508,11 +444,9 @@ public class MarioGroundDetection : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        // Works in both edit mode and play mode
         var core = _core != null ? _core : GetComponent<MarioCore>();
         if (!enabled || core == null) return;
 
-        // Physics and Collider are set in Awake — fall back to GetComponent in edit mode
         var physics  = core.Physics  != null ? core.Physics  : core.GetComponent<MarioPhysics>();
         var collider = core.Collider != null ? core.Collider : core.GetComponentInChildren<BoxCollider2D>();
         var cfg      = physics != null ? physics.Config : null;
@@ -522,7 +456,6 @@ public class MarioGroundDetection : MonoBehaviour
         float groundLen = crouching ? cfg.GroundLength / 2f : cfg.GroundLength;
         float ceilLen   = crouching ? cfg.CeilingLength / 2f : cfg.CeilingLength;
 
-        // Recompute offsets from config (runtime properties unavailable in edit mode)
         float sep    = cfg.RaycastSeparation;
         float offX   = cfg.RaycastOffsetX;
         Vector3 left  = new Vector3(-sep + offX, 0f, 0f);
@@ -541,52 +474,55 @@ public class MarioGroundDetection : MonoBehaviour
         DrawRay(transform.position + hoff,  Vector2.up, cfg.CeilingLength);
         DrawRay(transform.position + right, Vector2.up, ceilLen);
 
-        // Ceiling corner correction gizmos — orange rays + green threshold at top
+        // Ceiling corner correction gizmos
         {
-            float ccHalfW    = collider.size.x / 2f;
-            float ccHalfH    = collider.size.y / 2f;
-            float ccRayLen   = ccHalfW * 1.1f;
-            Vector3 ccCenter = transform.position + new Vector3(collider.offset.x, collider.offset.y);
-            float topY       = ccCenter.y + ccHalfH;
-            float ccLeft     = ccCenter.x - ccHalfW;
-            float ccRight    = ccCenter.x + ccHalfW;
-            Vector3 topOrigin = new Vector3(ccCenter.x, topY);
+            float ccHalfW     = collider.size.x / 2f;
+            float ccHalfH     = collider.size.y / 2f;
+            float ccRayLen    = ccHalfW + cfg.CeilingCorrectionRayLength;
+            Vector3 ccCenter  = transform.position + new Vector3(collider.offset.x, collider.offset.y);
+            float topY        = ccCenter.y + ccHalfH + cfg.CeilingCorrectionOffset.y;
+            float ccOriginX   = ccCenter.x + cfg.CeilingCorrectionOffset.x;
+            float ccLeft      = ccCenter.x - ccHalfW + cfg.CeilingCorrectionThresholdOffset.x;
+            float ccRight     = ccCenter.x + ccHalfW + cfg.CeilingCorrectionThresholdOffset.x;
+            Vector3 topOrigin = new Vector3(ccOriginX, topY);
 
             Gizmos.color = (_ceilingCCFiredLeft || _ceilingCCFiredRight) ? Color.red : new Color(1f, 0.5f, 0f);
             DrawRay(topOrigin, Vector2.left,  ccRayLen);
             DrawRay(topOrigin, Vector2.right, ccRayLen);
 
+            float ceilThreshY = topY + 0.05f + cfg.CeilingCorrectionThresholdOffset.y;
             Gizmos.color = _ceilingCCFiredLeft  ? Color.red : Color.green;
-            Gizmos.DrawLine(new Vector3(ccLeft,                         topY + 0.05f),
-                            new Vector3(ccLeft  - cfg.CornerCorrection,  topY + 0.05f));
+            Gizmos.DrawLine(new Vector3(ccLeft,                                   ceilThreshY),
+                            new Vector3(ccLeft  - cfg.CeilingCorrectionThreshold, ceilThreshY));
             Gizmos.color = _ceilingCCFiredRight ? Color.red : Color.green;
-            Gizmos.DrawLine(new Vector3(ccRight,                        topY + 0.05f),
-                            new Vector3(ccRight + cfg.CornerCorrection,  topY + 0.05f));
+            Gizmos.DrawLine(new Vector3(ccRight,                                  ceilThreshY),
+                            new Vector3(ccRight + cfg.CeilingCorrectionThreshold, ceilThreshY));
         }
 
-        // Vertical corner correction gizmos — exact mirror of ceiling gizmos
-        float vccHalfW       = collider.size.x / 2f;
-        float vccHalfH       = collider.size.y / 2f;
-        float vccRayLen      = vccHalfW * 1.1f;
-        Vector3 colCenter    = transform.position + new Vector3(collider.offset.x, collider.offset.y);
-        float bottomY        = colCenter.y - vccHalfH;
-        float leftEdge       = colCenter.x - vccHalfW;
-        float rightEdge      = colCenter.x + vccHalfW;
-        Vector3 bottomOrigin = new Vector3(colCenter.x, bottomY);
+        // Floor corner correction gizmos
+        {
+            float vccHalfW      = collider.size.x / 2f;
+            float vccHalfH      = collider.size.y / 2f;
+            float vccRayLen     = vccHalfW + cfg.FloorCorrectionRayLength;
+            Vector3 colCenter   = transform.position + new Vector3(collider.offset.x, collider.offset.y);
+            float bottomY       = colCenter.y - vccHalfH + cfg.FloorCorrectionOffset.y;
+            float vccOriginX    = colCenter.x + cfg.FloorCorrectionOffset.x;
+            float leftEdge      = colCenter.x - vccHalfW + cfg.FloorCorrectionThresholdOffset.x;
+            float rightEdge     = colCenter.x + vccHalfW + cfg.FloorCorrectionThresholdOffset.x;
+            Vector3 bottomOrigin = new Vector3(vccOriginX, bottomY);
 
-        // Orange rays from bottom center — left and right (mirrors ceiling)
-        Gizmos.color = new Color(1f, 0.5f, 0f);
-        DrawRay(bottomOrigin, Vector2.left,  vccRayLen);
-        DrawRay(bottomOrigin, Vector2.right, vccRayLen);
+            Gizmos.color = (_verticalCCFiredLeft || _verticalCCFiredRight) ? Color.red : new Color(1f, 0.5f, 0f);
+            DrawRay(bottomOrigin, Vector2.left,  vccRayLen);
+            DrawRay(bottomOrigin, Vector2.right, vccRayLen);
 
-        // Green threshold markers — show how far OUTSIDE each edge the correction zone extends
-        Gizmos.color = Color.green;
-        Gizmos.DrawLine(
-            new Vector3(leftEdge,                         bottomY - 0.05f),
-            new Vector3(leftEdge  - cfg.CornerCorrection, bottomY - 0.05f));
-        Gizmos.DrawLine(
-            new Vector3(rightEdge,                         bottomY - 0.05f),
-            new Vector3(rightEdge + cfg.CornerCorrection,  bottomY - 0.05f));
+            float floorThreshY = bottomY - 0.05f + cfg.FloorCorrectionThresholdOffset.y;
+            Gizmos.color = _verticalCCFiredLeft  ? Color.red : Color.green;
+            Gizmos.DrawLine(new Vector3(leftEdge,                                 floorThreshY),
+                            new Vector3(leftEdge  - cfg.FloorCorrectionThreshold, floorThreshY));
+            Gizmos.color = _verticalCCFiredRight ? Color.red : Color.green;
+            Gizmos.DrawLine(new Vector3(rightEdge,                                floorThreshY),
+                            new Vector3(rightEdge + cfg.FloorCorrectionThreshold, floorThreshY));
+        }
     }
 
     private static void DrawRay(Vector3 origin, Vector2 dir, float len)
@@ -594,18 +530,9 @@ public class MarioGroundDetection : MonoBehaviour
 
     // ─── Helpers ─────────────────────────────────────────────────────────────
 
-    // ── Conveyor Belt ────────────────────────────────────────────────────────
-
-    /// <summary>
-    /// Applies the conveyor belt effect as a direct position offset, completely
-    /// separate from Mario's own physics velocity. This means it can never
-    /// accumulate — Mario's walk force, drag, and jump all work on clean velocity,
-    /// and the belt just moves him in world space on top of that every frame.
-    /// </summary>
     private void ApplyConveyorBelt()
     {
         if (State.OnConveyor == null) return;
-
         _core.Rb.position += State.OnConveyor.Velocity * Time.fixedDeltaTime;
     }
 }

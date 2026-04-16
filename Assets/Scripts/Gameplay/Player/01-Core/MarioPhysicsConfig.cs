@@ -90,7 +90,18 @@ public class MarioPhysicsConfig : ScriptableObject
     public float CeilingLength      = 0.5f;
     public float RaycastSeparation  = 0.35f;
     public float RaycastOffsetX     = 0f;
-    public float CornerCorrection   = 0.1f;
+
+    [Header("Ceiling Corner Correction")]
+    public Vector2 CeilingCorrectionOffset = Vector2.zero;
+    public float CeilingCorrectionRayLength = 0.1f;
+    public float CeilingCorrectionThreshold = 0.1f;
+    public Vector2 CeilingCorrectionThresholdOffset = Vector2.zero;
+
+    [Header("Floor Corner Correction")]
+    public Vector2 FloorCorrectionOffset = Vector2.zero;
+    public float FloorCorrectionRayLength = 0.1f;
+    public float FloorCorrectionThreshold = 0.1f;
+    public Vector2 FloorCorrectionThresholdOffset = Vector2.zero;
 
     [Header("Carrying")]
     public float GrabRaycastDistanceSmall = -0.1f;

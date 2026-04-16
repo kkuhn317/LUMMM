@@ -135,18 +135,18 @@ public class PowerUp : ObjectPhysics
     private void HandleStateTransition(MarioCore mario)
     {
         bool can = canGetPowerup(mario.State.PowerupState, mario.State.CurrentPowerupType);
-        Debug.Log($"[PowerUp] canGetPowerup={can} | current={mario.State.PowerupState}/{mario.State.CurrentPowerupType} | new={_newPowerupState}/{_newPowerupType}");
 
-        if (!can) return;
-
-        if (mario.Powerup == null)
+        if (can)
         {
-            Debug.LogWarning("[PowerUp] mario.Powerup is null!");
-            return;
+            if (mario.Powerup == null)
+            {
+                Debug.LogWarning("[PowerUp] mario.Powerup is null!");
+                return;
+            }
+            mario.Powerup.ChangePowerup(powerUpData);
         }
 
-        mario.Powerup.ChangePowerup(powerUpData);
-
+        // Always award score and show popup, even for duplicate powerups
         GameManager.Instance.GetSystem<ScoreSystem>().AddScore(1000);
 
         if (ScorePopupManager.Instance != null)

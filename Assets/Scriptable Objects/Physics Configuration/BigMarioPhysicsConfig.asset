@@ -33,6 +33,7 @@ MonoBehaviour:
   Airtime: 0.3
   WalkJumpAirtime: 0.35
   CoyoteTime: 0.08
+  SpinJumpAirtime: 1
   CrouchColliderHeight: 1
   CrouchColliderOffsetY: -0.4
   WallJumpHoldTime: 0.25
@@ -51,13 +52,20 @@ MonoBehaviour:
   SwimDrag: 3
   SwimTerminalVelocity: 3
   BubbleSpawnDelay: 2
+  MaxWalkableAngle: 60
   GroundLength: 1.16
   GroundSink: 0.15
-  CeilingLength: 1.03
+  CeilingLength: 0.9
   RaycastSeparation: 0.4
   RaycastOffsetX: 0
-  DoCornerCorrection: 1
-  CornerCorrection: 0.1
+  CeilingCorrectionOffsetX: 0
+  CeilingCorrectionOffsetY: 0
+  CeilingCorrectionRayLength: 0.1
+  CeilingCorrectionThreshold: 0.1
+  FloorCorrectionOffsetX: 0
+  FloorCorrectionOffsetY: 0
+  FloorCorrectionRayLength: 0.1
+  FloorCorrectionThreshold: 0.1
   GrabRaycastDistanceSmall: -0.1
   GrabRaycastDistanceLarge: -0.4
   DamageInvincibilityTime: 3

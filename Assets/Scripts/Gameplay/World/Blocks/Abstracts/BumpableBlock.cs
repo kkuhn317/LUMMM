@@ -121,7 +121,27 @@ public class BumpableBlock : MonoBehaviour, IBumpable
 
     protected virtual void HandleEnemies(BlockHitDirection direction, MarioCore player)
     {
-        // Default: no enemy interaction. Override in subclasses as needed.
+        Vector2 center = (Vector2)transform.position + Vector2.up * (boxCollider.size.y * 0.5f + 0.1f);
+        Vector2 size   = new Vector2(boxCollider.size.x * 0.9f, 0.2f);
+
+        bool knockLeft = player != null
+            ? player.transform.position.x > transform.position.x
+            : true;
+
+        Collider2D[] hits = Physics2D.OverlapBoxAll(center, size, 0f);
+        foreach (var hit in hits)
+        {
+            var enemy = hit.GetComponent<EnemyAI>() ?? hit.GetComponentInParent<EnemyAI>();
+            if (enemy != null)
+            {
+                enemy.KnockAwayFromBlock(knockLeft);
+                continue;
+            }
+
+            // Fallback for non-EnemyAI physics objects on top of the block
+            var obj = hit.GetComponent<ObjectPhysics>() ?? hit.GetComponentInParent<ObjectPhysics>();
+            obj?.KnockAway(knockLeft);
+        }
     }
 
     /// <summary>

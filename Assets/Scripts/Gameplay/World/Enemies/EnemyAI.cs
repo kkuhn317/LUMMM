@@ -120,6 +120,12 @@ public class EnemyAI : ObjectPhysics
         }
     }
 
+    public void KnockAwayFromBlock(bool knockLeft, int points = 500)
+    {
+        KnockAway(knockLeft);
+        AwardFlatScoreReward(points, transform.position + (Vector3)popupOffset);
+    }
+
     protected void AwardStompComboReward(Vector3 popupWorldPosition)
     {
         ComboResult result;
