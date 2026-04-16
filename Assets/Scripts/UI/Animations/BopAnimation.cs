@@ -46,6 +46,7 @@ public class BopAnimation : MonoBehaviour
             LeanTween.scale(gameObject, bopAnimationScale, animationDuration)
                 .setEase(LeanTweenType.easeInOutQuad)
                 .setLoopPingPong(1)
+                .setIgnoreTimeScale(true) // continue during pause (Time.timeScale = 0)
                 .setOnComplete(() => transform.localScale = originalScale); // Reset after animation
         }
 
@@ -67,6 +68,7 @@ public class BopAnimation : MonoBehaviour
             LeanTween.scale(child, childBopAnimationScale, animationDuration)
                 .setEase(LeanTweenType.easeInOutQuad)
                 .setLoopPingPong(1)
+                .setIgnoreTimeScale(true) // continue during pause (Time.timeScale = 0)
                 .setOnComplete(() => child.transform.localScale = childOriginalScale); // Reset after animation
         }
     }
