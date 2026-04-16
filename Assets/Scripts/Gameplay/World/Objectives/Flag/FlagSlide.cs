@@ -254,16 +254,10 @@ public class FlagSlide : MonoBehaviour
 
     private GameObject SpawnPuppet(Collider2D other, MarioCore mario)
     {
-        GameObject prefab = cutsceneMario;
-
-        if (optCutsceneBigMario != null && PowerStates.IsBig(mario.State.PowerupState))
-        {
-            prefab = optCutsceneBigMario;
-            var playerLib = other.GetComponentInChildren<SpriteLibrary>();
-            var csLib      = prefab.GetComponentInChildren<SpriteLibrary>();
-            if (playerLib != null && csLib != null)
-                csLib.spriteLibraryAsset = playerLib.spriteLibraryAsset;
-        }
+        bool isBig = PowerStates.IsBig(mario.State.PowerupState);
+        GameObject prefab = (optCutsceneBigMario != null && isBig)
+            ? optCutsceneBigMario
+            : cutsceneMario;
 
         if (prefab == null) return null;
 
@@ -273,9 +267,15 @@ public class FlagSlide : MonoBehaviour
             transform.position.x + (flagOnRight ? 0.4f : -0.4f),
             other.transform.position.y);
 
+        // Read the sprite library from MarioPowerup.NormalSpriteLibrary — the
+        // authoritative per-character asset — NOT from the SpriteLibrary component.
+        var marioPowerup = mario.GetComponent<MarioPowerup>();
+        var csLib = instance.GetComponentInChildren<SpriteLibrary>();
+        if (marioPowerup != null && marioPowerup.NormalSpriteLibrary != null && csLib != null)
+            csLib.spriteLibraryAsset = marioPowerup.NormalSpriteLibrary;
+
         instance.GetComponent<PuppetGroundDetection>()?.Initialize();
 
-        // Face toward the pole (always inward)
         var sr = instance.GetComponentInChildren<SpriteRenderer>();
         if (sr != null) sr.flipX = flagOnRight;
 
