@@ -124,7 +124,6 @@ public abstract class GroundedStateBase : MarioStateBase
         {
             < 0.5f  => 100_000_000f,
             < 5f    => 8f / spd,
-            < 10f   => 3f / spd,
             _       => 1.5f
         };
 
