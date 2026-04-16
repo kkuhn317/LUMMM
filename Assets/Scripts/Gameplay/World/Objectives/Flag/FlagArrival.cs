@@ -108,6 +108,13 @@ public class FlagArrival : MonoBehaviour
 
             // Flip to face the level (away from pole)
             FlipPuppet(puppet, levelIsRight);
+
+            // Clear climb state immediately after flip — before any further waits
+            if (anim != null)
+            {
+                anim.SetBool("isSideClimbing", false);
+                anim.SetBool("onGround", true);
+            }
         }
 
         // Fire event — ideal time to start end music

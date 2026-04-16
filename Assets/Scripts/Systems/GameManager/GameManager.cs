@@ -73,6 +73,7 @@ public class GameManager : MonoBehaviour, IGameManager
         BindLevelContextAndInitialize();
         GameEvents.TriggerGameInitialized();
         GameEvents.TriggerLevelStarted();
+        CursorHelper.HideCursor();
     }
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)

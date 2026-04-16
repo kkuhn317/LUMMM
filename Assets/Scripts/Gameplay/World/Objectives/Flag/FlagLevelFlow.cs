@@ -70,6 +70,8 @@ public class FlagLevelFlow : MonoBehaviour
             _musicStopped = true;
             MusicManager.Instance?.MuteAllMusic();
         }
+
+        GameEvents.TriggerLevelEnding();
     }
 
     /// <summary>Called the moment the first player grabs the pole and begins sliding.</summary>

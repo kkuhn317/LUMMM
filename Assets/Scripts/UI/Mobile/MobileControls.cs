@@ -20,12 +20,17 @@ public class MobileControls : MonoBehaviour
     {
         CacheRegistry();
         gameObject.SetActive(GlobalVariables.OnScreenControls);
-        GameEvents.OnLevelComplete += OnLevelComplete;
+        GameEvents.OnLevelEnding += OnLevelEnding;
     }
 
     private void OnDestroy()
     {
-        GameEvents.OnLevelComplete -= OnLevelComplete;
+        GameEvents.OnLevelEnding -= OnLevelEnding;
+    }
+
+    private void OnLevelEnding()
+    {
+        SetTouchControlsEnabled(false);
     }
 
     public void SetTouchControlsEnabled(bool enabled)
@@ -34,13 +39,7 @@ public class MobileControls : MonoBehaviour
         foreach (MobileControlButton button in myButtons)
             button.gameObject.SetActive(enabled);
     }
-
-    private void OnLevelComplete()
-    {
-        // Disable mobile controls when the level is complete to prevent input during the end sequence
-        SetTouchControlsEnabled(false);
-    }
-
+    
     private void CacheRegistry()
     {
         if (GameManager.Instance != null)

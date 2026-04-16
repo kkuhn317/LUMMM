@@ -19,6 +19,7 @@ public static class GameEvents
 
     public static event Action OnGameInitialized;
     public static event Action OnLevelStarted;
+    public static event Action OnLevelEnding;
     public static event Action OnLevelComplete;
     public static event Action OnLevelFailed;
     public static event Action OnGameOver;
@@ -85,6 +86,7 @@ public static class GameEvents
     // -----------------------------
     // Trigger Methods
     // -----------------------------
+    public static void TriggerLevelEnding() => OnLevelEnding?.Invoke();
     public static void TriggerLevelContextChanged(LevelContext ctx) => OnLevelContextChanged?.Invoke(ctx);
 
     public static void TriggerGameInitialized() => OnGameInitialized?.Invoke();
