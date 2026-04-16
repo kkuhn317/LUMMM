@@ -139,8 +139,9 @@ public class BumpableBlock : MonoBehaviour, IBumpable
             }
 
             // Fallback for non-EnemyAI physics objects on top of the block
-            var obj = hit.GetComponent<ObjectPhysics>() ?? hit.GetComponentInParent<ObjectPhysics>();
-            obj?.KnockAway(knockLeft);
+            /*var obj = hit.GetComponent<ObjectPhysics>() ?? hit.GetComponentInParent<ObjectPhysics>();
+            if (obj is PowerUp) return;
+            obj?.KnockAway(knockLeft);*/
         }
     }
 

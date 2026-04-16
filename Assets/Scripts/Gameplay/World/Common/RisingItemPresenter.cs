@@ -3,8 +3,10 @@ using UnityEngine;
 
 /// <summary>
 /// Reusable presenter to spawn an item and make it "rise out of a block" like SMB.
-/// Handles: instantiation, temporary disabling scripts, tag/sorting overrides, collider delay,
+/// Handles: instantiation, temporary disabling scripts, tag/sorting overrides,
 /// and restoring original values at the end.
+/// The item's collider stays disabled for the entire rise and is only re-enabled
+/// once the item has fully reached its target height.
 /// </summary>
 public class RisingItemPresenter : MonoBehaviour
 {
@@ -14,9 +16,6 @@ public class RisingItemPresenter : MonoBehaviour
 
     [Tooltip("Default speed used if caller passes <= 0.")]
     public float defaultMoveSpeed = 1f;
-
-    [Tooltip("Delay before enabling the item's collider while rising.")]
-    public float colliderEnableDelay = 0.25f;
 
     [Tooltip("Temporary tag applied while rising.")]
     public string risingTag = "RisingItem";
@@ -82,7 +81,7 @@ public class RisingItemPresenter : MonoBehaviour
                 script.enabled = false;
         }
 
-        // Collider off at start
+        // Collider off at start — stays off until rise is fully complete
         BoxCollider2D itemCollider = item.GetComponent<BoxCollider2D>();
         if (itemCollider != null)
             itemCollider.enabled = false;
@@ -130,9 +129,6 @@ public class RisingItemPresenter : MonoBehaviour
     {
         if (item == null) yield break;
 
-        float startTime = Time.time;
-        bool colliderEnabled = false;
-
         float targetY = item.transform.position.y + moveHeight;
 
         while (item != null && !stopAllRising)
@@ -140,16 +136,9 @@ public class RisingItemPresenter : MonoBehaviour
             float newY = Mathf.MoveTowards(item.transform.position.y, targetY, moveSpeed * Time.deltaTime);
             item.transform.position = new Vector3(item.transform.position.x, newY, item.transform.position.z);
 
-            if (!colliderEnabled && Time.time >= startTime + colliderEnableDelay)
-            {
-                if (itemCollider != null)
-                    itemCollider.enabled = true;
-                colliderEnabled = true;
-            }
-
             if (item.transform.position.y >= targetY - 0.01f)
             {
-                RestoreItem(item, oldTag, sr, oldSortingLayerId, oldSortingOrder, scripts);
+                RestoreItem(item, oldTag, sr, oldSortingLayerId, oldSortingOrder, scripts, itemCollider);
                 yield break;
             }
 
@@ -163,7 +152,8 @@ public class RisingItemPresenter : MonoBehaviour
         SpriteRenderer sr,
         int oldSortingLayerId,
         int oldSortingOrder,
-        MonoBehaviour[] scripts)
+        MonoBehaviour[] scripts,
+        BoxCollider2D itemCollider)
     {
         if (item == null) return;
 
@@ -173,6 +163,10 @@ public class RisingItemPresenter : MonoBehaviour
             if (script != null)
                 script.enabled = true;
         }
+
+        // Re-enable collider now that the rise is fully complete
+        if (itemCollider != null)
+            itemCollider.enabled = true;
 
         // Restore tag
         item.tag = oldTag;
