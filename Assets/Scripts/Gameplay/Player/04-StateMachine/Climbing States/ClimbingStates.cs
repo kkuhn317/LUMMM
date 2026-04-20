@@ -50,6 +50,14 @@ public abstract class ClimbingStateBase : MarioStateBase
         Rb.gravityScale = 1f;
         Rb.drag         = 0f;
 
+        // If jumping off the vine while pressing sideways, face that direction
+        bool goingAirborne = nextState == MarioStateID.Rise
+                          || nextState == MarioStateID.Fall
+                          || nextState == MarioStateID.SpinJump
+                          || nextState == MarioStateID.WallJump;
+        if (goingAirborne && Mathf.Abs(State.MoveInput.x) > 0.01f)
+            Core.Physics.FlipTo(State.MoveInput.x > 0f);
+
         MarioEvents.FireClimbEnded(PlayerIndex);
     }
 
@@ -194,11 +202,11 @@ public class ClimbSideState : ClimbingStateBase
         var climbable = State.CurrentClimbable;
         if (climbable != null)
         {
-            // Use the facing direction Mario had just before entering —
-            // if he was facing right he approached from the left, and vice versa.
-            // This is more reliable than position (which may not have updated yet)
-            // or velocity (which may be zero when entering from grounded state).
-            bool marioIsOnLeft = State.FacingRight;
+            // Determine which side Mario is approaching from using his actual
+            // position relative to the climbable center — this is reliable even
+            // when re-entering after a flip, unlike State.FacingRight which
+            // retains the last flipped value from the previous climb session.
+            bool marioIsOnLeft = Core.Rb.position.x < climbable.PoleCenterX;
             Core.Physics.FlipTo(marioIsOnLeft); // on left → face right, on right → face left
 
             // Snap position immediately so FixedUpdate doesn't fight us
@@ -282,6 +290,47 @@ public class ClimbSideState : ClimbingStateBase
                                           || (!State.FacingRight && State.MoveInput.x > 0f);
             if (pressingInFacingDirection)
             {
+                // Check if there is another ClimbSide climbable in the detach direction
+                // so we can transfer directly without going through Fall.
+                float detachDir  = State.FacingRight ? -1f : 1f; // direction Mario is pressing away
+                float searchX    = Core.Rb.position.x + detachDir * (State.CurrentClimbable != null ? State.CurrentClimbable.width + 0.6f : 1.2f);
+                var   hits       = Physics2D.OverlapCircleAll(new Vector2(searchX, Core.Rb.position.y), 0.4f);
+                Climbable nextClimbable = null;
+                foreach (var hit in hits)
+                {
+                    var c = hit.GetComponent<Climbable>();
+                    if (c != null && c != State.CurrentClimbable && c.climbMethod == Climbable.ClimbMethod.Side)
+                    {
+                        nextClimbable = c;
+                        break;
+                    }
+                }
+
+                if (nextClimbable != null)
+                {
+                    // Transfer directly to the next climbable — no fall gap.
+                    // Mario is moving in detachDir, so he arrives on the opposite side
+                    // of the next climbable (e.g. moving left → lands on right side).
+                    State.CurrentClimbable = nextClimbable;
+                    _waitingForNeutral     = true;
+
+                    // Pre-set facing so Enter uses the correct side instead of
+                    // reading position (which hasn't moved to the new climbable yet).
+                    // Moving left (detachDir=-1) → arriving from right → face left (FacingRight=false).
+                    // Moving right (detachDir=+1) → arriving from left → face right (FacingRight=true).
+                    bool arriveFromLeft = detachDir > 0f;
+                    Core.Physics.FlipTo(arriveFromLeft);
+
+                    // Snap X to the correct side of the new climbable immediately
+                    float newX = arriveFromLeft
+                        ? nextClimbable.PoleCenterX - nextClimbable.width / 2f
+                        : nextClimbable.PoleCenterX + nextClimbable.width / 2f;
+                    Core.Rb.position = new Vector2(newX, Core.Rb.position.y);
+
+                    RequestTransition(MarioStateID.ClimbSide);
+                    return;
+                }
+
                 RequestTransition(MarioStateID.Fall);
                 return;
             }

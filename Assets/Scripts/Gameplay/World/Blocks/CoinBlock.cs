@@ -108,13 +108,33 @@ public class CoinBlock : BumpableBlock
         return true;
     }
 
+    private bool _coinGivenThisHit = false;
+
     protected override void OnBeforeBounce(BlockHitDirection direction, MarioCore player)
     {
+        _coinGivenThisHit = false;
+
         // BounceRoutine runs BEFORE OnAfterBounce in BumpableBlock,
         // so we must skip the bounce here if we don't want empty blocks to bounce.
         if (isUsed && !allowBounceWhenEmpty)
         {
             skipBounceThisHit = true;
+            return;
+        }
+
+        // Spawn the coin immediately on hit — don't wait for bounce animation to finish.
+        // OnAfterBounce will handle state updates but skip re-spawning the coin.
+        if (!isUsed)
+        {
+            bool windowExpired = isActive && Time.time > expireTime;
+            bool canGive = !windowExpired &&
+                           (maxCoinsDuringWindow <= 0 || coinsGivenDuringWindow < maxCoinsDuringWindow);
+
+            if (canGive || (!isActive))
+            {
+                GiveCoin(player);
+                _coinGivenThisHit = true;
+            }
         }
     }
 
@@ -153,7 +173,8 @@ public class CoinBlock : BumpableBlock
             }
 
             // If we couldn't spawn the bonus reward, give one final coin as consolation
-            if (!spawnedBonus)
+            // (only if not already given in OnBeforeBounce)
+            if (!spawnedBonus && !_coinGivenThisHit)
             {
                 GiveCoin(player);
             }
@@ -165,7 +186,9 @@ public class CoinBlock : BumpableBlock
         // Window still active: give coin if under cap (cap optional)
         if (maxCoinsDuringWindow <= 0 || coinsGivenDuringWindow < maxCoinsDuringWindow)
         {
-            GiveCoin(player);
+            // Coin was already spawned immediately in OnBeforeBounce — don't spawn again.
+            if (!_coinGivenThisHit)
+                GiveCoin(player);
             coinsGivenDuringWindow++;
 
             if (refreshWindowOnHit)

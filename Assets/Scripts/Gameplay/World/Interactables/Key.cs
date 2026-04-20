@@ -46,6 +46,18 @@ public class Key : MonoBehaviour
     {
         if (!collected) return;
 
+        // Refresh player reference every frame in case Mario transformed —
+        // the old MarioCore gets destroyed and replaced with a new one.
+        if (_playerCore == null || !_playerCore.gameObject.activeInHierarchy)
+        {
+            var registry = GameManager.Instance?.GetSystem<PlayerRegistry>();
+            if (registry != null)
+            {
+                var fresh = registry.GetPlayer(0);
+                if (fresh != null) _playerCore = fresh;
+            }
+        }
+
         followPlayer();
 
         if (_playerCore == null) return;

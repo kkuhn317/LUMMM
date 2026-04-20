@@ -84,7 +84,7 @@ public class MarioInput : MonoBehaviour
     public void Run(InputAction.CallbackContext context)
     {
         if (context.performed) OnRunPressed();
-        if (context.canceled)  OnRunReleased();
+        if (context.canceled && !State.InputLocked) OnRunReleased();
     }
 
     public void OnRunPressed()
@@ -106,12 +106,36 @@ public class MarioInput : MonoBehaviour
         State.RunPressed = false;
     } 
 
+    /// <summary>
+    /// Syncs held-button state after inputs are re-enabled (e.g. after a door animation).
+    /// Unity's Input System does not re-fire performed for already-held buttons on re-activation,
+    /// so we read physical state directly.
+    /// </summary>
+    public void SyncHeldButtons()
+    {
+        var pi = _core.PlayerInput;
+        if (pi == null || pi.actions == null) return;
+
+        var runAction  = pi.actions.FindAction("Run",  throwIfNotFound: false);
+        var jumpAction = pi.actions.FindAction("Jump", throwIfNotFound: false);
+        var moveAction = pi.actions.FindAction("Move", throwIfNotFound: false);
+
+        if (runAction  != null) State.RunPressed  = runAction.IsPressed();
+        if (jumpAction != null) State.JumpPressed = jumpAction.IsPressed();
+        if (moveAction != null)
+        {
+            State.MoveInput = ApplyDeadzone(moveAction.ReadValue<Vector2>());
+            if (!State.InputLocked)
+                State.Direction = State.MoveInput;
+        }
+    }
+
     // Jump ────────────────────────────────────────────────────────────────────
 
     public void Jump(InputAction.CallbackContext context)
     {
-        if (context.performed) OnJumpPressed();
-        if (context.canceled) OnJumpReleased();
+        if (context.performed && !State.InputLocked) OnJumpPressed();
+        if (context.canceled && !State.InputLocked) OnJumpReleased();
     }
 
     public void OnJumpPressed()

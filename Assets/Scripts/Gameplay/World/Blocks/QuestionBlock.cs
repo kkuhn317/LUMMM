@@ -179,6 +179,19 @@ public class QuestionBlock : BumpableBlock
                 return;
             }
         }
+
+        // Spawn coins immediately on hit — don't wait for the bounce animation.
+        // Non-coin items (powerups) still rise from the block via OnAfterBounce.
+        if (!IsUsed && spawnMode == SpawnMode.AllAtOnce
+            && spawnableItems != null && spawnableItems.Length > 0)
+        {
+            var coins = new System.Collections.Generic.List<GameObject>();
+            foreach (var item in spawnableItems)
+                if (item != null && item.GetComponent<Coin>() != null)
+                    coins.Add(item);
+            if (coins.Count > 0)
+                PresentCoins(coins);
+        }
     }
 
     protected override void OnAfterBounce(BlockHitDirection direction, MarioCore player)
@@ -323,9 +336,8 @@ public class QuestionBlock : BumpableBlock
                 nonCoins.Add(item);
         }
 
-        // Coins always spawn normally
-        if (coins.Count > 0)
-            PresentCoins(coins);
+        // Coins were already spawned immediately in OnBeforeBounce — skip here.
+        // if (coins.Count > 0) PresentCoins(coins);
 
         // Non-coins: either original behavior or conditional override
         if (nonCoins.Count == 0) return;

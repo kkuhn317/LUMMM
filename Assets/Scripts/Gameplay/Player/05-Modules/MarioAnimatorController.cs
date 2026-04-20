@@ -190,6 +190,10 @@ public class MarioAnimatorController : MonoBehaviour
         _animator.SetBool (H_IsRunning,   absVelX > 0.2f);
         _animator.SetBool (H_OnGround,    State.OnGround);
         _animator.SetBool (H_IsPushing,   State.Pushing);
+        // While looking up, force isCrouching off every frame — prevents a
+        // one-frame crouch flicker when look-up ends regardless of event order.
+        if (State.IsLookingUp)
+            _animator.SetBool(H_IsCrouching, false);
         _animator.SetBool (H_IsSpinning,       State.Spinning);
         _animator.SetBool (H_isMidAirSpinning,  State.IsMidairSpinning);
         _animator.SetBool (H_IsWallSliding,     State.WallSliding);
@@ -429,6 +433,9 @@ public class MarioAnimatorController : MonoBehaviour
         if (playerIndex != PlayerIndex) return;
         _animator.SetBool(H_IsLookingUp,      false);
         _animator.SetInteger(H_LookUpVariant, 0);
+        // Force isCrouching off immediately — without this, the animator shows
+        // one frame of crouch limb positions before UpdateContinuousParams catches up.
+        _animator.SetBool(H_IsCrouching, false);
     }
 
     private void OnCelebration(int playerIndex)

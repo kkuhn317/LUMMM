@@ -41,10 +41,12 @@ public class RiseState : AirborneStateBase
         State.OnGround              = false;
 
         // Fire jumped for normal, coyote, and climb jumps.
+        // Suppress if this is a bounce from a trampoline or note block.
         bool isCoyoteJump = previousState == MarioStateID.Fall && State.AirTimer > Time.time;
         bool isClimbJump  = previousState == MarioStateID.ClimbFront || previousState == MarioStateID.ClimbSide;
-        if (!State.Spinning && (wasOnGround || isCoyoteJump || isClimbJump))
+        if (!State.Spinning && !State.IsBounced && (wasOnGround || isCoyoteJump || isClimbJump))
             MarioEvents.FireJumped(PlayerIndex);
+        State.IsBounced = false; // always clear after reading
     }
 
     public override void FixedUpdate()

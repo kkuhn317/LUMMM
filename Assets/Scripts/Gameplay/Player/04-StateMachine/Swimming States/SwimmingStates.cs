@@ -59,6 +59,14 @@ public abstract class SwimmingStateBase : MarioStateBase
         Rb.gravityScale = Cfg.SwimGravity;
         Rb.drag         = Cfg.SwimDrag;
 
+        // Apply horizontal movement while swimming and flip to face direction
+        float moveDir = State.MoveInput.x;
+        if (Mathf.Abs(moveDir) > 0.01f)
+        {
+            Rb.AddForce(Vector2.right * moveDir * Cfg.MoveSpeed);
+            Core.Physics.FlipTo(moveDir > 0f);
+        }
+
         // Clamp upward swim speed
         if (Rb.velocity.y > Cfg.SwimTerminalVelocity * 2f)
             Rb.velocity = new Vector2(Rb.velocity.x, Cfg.SwimTerminalVelocity * 2f);
@@ -67,31 +75,40 @@ public abstract class SwimmingStateBase : MarioStateBase
         if (-Rb.velocity.y > Cfg.SwimTerminalVelocity)
             Rb.velocity = new Vector2(Rb.velocity.x, -Cfg.SwimTerminalVelocity);
 
+        // slow horizontal movement when walking on the lake floor underwater
+        if (State.OnGround)
+        {
+            float slowedX = Rb.velocity.x * Cfg.SwimDrag * Time.fixedDeltaTime;
+            Rb.velocity = new Vector2(Rb.velocity.x - slowedX, Rb.velocity.y);
+        }
+
         HandleWaterGroundPoundTimeout();
     }
 
     public override void CheckTransitions()
     {
-        // Exited water
+        // Exited water — determine Rise vs Fall based on vertical velocity at exit
+        // MarioSwimming.OnTriggerExit2D already handles the impulse and Rise transition.
         if (!State.Swimming)
         {
-            // Moving upward on exit → jump out of water arc
             if (Rb.velocity.y > 0f)
-            {
-                Core.Swimming.JumpOutOfWater();
                 RequestTransition(MarioStateID.Rise);
-            }
             else
-            {
                 RequestTransition(MarioStateID.Fall);
-            }
             return;
         }
 
-        // Grounded underwater (e.g. lake floor)
+        // When grounded underwater, jump press should trigger a swim
+        // stroke instead of transitioning to Idle (which would fire a normal jump).
         if (State.OnGround)
         {
-            RequestTransition(MarioStateID.Idle);
+            if (Time.time < State.JumpTimer)
+            {
+                RequestTransition(MarioStateID.Swim);
+                return;
+            }
+            // Only go to Idle if not pressing jump — standing still on lake floor
+            RequestTransition(MarioStateID.SwimIdle);
             return;
         }
     }
@@ -139,6 +156,10 @@ public class SwimIdleState : SwimmingStateBase
     public override void Enter(string previousState)
     {
         base.Enter(previousState);
+
+        // Clear any leftover jump buffer so entering water mid-jump doesn't
+        // immediately trigger a swim stroke and play the jump animation.
+        State.JumpTimer = 0f;
 
         // Coming from a ground pound land underwater
         bool fromGroundPoundLand = previousState == MarioStateID.GroundPoundLand;

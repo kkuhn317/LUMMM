@@ -54,6 +54,7 @@ public class Trampoline : MonoBehaviour
                     if (player.State.GroundPounding)
                         MarioEvents.FireGroundPoundCancelled(player.PlayerIndex);
                     player.State.GroundPounding = false;
+                    player.State.IsBounced = true;
                     player.StateMachine.ForceTransition(MarioStateID.Fall);
                     player.StateMachine.ForceTransition(MarioStateID.Rise);
                     rb.velocity += new Vector2(0, playerBouncePower);

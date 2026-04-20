@@ -223,22 +223,20 @@ public class MarioCore : MonoBehaviour
     public void DisableInputs()
     {
         if (!gameObject.activeSelf) return;
-        if (PlayerInput == null) return;
 
-        PlayerInput.DeactivateInput();
-        PlayerInput.enabled = false;
+        // Only set the lock flag — do NOT deactivate/disable PlayerInput.
+        // DeactivateInput resets all action states so held buttons appear
+        // released after re-activation, breaking held-run detection.
+        // MarioInput.Update already gates on InputLocked so no input leaks through.
         State.InputLocked = true;
     }
 
     public void EnableInputs()
     {
         if (!gameObject.activeSelf) return;
-        if (PlayerInput == null) return;
 
-        if (!PlayerInput.enabled)
-            PlayerInput.enabled = true;
-
-        PlayerInput.ActivateInput();
+        // Just clear the lock — action states were never reset so held buttons
+        // like Run are still correctly pressed and MarioInput picks them up immediately.
         State.InputLocked = false;
     }
 

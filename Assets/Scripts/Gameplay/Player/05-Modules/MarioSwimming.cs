@@ -25,9 +25,35 @@ public class MarioSwimming : MonoBehaviour
 
     private static readonly int _waterLayer = -1; // Cached lazily
 
+
     private void Awake()
     {
         _core = GetComponent<MarioCore>();
+    }
+
+    private void FixedUpdate()
+    {
+        // Authoritatively sync State.Swimming to whether Mario is physically
+        // inside a water collider right now. This prevents the swim-outside-water
+        // bug where spamming jump at the surface causes OnTriggerEnter2D to re-fire
+        // while Mario is already in the air.
+        bool inWater = IsInWater();
+        if (!inWater && State.Swimming)
+        {
+            // Physically outside water but state says swimming — correct it
+            State.Swimming = false;
+            MarioEvents.FireExitedWater(_core.PlayerIndex);
+        }
+    }
+
+    private bool IsInWater()
+    {
+        var col = _core.Collider;
+        if (col == null) return false;
+        var hits = Physics2D.OverlapBoxAll(col.bounds.center, col.bounds.size * 0.9f, 0f);
+        foreach (var hit in hits)
+            if (IsWater(hit)) return true;
+        return false;
     }
 
     private void Start()

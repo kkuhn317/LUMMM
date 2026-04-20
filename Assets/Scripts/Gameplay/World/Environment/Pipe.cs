@@ -125,7 +125,7 @@ public class Pipe : MonoBehaviour
         }
         if (marioCore != null) marioCore.State.GroundPounding = false;
         if (playerSprite && (enterDirection == Direction.Left || enterDirection == Direction.Right))
-            playerSprite.flipX = enterDirection == Direction.Left;
+            playerSprite.flipX = enterDirection == Direction.Right;
 
         // enter movement — same logic as the original, just using player.position directly
         Vector2 enterDirVec     = DirectionToVector(enterDirection) * enterDistance;
@@ -164,7 +164,7 @@ public class Pipe : MonoBehaviour
                 bool horizExit = exitDirection == Direction.Left || exitDirection == Direction.Right;
                 playerAnim.SetBool("isRunning",   horizExit);
                 playerAnim.SetFloat("Horizontal", horizExit ? 1f : 0f);
-                if (playerSprite && horizExit) playerSprite.flipX = exitDirection == Direction.Left;
+                if (playerSprite && horizExit) playerSprite.flipX = exitDirection == Direction.Right;
             }
 
             Vector2 outDir    = DirectionToVector(exitDirection);

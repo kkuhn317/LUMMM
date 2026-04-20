@@ -142,8 +142,32 @@ public class PlayerTransformation : MonoBehaviour
         var oldLib = oldPlayer.GetComponentInChildren<SpriteLibrary>();
         var newLib = newPlayer.GetComponentInChildren<SpriteLibrary>();
 
-        if (oldLib != null) oldChild.GetComponent<SpriteLibrary>().spriteLibraryAsset = oldLib.spriteLibraryAsset;
-        if (newLib != null) newChild.GetComponent<SpriteLibrary>().spriteLibraryAsset = newLib.spriteLibraryAsset;
+        var oldChildLib = oldChild.GetComponent<SpriteLibrary>();
+        var newChildLib = newChild.GetComponent<SpriteLibrary>();
+        if (oldLib != null && oldChildLib != null) oldChildLib.spriteLibraryAsset = oldLib.spriteLibraryAsset;
+        if (newLib != null && newChildLib != null) newChildLib.spriteLibraryAsset = newLib.spriteLibraryAsset;
+
+        // ── Sync oldChild to the exact sprite the player was showing ─────────
+        // Find SpriteSimple by name — it's the single-sprite node that matches
+        // oldChild's structure. We search all children and match by name to avoid
+        // hardcoding a path that may differ between prefab variants.
+        var shellSR = oldChild.GetComponent<SpriteRenderer>();
+        if (shellSR != null)
+        {
+            SpriteRenderer playerSR = null;
+            foreach (var sr in oldPlayer.GetComponentsInChildren<SpriteRenderer>())
+            {
+                if (sr.gameObject.name == "SpriteSimple")
+                {
+                    playerSR = sr;
+                    break;
+                }
+            }
+            if (playerSR != null)
+                shellSR.sprite = playerSR.sprite;
+            else
+                Debug.LogWarning("[PT] Could not find SpriteSimple on old player.");
+        }
 
         oldChild.transform.localScale = oldPlayer.transform.localScale;
         newChild.transform.localScale = newPlayer.transform.localScale;
@@ -212,11 +236,18 @@ public class PlayerTransformation : MonoBehaviour
         // ── Apply all cached state directly ───────────────────────────────────
         var t = newCore.State;
 
-        newCore.Rb.velocity                  = _cachedVelocity;
+        // Transfer velocity so physics deceleration continues naturally after
+        // transformation — grounded drag will handle stopping if no input is held.
+        newCore.Rb.velocity = _cachedVelocity;
         t.PlayerIndex                        = _cachedPlayerIndex;
         t.JumpPressed                        = _cachedJumpPressed;
         t.RunPressed                         = _cachedRunPressed;
-        t.MoveInput                          = _cachedMoveInput;
+        // MoveInput is intentionally not transferred — the cached value is 1 second
+        // old and causes phantom movement. MarioInput's Move callback will set it
+        // correctly on the next input event. SyncHeldButtons reads current physical
+        // state for buttons (Run, Jump) but Move is event-driven so we leave it as
+        // the default zero from the fresh prefab.
+        newMario.GetComponent<MarioInput>()?.SyncHeldButtons();
         t.CanWallJump                        = _cachedCanWallJump;
         t.CanWallJumpWhenHoldingObject       = _cachedCanWallJumpHolding;
         t.CanSpinJump                        = _cachedCanSpinJump;

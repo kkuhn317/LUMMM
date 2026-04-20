@@ -116,6 +116,7 @@ public class MarioState
     // ─── Combat / Damage ─────────────────────────────────────────────────────
 
     public bool IsDead;
+    public bool IsBounced; // true when launched by trampoline/noteblock — suppresses jump sound
     public bool IsInvincible => InvincibilityTimeRemaining > 0f;
     public float InvincibilityTimeRemaining;
     public bool DamagedThisFrame;
