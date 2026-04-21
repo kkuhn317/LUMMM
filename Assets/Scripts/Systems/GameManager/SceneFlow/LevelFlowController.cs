@@ -124,6 +124,9 @@ public class LevelFlowController : MonoBehaviour
 
     public void TriggerDeath()
     {
+        if (FadeInOutScene.Instance != null && FadeInOutScene.Instance.isTransitioning)
+            return;
+
         if (deathSequenceRunning) return;
         deathSequenceRunning = true;
 

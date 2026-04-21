@@ -67,16 +67,16 @@ public class GameOverController : MonoBehaviour
     
     private void OnRetryPressed()
     {
-        if (FadeInOutScene.Instance != null)
-            FadeInOutScene.Instance.LoadSceneWithFade(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
-        else
-            GameManager.Instance?.RestartLevelFromBeginning();
+        if (GameManager.Instance != null)
+            GameManager.Instance.RestartLevelFromBeginning();
+        else if (FadeInOutScene.Instance != null)
+            FadeInOutScene.Instance.RestartSceneWithFadeToBlack(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
     }
     
     private void OnQuitPressed()
     {
         // Return to level select
-        FadeInOutScene.Instance.LoadSceneWithFade("SelectLevel");
+        FadeInOutScene.Instance.LoadSceneWithScreenFade("SelectLevel");
     }
     
     public bool IsGameOverActive => isGameOverActive;

@@ -20,7 +20,7 @@ public class ChangeScene : MonoBehaviour
     {
         if (FadeInOutScene.Instance != null)
         {
-            FadeInOutScene.Instance.LoadSceneWithFade(sceneName);
+            FadeInOutScene.Instance.LoadSceneWithScreenFade(sceneName);
         }
         else
         {

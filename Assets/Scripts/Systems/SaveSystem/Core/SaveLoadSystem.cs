@@ -100,7 +100,7 @@ public class SaveLoadSystem : PersistentSingleton<SaveLoadSystem>
         SaveManager.Load(slot);
         
         if (FadeInOutScene.Instance != null)
-            FadeInOutScene.Instance.LoadSceneWithFade("SelectLevel");
+            FadeInOutScene.Instance.LoadSceneWithScreenFade("SelectLevel");
         else
             SceneManager.LoadScene("SelectLevel");
     }

@@ -167,7 +167,7 @@ public class WinScreenController : MonoBehaviour
         isClosingWinScreen = true;
         isWinScreenActive = false;
         LockWinScreenInput();
-        GameManager.Instance.RestartLevelFromBeginningWithFadeOut();
+        GameManager.Instance.RestartLevelFromBeginning();
     }
 
     private void OnQuitClicked()

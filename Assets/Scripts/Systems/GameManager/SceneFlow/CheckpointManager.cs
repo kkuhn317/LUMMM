@@ -69,24 +69,32 @@ public class CheckpointManager : MonoBehaviour
     private void TryPlacePlayerAtActiveCheckpoint(MarioCore player)
     {
         if (player == null) return;
-
         if (!GlobalVariables.enableCheckpoints) return;
         if (GlobalVariables.checkpoint == -1) return;
 
         Checkpoint active = null;
+
         foreach (var cp in checkpoints)
         {
             if (cp == null) continue;
-            if (cp.checkpointID == GlobalVariables.checkpoint)
+            if (!cp.IsEnabledByMode) continue;
+            if (cp.checkpointID != GlobalVariables.checkpoint) continue;
+
+            if (active != null)
             {
-                active = cp;
-                break;
+                Debug.LogWarning(
+                    $"Duplicate checkpointID {GlobalVariables.checkpoint} found in scene. " +
+                    $"Using '{active.name}' and ignoring '{cp.name}'.");
+                continue;
             }
+
+            active = cp;
         }
 
         if (active == null) return;
 
         player.transform.position = active.SpawnPosition;
+
         var rb = player.GetComponent<Rigidbody2D>();
         if (rb != null) rb.velocity = Vector2.zero;
     }

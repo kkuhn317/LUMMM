@@ -421,7 +421,7 @@ public class LevelSelectionManager : MonoBehaviour
         // Load the scene
         if (FadeInOutScene.Instance != null)
         {
-            FadeInOutScene.Instance.LoadSceneWithFade("LevelIntro");
+            FadeInOutScene.Instance.LoadSceneWithScreenFade("LevelIntro");
         }
         else
         {

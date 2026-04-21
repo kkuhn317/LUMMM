@@ -241,7 +241,7 @@ public class IntroLevel : MonoBehaviour
 
         if (levelInfo != null)
         {
-            FadeInOutScene.Instance.RestartSceneWithFade(levelInfo.levelScene);
+            FadeInOutScene.Instance.RestartSceneWithFadeToBlack(levelInfo.levelScene);
         }
         else
         {

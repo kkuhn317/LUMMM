@@ -98,26 +98,23 @@ public class Checkpoint : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (!collision.CompareTag("Player"))
+        MarioCore mario =
+            collision.GetComponent<MarioCore>() ??
+            collision.GetComponentInParent<MarioCore>() ??
+            collision.attachedRigidbody?.GetComponent<MarioCore>();
+
+        if (mario == null)
             return;
 
         RefreshEnabledState();
         if (!IsEnabledByMode)
             return;
-        
-        MarioCore mario = collision.GetComponent<MarioCore>();
 
-        // allow score reward when you touch the checkpoint
-        // this score reward is BEFORE saving (so it’s included in SaveCurrentCheckpoint)
         if (giveScoreOnTouch)
-        {
             GiveScoreReward(mario);
-        }
-        
-        if (checkpointMode == CheckpointMode.Invisible && mario != null)
-        {
+
+        if (checkpointMode == CheckpointMode.Invisible)
             mario.Combat.ShowCheckpointFlag();
-        }
 
         checkpointManager ??= FindObjectOfType<CheckpointManager>();
         if (checkpointManager != null)

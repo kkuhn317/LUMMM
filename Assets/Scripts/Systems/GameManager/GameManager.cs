@@ -41,10 +41,8 @@ public class GameManager : MonoBehaviour, IGameManager
         }
 
         Instance = this;
-
         SceneManager.sceneLoaded += OnSceneLoaded;
 
-        // Strict validation for required dependencies in the starting scene
         ValidateRequiredReferences();
         CacheSystemReferencesIfEnabled();
     }
@@ -80,8 +78,6 @@ public class GameManager : MonoBehaviour, IGameManager
     {
         if (Instance != this) return;
 
-        // When a new scene loads, rebind required refs strictly:
-        // The GameManager persists, but scene-level controllers may be new instances.
         RebindSceneReferencesStrict();
 
         IsGameActive = true;
@@ -90,23 +86,19 @@ public class GameManager : MonoBehaviour, IGameManager
 
     private void BindLevelContextAndInitialize()
     {
-        // Ensure a valid level context exists when starting directly in a test level scene
         if (GlobalVariables.levelInfo == null)
             GlobalVariables.levelInfo = TestLevelInfo();
 
         CurrentLevelId = GlobalVariables.levelInfo?.levelID ?? SceneManager.GetActiveScene().name;
 
-        // Initialize core flow controllers
         levelFlowController.InitializeForLevel(CurrentLevelId);
         pauseMenuController.InitializeForLevel();
 
-        // This will publish level context event (keep in mind that starting time is taken from TimerManager in-scene)
         var timer = FindObjectOfType<TimerManager>();
         float startingTime = timer != null ? timer.StartingTime : 300f;
         GameEvents.TriggerLevelContextChanged(new GameEvents.LevelContext(CurrentLevelId, startingTime));
     }
 
-    // So no error when running starting in the level scene
     private LevelInfo TestLevelInfo()
     {
         LevelInfo info = ScriptableObject.CreateInstance<LevelInfo>();
@@ -134,7 +126,6 @@ public class GameManager : MonoBehaviour, IGameManager
 
     private void RebindSceneReferencesStrict()
     {
-        // If you prefer DI, replace this with a scene installer that assigns these refs.
         levelFlowController = FindObjectOfType<LevelFlowController>();
         pauseMenuController = FindObjectOfType<PauseMenuController>();
 
@@ -166,61 +157,30 @@ public class GameManager : MonoBehaviour, IGameManager
 
     #region Public API - Level Flow Control
 
-    // Used for Pause Menu and Game Over screen
     public void RestartLevelFromBeginning()
     {
         Debug.Log("GameManager: Restarting level from beginning");
-
-        GlobalVariables.ResetForLevel();
-
-        // Keep in mind that CheckpointManager must exist in the scene if checkpoints are enabled
-        var cp = FindObjectOfType<CheckpointManager>();
-        if (cp == null)
-            Debug.LogError($"{nameof(GameManager)}: {nameof(CheckpointManager)} not found when restarting from beginning.");
-        else
-            cp.ClearCheckpoint();
-
-        StopAllLevelMusic();
-        ReloadScene();
+        RestartLevelInternal(fromCheckpoint: false);
     }
 
     public void RestartLevelFromCheckpoint()
     {
         Debug.Log("GameManager: Restarting level from checkpoint");
-
-        StopAllLevelMusic();
-        ReloadScene();
-    }
-
-    public void RestartLevelFromBeginningWithFadeOut()
-    {
-        Debug.Log("GameManager: Restarting level from beginning (with fade)");
-
-        Time.timeScale = 1f;
-
-        GlobalVariables.ResetForLevel();
-
-        var cp = FindObjectOfType<CheckpointManager>();
-        if (cp == null)
-            Debug.LogError($"{nameof(GameManager)}: {nameof(CheckpointManager)} not found when restarting from beginning.");
-        else
-            cp.ClearCheckpoint();
-
-        StopAllLevelMusic();
-        CursorHelper.ShowCursor();
-        
-        LoadScene(SceneManager.GetActiveScene().name);
+        RestartLevelInternal(fromCheckpoint: true);
     }
 
     public void QuitLevel()
     {
         Debug.Log("GameManager: Quitting level");
+        
+        pauseMenuController.PreparePausedSceneTransition(true);
+        GlobalEventHandler.TriggerExitRequested();
 
         StopAllLevelMusic();
         CursorHelper.ShowCursor();
 
         if (FadeInOutScene.Instance != null)
-            FadeInOutScene.Instance.LoadSceneWithFade("SelectLevel");
+            FadeInOutScene.Instance.LoadSceneWithScreenFade("SelectLevel");
         else
             SceneManager.LoadScene("SelectLevel");
     }
@@ -238,7 +198,7 @@ public class GameManager : MonoBehaviour, IGameManager
     public void LoadScene(string sceneName)
     {
         if (FadeInOutScene.Instance != null)
-            FadeInOutScene.Instance.LoadSceneWithFade(sceneName);
+            FadeInOutScene.Instance.LoadSceneWithScreenFade(sceneName);
         else
             SceneManager.LoadScene(sceneName);
     }
@@ -247,18 +207,39 @@ public class GameManager : MonoBehaviour, IGameManager
 
     #region Private Helpers
 
+    private void RestartLevelInternal(bool fromCheckpoint)
+    {
+        pauseMenuController.PreparePausedSceneTransition(true);
+
+        if (!fromCheckpoint)
+        {
+            GlobalVariables.ResetForLevel();
+
+            var cp = FindObjectOfType<CheckpointManager>();
+            if (cp == null)
+                Debug.LogError($"{nameof(GameManager)}: {nameof(CheckpointManager)} not found when restarting from beginning.");
+            else
+                cp.ClearCheckpoint();
+        }
+
+        StopAllLevelMusic();
+        CursorHelper.ShowCursor();
+
+        string sceneName = SceneManager.GetActiveScene().name;
+
+        if (FadeInOutScene.Instance != null)
+            FadeInOutScene.Instance.RestartSceneWithFadeToBlack(sceneName);
+        else
+            SceneManager.LoadScene(sceneName);
+    }
+
     private void StopAllLevelMusic()
     {
         if (MusicManager.Instance != null)
-        {
-            MusicManager.Instance?.ClearAllOverrides(MusicManager.MusicStartMode.Continue);
-        }
+            MusicManager.Instance.ClearAllOverrides(MusicManager.MusicStartMode.Continue);
 
-        // If you're refactoring hard, consider removing tag-based cleanup and managing music via a single MusicSystem.
         foreach (GameObject musicObj in GameObject.FindGameObjectsWithTag("GameMusic"))
-        {
             Destroy(musicObj);
-        }
     }
 
     #endregion
@@ -267,8 +248,6 @@ public class GameManager : MonoBehaviour, IGameManager
 
     public T GetSystem<T>() where T : Component
     {
-        // Service locator pattern: keep only if you intentionally accept this tradeoff.
-        // Prefer explicit dependencies instead.
         return FindObjectOfType<T>();
     }
 

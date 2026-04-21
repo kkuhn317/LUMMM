@@ -76,12 +76,12 @@ public class GameOverScript : MonoBehaviour
         optionChosen = true;
         canPressButtons = false;
 
-        StartCoroutine(LockUIAfterFrame());   
+        StartCoroutine(LockUIAfterFrame());
 
-        if (FadeInOutScene.Instance != null)
-            FadeInOutScene.Instance.RestartSceneWithFade(SceneManager.GetActiveScene().name);
-        else if (GameManager.Instance != null)
+        if (GameManager.Instance != null)
             GameManager.Instance.RestartLevelFromBeginning();
+        else if (FadeInOutScene.Instance != null)
+            FadeInOutScene.Instance.RestartSceneWithFadeToBlack(SceneManager.GetActiveScene().name);
     }
 
     public void OnQuitButtonPressed()
@@ -93,6 +93,6 @@ public class GameOverScript : MonoBehaviour
         StartCoroutine(LockUIAfterFrame());
 
         if (FadeInOutScene.Instance != null)
-            FadeInOutScene.Instance.LoadSceneWithFade("SelectLevel");
+            FadeInOutScene.Instance.LoadSceneWithScreenFade("SelectLevel");
     }
 }

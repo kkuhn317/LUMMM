@@ -815,7 +815,7 @@ public class SaveSlotManager : MonoBehaviour
         AudioManager.Instance?.Play(transitionSound, SoundCategory.SFX);
 
         if (FadeInOutScene.Instance != null)
-            FadeInOutScene.Instance.LoadSceneWithFade(levelSelectSceneName);
+            FadeInOutScene.Instance.LoadSceneWithScreenFade(levelSelectSceneName);
         else
             SceneManager.LoadScene(levelSelectSceneName);
     }

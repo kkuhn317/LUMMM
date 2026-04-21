@@ -12,9 +12,12 @@ public class FadeInOutScene : MonoBehaviour
 
     private Coroutine currentFadeCoroutine;
     private string pendingSceneName = "";
-    private bool pendingFadeOut = true;
+    private bool pendingRevealAfterLoad = true;
 
-    /// <summary>True if the current scene was loaded via FadeInOutScene — suppresses CircleTransition.</summary>
+    /// <summary>
+    /// True if the current scene was loaded through this screen-fade system.
+    /// Used to suppress CircleTransition on the next scene.
+    /// </summary>
     public static bool LoadedWithFade { get; private set; }
 
     private void Awake()
@@ -27,8 +30,7 @@ public class FadeInOutScene : MonoBehaviour
 
         Instance = this;
         DontDestroyOnLoad(gameObject);
-        
-        // Ensure fade image starts in the correct state
+
         if (fadeImage != null)
         {
             fadeImage.gameObject.SetActive(false);
@@ -36,73 +38,78 @@ public class FadeInOutScene : MonoBehaviour
         }
     }
 
-    public void LoadSceneWithFade(string sceneName)
+    /// <summary>
+    /// Fade the screen to black, load the new scene, then reveal the new scene back from black.
+    /// Use this for normal scene transitions.
+    /// </summary>
+    public void LoadSceneWithScreenFade(string sceneName)
     {
-        // If already transitioning, queue the new scene
         if (isTransitioning)
         {
             Debug.Log("Queueing scene transition to: " + sceneName);
             pendingSceneName = sceneName;
-            pendingFadeOut = true;
+            pendingRevealAfterLoad = true;
             return;
         }
-        
-        currentFadeCoroutine = StartCoroutine(FadeAndLoadScene(sceneName, true));
-    }
 
-    public void LoadSceneWithoutFadeIn(string sceneName)
-    {
-        // If already transitioning, queue the new scene
-        if (isTransitioning)
-        {
-            Debug.Log("Queueing scene transition to: " + sceneName);
-            pendingSceneName = sceneName;
-            pendingFadeOut = false;
-            return;
-        }
-        
-        currentFadeCoroutine = StartCoroutine(FadeAndLoadScene(sceneName, false));
+        currentFadeCoroutine = StartCoroutine(TransitionAndLoadScene(sceneName, true));
     }
 
     /// <summary>
-    /// Fades to black, loads the scene, then lets CircleTransition handle the reveal.
-    /// Use this for death/restart — fade out is handled here, fade in is handled by CircleTransition.
+    /// Fade the screen to black, load the new scene, but do not reveal it here.
+    /// Useful when another transition system in the next scene will handle the reveal.
     /// </summary>
-    public void RestartSceneWithFade(string sceneName)
+    public void LoadSceneWithoutScreenReveal(string sceneName)
     {
-        if (isTransitioning) return;
-        currentFadeCoroutine = StartCoroutine(FadeAndRestartScene(sceneName));
+        if (isTransitioning)
+        {
+            Debug.Log("Queueing scene transition to: " + sceneName);
+            pendingSceneName = sceneName;
+            pendingRevealAfterLoad = false;
+            return;
+        }
+
+        currentFadeCoroutine = StartCoroutine(TransitionAndLoadScene(sceneName, false));
     }
 
-    public void RestartSceneWithFade(int sceneIndex)
+    /// <summary>
+    /// Fade the screen to black, reload the scene, then let CircleTransition reveal the scene.
+    /// Use this for death or restart flows.
+    /// </summary>
+    public void RestartSceneWithFadeToBlack(string sceneName)
+    {
+        if (isTransitioning) return;
+        currentFadeCoroutine = StartCoroutine(FadeToBlackAndRestartScene(sceneName));
+    }
+
+    public void RestartSceneWithFadeToBlack(int sceneIndex)
     {
         string scenePath = SceneUtility.GetScenePathByBuildIndex(sceneIndex);
         string sceneName = System.IO.Path.GetFileNameWithoutExtension(scenePath);
-        RestartSceneWithFade(sceneName);
+        RestartSceneWithFadeToBlack(sceneName);
     }
 
-    private IEnumerator FadeAndRestartScene(string sceneName)
+    private IEnumerator FadeToBlackAndRestartScene(string sceneName)
     {
         isTransitioning = true;
 
-        // Fade to black
         yield return StartCoroutine(FadeToColor(Color.black, fadeDuration));
 
-        // Do NOT set LoadedWithFade — CircleTransition should play on the new scene
         AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(sceneName);
         while (!asyncLoad.isDone)
             yield return null;
 
+        Time.timeScale = 1f;
+
         yield return new WaitForEndOfFrame();
 
-        // Fade the black overlay back to clear so CircleTransition can take over
         yield return StartCoroutine(FadeToColor(Color.clear, 0f));
 
         isTransitioning = false;
         currentFadeCoroutine = null;
     }
 
-    public void LoadNextSceneWithFade()
+    public void LoadNextSceneWithScreenFade()
     {
         int nextSceneIndex = SceneManager.GetActiveScene().buildIndex + 1;
 
@@ -110,7 +117,7 @@ public class FadeInOutScene : MonoBehaviour
         {
             string scenePath = SceneUtility.GetScenePathByBuildIndex(nextSceneIndex);
             string sceneName = System.IO.Path.GetFileNameWithoutExtension(scenePath);
-            LoadSceneWithFade(sceneName);
+            LoadSceneWithScreenFade(sceneName);
         }
         else
         {
@@ -118,63 +125,57 @@ public class FadeInOutScene : MonoBehaviour
         }
     }
 
-    public void LoadSceneWithFade(int sceneIndex)
+    public void LoadSceneWithScreenFade(int sceneIndex)
     {
         string scenePath = SceneUtility.GetScenePathByBuildIndex(sceneIndex);
         string sceneName = System.IO.Path.GetFileNameWithoutExtension(scenePath);
-        LoadSceneWithFade(sceneName);
+        LoadSceneWithScreenFade(sceneName);
     }
 
-    private IEnumerator FadeAndLoadScene(string sceneName, bool fadeOutAfterLoad)
+    private IEnumerator TransitionAndLoadScene(string sceneName, bool revealAfterLoad)
     {
         isTransitioning = true;
-        
-        // Fade in to black
+
+        // Cover the current scene with black.
         yield return StartCoroutine(FadeToColor(Color.black, fadeDuration));
-        
-        // Check if a new scene was requested during the fade-in
+
         if (!string.IsNullOrEmpty(pendingSceneName))
         {
             Debug.Log("Loading queued scene instead: " + pendingSceneName);
             sceneName = pendingSceneName;
-            fadeOutAfterLoad = pendingFadeOut;
-            pendingSceneName = ""; // Clear the queue
+            revealAfterLoad = pendingRevealAfterLoad;
+            pendingSceneName = "";
         }
-        
-        // Signal that the incoming scene was loaded via fade — suppresses CircleTransition
+
         LoadedWithFade = true;
 
-        // Load the scene asynchronously so we can wait for it to fully complete
         AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(sceneName);
         while (!asyncLoad.isDone)
             yield return null;
 
-        // Wait an extra frame for scene objects (including CircleTransition) to fully initialize
+        // New scene is now active — restore global time here.
+        Time.timeScale = 1f;
+
         yield return new WaitForEndOfFrame();
 
-        // Reset LoadedWithFade NOW — CircleTransition.Start() has already run by this point
-        // and read the flag. Resetting here means the next scene load starts clean.
         LoadedWithFade = false;
 
-        // Fade out if requested
-        if (fadeOutAfterLoad)
+        if (revealAfterLoad)
         {
             yield return StartCoroutine(FadeToColor(Color.clear, fadeDuration));
         }
-        
-        // Transition complete
+
         isTransitioning = false;
         currentFadeCoroutine = null;
-        
-        // Check if another transition was requested while we were finishing
+
         if (!string.IsNullOrEmpty(pendingSceneName))
         {
             Debug.Log("Starting queued transition: " + pendingSceneName);
-            // Use the appropriate method based on the fadeOut setting
-            if (pendingFadeOut)
-                LoadSceneWithFade(pendingSceneName);
+
+            if (pendingRevealAfterLoad)
+                LoadSceneWithScreenFade(pendingSceneName);
             else
-                LoadSceneWithoutFadeIn(pendingSceneName);
+                LoadSceneWithoutScreenReveal(pendingSceneName);
         }
     }
 
@@ -192,7 +193,7 @@ public class FadeInOutScene : MonoBehaviour
                 break;
 
             fadeImage.color = Color.Lerp(startColor, targetColor, elapsed / duration);
-            elapsed += Mathf.Min(Time.unscaledDeltaTime, 0.05f); // Clamp to max 50ms per frame
+            elapsed += Mathf.Min(Time.unscaledDeltaTime, 0.05f);
             yield return null;
         }
 

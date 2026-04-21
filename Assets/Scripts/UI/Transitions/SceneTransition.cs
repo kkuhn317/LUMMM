@@ -5,11 +5,11 @@ public class SceneTransition : MonoBehaviour
 {
     public void LoadSceneWithFade(string sceneName)
     {
-        FadeInOutScene.Instance.LoadSceneWithFade(sceneName);
+        FadeInOutScene.Instance.LoadSceneWithScreenFade(sceneName);
     }
 
     public void LoadSceneWithoutFadeIn(string sceneName)
     {
-        FadeInOutScene.Instance.LoadSceneWithoutFadeIn(sceneName);
+        FadeInOutScene.Instance.LoadSceneWithoutScreenReveal(sceneName);
     }     
 }

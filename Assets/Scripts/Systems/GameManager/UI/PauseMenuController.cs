@@ -223,6 +223,39 @@ public class PauseMenuController : MonoBehaviour
         return true;
     }
 
+    public void PreparePausedSceneTransition(bool keepTimeFrozenUntilSceneLoad)
+    {
+        canPause = false;
+        isPaused = false;
+
+        if (mode == PauseMenuMode.InGamePauseMenu)
+            RestoreMusicVolume();
+
+        if (resumeButton != null) resumeButton.interactable = false;
+        if (restartButton != null) restartButton.interactable = false;
+        if (quitButton != null) quitButton.interactable = false;
+
+        if (cancelRouter != null && mode == PauseMenuMode.InGamePauseMenu)
+            cancelRouter.SetInputSource(null);
+
+        if (useGUIManagerForNavigation && guiManager != null)
+            guiManager.CloseAllMenus();
+
+        if (guiManager != null)
+            guiManager.SetOwner(null);
+
+        if (pauseMenu != null)
+            pauseMenu.SetActive(false);
+
+        pauseOwner = null;
+
+        // Prevent gameplay from reacting while the old scene is still alive.
+        SetGameplayControllersPaused(true);
+
+        // Only keep the clock frozen for restart flows.
+        Time.timeScale = keepTimeFrozenUntilSceneLoad ? 0f : 1f;
+    }
+
     private void PauseGameInternal(PlayerInput owner)
     {
         if (!canPause || isPaused) return;
@@ -312,36 +345,43 @@ public class PauseMenuController : MonoBehaviour
     }
 
     private void OnGameOver() { if (isPaused) ResumeGame(); canPause = false; }
-    private void HandleExitRequested() { if (isPaused) ResumeGame(); }
-
-    private void OnRestartPressed()
+    private void HandleExitRequested()
     {
-        if (HasCheckpointSaved() && useGUIManagerForNavigation && guiManager != null && !string.IsNullOrEmpty(resetConfirmMenuId))
-            guiManager.OpenMenu(resetConfirmMenuId, hidePrevious: false);
-        else
-            RestartFromBeginning();
+        if (FadeInOutScene.Instance != null && FadeInOutScene.Instance.isTransitioning)
+            return;
+
+        if (isPaused)
+            ResumeGame();
     }
 
     private bool HasCheckpointSaved() => FindObjectOfType<CheckpointManager>(true)?.HasCheckpoint ?? false;
 
+    private void OnRestartPressed()
+    {
+        if (HasCheckpointSaved() && useGUIManagerForNavigation && guiManager != null && !string.IsNullOrEmpty(resetConfirmMenuId))
+        {
+            guiManager.OpenMenu(resetConfirmMenuId, hidePrevious: false);
+        }
+        else
+        {
+            GameManager.Instance?.RestartLevelFromBeginning();
+        }
+    }
+
     public void RestartFromBeginning()
     {
-        ResumeGame();
-        if (FadeInOutScene.Instance != null)
-            FadeInOutScene.Instance.RestartSceneWithFade(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
-        else
-            GameManager.Instance?.RestartLevelFromBeginning();
+        GameManager.Instance?.RestartLevelFromBeginning();
     }
 
     public void RestartFromCheckpoint()
     {
-        ResumeGame();
-        if (FadeInOutScene.Instance != null)
-            FadeInOutScene.Instance.RestartSceneWithFade(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
-        else
-            GameManager.Instance?.RestartLevelFromCheckpoint();
+        GameManager.Instance?.RestartLevelFromCheckpoint();
     }
-    public void QuitLevel() { ResumeGame(); GlobalEventHandler.TriggerExitRequested(); GameManager.Instance?.QuitLevel(); }
+
+    public void QuitLevel()
+    {
+        GameManager.Instance?.QuitLevel();
+    }
 
     private void ReduceMusicVolume()
     {
