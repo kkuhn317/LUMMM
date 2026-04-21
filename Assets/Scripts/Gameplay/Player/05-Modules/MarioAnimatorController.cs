@@ -24,6 +24,9 @@ public class MarioAnimatorController : MonoBehaviour
     [Header("Animator")]
     [SerializeField] private Animator _animator;
 
+    [SerializeField] private float frontClimbAnimMultiplier = 1f;
+    [SerializeField] private float sideClimbAnimMultiplier = 1.5f;
+
     // We set the animator parameter hashes to avoid string lookups every frame
 
     private static readonly int H_Horizontal = Animator.StringToHash("Horizontal");
@@ -200,16 +203,28 @@ public class MarioAnimatorController : MonoBehaviour
         // climbSpeed: normalised 0..1 value used as a speed multiplier on the
         // climb animation state in the Animator Controller. When 0 the clip
         // freezes (idle on climbable); when 1 it plays at full speed.
-        // Set this parameter as the "Speed Multiplier" on the climb Animator state.
+        // Set this parameter as the anim multiplier on this script, so level designers can tweak the climb animation speed without changing the underlying movement speed or state machine timings
         if (_core.State.Climbing)
         {
-            float refSpeed = _core.State.CurrentClimbable != null
-                ? _core.State.CurrentClimbable.climbSpeed
-                : 1f;
-            float normalised = refSpeed > 0f
-                ? Mathf.Clamp01(_core.State.Velocity.magnitude / refSpeed)
-                : 0f;
-            _animator.SetFloat(H_ClimbSpeed, normalised);
+            bool isSideClimb = _core.StateMachine.CurrentStateID == MarioStateID.ClimbSide;
+
+            float inputMagnitude;
+            if (isSideClimb)
+            {
+                // Side climb only moves vertically
+                inputMagnitude = Mathf.Abs(_core.State.MoveInput.y);
+            }
+            else
+            {
+                // Front climb can move in both axes
+                inputMagnitude = Mathf.Clamp01(_core.State.MoveInput.magnitude);
+            }
+
+            float animSpeed = isSideClimb
+                ? inputMagnitude * sideClimbAnimMultiplier
+                : inputMagnitude * frontClimbAnimMultiplier;
+
+            _animator.SetFloat(H_ClimbSpeed, animSpeed);
         }
         else
         {

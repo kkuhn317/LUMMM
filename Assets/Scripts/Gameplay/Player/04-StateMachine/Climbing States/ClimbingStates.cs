@@ -243,17 +243,21 @@ public class ClimbSideState : ClimbingStateBase
         var climbable = State.CurrentClimbable;
         if (climbable == null) return;
 
+        Vector2 input = State.MoveInput;
+
         // Vertical movement only
-        Rb.velocity = new Vector2(0f, State.Direction.y * climbable.climbSpeed);
+        Rb.velocity = new Vector2(0f, input.y * climbable.climbSpeed);
 
         // Own the OnGround check (MarioGroundDetection skips while Climbing)
-        if (State.Direction.y < -0.5f)
+        if (input.y < -0.5f)
         {
             var hit = Core.GroundDetection.CheckGround();
             State.OnGround = hit.HasValue;
         }
-        else if (State.Direction.y > 0.5f)
+        else if (input.y > 0.5f)
+        {
             State.OnGround = false;
+        }
 
         // Lock horizontal position to the climbable surface
         float xPos = State.FacingRight
@@ -287,7 +291,7 @@ public class ClimbSideState : ClimbingStateBase
         if (!_waitingForNeutral && State.MoveInput.x != 0f)
         {
             bool pressingInFacingDirection = ( State.FacingRight && State.MoveInput.x < 0f)
-                                          || (!State.FacingRight && State.MoveInput.x > 0f);
+                                        || (!State.FacingRight && State.MoveInput.x > 0f);
             if (pressingInFacingDirection)
             {
                 // Check if there is another ClimbSide climbable in the detach direction
@@ -342,7 +346,7 @@ public class ClimbSideState : ClimbingStateBase
         }
 
         // Exit to Idle when grounded
-        if (State.OnGround && State.Direction.y <= 0f)
+        if (State.OnGround && State.MoveInput.y <= 0f)
         {
             RequestTransition(MarioStateID.Idle);
             return;

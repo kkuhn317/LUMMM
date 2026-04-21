@@ -1391,6 +1391,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _animator: {fileID: 1873806743256999172}
+  frontClimbAnimMultiplier: 1
+  sideClimbAnimMultiplier: 4
 --- !u!114 &6374149998842108078
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1458,6 +1460,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   DeadMarioPrefab: {fileID: 2690894693950398662, guid: ff75489bc4690ac44b21755151c91047, type: 3}
+  starMusicOverride: {fileID: 0}
+  starMusicPriority: 100
   checkpointFlag: {fileID: 4138431804895501289}
   checkpointFlagDuration: 2
   visualRoot: {fileID: 4459718676858527211}
@@ -1558,7 +1562,11 @@ MonoBehaviour:
   ThrowSound: {fileID: 8300000, guid: 62467461e51dddb40931164fd2db1170, type: 3}
   CapePrepareAttackSound: {fileID: 8300000, guid: b0ae38060912f0a459fe10b8348c1b55, type: 3}
   CapeSound: {fileID: 8300000, guid: 31657360aa7af6642bdf934076b3d65e, type: 3}
-  YeahAudioClip: {fileID: 8300000, guid: b4a5b5a191256034ca457e70e758ea5b, type: 3}
+  _footstepData: {fileID: 0}
+  _footstepRaycastDistance: 0.6
+  _footstepGroundMask:
+    serializedVersion: 2
+    m_Bits: 0
 --- !u!114 &7096240565622928432
 MonoBehaviour:
   m_ObjectHideFlags: 0
