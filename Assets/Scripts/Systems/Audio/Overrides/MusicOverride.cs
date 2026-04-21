@@ -2,26 +2,32 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-
-// This is used on temporary music like the star music
+// Legacy temporary world/music override helper.
+// Do NOT use auto-register for player-owned music like Star.
 public class MusicOverride : MonoBehaviour
 {
+    public float timeToStopPlaying = 1f;
 
-    public float timeToStopPlaying = 1;
+    [SerializeField] private bool autoRegisterOnStart = true;
 
-    // Start is called before the first frame update
     void Start()
     {
+        if (!autoRegisterOnStart) return;
+        if (MusicManager.Instance == null) return;
+
         MusicManager.Instance.PushMusicOverride(gameObject, MusicManager.MusicStartMode.Restart);
     }
 
-    public void stopPlayingAfterTime(float time) {
-        Invoke("stopPlaying", time);
+    public void stopPlayingAfterTime(float time)
+    {
+        Invoke(nameof(stopPlaying), time);
     }
 
     public void stopPlaying()
     {
-        MusicManager.Instance.PopMusicOverride(gameObject, MusicManager.MusicStartMode.Continue);
+        if (MusicManager.Instance != null)
+            MusicManager.Instance.PopMusicOverride(gameObject, MusicManager.MusicStartMode.Continue);
+
         Destroy(gameObject);
     }
 }

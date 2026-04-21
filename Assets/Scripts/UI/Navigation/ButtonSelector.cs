@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Events;
 using System.Collections;
+using UnityEngine.UI;
 
 public class ButtonSelector : MonoBehaviour
 {
@@ -60,25 +61,37 @@ public class ButtonSelector : MonoBehaviour
 
     private IEnumerator DelayedRefresh()
     {
-        // Wait for layout pass and EventSystem to resolve their initial selection.
+        // Let UI initialize
         yield return null;
-        yield return new WaitForEndOfFrame(); // this saved me
+        Canvas.ForceUpdateCanvases();
+        yield return new WaitForEndOfFrame();
 
-        // Retry for several frames in case the scene is still initializing
         for (int attempt = 0; attempt < maxRefreshRetries; attempt++)
         {
-            GameObject selected = EventSystem.current?.currentSelectedGameObject;
-            if (selected != null && selected.GetComponent<RectTransform>() != null)
+            if (TryGetSelectedObject(out GameObject selected))
             {
+                // If EventSystem has no current selection yet, force it
+                if (EventSystem.current.currentSelectedGameObject == null)
+                    EventSystem.current.SetSelectedGameObject(selected);
+
+                // First snap
                 ForceRefreshToCurrentSelection();
-                lastSelectedObject = selected;
+
+                // Extra correction pass after layout settles
+                yield return null;
+                Canvas.ForceUpdateCanvases();
+                yield return new WaitForEndOfFrame();
+                ForceRefreshToCurrentSelection();
+
+                lastSelectedObject = EventSystem.current.currentSelectedGameObject;
                 yield break;
             }
 
             yield return null;
+            Canvas.ForceUpdateCanvases();
         }
 
-        // Ran out of retries — still snap to whatever is selected (may be null).
+        // Final fallback
         ForceRefreshToCurrentSelection();
         lastSelectedObject = EventSystem.current?.currentSelectedGameObject;
     }
@@ -131,12 +144,39 @@ public class ButtonSelector : MonoBehaviour
         onSelectionChanged?.Invoke();
     }
 
+    private bool TryGetSelectedObject(out GameObject selected)
+    {
+        selected = null;
+
+        if (EventSystem.current == null)
+            return false;
+
+        selected = EventSystem.current.currentSelectedGameObject;
+
+        if (selected == null)
+            selected = EventSystem.current.firstSelectedGameObject;
+
+        if (selected == null || !selected.activeInHierarchy)
+            return false;
+
+        if (selected.GetComponent<RectTransform>() == null)
+            return false;
+
+        return true;
+    }
+
     private void ForceRefreshToCurrentSelection()
     {
         if (selectorImage == null || !selectorImage.gameObject.activeInHierarchy)
             return;
 
+        Canvas.ForceUpdateCanvases();
+
         GameObject selected = EventSystem.current?.currentSelectedGameObject;
+
+        if (selected == null)
+            selected = EventSystem.current?.firstSelectedGameObject;
+
         if (selected == null)
         {
             currentTarget = null;
@@ -144,7 +184,7 @@ public class ButtonSelector : MonoBehaviour
         }
 
         RectTransform rect = selected.GetComponent<RectTransform>();
-        if (rect == null)
+        if (rect == null || !rect.gameObject.activeInHierarchy)
         {
             currentTarget = null;
             return;
@@ -204,6 +244,10 @@ public class ButtonSelector : MonoBehaviour
         RectTransform parentRect = selectorImage.transform.parent as RectTransform;
         if (parentRect == null) return false;
 
+        Canvas.ForceUpdateCanvases();
+        LayoutRebuilder.ForceRebuildLayoutImmediate(target);
+        LayoutRebuilder.ForceRebuildLayoutImmediate(parentRect);
+
         Vector3[] worldCorners = new Vector3[4];
         target.GetWorldCorners(worldCorners);
 
@@ -212,8 +256,6 @@ public class ButtonSelector : MonoBehaviour
 
         for (int i = 0; i < 4; i++)
         {
-            // Use the resolved canvasCamera instead of null — null only works
-            // correctly for Screen Space - Overlay canvases.
             Vector2 screenPoint = RectTransformUtility.WorldToScreenPoint(canvasCamera, worldCorners[i]);
 
             RectTransformUtility.ScreenPointToLocalPointInRectangle(

@@ -7,15 +7,28 @@ public class MusicManager : MonoBehaviour
 
     public enum MusicStartMode
     {
-        Continue, // do not restart; keep current playback position
-        Restart   // restart intro -> loop
+        Continue,   // do not restart; keep current playback position
+        Restart     // restart intro -> loop
     }
 
     [Header("Debug")]
     [SerializeField] private GameObject mainMusic;
     [SerializeField] private GameObject currentlyPlayingMusic;
 
-    private readonly List<GameObject> overrideStack = new();
+    private sealed class OverrideEntry
+    {
+        public string Key;
+        public GameObject MusicObject;
+        public int Priority;
+        public HashSet<int> Owners = new();
+        public long LastOrder;
+    }
+
+    private readonly Dictionary<string, OverrideEntry> overridesByKey = new();
+    private long requestCounter;
+    
+    private const int LegacyGlobalOwner = int.MinValue;
+    private const int LegacyDefaultPriority = 0;
 
     private void Awake()
     {
@@ -31,16 +44,19 @@ public class MusicManager : MonoBehaviour
 
     private void Start()
     {
-        // ensure main music is set
+        // Preserve old initialization behavior
         if (mainMusic == null)
             mainMusic = gameObject;
 
         if (currentlyPlayingMusic == null)
             currentlyPlayingMusic = mainMusic;
 
-        // If nothing is playing yet, start from intro.
-        var looper = currentlyPlayingMusic.GetComponent<IntroLoopMusicPlayer>();
-        var src = currentlyPlayingMusic.GetComponent<AudioSource>();
+        var looper = currentlyPlayingMusic != null
+            ? currentlyPlayingMusic.GetComponent<IntroLoopMusicPlayer>()
+            : null;
+        var src = currentlyPlayingMusic != null
+            ? currentlyPlayingMusic.GetComponent<AudioSource>()
+            : null;
 
         bool isPlaying =
             (looper != null && looper.IsPlaying) ||
@@ -48,7 +64,6 @@ public class MusicManager : MonoBehaviour
 
         if (looper != null)
         {
-            // If music is scheduled (intro->loop), don't restart
             if (!looper.IsPlaying)
                 looper.EnsurePlaying();
         }
@@ -58,25 +73,269 @@ public class MusicManager : MonoBehaviour
         }
     }
 
+    public bool HasActiveOverride(string key)
+    {
+        return overridesByKey.TryGetValue(key, out var entry) &&
+            entry != null &&
+            entry.MusicObject != null &&
+            entry.Owners.Count > 0;
+    }
+
+    public bool HasOverrideOwner(string key, int ownerId)
+    {
+        return overridesByKey.TryGetValue(key, out var entry) &&
+            entry != null &&
+            entry.Owners.Contains(ownerId);
+    }
+
+    public void RequestOverride(string key, GameObject musicOverride, int ownerId, int priority, MusicStartMode mode)
+    {
+        if (string.IsNullOrEmpty(key) || musicOverride == null)
+            return;
+
+        bool wasActive = HasActiveOverride(key);
+
+        if (!overridesByKey.TryGetValue(key, out var entry))
+        {
+            entry = new OverrideEntry
+            {
+                Key = key,
+                MusicObject = musicOverride,
+                Priority = priority
+            };
+            overridesByKey.Add(key, entry);
+        }
+        else
+        {
+            if (entry.MusicObject == null)
+                entry.MusicObject = musicOverride;
+
+            entry.Priority = priority;
+        }
+
+        bool ownerAlreadyPresent = entry.Owners.Contains(ownerId);
+        entry.Owners.Add(ownerId);
+        entry.LastOrder = ++requestCounter;
+
+        var effectiveMode = (wasActive || ownerAlreadyPresent)
+            ? MusicStartMode.Continue
+            : mode;
+
+        RefreshActiveMusic(effectiveMode);
+    }
+
+    private static string MakeLegacyKey(GameObject musicOverride)
+    {
+        return musicOverride == null
+            ? string.Empty
+            : $"legacy:{musicOverride.GetInstanceID()}";
+    }
 
     public void RegisterMainMusic(GameObject candidate)
     {
         if (!candidate) return;
 
-        // If no main yet, take it.
         if (mainMusic == null)
         {
             SetInitialMainMusic(candidate, MusicStartMode.Restart);
             return;
         }
 
-        // If we already have a main, decide what to do with the new one:
-        // - If main is muted (override active), mute the candidate so it doesn't blip
         if (IsMuted(mainMusic))
             SetMuted(candidate, true);
 
-        // Always destroy the candidate to prevent duplicates
         Destroy(candidate);
+    }
+
+    public void SetNewMainMusic(GameObject newMain)
+    {
+        if (newMain == null) return;
+
+        if (currentlyPlayingMusic == mainMusic)
+            currentlyPlayingMusic = newMain;
+
+        mainMusic = newMain;
+    }
+
+    public void PushMusicOverride(GameObject musicOverride, MusicStartMode mode)
+    {
+        if (musicOverride == null) return;
+
+        RequestOverride(
+            MakeLegacyKey(musicOverride),
+            musicOverride,
+            LegacyGlobalOwner,
+            LegacyDefaultPriority,
+            mode
+        );
+    }
+
+    public void PopMusicOverride(GameObject musicOverride, MusicStartMode mode)
+    {
+        if (musicOverride == null) return;
+
+        ReleaseOverride(
+            MakeLegacyKey(musicOverride),
+            LegacyGlobalOwner,
+            mode
+        );
+    }
+
+    public void ClearMusicOverrides(MusicStartMode mode)
+    {
+        ClearAllOverrides(mode);
+    }
+
+    public void MuteAllMusic()
+    {
+        if (currentlyPlayingMusic != null)
+            SetMuted(currentlyPlayingMusic, true);
+
+        if (mainMusic != null)
+            SetMuted(mainMusic, true);
+
+        foreach (var entry in overridesByKey.Values)
+        {
+            if (entry?.MusicObject != null)
+                SetMuted(entry.MusicObject, true);
+        }
+    }
+
+    public void SetCurrentVolume(float volume01)
+    {
+        if (currentlyPlayingMusic == null) return;
+        SetVolume(currentlyPlayingMusic, volume01);
+    }
+
+    public float GetCurrentVolume()
+    {
+        if (currentlyPlayingMusic == null) return 1f;
+        return GetVolume(currentlyPlayingMusic);
+    }
+
+    public void SetInitialMainMusic(GameObject music, MusicStartMode mode)
+    {
+        mainMusic = music;
+        currentlyPlayingMusic = music;
+        overridesByKey.Clear();
+
+        if (currentlyPlayingMusic != null)
+            ApplyCurrentMusic(mode);
+    }
+
+    public void ReleaseOverride(string key, int ownerId, MusicStartMode mode)
+    {
+        if (string.IsNullOrEmpty(key))
+            return;
+
+        if (!overridesByKey.TryGetValue(key, out var entry))
+            return;
+
+        entry.Owners.Remove(ownerId);
+
+        if (entry.Owners.Count == 0)
+        {
+            StopTrack(entry.MusicObject);
+            SetMuted(entry.MusicObject, true);
+            overridesByKey.Remove(key);
+        }
+
+        RefreshActiveMusic(mode);
+    }
+
+    public void ReleaseAllOverridesFromOwner(int ownerId, MusicStartMode mode)
+    {
+        List<string> emptyKeys = null;
+
+        foreach (var pair in overridesByKey)
+        {
+            var entry = pair.Value;
+            if (!entry.Owners.Remove(ownerId))
+                continue;
+
+            if (entry.Owners.Count == 0)
+            {
+                emptyKeys ??= new List<string>();
+                emptyKeys.Add(pair.Key);
+            }
+        }
+
+        if (emptyKeys != null)
+        {
+            foreach (var key in emptyKeys)
+            {
+                var entry = overridesByKey[key];
+                StopTrack(entry.MusicObject);
+                SetMuted(entry.MusicObject, true);
+                overridesByKey.Remove(key);
+            }
+        }
+
+        RefreshActiveMusic(mode);
+    }
+
+    public void ClearAllOverrides(MusicStartMode mode)
+    {
+        foreach (var entry in overridesByKey.Values)
+        {
+            if (entry?.MusicObject == null) continue;
+            StopTrack(entry.MusicObject);
+            SetMuted(entry.MusicObject, true);
+        }
+
+        overridesByKey.Clear();
+        RefreshActiveMusic(mode);
+    }
+
+    private void RefreshActiveMusic(MusicStartMode mode)
+    {
+        GameObject next = mainMusic;
+        int bestPriority = int.MinValue;
+        long bestOrder = long.MinValue;
+
+        foreach (var pair in overridesByKey)
+        {
+            var entry = pair.Value;
+            if (entry.Owners.Count == 0 || entry.MusicObject == null)
+                continue;
+
+            if (entry.Priority > bestPriority ||
+                (entry.Priority == bestPriority && entry.LastOrder > bestOrder))
+            {
+                bestPriority = entry.Priority;
+                bestOrder = entry.LastOrder;
+                next = entry.MusicObject;
+            }
+        }
+
+        if (currentlyPlayingMusic == next)
+        {
+            if (next != null)
+            {
+                SetMuted(next, false);
+
+                // Preserve old PushMusicOverride(...Restart) behavior
+                if (mode == MusicStartMode.Restart)
+                    RestartTrack(next);
+            }
+            return;
+        }
+
+        if (currentlyPlayingMusic != null)
+            SetMuted(currentlyPlayingMusic, true);
+
+        currentlyPlayingMusic = next;
+
+        if (currentlyPlayingMusic != null)
+            ApplyCurrentMusic(mode);
+    }
+
+    private void ApplyCurrentMusic(MusicStartMode mode)
+    {
+        SetMuted(currentlyPlayingMusic, false);
+
+        if (mode == MusicStartMode.Restart)
+            RestartTrack(currentlyPlayingMusic);
     }
 
     private static bool IsMuted(GameObject obj)
@@ -89,71 +348,6 @@ public class MusicManager : MonoBehaviour
 
         var src = obj.GetComponent<AudioSource>();
         return src != null && src.mute;
-    }
-
-    /// <summary>
-    /// Called when the "main music" object changes (for example when a new scene has a fresh main music object
-    /// and MusicDontDestroy decides which one survives).
-    /// </summary>
-    public void SetNewMainMusic(GameObject newMain)
-    {
-        if (newMain == null) return;
-
-        // If we were currently using the old main, update current pointer to the new one.
-        if (currentlyPlayingMusic == mainMusic)
-            currentlyPlayingMusic = newMain;
-
-        mainMusic = newMain;
-    }
-
-    /// <summary>
-    /// Set the initial main music. Use Restart if you want it to begin from the intro.
-    /// </summary>
-    public void SetInitialMainMusic(GameObject music, MusicStartMode mode)
-    {
-        mainMusic = music;
-        currentlyPlayingMusic = music;
-        overrideStack.Clear();
-
-        if (currentlyPlayingMusic != null)
-            ApplyCurrentMusic(mode);
-    }
-
-    public void PushMusicOverride(GameObject musicOverride, MusicStartMode mode)
-    {
-        if (musicOverride == null) return;
-
-        // Mute current track (do NOT stop it; we want to resume position later)
-        if (currentlyPlayingMusic != null)
-            SetMuted(currentlyPlayingMusic, true);
-
-        if (!overrideStack.Contains(musicOverride))
-            overrideStack.Add(musicOverride);
-
-        currentlyPlayingMusic = musicOverride;
-        ApplyCurrentMusic(mode);
-    }
-
-    public void PopMusicOverride(GameObject musicOverride, MusicStartMode mode)
-    {
-        if (musicOverride == null) return;
-        if (!overrideStack.Contains(musicOverride)) return;
-
-        bool wasCurrent = (currentlyPlayingMusic == musicOverride);
-        overrideStack.Remove(musicOverride);
-
-        if (!wasCurrent) return;
-
-        // STOP the override we are leaving (critical for IntroLoopMusicPlayer)
-        StopTrack(musicOverride);
-
-        if (overrideStack.Count > 0)
-            currentlyPlayingMusic = overrideStack[^1];
-        else
-            currentlyPlayingMusic = mainMusic;
-
-        if (currentlyPlayingMusic != null)
-            ApplyCurrentMusic(mode);
     }
 
     private static void StopTrack(GameObject obj)
@@ -169,51 +363,6 @@ public class MusicManager : MonoBehaviour
 
         var src = obj.GetComponent<AudioSource>();
         if (src != null) src.Stop();
-    }
-
-    public void ClearMusicOverrides(MusicStartMode mode)
-    {
-        overrideStack.Clear();
-        currentlyPlayingMusic = mainMusic;
-
-        if (currentlyPlayingMusic != null)
-            ApplyCurrentMusic(mode);
-    }
-
-    public void MuteAllMusic()
-    {
-        // Mute current
-        if (currentlyPlayingMusic != null)
-            SetMuted(currentlyPlayingMusic, true);
-
-        // Also mute main + any lingering overrides for safety
-        if (mainMusic != null)
-            SetMuted(mainMusic, true);
-
-        foreach (var ov in overrideStack)
-            if (ov != null) SetMuted(ov, true);
-    }
-
-    public void SetCurrentVolume(float volume01)
-    {
-        if (currentlyPlayingMusic == null) return;
-        SetVolume(currentlyPlayingMusic, volume01);
-    }
-
-    public float GetCurrentVolume()
-    {
-        if (currentlyPlayingMusic == null) return 1f;
-        return GetVolume(currentlyPlayingMusic);
-    }
-
-    private void ApplyCurrentMusic(MusicStartMode mode)
-    {
-        // Always unmute current
-        SetMuted(currentlyPlayingMusic, false);
-
-        if (mode == MusicStartMode.Restart)
-            RestartTrack(currentlyPlayingMusic);
-        // Continue: do nothing else (keeps playback position)
     }
 
     private static void RestartTrack(GameObject obj)

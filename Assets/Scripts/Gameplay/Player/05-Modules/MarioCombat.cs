@@ -26,6 +26,9 @@ public class MarioCombat : MonoBehaviour
     private static readonly Color[] StarColors =
         { Color.green, Color.yellow, Color.blue, Color.red };
     private int _starColorIndex;
+    private const string StarMusicKey = "Star";
+    [SerializeField] private GameObject starMusicOverride;
+    [SerializeField] private int starMusicPriority = 100;
 
     [Header("Checkpoint")]
     [SerializeField] private GameObject checkpointFlag;
@@ -110,12 +113,17 @@ public class MarioCombat : MonoBehaviour
     public void ToDead(DeathCause cause = null, bool ignoreInvincibility = false)
     {
         if (GlobalVariables.cheatInvincibility) return;
-        if (State.IsDead)                       return;
+        if (State.IsDead) return;
         if (!ignoreInvincibility && State.IsInvincible) return;
-        if (!ignoreInvincibility && State.StarPower)    return;
+        if (!ignoreInvincibility && State.StarPower) return;
 
         if (State.Carrying)
             _core.Carry.DropCarry();
+
+        if (State.StarPower)
+            StopStarPower();
+
+        MusicManager.Instance?.ClearMusicOverrides(MusicManager.MusicStartMode.Continue);
 
         State.IsDead = true;
         _core.StateMachine.ForceTransition(MarioStateID.Dead);
@@ -242,10 +250,25 @@ public class MarioCombat : MonoBehaviour
         if (_core == null || _core.State == null) return;
         CancelInvoke(nameof(CycleStarColor));
 
-        State.StarPower              = true;
+        State.StarPower = true;
         State.StarPowerRemainingTime = duration;
 
         InvokeRepeating(nameof(CycleStarColor), 0f, 0.1f);
+
+        if (MusicManager.Instance != null && starMusicOverride != null)
+        {
+            var mode = MusicManager.Instance.HasActiveOverride(StarMusicKey)
+                ? MusicManager.MusicStartMode.Continue
+                : MusicManager.MusicStartMode.Restart;
+
+            MusicManager.Instance.RequestOverride(
+                StarMusicKey,
+                starMusicOverride,
+                PlayerIndex,
+                starMusicPriority,
+                mode
+            );
+        }
 
         MarioEvents.FireStarPowerStarted(PlayerIndex, duration);
     }
@@ -255,14 +278,22 @@ public class MarioCombat : MonoBehaviour
         if (_core == null || _core.State == null) return;
         CancelInvoke(nameof(CycleStarColor));
 
-        State.StarPower              = false;
+        State.StarPower = false;
         State.StarPowerRemainingTime = 0f;
 
-        // Reset all Visual renderers to white, preserve alpha
         foreach (var r in GetVisualRenderers())
         {
-            var c  = r.color;
+            var c = r.color;
             r.color = new Color(1f, 1f, 1f, c.a);
+        }
+
+        if (MusicManager.Instance != null)
+        {
+            MusicManager.Instance.ReleaseOverride(
+                StarMusicKey,
+                PlayerIndex,
+                MusicManager.MusicStartMode.Continue
+            );
         }
 
         ComboManager.Instance?.ResetAll();

@@ -251,7 +251,7 @@ public class GameManager : MonoBehaviour, IGameManager
     {
         if (MusicManager.Instance != null)
         {
-            MusicManager.Instance.ClearMusicOverrides(MusicManager.MusicStartMode.Continue);
+            MusicManager.Instance?.ClearAllOverrides(MusicManager.MusicStartMode.Continue);
         }
 
         // If you're refactoring hard, consider removing tag-based cleanup and managing music via a single MusicSystem.

@@ -72,10 +72,12 @@ public class KickCoinArea : UseableObject
         }
         
         // Check if a player enters the area
-        MarioCore playerMovement = collision.GetComponent<MarioCore>();
+        MarioCore playerMovement = collision.GetComponent<MarioCore>() 
+                        ?? collision.GetComponentInParent<MarioCore>();
+
         if (playerMovement != null)
         {
-            currentPlayer = collision.gameObject;
+            currentPlayer = playerMovement.gameObject;
         }
 
         if (coinInArea && playerInArea)

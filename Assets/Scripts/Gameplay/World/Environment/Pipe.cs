@@ -116,16 +116,21 @@ public class Pipe : MonoBehaviour
 
         if (playerAnim)
         {
-            playerAnim.SetBool("onGround",   enterDirection != Direction.Up);
+            playerAnim.SetBool("onGround", enterDirection != Direction.Up);
             playerAnim.SetBool("isSkidding", false);
             playerAnim.SetBool("isCrouching", enterDirection == Direction.Down);
+
             bool horizEnter = enterDirection == Direction.Left || enterDirection == Direction.Right;
-            playerAnim.SetBool("isRunning",  horizEnter);
-            playerAnim.SetFloat("Horizontal", horizEnter ? 1f : 0f);
+            playerAnim.SetBool("isRunning", horizEnter);
+
+            float enterHorizontal =
+                enterDirection == Direction.Right ? 1f :
+                enterDirection == Direction.Left  ? -1f : 0f;
+
+            playerAnim.SetFloat("Horizontal", enterHorizontal);
         }
+
         if (marioCore != null) marioCore.State.GroundPounding = false;
-        if (playerSprite && (enterDirection == Direction.Left || enterDirection == Direction.Right))
-            playerSprite.flipX = enterDirection == Direction.Right;
 
         // enter movement — same logic as the original, just using player.position directly
         Vector2 enterDirVec     = DirectionToVector(enterDirection) * enterDistance;
@@ -159,12 +164,17 @@ public class Pipe : MonoBehaviour
         {
             if (playerAnim)
             {
-                playerAnim.SetBool("isSkidding",  false);
+                playerAnim.SetBool("isSkidding", false);
                 playerAnim.SetBool("isCrouching", false);
+
                 bool horizExit = exitDirection == Direction.Left || exitDirection == Direction.Right;
-                playerAnim.SetBool("isRunning",   horizExit);
-                playerAnim.SetFloat("Horizontal", horizExit ? 1f : 0f);
-                if (playerSprite && horizExit) playerSprite.flipX = exitDirection == Direction.Right;
+                playerAnim.SetBool("isRunning", horizExit);
+
+                float exitHorizontal =
+                    exitDirection == Direction.Right ? 1f :
+                    exitDirection == Direction.Left  ? -1f : 0f;
+
+                playerAnim.SetFloat("Horizontal", exitHorizontal);
             }
 
             Vector2 outDir    = DirectionToVector(exitDirection);
@@ -178,16 +188,16 @@ public class Pipe : MonoBehaviour
             // Teleport to inside the exit pipe, then slide out
             player.position = connection.position + (Vector3)insideOff;
 
-            Vector3 finalExitPos    = connection.position + (Vector3)exitOff + (Vector3)(outDir * 0.02f);
-            bool    exitingIntoWater = Physics2D.OverlapPoint(finalExitPos, LayerMask.GetMask("Water"));
+            Vector3 finalExitPos     = connection.position + (Vector3)exitOff + (Vector3)(outDir * 0.02f);
+            bool exitingIntoWater = Physics2D.OverlapPoint(finalExitPos, LayerMask.GetMask("Water"));
 
             if (marioCore != null) marioCore.State.Swimming = exitingIntoWater;
             if (playerAnim)
             {
                 playerAnim.SetBool("onGround", !exitingIntoWater);
-                if (AnimatorHas(playerAnim, "swim"))       playerAnim.SetBool("swim",       exitingIntoWater);
+                if (AnimatorHas(playerAnim, "swim"))       playerAnim.SetBool("swim", exitingIntoWater);
                 if (AnimatorHas(playerAnim, "enterWater")) playerAnim.SetBool("enterWater", exitingIntoWater);
-                if (AnimatorHas(playerAnim, "exitWater"))  playerAnim.SetBool("exitWater",  !exitingIntoWater);
+                if (AnimatorHas(playerAnim, "exitWater"))  playerAnim.SetBool("exitWater", !exitingIntoWater);
             }
 
             yield return Move(player, connection.position + (Vector3)exitOff, true);
@@ -206,14 +216,14 @@ public class Pipe : MonoBehaviour
         if (playerCol) playerCol.enabled    = true;
         if (marioCore != null)
         {
-            marioCore.Input.enabled           = true;
-            marioCore.GroundDetection.enabled = true;
-            marioCore.WallDetection.enabled   = true;
-            marioCore.Rb.gravityScale         = 1f;
-            marioCore.AnimatorController.enabled  = true;
-            marioCore.StateMachine.enabled        = true;
+            marioCore.Input.enabled              = true;
+            marioCore.GroundDetection.enabled    = true;
+            marioCore.WallDetection.enabled      = true;
+            marioCore.Rb.gravityScale            = 1f;
+            marioCore.AnimatorController.enabled = true;
+            marioCore.StateMachine.enabled       = true;
             marioCore.StateMachine.ForceTransition(MarioStateID.Idle);
-            marioCore.State.InputLocked       = false;
+            marioCore.State.InputLocked          = false;
             marioCore.EnableInputs();
         }
 
@@ -248,11 +258,11 @@ public class Pipe : MonoBehaviour
             {
                 bool leftRight = enterDirection == Direction.Left || enterDirection == Direction.Right;
                 Vector3 halfPosition = leftRight
-                    ? new Vector3((endPosition.x + startPosition.x) / 2, endPosition.y,   startPosition.z)
-                    : new Vector3(endPosition.x, (endPosition.y + startPosition.y) / 2,   startPosition.z);
+                    ? new Vector3((endPosition.x + startPosition.x) / 2, endPosition.y, startPosition.z)
+                    : new Vector3(endPosition.x, (endPosition.y + startPosition.y) / 2, startPosition.z);
 
                 if (t < 0.5f) player.position = Vector3.Lerp(startPosition, halfPosition, t * 2);
-                else          player.position = Vector3.Lerp(halfPosition,  endPosition,  (t - 0.5f) * 2);
+                else          player.position = Vector3.Lerp(halfPosition, endPosition, (t - 0.5f) * 2);
             }
             else
             {

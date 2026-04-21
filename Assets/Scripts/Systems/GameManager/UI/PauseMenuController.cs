@@ -298,7 +298,8 @@ public class PauseMenuController : MonoBehaviour
         pauseMenu.SetActive(false);
 
         SetGameplayControllersPaused(false);
-        CursorHelper.HideCursor();
+        if (mode != PauseMenuMode.StandaloneOptionsMenu)
+            CursorHelper.HideCursor();
         
         var freshInput = ResolveFreshPlayerInput(pauseOwner);
         SwitchOwnerToGameplayMap(freshInput);
