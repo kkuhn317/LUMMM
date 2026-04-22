@@ -19,6 +19,10 @@ public class FlagArrival : MonoBehaviour
     [Tooltip("Where cutscene Marios move after reaching the pole bottom. Leave null to skip.")]
     public Transform postSlideTarget;
 
+    [Tooltip("Extra delay after reaching the pole bottom and after the flag finishes lowering, before the puppet flips and starts arrival.")]
+    [Min(0f)]
+    public float preArrivalDelay = 0.25f;
+
     [Tooltip("How each player arrives at the post-slide target.")]
     public ArrivalMode arrivalMode = ArrivalMode.Walk;
 
@@ -86,13 +90,15 @@ public class FlagArrival : MonoBehaviour
         while (Vector3.Distance(flag.transform.localPosition, flagFinalLocal) > 0.01f)
             yield return null;
 
-        yield return new WaitForSeconds(0.1f);
+        // Extra pause before flip + arrival
+        if (preArrivalDelay > 0f)
+            yield return new WaitForSeconds(preArrivalDelay);
 
         // Determine which way the level is (where the target is relative to the pole)
         bool levelIsRight = postSlideTarget != null
             ? postSlideTarget.position.x > transform.position.x
             : !flagOnRight;
-
+        
         // Only flip and reposition if we're actually going to move
         if (arrivalMode != ArrivalMode.None && postSlideTarget != null)
         {
@@ -104,7 +110,8 @@ public class FlagArrival : MonoBehaviour
                 puppet.transform.position.y,
                 puppet.transform.position.z);
 
-            yield return new WaitForSeconds(0.05f);
+            if (preArrivalDelay > 0f)
+                yield return new WaitForSeconds(preArrivalDelay);
 
             // Flip to face the level (away from pole)
             FlipPuppet(puppet, levelIsRight);
