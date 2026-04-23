@@ -16,29 +16,32 @@ using UnityEngine;
 public class MarioPhysicsConfig : ScriptableObject
 {
     [Header("Horizontal Movement")]
-    public float MoveSpeed    = 10f;
-    public float RunSpeed     = 20f;
+    public float MoveSpeed = 10f;
+    public float RunSpeed = 20f;
     public float SlowDownForce = 5f;
-    public float MaxSpeed     = 7f;
-    public float MaxRunSpeed  = 10f;
+    public float MaxSpeed = 7f;
+    public float MaxRunSpeed = 10f;
 
     [Header("Turning")]
     [Tooltip("Speed multiplier when skidding at max run speed")]
-    public float SkidSpeedMult  = 0.7f;
+    public float SkidSpeedMult = 0.7f;
+
     [Tooltip("Speed multiplier when changing direction in the air")]
-    public float AirTurnMult    = 1.5f;
+    public float AirTurnMult = 1.5f;
+
     [Tooltip("Crawl force multiplier (small Mario only)")]
     public float CrawlForceMult = 2f;
+
     [Tooltip("Crawl max speed multiplier")]
     public float CrawlMaxSpeedMult = 0.5f;
 
     [Header("Vertical Movement / Jump")]
-    public float JumpSpeed             = 11f;   // Standing jump
-    public float WalkJumpSpeed         = 12f;   // Moving jump
-    public float WalkJumpSpeedRequired = 1f;    // Min horizontal speed for walk jump
-    public float JumpDelay             = 0.25f; // Jump buffer window
-    public float TerminalVelocity      = 10f;
-    public float StartFallingSpeed     = 1f;    // Below this vertical speed, begin falling gravity
+    public float JumpSpeed = 11f;              // Standing jump
+    public float WalkJumpSpeed = 12f;          // Moving jump
+    public float WalkJumpSpeedRequired = 1f;   // Min horizontal speed for walk jump
+    public float JumpDelay = 0.25f;            // Jump buffer window
+    public float TerminalVelocity = 10f;
+    public float StartFallingSpeed = 1f;       // Below this vertical speed, begin falling gravity
 
     [Header("Gravity")]
     public float RiseGravity = 0f;
@@ -48,11 +51,11 @@ public class MarioPhysicsConfig : ScriptableObject
     [Header("Airtime")]
     public float Airtime = 1f;
     public float WalkJumpAirtime = 1.5f;
-    public float CoyoteTime = 0.08f; // Window after walking off a ledge where jumping is still allowed
-    public float SpinJumpAirtime = 1.0f; // Airtime specifically for spin jump (separate from regular jump)
+    public float CoyoteTime = 0.08f;           // Window after walking off a ledge where jumping is still allowed
+    public float SpinJumpAirtime = 1.0f;       // Airtime specifically for spin jump
 
     [Header("Crouch")]
-    public float CrouchColliderHeight  = 0.5f;
+    public float CrouchColliderHeight = 0.5f;
     public float CrouchColliderOffsetY = -0.25f;
 
     [Header("Wall Jump")]
@@ -62,34 +65,54 @@ public class MarioPhysicsConfig : ScriptableObject
     public float SpinMultiplier = 0.8f;
 
     [Header("Midair Spin")]
-    public float MidairSpinDuration            = 0.40f;
-    public float MidairSpinStallTime           = 0.15f;
-    public float MidairSpinGravityMult         = 0.25f;
-    public float MidairSpinFallSpeedCap        = 2.0f;
-    public float MidairSpinUpwardBoost         = 2f;
+    public float MidairSpinDuration = 0.40f;
+    public float MidairSpinStallTime = 0.15f;
+    public float MidairSpinGravityMult = 0.25f;
+    public float MidairSpinFallSpeedCap = 2.0f;
+    public float MidairSpinUpwardBoost = 2f;
+
     [Range(0f, 1f)]
-    public float MidairSpinHorizontalPreserve  = 0.8f;
-    public float MidairSpinCooldown            = 0.20f;
+    public float MidairSpinHorizontalPreserve = 0.8f;
+
+    public float MidairSpinCooldown = 0.20f;
 
     [Header("Ground Pound")]
-    public float GroundPoundSpinTime = 0.5f;    // Freeze duration before falling
-    public float GroundPoundLandLockTime = 0.25f; // Lock duration after landing
+    public float GroundPoundSpinTime = 0.5f;       // Freeze duration before falling
+    public float GroundPoundLandLockTime = 0.25f;  // Lock duration after landing
 
     [Header("Swimming")]
-    public float SwimForce          = 5f;
-    public float SwimGravity        = 1f;
-    public float SwimDrag           = 3f;
+    public float SwimForce = 5f;
+    public float SwimGravity = 1f;
+    public float SwimDrag = 3f;
     public float SwimTerminalVelocity = 2f;
-    public float BubbleSpawnDelay   = 2.5f;
+    public float BubbleSpawnDelay = 2.5f;
 
-    [Header("Collision / Raycasts")]
+    [Header("Collision / Ground Check")]
     [Tooltip("Steepest slope angle Mario can walk on (degrees from horizontal). Surfaces steeper than this are treated as walls.")]
-    public float MaxWalkableAngle   = 60f;
-    public float GroundLength       = 0.6f;
-    public float GroundSink         = 0.1f;
-    public float CeilingLength      = 0.5f;
-    public float RaycastSeparation  = 0.35f;
-    public float RaycastOffsetX     = 0f;
+    public float MaxWalkableAngle = 60f;
+
+    [Tooltip("Offset of the ground check box from Mario's pivot.")]
+    public Vector2 GroundCheckOffset = new(0f, -0.35f);
+
+    [Tooltip("Size of the ground check box.")]
+    public Vector2 GroundCheckSize = new(0.85f, 0.10f);
+
+    [Tooltip("How much Mario sinks into the ground when snapped.")]
+    public float GroundSink = 0.1f;
+
+    [Tooltip("Minimum upward-facing normal.y required for a hit to count as ground.")]
+    [Range(0f, 1f)]
+    public float GroundMinNormalY = 0.1f;
+
+    [Header("Collision / Ceiling Check")]
+    public float CeilingLength = 0.5f;
+    public float CeilingProbeSeparation = 0.35f;
+    public float CeilingProbeOffsetX = 0f;
+
+    [Header("Collision / Ground Pound Landing Check")]
+    public float GroundPoundProbeSeparation = 0.35f;
+    public float GroundPoundProbeOffsetX = 0f;
+    public float GroundPoundProbeReach = 0.14f;
 
     [Header("Ceiling Corner Correction")]
     public Vector2 CeilingCorrectionOffset = Vector2.zero;

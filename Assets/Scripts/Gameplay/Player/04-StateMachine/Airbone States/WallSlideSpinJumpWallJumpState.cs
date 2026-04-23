@@ -130,6 +130,7 @@ public class SpinJumpState : AirborneStateBase
         Rb.drag         = 0f;
 
         Rb.velocity  = new Vector2(Rb.velocity.x, 0f);
+        Core.GroundDetection.SkipConstraintsThisFrame = true;
         Rb.AddForce(Vector2.up * Cfg.JumpSpeed * Cfg.SpinMultiplier, ForceMode2D.Impulse);
 
         State.AirTimer   = Time.time + Cfg.SpinJumpAirtime;

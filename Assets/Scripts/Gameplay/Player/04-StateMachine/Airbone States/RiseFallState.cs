@@ -31,6 +31,12 @@ public class RiseState : AirborneStateBase
         bool useWalkSpeed = Mathf.Abs(Rb.velocity.x) > Cfg.WalkJumpSpeedRequired;
         float speed       = useWalkSpeed ? Cfg.WalkJumpSpeed : Cfg.JumpSpeed;
 
+        // Tell ground detection to skip velocity constraints this frame.
+        // GD runs at -100 before the FSM at -90, so on the frame the jump fires,
+        // GD has already run and will run again next frame while the overlap box
+        // is still touching the floor. Without this flag it zeros vel.y.
+        Core.GroundDetection.SkipConstraintsThisFrame = true;
+
         Rb.velocity = new Vector2(Rb.velocity.x, 0f);
         Rb.AddForce(Vector2.up * speed, ForceMode2D.Impulse);
 
@@ -154,16 +160,11 @@ public class FallState : AirborneStateBase
     {
         base.Enter(previousState);
 
-        // Coyote time: walked off a ledge — grant a short air timer
-        bool walkedOff = previousState == MarioStateID.Idle ||
-                         previousState == MarioStateID.Walk ||
-                         previousState == MarioStateID.Run  ||
-                         previousState == MarioStateID.Skid;
-        if (walkedOff)
+        // Give coyote time whenever we came from any grounded state
+        if (Machine.HasTag(previousState, MarioStateTags.Grounded))
             State.AirTimer = Time.time + Cfg.CoyoteTime;
 
         Rb.gravityScale = Cfg.FallGravity;
-
         MarioEvents.FireLeftGround(PlayerIndex);
     }
 

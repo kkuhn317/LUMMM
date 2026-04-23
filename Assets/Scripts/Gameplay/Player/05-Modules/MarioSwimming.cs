@@ -67,12 +67,14 @@ public class MarioSwimming : MonoBehaviour
     {
         if (!IsWater(other)) return;
 
+        bool wasSwimming = State.Swimming;
+
         State.Swimming                  = true;
         State.Spinning                  = false;
         State.WaterGroundPoundStartTime = 0f;
 
-        // FSM will pick this up in CheckTransitions next FixedUpdate
-        // No need to force-transition here — state reads State.Swimming
+        if (!wasSwimming)
+            MarioEvents.FireEnteredWater(PlayerIndex);
 
         // If ground pounding, cancel it (FSM handles this in SwimmingStateBase.Enter)
         // but set the flag now so the transition takes it into account

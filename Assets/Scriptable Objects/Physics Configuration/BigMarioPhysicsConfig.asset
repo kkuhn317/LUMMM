@@ -53,19 +53,24 @@ MonoBehaviour:
   SwimTerminalVelocity: 3
   BubbleSpawnDelay: 2
   MaxWalkableAngle: 60
-  GroundLength: 1.16
+  GroundCheckOffset: {x: 0, y: -1}
+  GroundCheckSize: {x: 0.8, y: 0.1}
   GroundSink: 0.15
+  GroundMinNormalY: 0.1
   CeilingLength: 0.9
-  RaycastSeparation: 0.4
-  RaycastOffsetX: 0
-  CeilingCorrectionOffsetX: 0
-  CeilingCorrectionOffsetY: 0
+  CeilingProbeSeparation: 0.35
+  CeilingProbeOffsetX: 0
+  GroundPoundProbeSeparation: 0.35
+  GroundPoundProbeOffsetX: 0
+  GroundPoundProbeReach: 0.14
+  CeilingCorrectionOffset: {x: 0, y: 0}
   CeilingCorrectionRayLength: 0.1
   CeilingCorrectionThreshold: 0.1
-  FloorCorrectionOffsetX: 0
-  FloorCorrectionOffsetY: 0
+  CeilingCorrectionThresholdOffset: {x: 0, y: 0}
+  FloorCorrectionOffset: {x: 0, y: 0}
   FloorCorrectionRayLength: 0.1
   FloorCorrectionThreshold: 0.1
+  FloorCorrectionThresholdOffset: {x: 0, y: 0}
   GrabRaycastDistanceSmall: -0.1
   GrabRaycastDistanceLarge: -0.4
   DamageInvincibilityTime: 3

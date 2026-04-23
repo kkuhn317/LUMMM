@@ -34,6 +34,7 @@ public class MarioInput : MonoBehaviour
     
     // Helpers
     private int _jumpPressedFrame = -1;
+    private bool _wasPressingDown;
 
     // ─── Lifecycle ───────────────────────────────────────────────────────────
 
@@ -48,6 +49,8 @@ public class MarioInput : MonoBehaviour
 
         // Propagate processed move input to direction every frame
         State.Direction = State.MoveInput;
+
+        UpdateDownPressedEdge();
 
         // Continuous carry check (non-press-to-grab mode)
         if (State.RunPressed
@@ -104,7 +107,17 @@ public class MarioInput : MonoBehaviour
         // Ignore if jump was pressed this same frame — Input System dual-binding artifact
         if (Time.frameCount == _jumpPressedFrame) return;
         State.RunPressed = false;
-    } 
+    }
+
+    private void UpdateDownPressedEdge()
+    {
+        bool isDownNow = State.Direction.y < -0.5f;
+
+        if (isDownNow && !_wasPressingDown)
+            State.DownPressed = true;
+
+        _wasPressingDown = isDownNow;
+    }
 
     /// <summary>
     /// Syncs held-button state after inputs are re-enabled (e.g. after a door animation).
@@ -141,9 +154,13 @@ public class MarioInput : MonoBehaviour
     public void OnJumpPressed()
     {
         _jumpPressedFrame = Time.frameCount;
-        State.JumpTimer    = Time.time + _core.Physics.Config.JumpDelay;
-        State.JumpPressed  = true;
+        State.JumpTimer = Time.time + _core.Physics.Config.JumpDelay;
+        State.JumpPressed = true;
         State.SpinJumpQueued = false;
+
+        // Prevent a carried crouch/crawl Down press from being reused for ground pound
+        State.DownPressed = false;
+
         Debug.Log($"[Jump] JumpPressed fired. OnGround={State.OnGround} RunPressed={State.RunPressed} JumpTimer={State.JumpTimer} Time={Time.time}");
     }
 

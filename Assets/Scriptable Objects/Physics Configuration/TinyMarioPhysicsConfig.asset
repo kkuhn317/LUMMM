@@ -53,11 +53,16 @@ MonoBehaviour:
   SwimTerminalVelocity: 2
   BubbleSpawnDelay: 2.5
   MaxWalkableAngle: 60
-  GroundLength: 0.23
-  GroundSink: -0.1
+  GroundCheckOffset: {x: 0, y: -0.18}
+  GroundCheckSize: {x: 0.25, y: 0.1}
+  GroundSink: 0.013
+  GroundMinNormalY: 0.1
   CeilingLength: 0.18
-  RaycastSeparation: 0.11
-  RaycastOffsetX: 0
+  CeilingProbeSeparation: 0.11
+  CeilingProbeOffsetX: 0
+  GroundPoundProbeSeparation: 0.11
+  GroundPoundProbeOffsetX: 0
+  GroundPoundProbeReach: 0.14
   CeilingCorrectionOffset: {x: 0, y: -0.05}
   CeilingCorrectionRayLength: -0
   CeilingCorrectionThreshold: 0.06

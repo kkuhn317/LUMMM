@@ -18,50 +18,65 @@ public abstract class GroundedStateBase : MarioStateBase
     protected MarioPhysicsConfig Cfg => Core.Physics.Config;
     protected Rigidbody2D Rb => Core.Rb;
 
-    // ─── Shared Enter/Exit ───────────────────────────────────────────────────
-
-    // Tracks whether this is the first FixedUpdate after landing.
-    // Used by ApplyGroundedDrag to skip deceleration drag on the landing frame
-    // so incoming momentum is fully preserved when touching down.
     private bool _justLanded;
+    private bool _wasLookingUp;
 
     public override void Enter(string previousState)
     {
-        // Zero out gravity — ground detection handles vertical position
         Rb.gravityScale = 0f;
-        State.OnGround  = true;
-        _justLanded     = true; // suppress drag for one frame on landing
+        State.OnGround = true;
+        _justLanded = true;
     }
 
     public override void Exit(string nextState)
     {
-        // Restore gravity for airborne states
-        // (Swimming and Climbing states will override it themselves)
-        if (nextState == MarioStateID.Rise   ||
-            nextState == MarioStateID.Fall   ||
+        if (nextState == MarioStateID.Rise ||
+            nextState == MarioStateID.Fall ||
             nextState == MarioStateID.SpinJump ||
             nextState == MarioStateID.WallJump)
         {
             Rb.gravityScale = Cfg.RiseGravity;
         }
 
-        // End look up immediately on exit — avoids a one-frame flicker where
-        // HandleLookUp fires LookUpEnded after the animator already moved on
         if (_wasLookingUp)
         {
             MarioEvents.FireLookUpEnded(PlayerIndex);
             State.IsLookingUp = false;
-            _wasLookingUp     = false;
+            _wasLookingUp = false;
         }
     }
 
-    // ─── Shared Physics ──────────────────────────────────────────────────────
+    protected Vector2 GroundNormal =>
+        State.FloorNormal.sqrMagnitude > 0.0001f ? State.FloorNormal.normalized : Vector2.up;
 
-    // ─── Look Up ─────────────────────────────────────────────────────────────
-    // Handled in the base so any grounded state (Idle, Walk, Run…) can look up.
-    // IdleState no longer needs its own HandleLookUp.
+    protected Vector2 GroundTangent
+    {
+        get
+        {
+            Vector2 n = GroundNormal;
+            return new Vector2(n.y, -n.x).normalized;
+        }
+    }
 
-    private bool _wasLookingUp;
+    protected float GroundSpeed => Vector2.Dot(Rb.velocity, GroundTangent);
+    protected float GroundAbsSpeed => Mathf.Abs(GroundSpeed);
+
+    protected void SetGroundSpeed(float speed)
+    {
+        Vector2 n = GroundNormal;
+        Vector2 t = GroundTangent;
+
+        float normalSpeed = Vector2.Dot(Rb.velocity, n);
+        if (normalSpeed > 0f)
+            normalSpeed = 0f;
+
+        Rb.velocity = t * speed + n * normalSpeed;
+    }
+
+    protected Vector2 GetGroundMoveDir()
+    {
+        return GroundTangent;
+    }
 
     public override void Update()
     {
@@ -70,7 +85,6 @@ public abstract class GroundedStateBase : MarioStateBase
 
     private void HandleLookUp()
     {
-        // Only look up when there is no horizontal movement and not using an object
         bool lookingUp = !HasHorizontalInput && IsPressingUp && !State.IsUsingObject
                       && !State.ClimbExitedWhilePressingUp;
 
@@ -80,7 +94,7 @@ public abstract class GroundedStateBase : MarioStateBase
             MarioEvents.FireLookUpEnded(PlayerIndex);
 
         State.IsLookingUp = lookingUp;
-        _wasLookingUp     = lookingUp;
+        _wasLookingUp = lookingUp;
     }
 
     public override void FixedUpdate()
@@ -90,24 +104,37 @@ public abstract class GroundedStateBase : MarioStateBase
         HandleFacing();
     }
 
-
-
     protected void ApplyGroundedDrag()
     {
-        // Skip drag entirely on the landing frame so incoming momentum is preserved.
-        // Without this, the high deceleration drag values fire immediately on landing
-        // and bleed off horizontal speed, making the ground feel "sticky".
-        if (_justLanded)
+        const float inputDeadzone = 0.1f;
+        const float normalStopSpeed = 0.25f;
+
+        float horizontal = State.Direction.x;
+        bool holding = Mathf.Abs(horizontal) > inputDeadzone && !IsChangingDirection;
+        float spd = GroundAbsSpeed;
+
+        bool onSlope = Mathf.Abs(State.FloorAngle) > 0.1f;
+        bool shouldPinToSlope = onSlope
+                            && !holding
+                            && State.OnConveyor == null
+                            && !State.OnMovingPlatform;
+
+        if (shouldPinToSlope)
         {
-            _justLanded = false;
+            SetGroundSpeed(0f);
+
+            Vector2 n = GroundNormal;
+            float normalSpeed = Vector2.Dot(Rb.velocity, n);
+            if (Mathf.Abs(normalSpeed) < normalStopSpeed)
+                Rb.velocity -= n * normalSpeed;
+
             Rb.drag = 0f;
+            _justLanded = false;
             return;
         }
 
-
-
-        float horizontal = State.Direction.x;
-        bool  holding    = Mathf.Abs(horizontal) > 0.01f && !IsChangingDirection;
+        if (_justLanded)
+            _justLanded = false;
 
         if (holding)
         {
@@ -115,32 +142,27 @@ public abstract class GroundedStateBase : MarioStateBase
             return;
         }
 
-        // Deceleration drag — scales with speed for feel.
-        // On slopes velocity is diagonal so use magnitude, not just X —
-        // otherwise vel.x of 0.21 on a 45° slope (total speed ~0.3) triggers
-        // the maximum drag branch and kills all momentum.
-        float spd = State.FloorAngle != 0f ? Rb.velocity.magnitude : Mathf.Abs(Rb.velocity.x);
         Rb.drag = spd switch
         {
-            < 0.5f  => 100_000_000f,
-            < 5f    => 8f / spd,
-            _       => 1.5f
+            < 0.5f => 100_000_000f,
+            < 5f => 8f / Mathf.Max(spd, 0.01f),
+            _ => 1.5f
         };
 
-        // Extra drag multiplier when crouching or facing opposite to velocity
-        if (State.IsCrouching || (!State.FacingRight && Rb.velocity.x > 0) || (State.FacingRight && Rb.velocity.x < 0))
+        if (State.IsCrouching || (!State.FacingRight && GroundSpeed > 0f) || (State.FacingRight && GroundSpeed < 0f))
             Rb.drag *= 1.5f;
 
-        if (Rb.drag > 100_000_000f) Rb.drag = 100_000_000f;
+        if (Rb.drag > 100_000_000f)
+            Rb.drag = 100_000_000f;
     }
 
     protected void ClampHorizontalSpeed()
     {
         float maxSpd = State.RunPressed ? Cfg.MaxRunSpeed : Cfg.MaxSpeed;
-        if (Mathf.Abs(Rb.velocity.x) > maxSpd && State.RunPressed)
-        {
-            Rb.velocity = new Vector2(Mathf.Sign(Rb.velocity.x) * maxSpd, Rb.velocity.y);
-        }
+        float speed = GroundSpeed;
+
+        if (Mathf.Abs(speed) > maxSpd)
+            SetGroundSpeed(Mathf.Sign(speed) * maxSpd);
     }
 
     protected void HandleFacing()
@@ -150,77 +172,53 @@ public abstract class GroundedStateBase : MarioStateBase
             Core.Physics.FlipTo(horizontal > 0f);
     }
 
-    // ─── Ceiling Obstruction Check ───────────────────────────────────────────
-
-    /// <summary>
-    /// Returns true if there is a ceiling close enough above the player that
-    /// they cannot stand up from a crouch.  Fires three upward raycasts
-    /// (left, centre, right) from the top of the crouched collider over a
-    /// distance equal to the height difference between the full and crouched
-    /// collider, plus a small tolerance.
-    ///
-    /// Used by CrouchState and CrawlState: when the player releases the
-    /// crouch button, the state only exits if this returns false.
-    /// </summary>
     protected bool HasCeilingObstruction()
     {
         var col = Core.Collider;
 
-        // Top of the current (crouched) collider in world space
         float crouchedTop = Core.Rb.position.y + col.offset.y + col.size.y * 0.5f;
 
-        // Extra height needed to stand fully upright
         float standHeight = Core.ColliderOriginalHeight;
         float crouchHeight = Cfg.CrouchColliderHeight;
-        float neededClearance = (standHeight - crouchHeight) + 0.05f; // 0.05 m tolerance
+        float neededClearance = (standHeight - crouchHeight) + 0.05f;
 
-        Vector2 origin      = new Vector2(Core.Rb.position.x, crouchedTop);
-        Vector2 originLeft  = origin + new Vector2(-Cfg.RaycastSeparation, 0f);
-        Vector2 originRight = origin + new Vector2( Cfg.RaycastSeparation, 0f);
+        Vector2 origin = new Vector2(Core.Rb.position.x + Cfg.CeilingProbeOffsetX, crouchedTop);
+        Vector2 originLeft = origin + new Vector2(-Cfg.CeilingProbeSeparation, 0f);
+        Vector2 originRight = origin + new Vector2(Cfg.CeilingProbeSeparation, 0f);
 
         LayerMask groundLayer = Core.Physics.GroundLayer;
 
-        RaycastHit2D hitLeft   = Physics2D.Raycast(originLeft,  Vector2.up, neededClearance, groundLayer);
-        RaycastHit2D hitCenter = Physics2D.Raycast(origin,       Vector2.up, neededClearance, groundLayer);
-        RaycastHit2D hitRight  = Physics2D.Raycast(originRight, Vector2.up, neededClearance, groundLayer);
+        RaycastHit2D hitLeft = Physics2D.Raycast(originLeft, Vector2.up, neededClearance, groundLayer);
+        RaycastHit2D hitCenter = Physics2D.Raycast(origin, Vector2.up, neededClearance, groundLayer);
+        RaycastHit2D hitRight = Physics2D.Raycast(originRight, Vector2.up, neededClearance, groundLayer);
 
-#if UNITY_EDITOR
+    #if UNITY_EDITOR
         Color rayColor = (hitLeft.collider || hitCenter.collider || hitRight.collider)
             ? Color.red : Color.green;
-        Debug.DrawRay(originLeft,  Vector2.up * neededClearance, rayColor);
-        Debug.DrawRay(origin,       Vector2.up * neededClearance, rayColor);
+        Debug.DrawRay(originLeft, Vector2.up * neededClearance, rayColor);
+        Debug.DrawRay(origin, Vector2.up * neededClearance, rayColor);
         Debug.DrawRay(originRight, Vector2.up * neededClearance, rayColor);
-#endif
+    #endif
 
         return hitLeft.collider != null
             || hitCenter.collider != null
             || hitRight.collider != null;
     }
 
-    // ─── Shared Transition Checks ────────────────────────────────────────────
-
     public override void CheckTransitions()
     {
-        // Priority order matters here — highest priority first
-
-        // 1. Death / locked handled by MarioCombat directly via ForceTransition
-
-        // 2. Fell off a ledge
         if (!State.OnGround)
         {
             RequestTransition(MarioStateID.Fall);
             return;
         }
 
-        // 3. Entered water
         if (State.Swimming)
         {
             RequestTransition(MarioStateID.SwimIdle);
             return;
         }
 
-        // 4. Grabbed climbable
-        // Clear climb-exit guards once player releases the respective direction
         if (!IsPressingDown)
             State.ClimbExitedWhilePressingDown = false;
         if (!IsPressingUp)
@@ -230,7 +228,7 @@ public abstract class GroundedStateBase : MarioStateBase
             && !State.ClimbExitedWhilePressingDown
             && !State.JustLeftClimbing
             && Mathf.Abs(State.Direction.y) > 0.5f
-            && Time.time >= State.JumpTimer) // don't grab if jump was just pressed
+            && Time.time >= State.JumpTimer)
         {
             var method = State.CurrentClimbable.climbMethod;
             RequestTransition(method == Climbable.ClimbMethod.Side
@@ -239,7 +237,6 @@ public abstract class GroundedStateBase : MarioStateBase
             return;
         }
 
-        // 5. Jump / spin jump buffered
         if (Time.time < State.JumpTimer && !Machine.IsJumpBlocked())
         {
             if (State.SpinJumpQueued && State.CanSpinJump)
@@ -250,6 +247,7 @@ public abstract class GroundedStateBase : MarioStateBase
                 RequestTransition(MarioStateID.SpinJump);
                 return;
             }
+
             RequestTransition(MarioStateID.Rise);
             return;
         }

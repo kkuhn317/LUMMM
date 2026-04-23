@@ -65,6 +65,7 @@ public class MarioState
     public bool RunPressed;
     public bool SpinPressed;
     public bool SpinHeld;      // True while spin button is physically held, regardless of Spinning state
+    public bool DownPressed;
     public bool ShootPressed;
     public float JumpTimer; // Buffered jump timer
 
@@ -85,6 +86,7 @@ public class MarioState
     public bool GroundPoundLanded;
     public bool GroundPoundInWater;
     public float WaterGroundPoundStartTime;
+    public bool RequireDownReleaseForGroundPound;
 
     // ─── Swimming ────────────────────────────────────────────────────────────
 
