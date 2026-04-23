@@ -39,6 +39,12 @@ public class CrouchState : GroundedStateBase
         if (goingAirborne)
         {
             State.JumpedWhileCrouching = true;
+
+            // Since the player jumped while already holding Down,
+            // do not allow that same Down hold to become a ground pound.
+            State.RequireDownReleaseForGroundPound = IsPressingDown;
+            State.DownPressed = false;
+
             return;
         }
 
@@ -156,6 +162,10 @@ public class CrawlState : GroundedStateBase
         if (goingAirborne)
         {
             State.JumpedWhileCrouching = true;
+
+            // Same fix for crawl-jump.
+            State.RequireDownReleaseForGroundPound = IsPressingDown;
+            State.DownPressed = false;
         }
 
         if (nextState != MarioStateID.Crouch)

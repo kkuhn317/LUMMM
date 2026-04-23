@@ -102,9 +102,10 @@ public class MidairSpinState : AirborneStateBase
             return;
         }
 
-        // Ground pound cancels spin (pressing down)
-        if (IsPressingDown && State.CanGroundPound)
+        // Ground pound cancels spin only on a fresh Down press
+        if (State.DownPressed && State.CanGroundPound && !State.RequireDownReleaseForGroundPound)
         {
+            State.DownPressed = false;
             RequestTransition(MarioStateID.GroundPoundSpin);
             return;
         }

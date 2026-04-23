@@ -113,8 +113,21 @@ public class MarioInput : MonoBehaviour
     {
         bool isDownNow = State.Direction.y < -0.5f;
 
+        if (!isDownNow)
+        {
+            _wasPressingDown = false;
+            State.DownPressed = false;
+
+            // Once Down is released, ground pound may be triggered again
+            // by a new fresh Down press.
+            State.RequireDownReleaseForGroundPound = false;
+            return;
+        }
+
         if (isDownNow && !_wasPressingDown)
+        {
             State.DownPressed = true;
+        }
 
         _wasPressingDown = isDownNow;
     }

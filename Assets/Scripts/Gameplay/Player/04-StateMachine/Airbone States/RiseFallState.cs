@@ -65,9 +65,10 @@ public class RiseState : AirborneStateBase
     public override void CheckTransitions()
     {
         // Ground pound - only if allowed and not already in a state that blocks it
-        if (State.CanGroundPound && IsPressingDown && !State.IsCrouching 
+        if (State.DownPressed && State.CanGroundPound && !State.RequireDownReleaseForGroundPound
             && State.CurrentClimbable == null)
         {
+            State.DownPressed = false;
             RequestTransition(MarioStateID.GroundPoundSpin);
             return;
         }
@@ -194,11 +195,15 @@ public class FallState : AirborneStateBase
         if (!IsPressingDown)
             State.ClimbExitedWhilePressingDown = false;
 
-        if (IsPressingDown && State.CanGroundPound
-            && !State.WallSliding && !State.Climbing && !State.JustLeftClimbing
-            && !State.ClimbExitedWhilePressingDown && !State.JumpedWhileCrouching
+        if (State.DownPressed && State.CanGroundPound
+            && !State.RequireDownReleaseForGroundPound
+            && !State.WallSliding
+            && !State.Climbing
+            && !State.JustLeftClimbing
+            && !State.ClimbExitedWhilePressingDown
             && State.CurrentClimbable == null)
         {
+            State.DownPressed = false;
             RequestTransition(MarioStateID.GroundPoundSpin);
             return;
         }
