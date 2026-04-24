@@ -5,6 +5,8 @@ This is a Mario fangame that recreates animations by Level UP, made in Unity 202
 
 - [Download the latest beta build for Windows!](https://nightly.link/kkuhn317/LUMMM/workflows/main/main/Build.zip)
 
+- [Play the latest beta build online!](https://kkuhn317.github.io/LUMMM/)
+
 - If you would like to help out on making the game, feel free to make a pull request!
 
 - Join BookwormKevin's Discord server to talk about the game and see when updates come out! https://discord.gg/tRea9ew86J
