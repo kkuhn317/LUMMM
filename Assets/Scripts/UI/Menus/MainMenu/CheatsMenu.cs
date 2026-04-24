@@ -210,8 +210,9 @@ public class CheatsMenu : MonoBehaviour, IMenuTransition
     
     public void Open()
     {
-        cheatInputField.Select();
         cheatInputField.text = "";
+        cheatInputField.Select();
+        cheatInputField.ActivateInputField();
     }
 
     public void OnEnterButtonPressed()
@@ -220,7 +221,7 @@ public class CheatsMenu : MonoBehaviour, IMenuTransition
 
         if (string.IsNullOrEmpty(inputCode))
         {
-            cheatInputField.Select();
+            cheatInputField.ActivateInputField();
             return;
         }
 
@@ -234,6 +235,7 @@ public class CheatsMenu : MonoBehaviour, IMenuTransition
         {
             infoText.text = LocalizationSettings.StringDatabase.GetLocalizedString("Menu_CheatInfoInvalid");
             cheatInputField.Select();
+            cheatInputField.ActivateInputField();
         }
     }
 
@@ -243,6 +245,7 @@ public class CheatsMenu : MonoBehaviour, IMenuTransition
         {
             infoText.text = LocalizationSettings.StringDatabase.GetLocalizedString("Menu_CheatInfoAlreadyActive");
             cheatInputField.Select();
+            cheatInputField.ActivateInputField();
             return;
         }
 
