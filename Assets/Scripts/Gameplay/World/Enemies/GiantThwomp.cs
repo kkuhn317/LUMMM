@@ -353,6 +353,7 @@ public class GiantThwomp : EnemyAI, IGroundPoundable
                 vulnerableCollider.enabled = false;
                 fallBackCollider.enabled = true;
                 gameObject.layer = LayerMask.NameToLayer("Ground");
+                fallBackCollider.gameObject.layer = LayerMask.NameToLayer("Ground");
                 animator.SetBool("fall", true);
 
                 // Execute unity event
@@ -615,6 +616,8 @@ public class GiantThwomp : EnemyAI, IGroundPoundable
 
     protected override void hitByGroundPound(MarioCore player)
     {
+        Debug.Log($"hitByGroundPound called, state={currentState}");
+        
         switch (currentState)
         {
             case ThwompStates.Vulnerable:
@@ -645,6 +648,8 @@ public class GiantThwomp : EnemyAI, IGroundPoundable
 
     public void OnGroundPound(MarioCore player)
     {
+        Debug.Log($"[Thwomp] OnGroundPound called, state={currentState}");
+        
         if (currentState == ThwompStates.FallBack)
         {
             player.Freeze();

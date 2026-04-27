@@ -36,6 +36,13 @@ public class Key : MonoBehaviour
     void Start()
     {
         actualposition = transform.position;
+        
+        // Fetch the player reference up front so goToMario() can fly toward them
+        var registry = GameManager.Instance?.GetSystem<PlayerRegistry>();
+        if (registry != null)
+            _playerCore = registry.GetPlayer(0);
+
+
         if (fromEnemy)
             StartCoroutine(goToMario());
         else

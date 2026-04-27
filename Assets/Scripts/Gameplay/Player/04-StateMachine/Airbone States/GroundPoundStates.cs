@@ -221,8 +221,12 @@ public class GroundPoundLandState : AirborneStateBase
         // Notify all groundpoundable objects (e.g. both blocks when landing between two)
         foreach (var obj in _hitObjects)
         {
+            Debug.Log($"[GP Land] hitObjects count={_hitObjects.Count}");
+            
             if (obj == null) continue;
-            var gp = obj.GetComponent<IGroundPoundable>();
+            var gp = obj.GetComponent<IGroundPoundable>() 
+                ?? obj.transform.root.GetComponent<IGroundPoundable>();
+            Debug.Log($"[GP Land] obj={obj.name} gp={gp != null}");
             gp?.OnGroundPound(Core);
 
             var bumpable = obj.transform.root.GetComponentInChildren<IBumpable>();
