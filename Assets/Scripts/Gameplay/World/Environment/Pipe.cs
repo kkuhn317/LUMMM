@@ -69,6 +69,28 @@ public class Pipe : MonoBehaviour
     public bool IsMarioExited() => isMarioExited;
     public void MarioExitsPipe() => isMarioExited = true;
 
+    /// <summary>
+    /// Finds the visually topmost SpriteRenderer among the given renderers
+    /// (comparing by sorting layer index first, then by order within the layer)
+    /// and places the player sprite one step behind it.
+    /// </summary>
+    private void ApplyPipeSorting(SpriteRenderer playerSprite, SpriteRenderer[] pipeRenderers)
+    {
+        if (playerSprite == null || pipeRenderers == null || pipeRenderers.Length == 0) return;
+
+        SpriteRenderer highest = pipeRenderers[0];
+        foreach (var r in pipeRenderers)
+        {
+            int rLayer    = SortingLayer.GetLayerValueFromID(r.sortingLayerID);
+            int bestLayer = SortingLayer.GetLayerValueFromID(highest.sortingLayerID);
+            if (rLayer > bestLayer || (rLayer == bestLayer && r.sortingOrder > highest.sortingOrder))
+                highest = r;
+        }
+
+        playerSprite.sortingLayerName = highest.sortingLayerName;
+        playerSprite.sortingOrder     = highest.sortingOrder - 1;
+    }
+
     private IEnumerator Enter(Transform player)
     {
         bool AnimatorHas(Animator a, string p) { if (!a) return false; foreach (var x in a.parameters) if (x.name == p) return true; return false; }
@@ -85,10 +107,17 @@ public class Pipe : MonoBehaviour
         var playerAnim   = player.GetComponentInChildren<Animator>();
         var playerSprite = player.GetComponentInChildren<SpriteRenderer>();
 
+        // Cache the player's original sorting so we can restore it after exiting
+        int originalSortingOrder    = playerSprite != null ? playerSprite.sortingOrder    : 0;
+        string originalSortingLayer = playerSprite != null ? playerSprite.sortingLayerName : "Default";
+
         while (marioCore != null && marioCore.State.GroundPoundRotating) yield return null;
 
         isEnteringPipe = true;
         PlayWarpEnterSound();
+
+        // Place Mario behind the entry pipe for the enter animation
+        ApplyPipeSorting(playerSprite, GetComponentsInChildren<SpriteRenderer>());
 
         if (marioCore != null)
         {
@@ -185,10 +214,13 @@ public class Pipe : MonoBehaviour
                 (exitDirection == Direction.Down || exitDirection == Direction.Up))
                 exitOff += outDir * 0.5f;
 
-            // Teleport to inside the exit pipe, then slide out
+            // Teleport to inside the exit pipe, then slide out.
+            // Apply the exit pipe's sorting so Mario stays behind it during the exit animation.
             player.position = connection.position + (Vector3)insideOff;
+            var connectionPipe = connection.GetComponent<Pipe>() ?? connection.GetComponentInParent<Pipe>();
+            ApplyPipeSorting(playerSprite, connectionPipe?.GetComponentsInChildren<SpriteRenderer>());
 
-            Vector3 finalExitPos     = connection.position + (Vector3)exitOff + (Vector3)(outDir * 0.02f);
+            Vector3 finalExitPos  = connection.position + (Vector3)exitOff + (Vector3)(outDir * 0.02f);
             bool exitingIntoWater = Physics2D.OverlapPoint(finalExitPos, LayerMask.GetMask("Water"));
 
             if (marioCore != null) marioCore.State.Swimming = exitingIntoWater;
@@ -206,9 +238,21 @@ public class Pipe : MonoBehaviour
         {
             player.position = connection.position;
 
+            // instant exit — apply the connection pipe's sorting for the brief moment Mario is visible there,
+            // then restore immediately below since there's no exit slide animation
+            var connectionPipe = connection.GetComponent<Pipe>() ?? connection.GetComponentInParent<Pipe>();
+            ApplyPipeSorting(playerSprite, connectionPipe?.GetComponentsInChildren<SpriteRenderer>());
+
             bool inWater = Physics2D.OverlapPoint(player.position, LayerMask.GetMask("Water"));
             if (marioCore != null) marioCore.State.Swimming = inWater;
             if (playerAnim) playerAnim.SetBool("onGround", !inWater);
+        }
+
+        // Restore Mario's original sorting order now that he has fully exited the pipe
+        if (playerSprite != null)
+        {
+            playerSprite.sortingLayerName = originalSortingLayer;
+            playerSprite.sortingOrder     = originalSortingOrder;
         }
 
         // unfreeze — mirror of the lock above

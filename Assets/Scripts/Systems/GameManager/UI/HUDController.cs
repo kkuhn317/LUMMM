@@ -317,14 +317,8 @@ public class HUDController : MonoBehaviour
 
     private void OnLivesChanged(int newLives)
     {
-        int oldLives = currentLives;
-        currentLives = newLives;
         UpdateLivesUI();
-
-        if (!enableAnimations) return;
-
-        if (newLives > oldLives)
-            FlashText(ref livesFlashRoutine, livesText, originalLivesColor, Color.green, animationDuration);
+        FlashText(ref livesFlashRoutine, livesText, originalLivesColor, Color.green, animationDuration);
     }
 
     private void OnScoreAdded(int amountAdded)
