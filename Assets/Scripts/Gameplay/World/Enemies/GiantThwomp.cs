@@ -558,6 +558,25 @@ public class GiantThwomp : EnemyAI, IGroundPoundable
         base.hitOnSide(player);
     }
 
+    protected override void hitByPlayer(GameObject player)
+    {
+        if (currentState == ThwompStates.FallBack)
+        {
+            MarioCore playerscript = player.GetComponent<MarioCore>() 
+                                ?? player.GetComponentInParent<MarioCore>();
+            if (playerscript != null && playerscript.State.GroundPounding)
+            {
+                hitByGroundPound(playerscript);
+                return;
+            }
+            // Non-ground-pound contact in FallBack is handled by hitOnSide
+            hitOnSide(player);
+            return;
+        }
+
+        base.hitByPlayer(player);
+    }
+
     protected override void hitByStomp(GameObject player)
     {
         switch (currentState)

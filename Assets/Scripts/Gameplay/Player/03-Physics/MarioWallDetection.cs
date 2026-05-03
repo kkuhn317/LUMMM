@@ -12,7 +12,8 @@ using UnityEngine;
 /// Exposes CheckWall() as a public method so states can query on demand
 /// rather than polling every frame.
 ///
-/// Also owns collision-based ceiling bonk sound via OnCollisionEnter2D.
+/// Ceiling bonk sound is handled by AirborneStateBase.CheckCeilingBonk(),
+/// called from rising states (Rise, SpinJump, WallJump).
 /// </summary>
 [RequireComponent(typeof(MarioCore))]
 public class MarioWallDetection : MonoBehaviour
@@ -51,31 +52,6 @@ public class MarioWallDetection : MonoBehaviour
             transform.position, dir, rayLen, _core.Physics.GroundLayer);
 
         return hit.collider != null;
-    }
-
-    // ─── Collision: Ceiling Bonk Sound ───────────────────────────────────────
-
-    /// <summary>
-    /// Plays the bonk sound when Mario hits the underside of a block
-    /// while rising. Logic preserved from original OnCollisionEnter2D.
-    /// </summary>
-    private void OnCollisionEnter2D(Collision2D other)
-    {
-        if ((_core.Physics.GroundLayer & (1 << other.gameObject.layer)) == 0) return;
-
-        Vector2 impulse = Vector2.zero;
-        int contactCount = other.contactCount;
-
-        for (int i = 0; i < contactCount; i++)
-        {
-            var contact = other.GetContact(i);
-            impulse += contact.normal * contact.normalImpulse;
-            impulse.x += contact.tangentImpulse * contact.normal.y;
-            impulse.y -= contact.tangentImpulse * contact.normal.x;
-        }
-
-        if (impulse.y < 0f)
-            MarioEvents.FireBonked(_core.PlayerIndex);
     }
 
     // ─── Gizmos ──────────────────────────────────────────────────────────────

@@ -165,6 +165,7 @@ public class SpinJumpState : AirborneStateBase
 
     public override void FixedUpdate()
     {
+        CheckCeilingBonk();
         ApplyRiseGravity();
         ApplyAirHorizontal();
         ClampFallSpeed();
@@ -254,6 +255,7 @@ public class WallJumpState : AirborneStateBase
 
     public override void FixedUpdate()
     {
+        CheckCeilingBonk();
         ApplyRiseGravity();
         ApplyAirHorizontal();
         ClampFallSpeed();

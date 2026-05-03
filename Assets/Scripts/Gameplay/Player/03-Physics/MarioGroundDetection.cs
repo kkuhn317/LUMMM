@@ -27,6 +27,7 @@ public class MarioGroundDetection : MonoBehaviour
     private MarioPhysicsConfig Cfg => _core.Physics.Config;
 
     // Gizmo state — tracks which correction fired this frame for color feedback
+    private bool _wasGrounded;
     private bool _ceilingCCFiredLeft;
     private bool _ceilingCCFiredRight;
     private bool _verticalCCFiredLeft;
@@ -53,7 +54,7 @@ public class MarioGroundDetection : MonoBehaviour
         new(Cfg.GroundPoundProbeSeparation + Cfg.GroundPoundProbeOffsetX, 0f, 0f);
     
     private const float GroundSupportProbeDistanceAir = 0.08f;
-    private const float GroundSupportProbeDistanceGrounded = 0.18f;
+    private const float GroundSupportProbeDistanceGrounded = 0.05f; // try not to set it too high because it can cause bugs like being visually a few pixels in the air but still grounded
     // Extra downward probe reach added per unit of downhill speed to prevent
     // losing ground contact when descending a slope quickly.
     private const float GroundSupportProbeVelocityScale = 0.04f;
@@ -83,6 +84,7 @@ public class MarioGroundDetection : MonoBehaviour
 
     private void FixedUpdate()
     {
+        
         _ceilingCCFiredLeft = _ceilingCCFiredRight = false;
         _verticalCCFiredLeft = _verticalCCFiredRight = false;
         _treatGroundAsFlat = false;
@@ -115,7 +117,7 @@ public class MarioGroundDetection : MonoBehaviour
             return;
         }
 
-        bool wasGrounded = State.OnGround;
+        _wasGrounded = State.OnGround;
 
         bool skipGroundCheck = State.Climbing;
 
@@ -123,7 +125,7 @@ public class MarioGroundDetection : MonoBehaviour
 
         if (hit.HasValue)
         {
-            ProcessGrounding(hit.Value, wasGrounded, wasOnMovingPlatform);
+            ProcessGrounding(hit.Value, _wasGrounded, wasOnMovingPlatform);
             ApplyConveyorBelt();
         }
         else
@@ -256,6 +258,17 @@ public class MarioGroundDetection : MonoBehaviour
             return null;
         }
 
+        // Hit by BoxCast but no overlap — only stay grounded if we were already grounded
+        // last frame. This prevents Mario from floating above the floor after jump spamming
+        // in tight spaces, where the BoxCast reaches the floor but Mario isn't touching it.
+        if (!anyOverlap && !_wasGrounded)
+        {
+            State.OnGround = false;
+            _treatGroundAsFlat = false;
+            _groundSeamFlatFrames = 0;
+            return null;
+        }
+
         // Height delta between the highest and closest hit points.
         // On open slope, adjacent tiles differ by ~tan(slope_angle) * box_width ≈ 0.25–0.40 units.
         // At a flat→slope corner the delta jumps to ~0.50+ units.
@@ -282,11 +295,23 @@ public class MarioGroundDetection : MonoBehaviour
         // We keep the IsAirborne guard here intentionally: without it, any small upward
         // velocity on a slope seam sets OnGround=false for one frame, causing jitter.
         // The jump-cancellation issue is handled in SnapToGround instead.
-        bool isAirborneState = _core.StateMachine.IsAirborne;
-        bool movingUpInWorld = _core.Rb.velocity.y > 0.05f;
-        bool goingUp = isAirborneState && movingUpInWorld;
-
-        State.OnGround = !goingUp;
+        // If the overlap box is touching the floor, Mario is grounded regardless.
+        if (anyOverlap)
+        {
+            // Still respect the goingUp guard — on the jump frame the overlap box
+            // is still touching the floor but Mario is already rising.
+            bool isAirborneState = _core.StateMachine.IsAirborne;
+            bool movingUpInWorld = _core.Rb.velocity.y > 1.0f;
+            bool goingUp = isAirborneState && movingUpInWorld;
+            State.OnGround = !goingUp;
+        }
+        else
+        {
+            bool isAirborneState = _core.StateMachine.IsAirborne;
+            bool movingUpInWorld = _core.Rb.velocity.y > 1.0f;
+            bool goingUp = isAirborneState && movingUpInWorld;
+            State.OnGround = !goingUp;
+        }
 
     #if UNITY_EDITOR
         if (anyHit)
@@ -615,6 +640,9 @@ public class MarioGroundDetection : MonoBehaviour
 
     private void CheckCeiling()
     {
+        if (State.OnGround) return;
+        if (_core.Rb.velocity.y <= 0.5f) return;
+
         float ceilLen = State.IsCrouching ? Cfg.CeilingLength / 2f : Cfg.CeilingLength;
 
         RaycastHit2D ceilLeft = Physics2D.Raycast(
@@ -657,7 +685,7 @@ public class MarioGroundDetection : MonoBehaviour
         if (solidHit.collider == null)
             return;
 
-        if (_core.Rb.velocity.y > 0f)
+        if (_core.Rb.velocity.y > 0.5f)
         {
             IBumpable bumpable = solidHit.collider.GetComponent<IBumpable>()
                                 ?? solidHit.collider.GetComponentInParent<IBumpable>();

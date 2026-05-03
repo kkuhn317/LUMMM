@@ -17,15 +17,33 @@ public abstract class AirborneStateBase : MarioStateBase
     protected MarioPhysicsConfig Cfg => Core.Physics.Config;
     protected Rigidbody2D        Rb  => Core.Rb;
 
+    private float _previousVelocityY;
+
     // ─── Enter / Exit ────────────────────────────────────────────────────────
 
     public override void Enter(string previousState)
     {
         Rb.drag         = 0f;
         State.OnGround  = false;
+        _previousVelocityY = Rb.velocity.y;
     }
 
     // ─── Shared Physics ──────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Call at the start of FixedUpdate in rising states to detect ceiling bonks.
+    /// Fires FireBonked if Mario was moving up but velocity was killed this frame.
+    /// </summary>
+    protected void CheckCeilingBonk()
+    {
+        float currentVelocityY = Rb.velocity.y;
+
+        // Was rising last frame, now stopped or falling — ceiling was hit
+        if (_previousVelocityY > 0.5f && currentVelocityY <= 0f)
+            MarioEvents.FireBonked(PlayerIndex);
+
+        _previousVelocityY = currentVelocityY;
+    }
 
     /// <summary>
     /// Standard horizontal air control. Call from FixedUpdate in concrete states
