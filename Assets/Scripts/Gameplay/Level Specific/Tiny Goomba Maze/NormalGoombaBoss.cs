@@ -222,7 +222,7 @@ public class NormalGoombaBoss : EnemyAI
         MarioCore playerscript = player.GetComponent<MarioCore>();
         audioSource.pitch = 1.25f;
         audioSource.PlayOneShot(stompSound);
-        playerscript.StateMachine.ForceTransition(MarioStateID.Rise);
+        BouncePlayer(playerscript);
         health--;
 
         animator.SetTrigger("hurt");

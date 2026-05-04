@@ -300,7 +300,7 @@ public class EnemyAI : ObjectPhysics
             case SpinJumpEffect.bounceOff:
                 MarioEvents.FireSpinJumpBounced(player.PlayerIndex);
                 player.State.Spinning = true;
-                player.StateMachine.ForceTransition(MarioStateID.Rise);
+                BouncePlayer(player);
                 break;
             case SpinJumpEffect.poof:
                 {
@@ -310,7 +310,7 @@ public class EnemyAI : ObjectPhysics
                         : transform.position;
                     MarioEvents.FireSpinJumpPoofed(player.PlayerIndex, spawnPos);
                     player.State.Spinning = true;
-                    player.StateMachine.ForceTransition(MarioStateID.Rise);
+                    BouncePlayer(player);
                     AwardStompComboReward();
                     releaseItem();
                     Destroy(gameObject);
@@ -364,6 +364,16 @@ public class EnemyAI : ObjectPhysics
     {
         base.KnockAway(direction, sound, type, velocity);
         releaseItem();
+    }
+
+    // Call this when enemy is stomped by Mario
+    protected void BouncePlayer(MarioCore player)
+    {
+        if (player.State.Swimming)
+            // velocity will be limited by the swimming state
+            player.Rb.velocity = new Vector2(player.Rb.velocity.x, 1000);
+        else
+            player.StateMachine.ForceTransition(MarioStateID.Rise);
     }
 
     public void releaseItem() {

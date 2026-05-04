@@ -32,7 +32,7 @@ public class Goomba : EnemyAI
     protected override void hitByStomp(GameObject player)
     {
         MarioCore playerscript = player.GetComponent<MarioCore>() ?? player.GetComponentInParent<MarioCore>();
-        playerscript.StateMachine.ForceTransition(MarioStateID.Rise);
+        BouncePlayer(playerscript);
         
         bool wasCrushed = stompable;
 

@@ -186,7 +186,7 @@ public class KoopaController : EnemyAI
         switch (state)
         {
             case EnemyState.walking:
-                playerScript.StateMachine.ForceTransition(MarioStateID.Rise);
+                BouncePlayer(playerScript);
                 audioSource.Play();
                 ToInShell();
                 AwardStompComboReward();
@@ -197,7 +197,7 @@ public class KoopaController : EnemyAI
                 break;
 
             case EnemyState.movingShell:
-                playerScript.StateMachine.ForceTransition(MarioStateID.Rise);
+                BouncePlayer(playerScript);
                 audioSource.Play();
                 ToInShell();
                 AwardStompComboReward();

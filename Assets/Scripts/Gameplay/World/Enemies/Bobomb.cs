@@ -101,7 +101,7 @@ public class Bobomb : EnemyAI
         MarioCore playerScript = player.GetComponent<MarioCore>() ?? player.GetComponentInParent<MarioCore>();
         switch (state) {
             case EnemyState.walking:
-                playerScript.StateMachine.ForceTransition(MarioStateID.Rise);
+                BouncePlayer(playerScript);
                 AwardStompComboReward();
                 audioSource.Play();
                 ToPrimed();

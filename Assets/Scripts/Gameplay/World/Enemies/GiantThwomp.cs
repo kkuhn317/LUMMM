@@ -600,7 +600,7 @@ public class GiantThwomp : EnemyAI, IGroundPoundable
                     audioSource.PlayOneShot(thwompHurtSound);
                 }
 
-                player.GetComponentInParent<MarioCore>()?.StateMachine.ForceTransition(MarioStateID.Rise);
+                BouncePlayer(player.GetComponentInParent<MarioCore>());
 
                 // Spawn hurt effect using the proper collider (as we discussed before)
                 if (hurtEffectPrefab != null)

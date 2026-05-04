@@ -41,7 +41,7 @@ public class BulletBill : EnemyAI
     protected override void hitByStomp(GameObject player)
     {
         var mario = player.GetComponent<MarioCore>() ?? player.GetComponentInParent<MarioCore>();
-        mario.StateMachine.ForceTransition(MarioStateID.Rise);
+        BouncePlayer(mario);
 
         KnockAway(movingLeft, false, KnockAwayType.flip, new Vector2(1, 0));
         GetComponent<AudioSource>().Play();
