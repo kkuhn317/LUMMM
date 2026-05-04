@@ -12,8 +12,6 @@ using UnityEngine;
 /// Exposes CheckWall() as a public method so states can query on demand
 /// rather than polling every frame.
 ///
-/// Ceiling bonk sound is handled by AirborneStateBase.CheckCeilingBonk(),
-/// called from rising states (Rise, SpinJump, WallJump).
 /// </summary>
 [RequireComponent(typeof(MarioCore))]
 public class MarioWallDetection : MonoBehaviour

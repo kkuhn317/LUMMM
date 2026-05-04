@@ -57,7 +57,6 @@ public class RiseState : AirborneStateBase
 
     public override void FixedUpdate()
     {
-        CheckCeilingBonk();
         ApplyRiseGravity();
         ApplyAirHorizontal();
         ClampFallSpeed();

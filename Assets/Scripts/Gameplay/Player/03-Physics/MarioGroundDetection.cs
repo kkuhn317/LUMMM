@@ -112,8 +112,6 @@ public class MarioGroundDetection : MonoBehaviour
             State.OnConveyor = null;
             State.FloorAngle = 0f;
             State.FloorNormal = Vector2.up;
-
-            CheckCeiling();
             return;
         }
 
@@ -139,8 +137,32 @@ public class MarioGroundDetection : MonoBehaviour
 
         if (!State.OnGround && _core.Rb.velocity.y < 0f && Mathf.Abs(_core.Rb.velocity.x) > 0.1f)
             ApplyVerticalCornerCorrection();
+    }
 
-        CheckCeiling();
+    // ─── Ceiling Detection ────────────────────────────────────────────────────
+    
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        // Check if we hit something in the GroundLayer
+        if (((1 << collision.gameObject.layer) &  _core.Physics.GroundLayer) != 0)
+        {
+            float totalImpulseY = 0f;
+            
+            for (int i = 0; i < collision.contactCount; i++)
+            {
+                var contact = collision.GetContact(i);
+                // normalImpulse is the force applied to resolve the collision.
+                // contact.normal points from the ceiling to Mario.
+                totalImpulseY += (contact.normal * contact.normalImpulse).y;
+            }
+
+            // If the ceiling pushed DOWN heavily on Mario, it's a bonk.
+            // We check < -0.5f to filter out tiny physics jitters.
+            if (totalImpulseY < -0.5f)
+            {
+                MarioEvents.FireBonked(_core.PlayerIndex);
+            }
+        }
     }
 
     // ─── Ground Detection ────────────────────────────────────────────────────
@@ -633,67 +655,6 @@ public class MarioGroundDetection : MonoBehaviour
             Debug.Log($"[VCornerCorrect] Nudge left | gapWidth={gapWidth:F3} rightContact={hitRight.point.x:F3} playerRight={playerRight:F3}");
             _verticalCCFiredRight = true;
             _core.Rb.position = new Vector2(hitRight.point.x - halfWidth * 1.2f, _core.Rb.position.y);
-        }
-    }
-
-    // ─── Ceiling Detection ───────────────────────────────────────────────────
-
-    private void CheckCeiling()
-    {
-        if (State.OnGround) return;
-        if (_core.Rb.velocity.y <= 0.5f) return;
-
-        float ceilLen = State.IsCrouching ? Cfg.CeilingLength / 2f : Cfg.CeilingLength;
-
-        RaycastHit2D ceilLeft = Physics2D.Raycast(
-            transform.position + CeilingProbeLeft + HOffset,
-            Vector2.up,
-            ceilLen,
-            _core.Physics.GroundLayer);
-
-        RaycastHit2D ceilMid = Physics2D.Raycast(
-            transform.position + CeilingProbeMid + HOffset,
-            Vector2.up,
-            Cfg.CeilingLength,
-            _core.Physics.GroundLayer);
-
-        RaycastHit2D ceilRight = Physics2D.Raycast(
-            transform.position + CeilingProbeRight + HOffset,
-            Vector2.up,
-            ceilLen,
-            _core.Physics.GroundLayer);
-
-        if (ceilLeft.collider == null && ceilMid.collider == null && ceilRight.collider == null)
-            return;
-
-        RaycastHit2D solidHit = default;
-        foreach (var ceilingHit in new[] { ceilLeft, ceilMid, ceilRight })
-        {
-            if (ceilingHit.collider == null)
-                continue;
-
-            if (ceilingHit.collider.TryGetComponent<PlatformEffector2D>(out _))
-                continue;
-
-            if (ceilingHit.normal.y < -0.5f)
-            {
-                solidHit = ceilingHit;
-                break;
-            }
-        }
-
-        if (solidHit.collider == null)
-            return;
-
-        if (_core.Rb.velocity.y > 0.5f)
-        {
-            IBumpable bumpable = solidHit.collider.GetComponent<IBumpable>()
-                                ?? solidHit.collider.GetComponentInParent<IBumpable>();
-
-            if (bumpable != null)
-                bumpable.Bump(BlockHitDirection.Up, _core);
-
-            MarioEvents.FireBonked(_core.PlayerIndex);
         }
     }
 
