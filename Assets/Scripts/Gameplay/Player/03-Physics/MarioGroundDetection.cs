@@ -493,24 +493,29 @@ public class MarioGroundDetection : MonoBehaviour
             var gpLandState = _core.StateMachine.GetState<GroundPoundLandState>();
             if (gpLandState != null)
             {
+                var hitObjects = new System.Collections.Generic.List<GameObject>();
+
+                // 1. Add primary hit object to list (helps detect giant thwomp)
+                if (hit.collider != null)
+                {
+                    hitObjects.Add(hit.transform.gameObject);
+                }
+
+                // 2. Secondary Hits: Cast the left/right rays to catch secondary adjacent blocks
                 float groundLen = Cfg.GroundPoundProbeReach;
                 RaycastHit2D gpHit1 = Physics2D.Raycast(
                     transform.position + GroundPoundProbeLeft + HOffset,
-                    Vector2.down,
-                    groundLen,
-                    _core.Physics.GroundLayer);
+                    Vector2.down, groundLen, _core.Physics.GroundLayer);
 
                 RaycastHit2D gpHit2 = Physics2D.Raycast(
                     transform.position + GroundPoundProbeRight + HOffset,
-                    Vector2.down,
-                    groundLen,
-                    _core.Physics.GroundLayer);
+                    Vector2.down, groundLen, _core.Physics.GroundLayer);
 
-                var hitObjects = new System.Collections.Generic.List<GameObject>();
-                if (gpHit1.collider != null)
+                // Add secondary hits if they found something AND it's not already in the list
+                if (gpHit1.collider != null && !hitObjects.Contains(gpHit1.transform.gameObject))
                     hitObjects.Add(gpHit1.transform.gameObject);
 
-                if (gpHit2.collider != null && (hitObjects.Count == 0 || gpHit2.transform.gameObject != hitObjects[0]))
+                if (gpHit2.collider != null && !hitObjects.Contains(gpHit2.transform.gameObject))
                     hitObjects.Add(gpHit2.transform.gameObject);
 
                 gpLandState.SetHitObjects(hitObjects);

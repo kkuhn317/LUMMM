@@ -47,6 +47,7 @@ public class GroundPoundSpinState : AirborneStateBase
             State.GroundPounding            = false;
             State.GroundPoundInWater        = false;
             State.WaterGroundPoundStartTime = 0f;
+            MarioEvents.FireGroundPoundCancelled(PlayerIndex);
         }
     }
 
@@ -135,6 +136,7 @@ public class GroundPoundFallState : AirborneStateBase
             State.GroundPounding            = false;
             State.GroundPoundInWater        = false;
             State.WaterGroundPoundStartTime = 0f;
+            MarioEvents.FireGroundPoundCancelled(PlayerIndex);
         }
     }
 
@@ -218,11 +220,11 @@ public class GroundPoundLandState : AirborneStateBase
 
         _unlockTime = Time.time + Cfg.GroundPoundLandLockTime;
 
+        Debug.Log($"[GP Land] hitObjects count={_hitObjects.Count}");
+
         // Notify all groundpoundable objects (e.g. both blocks when landing between two)
         foreach (var obj in _hitObjects)
         {
-            Debug.Log($"[GP Land] hitObjects count={_hitObjects.Count}");
-            
             if (obj == null) continue;
             var gp = obj.GetComponent<IGroundPoundable>() 
                 ?? obj.transform.root.GetComponent<IGroundPoundable>();
