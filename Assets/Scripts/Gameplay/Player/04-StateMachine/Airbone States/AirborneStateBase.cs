@@ -55,10 +55,14 @@ public abstract class AirborneStateBase : MarioStateBase
         if (horizontal == 0f) return;
 
         float   speedMult = IsChangingDirection ? Cfg.AirTurnMult : 1f;
-        Vector2 force     = Vector2.right * horizontal * Cfg.MoveSpeed * speedMult;
 
-        // Only accelerate up to max run speed
-        if (Mathf.Abs(Rb.velocity.x) < Cfg.MaxRunSpeed ||
+        float baseSpeed = State.RunPressed ? Cfg.RunSpeed : Cfg.MoveSpeed;
+        float speedLimit = State.RunPressed ? Cfg.MaxRunSpeed : Cfg.MaxSpeed;
+
+        Vector2 force     = Vector2.right * horizontal * baseSpeed * speedMult;
+
+        // Only accelerate up to max speed
+        if (Mathf.Abs(Rb.velocity.x) < speedLimit ||
             Mathf.Sign(horizontal) != Mathf.Sign(Rb.velocity.x))
         {
             Rb.AddForce(force);

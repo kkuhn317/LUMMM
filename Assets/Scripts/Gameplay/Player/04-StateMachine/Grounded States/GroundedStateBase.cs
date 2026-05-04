@@ -158,7 +158,10 @@ public abstract class GroundedStateBase : MarioStateBase
 
     protected void ClampHorizontalSpeed()
     {
-        float maxSpd = State.RunPressed ? Cfg.MaxRunSpeed : Cfg.MaxSpeed;
+        // ONLY hard-clamp the absolute maximum run speed ceiling.
+        // If Mario is walking but currently moving faster than walk speed (coasting),
+        // WalkState's SlowDownForce will handle braking him smoothly.
+        float maxSpd = Cfg.MaxRunSpeed; 
         float speed = GroundSpeed;
 
         if (Mathf.Abs(speed) > maxSpd)

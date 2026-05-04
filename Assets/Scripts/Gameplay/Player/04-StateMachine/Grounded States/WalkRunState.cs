@@ -26,7 +26,7 @@ public class WalkState : GroundedStateBase
             return;
         }
 
-        ApplyWalkForce();
+        ApplyMovementForce();
         base.FixedUpdate();
     }
 
@@ -64,7 +64,7 @@ public class WalkState : GroundedStateBase
 
     // ─── Movement ────────────────────────────────────────────────────────────
 
-    private void ApplyWalkForce()
+    protected virtual void ApplyMovementForce()
     {
         float horizontal = State.Direction.x;
         if (horizontal == 0f) return;
@@ -122,18 +122,6 @@ public class RunState : WalkState
     public override System.Collections.Generic.IEnumerable<string> Tags
         => new[] { MarioStateTags.Grounded };
 
-    public override void FixedUpdate()
-    {
-        if (!State.OnGround)
-        {
-            Rb.gravityScale = Cfg.FallGravity;
-            Rb.drag = 0f;
-            return;
-        }
-
-        ApplyRunForce();
-        base.FixedUpdate();
-    }
 
     public override void CheckTransitions()
     {
@@ -165,7 +153,7 @@ public class RunState : WalkState
         base.CheckTransitions();
     }
 
-    private void ApplyRunForce()
+    protected override void ApplyMovementForce()
     {
         float horizontal = State.Direction.x;
         if (horizontal == 0f) return;
