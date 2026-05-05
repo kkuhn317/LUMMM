@@ -189,13 +189,16 @@ public class Pipe : MonoBehaviour
         if (snapCameraY) camPos.y = connection.position.y;
         Camera.main.transform.position = camPos;
 
+        if (playerAnim)
+        {
+            playerAnim.SetBool("isSkidding", false);
+            playerAnim.SetBool("isCrouching", false);
+        }
+
         if (!instantExit)
         {
             if (playerAnim)
             {
-                playerAnim.SetBool("isSkidding", false);
-                playerAnim.SetBool("isCrouching", false);
-
                 bool horizExit = exitDirection == Direction.Left || exitDirection == Direction.Right;
                 playerAnim.SetBool("isRunning", horizExit);
 

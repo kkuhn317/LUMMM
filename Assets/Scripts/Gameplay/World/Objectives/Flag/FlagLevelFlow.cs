@@ -88,7 +88,7 @@ public class FlagLevelFlow : MonoBehaviour
         _endingMusicPlayed = true;
 
         if (!useCutscene && endingMusic != null)
-            AudioManager.Instance?.Play(endingMusic, SoundCategory.SFX);
+            AudioManager.Instance?.Play(endingMusic, SoundCategory.BGM);
     }
 
     public void TriggerCutscene()
