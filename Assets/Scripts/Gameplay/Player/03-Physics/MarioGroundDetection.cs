@@ -54,7 +54,7 @@ public class MarioGroundDetection : MonoBehaviour
         new(Cfg.GroundPoundProbeSeparation + Cfg.GroundPoundProbeOffsetX, 0f, 0f);
     
     private const float GroundSupportProbeDistanceAir = 0.08f;
-    private const float GroundSupportProbeDistanceGrounded = 0.05f; // try not to set it too high because it can cause bugs like being visually a few pixels in the air but still grounded
+    private const float GroundSupportProbeDistanceGrounded = 0.05f; // try not to set it too high because it can cause bugs like player being visually a few pixels in the air but still grounded
     // Extra downward probe reach added per unit of downhill speed to prevent
     // losing ground contact when descending a slope quickly.
     private const float GroundSupportProbeVelocityScale = 0.04f;
@@ -189,11 +189,16 @@ public class MarioGroundDetection : MonoBehaviour
         bool anyOverlap = false;
         foreach (Collider2D col in overlaps)
         {
-            if (col == null)
-                continue;
+            if (col == null) continue;
+            if (State.PushingObject != null && col.gameObject == State.PushingObject.gameObject) continue;
 
-            if (State.PushingObject != null && col.gameObject == State.PushingObject.gameObject)
-                continue;
+            // Don't count semisolids as ground if Mario is below their surface
+            if (col.TryGetComponent<PlatformEffector2D>(out var eff) && eff.useOneWay)
+            {
+                float surfaceY = col.bounds.max.y;
+                if (transform.position.y < surfaceY - 0.05f)
+                    continue;
+            }
 
             anyOverlap = true;
             break;
