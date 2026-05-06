@@ -20,6 +20,8 @@ public abstract class SwimmingStateBase : MarioStateBase
 
     public override void Enter(string previousState)
     {
+        bool wasSwimming = State.Swimming;
+
         State.Swimming  = true;
         State.Spinning  = false;
         State.OnGround  = false;
@@ -37,7 +39,8 @@ public abstract class SwimmingStateBase : MarioStateBase
         Rb.gravityScale = Cfg.SwimGravity;
         Rb.drag         = Cfg.SwimDrag;
 
-        MarioEvents.FireEnteredWater(PlayerIndex);
+        if (!wasSwimming)
+            MarioEvents.FireEnteredWater(PlayerIndex);
     }
 
     public override void Exit(string nextState)

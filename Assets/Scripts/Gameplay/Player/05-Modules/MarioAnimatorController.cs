@@ -400,6 +400,7 @@ public class MarioAnimatorController : MonoBehaviour
     private void OnEnteredWater(int playerIndex)
     {
         if (playerIndex != PlayerIndex) return;
+        _animator.ResetTrigger(H_ExitWater);
         _animator.SetTrigger(H_EnterWater);
         _animator.SetBool(H_IsSpinning, false);
     }
