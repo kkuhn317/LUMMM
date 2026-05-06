@@ -57,6 +57,7 @@ public class MarioPhysicsConfig : ScriptableObject
     [Header("Crouch")]
     public float CrouchColliderHeight = 0.5f;
     public float CrouchColliderOffsetY = -0.25f;
+    public float CrouchCrushDetectOffsetY = -0.25f;
 
     [Header("Wall Jump")]
     public float WallJumpHoldTime = 0.25f;

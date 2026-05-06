@@ -108,6 +108,8 @@ public class CrouchState : GroundedStateBase
         var col = Core.Collider;
         col.size = new Vector2(col.size.x, Cfg.CrouchColliderHeight);
         col.offset = new Vector2(col.offset.x, Cfg.CrouchColliderOffsetY);
+        var crushcol = Core.CrushCollider;
+        crushcol.offset = new Vector2(crushcol.offset.x, Cfg.CrouchCrushDetectOffsetY);
     }
 
     private void RestoreCollider()
@@ -115,6 +117,8 @@ public class CrouchState : GroundedStateBase
         var col = Core.Collider;
         col.size = new Vector2(col.size.x, Core.ColliderOriginalHeight);
         col.offset = new Vector2(col.offset.x, Core.ColliderOriginalOffsetY);
+        var crushcol = Core.CrushCollider;
+        crushcol.offset = new Vector2(crushcol.offset.x, Core.CrushColliderOriginalOffsetY);
     }
 }
 

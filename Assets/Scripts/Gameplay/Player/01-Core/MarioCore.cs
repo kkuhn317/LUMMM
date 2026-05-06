@@ -56,14 +56,16 @@ public class MarioCore : MonoBehaviour
     // ─── Unity Components ────────────────────────────────────────────────────
     // Exposed in inspector so you can verify the correct child objects are wired.
     // Leave blank at edit-time — they are auto-resolved in Awake via GetComponent/GetComponentInChildren.
-    [field: SerializeField] public Rigidbody2D   Rb         { get; private set; }
-    [field: SerializeField] public BoxCollider2D Collider   { get; private set; }
-    [field: SerializeField] public PlayerInput   PlayerInput { get; private set; }
+    [field: SerializeField] public Rigidbody2D   Rb            { get; private set; }
+    [field: SerializeField] public BoxCollider2D Collider      { get; private set; }
+    [field: SerializeField] public BoxCollider2D CrushCollider { get; private set; }
+    [field: SerializeField] public PlayerInput   PlayerInput   { get; private set; }
 
     // ─── Cached original collider values ─────────────────────────────────────
 
-    public float ColliderOriginalHeight  { get; private set; }
-    public float ColliderOriginalOffsetY { get; private set; }
+    public float ColliderOriginalHeight       { get; private set; }
+    public float ColliderOriginalOffsetY      { get; private set; }
+    public float CrushColliderOriginalOffsetY { get; private set; }
 
     // Physics materials switched based on grounded state:
     // grounded = friction grips slopes; airborne = frictionless so box edges don't catch
@@ -91,12 +93,14 @@ public class MarioCore : MonoBehaviour
         };
 
         // Cache Unity components
-        Rb          = GetComponent<Rigidbody2D>();
-        Collider    = GetComponentInChildren<BoxCollider2D>();
-        PlayerInput = GetComponent<PlayerInput>();
+        Rb            = GetComponent<Rigidbody2D>();
+        Collider      = GetComponentInChildren<BoxCollider2D>();
+        CrushCollider = GetComponentInChildren<CrushDetection>().gameObject.GetComponent<BoxCollider2D>();
+        PlayerInput   = GetComponent<PlayerInput>();
 
         ColliderOriginalHeight  = Collider.size.y;
         ColliderOriginalOffsetY = Collider.offset.y;
+        CrushColliderOriginalOffsetY = CrushCollider.offset.y;
 
         _groundedMaterial = new PhysicsMaterial2D("MarioGrounded")  { friction = 0.4f, bounciness = 0f };
         _airborneMaterial = new PhysicsMaterial2D("MarioAirborne")  { friction = 0f,   bounciness = 0f };
