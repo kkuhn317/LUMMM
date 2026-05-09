@@ -341,12 +341,12 @@ public class MarioGroundDetection : MonoBehaviour
         }
 
     #if UNITY_EDITOR
-        if (anyHit)
-            Debug.Log($"[Ground] overlap={anyOverlap} hit={anyHit} onGround={State.OnGround} seam={seamDetected} flatOverride={_treatGroundAsFlat} supportDist={supportDistance:F2} vel={_core.Rb.velocity} normal={bestHit.normal}");
+        /*if (anyHit)
+            Debug.Log($"[Ground] overlap={anyOverlap} hit={anyHit} onGround={State.OnGround} seam={seamDetected} flatOverride={_treatGroundAsFlat} supportDist={supportDistance:F2} vel={_core.Rb.velocity} normal={bestHit.normal}");*/
     #endif
 
 #if UNITY_EDITOR
-        Debug.Log($"[Seam] flatSupport={hasFlatSupport} leftSlope={hasLeftSlope} rightSlope={hasRightSlope} heightDelta={supportHeightDelta:F4} highest={highestPointY:F4} closest={closestHit.point.y:F4} seamDetected={seamDetected} treatFlat={_treatGroundAsFlat}");
+        // Debug.Log($"[Seam] flatSupport={hasFlatSupport} leftSlope={hasLeftSlope} rightSlope={hasRightSlope} heightDelta={supportHeightDelta:F4} highest={highestPointY:F4} closest={closestHit.point.y:F4} seamDetected={seamDetected} treatFlat={_treatGroundAsFlat}");
 #endif
 
         if (!State.OnGround || !anyHit)
@@ -459,8 +459,8 @@ public class MarioGroundDetection : MonoBehaviour
             if (isFlat)
             {
 #if UNITY_EDITOR
-                if (Mathf.Abs(_core.Rb.velocity.y) > 0.01f)
-                    Debug.Log($"[Constraint] FLAT zeroing vel.y={_core.Rb.velocity.y:F4} vel={_core.Rb.velocity}");
+                /*if (Mathf.Abs(_core.Rb.velocity.y) > 0.01f)
+                    Debug.Log($"[Constraint] FLAT zeroing vel.y={_core.Rb.velocity.y:F4} vel={_core.Rb.velocity}");*/
 #endif
                 _core.Rb.velocity = new Vector2(_core.Rb.velocity.x, 0f);
             }
@@ -469,8 +469,8 @@ public class MarioGroundDetection : MonoBehaviour
                 float awayFromSurface = Vector2.Dot(_core.Rb.velocity, hit.normal);
 
 #if UNITY_EDITOR
-                if (_core.Rb.velocity.sqrMagnitude > 0.001f)
-                    Debug.Log($"[Constraint] slope vel={_core.Rb.velocity} normal={hit.normal} away={awayFromSurface:F3} normalVelCheck={Vector2.Dot(_core.Rb.velocity, hit.normal):F3}");
+                /*if (_core.Rb.velocity.sqrMagnitude > 0.001f)
+                    Debug.Log($"[Constraint] slope vel={_core.Rb.velocity} normal={hit.normal} away={awayFromSurface:F3} normalVelCheck={Vector2.Dot(_core.Rb.velocity, hit.normal):F3}");*/
 #endif
 
                 if (awayFromSurface < 2.0f)
@@ -569,7 +569,7 @@ public class MarioGroundDetection : MonoBehaviour
         if (State.FloorAngle != 0f && _core.Rb.velocity.y > 0f && !_core.StateMachine.IsAirborne)
         {
 #if UNITY_EDITOR
-            Debug.Log($"[Airborne] zeroing vel.y on slope exit vel={_core.Rb.velocity}");
+            // Debug.Log($"[Airborne] zeroing vel.y on slope exit vel={_core.Rb.velocity}");
 #endif
             _core.Rb.velocity = new Vector2(_core.Rb.velocity.x, 0f);
         }
@@ -826,7 +826,7 @@ public class MarioGroundDetection : MonoBehaviour
 
 #if UNITY_EDITOR
         float awayDebug = Vector2.Dot(_core.Rb.velocity, hit.normal);
-        Debug.Log($"[Snap] dist={distanceToTarget:F4} away={awayDebug:F4} vel={_core.Rb.velocity} normal={hit.normal} posY={_core.Rb.position.y:F4} targetY={targetY:F4}");
+        // Debug.Log($"[Snap] dist={distanceToTarget:F4} away={awayDebug:F4} vel={_core.Rb.velocity} normal={hit.normal} posY={_core.Rb.position.y:F4} targetY={targetY:F4}");
 #endif
 
         // Allow snapping as long as the player isn't actively moving upward.
@@ -845,7 +845,7 @@ public class MarioGroundDetection : MonoBehaviour
                 if (awayFromSurface > 0f)
                 {
 #if UNITY_EDITOR
-                    Debug.Log($"[Snap] STRIPPING away vel: {hit.normal * awayFromSurface} from {_core.Rb.velocity}");
+                    // Debug.Log($"[Snap] STRIPPING away vel: {hit.normal * awayFromSurface} from {_core.Rb.velocity}");
 #endif
                     _core.Rb.velocity -= hit.normal * awayFromSurface;
                 }

@@ -29,10 +29,10 @@ public class PlayerTransformation : MonoBehaviour
     private PowerupState _newPowerupState;
 
     // ─── Transform ────────────────────────────────────────────────────────────
-    private float   _cachedOldFeetY;
-    private Vector3 _cachedSpawnPosition;
-    private bool    _cachedOnGround;
-    private bool    _cachedFacingRight;
+    private float     _cachedOldFeetY;
+    private Vector3   _cachedSpawnPosition;
+    private bool      _cachedOnGround;
+    private bool      _cachedFacingRight;
     private Transform _cachedParent;
 
     // ─── All runtime state cached as plain values ─────────────────────────────
@@ -148,9 +148,6 @@ public class PlayerTransformation : MonoBehaviour
         if (newLib != null && newChildLib != null) newChildLib.spriteLibraryAsset = newLib.spriteLibraryAsset;
 
         // ── Sync oldChild to the exact sprite the player was showing ─────────
-        // Find SpriteSimple by name — it's the single-sprite node that matches
-        // oldChild's structure. We search all children and match by name to avoid
-        // hardcoding a path that may differ between prefab variants.
         var shellSR = oldChild.GetComponent<SpriteRenderer>();
         if (shellSR != null)
         {
@@ -233,21 +230,10 @@ public class PlayerTransformation : MonoBehaviour
         newCore.State.InvincibilityTimeRemaining = _cachedInvincibilityTime;
         newCore.State.IsTransforming             = true;
 
-        // ── Apply all cached state directly ───────────────────────────────────
+        // ── Apply all non-input state ─────────────────────────────────────────
         var t = newCore.State;
-
-        // Transfer velocity so physics deceleration continues naturally after
-        // transformation — grounded drag will handle stopping if no input is held.
-        newCore.Rb.velocity = _cachedVelocity;
+        newCore.Rb.velocity                  = _cachedVelocity;
         t.PlayerIndex                        = _cachedPlayerIndex;
-        t.JumpPressed                        = _cachedJumpPressed;
-        t.RunPressed                         = _cachedRunPressed;
-        // MoveInput is intentionally not transferred — the cached value is 1 second
-        // old and causes phantom movement. MarioInput's Move callback will set it
-        // correctly on the next input event. SyncHeldButtons reads current physical
-        // state for buttons (Run, Jump) but Move is event-driven so we leave it as
-        // the default zero from the fresh prefab.
-        newMario.GetComponent<MarioInput>()?.SyncHeldButtons();
         t.CanWallJump                        = _cachedCanWallJump;
         t.CanWallJumpWhenHoldingObject       = _cachedCanWallJumpHolding;
         t.CanSpinJump                        = _cachedCanSpinJump;
@@ -280,13 +266,29 @@ public class PlayerTransformation : MonoBehaviour
             newCore.State.Carrying = true;
         }
 
+        // ── Device transfer (best-effort) ─────────────────────────────────────
         if (_cachedPlayerInput != null && newMario.TryGetComponent(out PlayerInput dst))
         {
             try { dst.SwitchCurrentControlScheme(_cachedPlayerInput.devices.ToArray()); }
             catch { Debug.Log("[PT] Could not transfer input device."); }
         }
 
-        // ── Register and transition ───────────────────────────────────────────
+        // ── Seed input state from snapshot ────────────────────────────────────
+        // The new PlayerInput's action phases are all Waiting (no press edges seen), so
+        // the Input System fires no callbacks for held or released inputs. We seed from
+        // the 1-second-old snapshot as a starting point, then immediately activate
+        // raw-control polling in MarioInput.Update() to track actual hardware state.
+        // control.IsPressed() / ReadValue() bypass action phase completely.
+        t.RunPressed  = _cachedRunPressed;
+        t.JumpPressed = _cachedJumpPressed;
+        t.MoveInput   = _cachedMoveInput;
+        t.Direction   = _cachedMoveInput;
+
+        // Activate polling for both Run and Move — stops per-action the moment a real
+        // press edge is detected and normal callbacks resume.
+        newMario.GetComponent<MarioInput>()?.BeginPostTransformationPolling();
+
+        // ── Register ──────────────────────────────────────────────────────────
         if (_registry != null && _cachedPlayerIndex >= 0)
             _registry.RegisterPlayer(newCore, _cachedPlayerIndex);
 
@@ -300,10 +302,10 @@ public class PlayerTransformation : MonoBehaviour
         yield return null;
         if (target == null) yield break;
 
-        target.State.IsTransforming = false; // safe to take damage now
-        target.StateMachine.ForceTransition(
-            _cachedOnGround ? MarioStateID.Idle : MarioStateID.Fall);
+        // Clear the transformation lock so the combat system can land hits again.
+        target.State.IsTransforming = false;
 
+        // Restore facing — the new prefab spawns with default scale.
         target.Physics.FlipTo(_cachedFacingRight);
     }
 }

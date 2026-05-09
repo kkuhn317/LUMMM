@@ -33,8 +33,25 @@ public class MarioInput : MonoBehaviour
     private MarioState State => _core.State;
     
     // Helpers
-    private int _jumpPressedFrame = -1;
+    private int  _jumpPressedFrame = -1;
     private bool _wasPressingDown;
+
+    // ─── Post-transformation / level-start input polling ──────────────────────
+    // The Unity Input System only fires action callbacks on state *transitions*
+    // (press edge, release edge). If a button is already held when a PlayerInput
+    // is created — either because the player held run before the level loaded, or
+    // because a new Mario prefab was instantiated mid-hold during a powerup
+    // transformation — the action starts and stays in Waiting phase. No performed
+    // or canceled callbacks ever fire for that hold.
+    //
+    // Fix: while an action is in Waiting phase, poll InputControl.IsPressed() /
+    // ReadValue() directly — raw hardware state, completely independent of action
+    // lifecycle. Polling stops per-action the moment that action leaves Waiting
+    // (a real press edge was detected), at which point normal callbacks resume.
+    private bool        _pollingRun;
+    private bool        _pollingMove;
+    private InputAction _runActionCache;
+    private InputAction _moveActionCache;
 
     // ─── Lifecycle ───────────────────────────────────────────────────────────
 
@@ -43,12 +60,70 @@ public class MarioInput : MonoBehaviour
         _core = GetComponent<MarioCore>();
     }
 
+    private void Start()
+    {
+        // Activate polling on every Mario spawn — covers both level start (button
+        // held before scene loaded) and post-transformation (new prefab, no edge seen).
+        // If nothing is held the polling loop exits on the very first Update tick.
+        BeginPostTransformationPolling();
+    }
+
     private void Update()
     {
         if (State.InputLocked || State.IsFrozen || State.IsPaused) return;
 
         // Propagate processed move input to direction every frame
         State.Direction = State.MoveInput;
+
+        // ── Raw-control polling ───────────────────────────────────────────────
+        // For each polled action: if the phase left Waiting, a real edge was detected
+        // and normal callbacks resume — stop polling. Otherwise read raw hardware.
+        if (_pollingRun || _pollingMove)
+        {
+            var pi = _core.PlayerInput;
+
+            if (_pollingRun)
+            {
+                if (_runActionCache == null)
+                    _runActionCache = pi?.actions?.FindAction("Run", throwIfNotFound: false);
+
+                if (_runActionCache == null || _runActionCache.phase != InputActionPhase.Waiting)
+                {
+                    _pollingRun     = false;
+                    _runActionCache = null;
+                }
+                else
+                {
+                    // InputControl.IsPressed() reads raw hardware — bypasses action phase
+                    bool rawHeld = false;
+                    foreach (var control in _runActionCache.controls)
+                    {
+                        if (control.IsPressed()) { rawHeld = true; break; }
+                    }
+                    State.RunPressed = rawHeld;
+                }
+            }
+
+            if (_pollingMove)
+            {
+                if (_moveActionCache == null)
+                    _moveActionCache = pi?.actions?.FindAction("Move", throwIfNotFound: false);
+
+                if (_moveActionCache == null || _moveActionCache.phase != InputActionPhase.Waiting)
+                {
+                    _pollingMove     = false;
+                    _moveActionCache = null;
+                }
+                else
+                {
+                    // Value actions: ReadValue always returns current composite hardware
+                    // value regardless of phase
+                    Vector2 raw = _moveActionCache.ReadValue<Vector2>();
+                    State.MoveInput = ApplyDeadzone(raw);
+                    State.Direction = State.MoveInput;
+                }
+            }
+        }
 
         UpdateDownPressedEdge();
 
@@ -73,6 +148,9 @@ public class MarioInput : MonoBehaviour
 
     public void Move(InputAction.CallbackContext context)
     {
+        _pollingMove     = false; // Real edge received — polling no longer needed
+        _moveActionCache = null;
+
         Vector2 raw = context.ReadValue<Vector2>();
         State.MoveInput = ApplyDeadzone(raw);
         // Only write Direction immediately if not locked — otherwise Update's
@@ -93,6 +171,8 @@ public class MarioInput : MonoBehaviour
     public void OnRunPressed()
     {
         State.RunPressed = true;
+        _pollingRun      = false; // Real press edge — polling no longer needed
+        _runActionCache  = null;
 
         if (_core.Carry.PressRunToGrab
             && (!_core.Carry.CrouchToGrab || State.Direction.y < -0.5f)
@@ -107,6 +187,23 @@ public class MarioInput : MonoBehaviour
         // Ignore if jump was pressed this same frame — Input System dual-binding artifact
         if (Time.frameCount == _jumpPressedFrame) return;
         State.RunPressed = false;
+        _pollingRun      = false;
+        _runActionCache  = null;
+    }
+
+    /// <summary>
+    /// Activates raw-control polling for Run and Move so Update() tracks actual
+    /// hardware state while both actions are in Waiting phase. Called on Start()
+    /// (covers buttons held before the level loaded) and by PlayerTransformation
+    /// after spawning a new Mario (covers buttons held during a powerup animation).
+    /// Polling stops per-action as soon as a real press edge is detected.
+    /// </summary>
+    public void BeginPostTransformationPolling()
+    {
+        _pollingRun      = true;
+        _pollingMove     = true;
+        _runActionCache  = null;
+        _moveActionCache = null;
     }
 
     private void UpdateDownPressedEdge()
