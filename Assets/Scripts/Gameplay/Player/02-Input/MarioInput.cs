@@ -75,7 +75,7 @@ public class MarioInput : MonoBehaviour
         // Propagate processed move input to direction every frame
         State.Direction = State.MoveInput;
 
-        // ── Raw-control polling ───────────────────────────────────────────────
+        // Raw-control polling 
         // For each polled action: if the phase left Waiting, a real edge was detected
         // and normal callbacks resume — stop polling. Otherwise read raw hardware.
         if (_pollingRun || _pollingMove)
@@ -94,7 +94,7 @@ public class MarioInput : MonoBehaviour
                 }
                 else
                 {
-                    // InputControl.IsPressed() reads raw hardware — bypasses action phase
+                    // InputControl.IsPressed() reads raw hardware and bypasses action phase
                     bool rawHeld = false;
                     foreach (var control in _runActionCache.controls)
                     {

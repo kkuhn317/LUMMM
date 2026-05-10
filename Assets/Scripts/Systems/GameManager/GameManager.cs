@@ -71,7 +71,8 @@ public class GameManager : MonoBehaviour, IGameManager
         BindLevelContextAndInitialize();
         GameEvents.TriggerGameInitialized();
         GameEvents.TriggerLevelStarted();
-        CursorHelper.HideCursor();
+        if (pauseMenuController?.Mode != PauseMenuController.PauseMenuMode.StandaloneOptionsMenu)
+            CursorHelper.HideCursor();
     }
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
