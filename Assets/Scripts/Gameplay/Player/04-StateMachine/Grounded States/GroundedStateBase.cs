@@ -183,7 +183,7 @@ public abstract class GroundedStateBase : MarioStateBase
 
         float standHeight = Core.ColliderOriginalHeight;
         float crouchHeight = Cfg.CrouchColliderHeight;
-        float neededClearance = (standHeight - crouchHeight) + 0.05f;
+        float neededClearance = (standHeight - crouchHeight) * 1.05f;
 
         Vector2 origin = new Vector2(Core.Rb.position.x + Cfg.CeilingProbeOffsetX, crouchedTop);
         Vector2 originLeft = origin + new Vector2(-Cfg.CeilingProbeSeparation, 0f);
