@@ -9,6 +9,7 @@ public class ObjectDefeatEnemies : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
+        
         ObjectPhysics objectPhysics = other.GetComponent<ObjectPhysics>();
         if (objectPhysics != null)
         {
@@ -52,10 +53,6 @@ public class ObjectDefeatEnemies : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D other)
     {
-        if (other.collider.CompareTag("Enemy"))
-        {
-            EnemyAI enemyAI = other.collider.GetComponent<EnemyAI>();
-            enemyAI.KnockAway(other.transform.position.x > transform.position.x);
-        }
+        OnTriggerEnter2D(other.collider);
     }
 }
