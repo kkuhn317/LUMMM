@@ -76,7 +76,7 @@ public class MarioPhysics : MonoBehaviour
     public void TransferMovingPlatformMomentum()
     {
         if (!State.DoMovingPlatformMomentum) return;
-        if (!State.OnMovingPlatform)         return;
+        if (State.OnMovingPlatform == null)  return;
 
         Transform parent = _core.transform.parent;
         if (parent == null) return;

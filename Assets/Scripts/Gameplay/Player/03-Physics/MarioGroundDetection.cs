@@ -66,6 +66,7 @@ public class MarioGroundDetection : MonoBehaviour
     private bool _treatGroundAsFlat;
     private int _groundSeamFlatFrames;
     private float _groundSeamSnapY;
+    private Vector3 _platformLastPos;
 
     /// <summary>
     /// Set this to true from RiseState/SpinJumpState Enter() to prevent
@@ -94,21 +95,19 @@ public class MarioGroundDetection : MonoBehaviour
         // RiseState.Enter() sets the flag during FSM.FixedUpdate, which hasn't run yet.
         // We read the live property at point-of-use instead (see ProcessGrounding).
 
-        bool wasOnMovingPlatform = State.OnMovingPlatform;
+        bool wasOnMovingPlatform = State.OnMovingPlatform != null;
 
         // Do not use land grounding while swimming.
         // Water floor contact should not trigger snap-to-ground / slope pinning / land constraints.
         if (State.Swimming)
         {
-            if (wasOnMovingPlatform && transform.parent != null
-                && transform.parent.CompareTag("MovingPlatform"))
+            if (wasOnMovingPlatform)
             {
                 _core.Physics.TransferMovingPlatformMomentum();
-                transform.parent = null;
             }
 
             State.OnGround = false;
-            State.OnMovingPlatform = false;
+            State.OnMovingPlatform = null;
             State.OnConveyor = null;
             State.FloorAngle = 0f;
             State.FloorNormal = Vector2.up;
@@ -125,6 +124,7 @@ public class MarioGroundDetection : MonoBehaviour
         {
             ProcessGrounding(hit.Value, _wasGrounded, wasOnMovingPlatform);
             ApplyConveyorBelt();
+            ApplyMovingPlatformMovement();
         }
         else
         {
@@ -365,21 +365,21 @@ public class MarioGroundDetection : MonoBehaviour
 
         if (hit.transform.CompareTag("MovingPlatform"))
         {
-            State.OnMovingPlatform = true;
-
-            if (transform.parent != hit.transform)
-                transform.parent = hit.transform;
+            if (State.OnMovingPlatform != hit.transform)
+            {
+                State.OnMovingPlatform = hit.transform;
+                // Set platformLastPos here only when first touching platform
+                _platformLastPos = hit.transform.position;
+            }
         }
         else
         {
-            if (wasOnMovingPlatform && transform.parent != null
-                && transform.parent.CompareTag("MovingPlatform"))
+            if (wasOnMovingPlatform)
             {
                 _core.Physics.TransferMovingPlatformMomentum();
-                transform.parent = null;
             }
 
-            State.OnMovingPlatform = false;
+            State.OnMovingPlatform = null;
         }
 
         // ── Conveyor ─────────────────────────────────────────────────────────
@@ -483,7 +483,7 @@ public class MarioGroundDetection : MonoBehaviour
                 const float inputDeadzone = 0.1f;
 
                 bool noMoveInput = Mathf.Abs(State.Direction.x) < inputDeadzone;
-                if (noMoveInput && !State.OnConveyor && !State.OnMovingPlatform)
+                if (noMoveInput && !State.OnConveyor && State.OnMovingPlatform != null)
                 {
                     ReprojectVelocityOnSurface(newNormal, 0f);
                     _core.Rb.gravityScale = 0f;
@@ -556,14 +556,12 @@ public class MarioGroundDetection : MonoBehaviour
 
     private void ProcessAirborne(bool wasOnMovingPlatform)
     {
-        if (wasOnMovingPlatform && transform.parent != null
-            && transform.parent.CompareTag("MovingPlatform"))
+        if (wasOnMovingPlatform)
         {
             _core.Physics.TransferMovingPlatformMomentum();
-            transform.parent = null;
         }
 
-        State.OnMovingPlatform = false;
+        State.OnMovingPlatform = null;
         State.OnConveyor = null;
 
         if (State.FloorAngle != 0f && _core.Rb.velocity.y > 0f && !_core.StateMachine.IsAirborne)
@@ -859,5 +857,17 @@ public class MarioGroundDetection : MonoBehaviour
             return;
 
         _core.Rb.position += State.OnConveyor.Velocity * Time.fixedDeltaTime;
+    }
+
+    private void ApplyMovingPlatformMovement()
+    {
+        if (State.OnMovingPlatform == null)
+            return;
+
+        Vector3 platformDelta = State.OnMovingPlatform.position - _platformLastPos;
+        _core.Rb.position += (Vector2)platformDelta;
+        
+        // Save the position for next frame's math
+        _platformLastPos = State.OnMovingPlatform.position;
     }
 }

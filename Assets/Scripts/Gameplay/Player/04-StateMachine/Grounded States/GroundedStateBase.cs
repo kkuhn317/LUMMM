@@ -117,7 +117,7 @@ public abstract class GroundedStateBase : MarioStateBase
         bool shouldPinToSlope = onSlope
                             && !holding
                             && State.OnConveyor == null
-                            && !State.OnMovingPlatform;
+                            && State.OnMovingPlatform == null;
 
         if (shouldPinToSlope)
         {

@@ -35,7 +35,8 @@ public class MarioState
     public float   FloorAngle;  // -45 = \, 0 = _, 45 = /
     public Vector2 FloorNormal; // raw hit.normal from last ground contact
 
-    public bool OnMovingPlatform;
+    /// <summary>Non-null when Mario is standing on a moving platform.</summary>
+    public Transform OnMovingPlatform;
     public bool DoMovingPlatformMomentum = true;
     public bool DoCornerCorrection       = true;
 
