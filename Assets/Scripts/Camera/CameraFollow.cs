@@ -169,6 +169,10 @@ public class CameraFollow : MonoBehaviour
         }
         else
         {
+            // Guard against NaN smooth damp velocity
+            // https://docs.unity3d.com/2022.3/Documentation/ScriptReference/Mathf.SmoothDamp.html
+            if (float.IsNaN(smoothDampVelocity.x)) smoothDampVelocity.x = 0f;
+            if (float.IsNaN(smoothDampVelocity.y)) smoothDampVelocity.y = 0f;
             float x = Mathf.SmoothDamp(transform.position.x, targetX, ref smoothDampVelocity.x, smoothDampTime);
             float y = Mathf.SmoothDamp(transform.position.y, targetY, ref smoothDampVelocity.y, smoothDampTime);
             newPos = new Vector3(x, y, transform.position.z);
