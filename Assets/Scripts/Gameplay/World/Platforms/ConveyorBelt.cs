@@ -10,7 +10,13 @@ public class ConveyorBelt : MonoBehaviour
 
     [HideInInspector] public int length;
 
+    // [Tooltip("The amount of space on the edges of the conveyor where the speed is slower")]
+    // [field: SerializeField, Min(0f)] public float HelperEdgeLength { get; private set; }
+    // [Tooltip("The speed of the conveyor on the edges")]
+    // [field: SerializeField, Min(0f)] public float HelperEdgeSpeed { get; private set; }
+
     [field: SerializeField, Min(0f)] public float Speed { get; private set; }
+
     [field: SerializeField] public ConveyorDirection Direction { get; private set; }
 
     [Tooltip("If enabled, animation speed scales proportionally with Speed.")]

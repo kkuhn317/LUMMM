@@ -132,11 +132,13 @@ public class MarioGroundDetection : MonoBehaviour
             ProcessAirborne(wasOnMovingPlatform);
         }
 
-        if (_core.Rb.velocity.y > 0f)
-            ApplyCornerCorrection();
+        if (State.DoCornerCorrection) {
+            if (_core.Rb.velocity.y > 0f)
+                ApplyCornerCorrection();
 
-        if (!State.OnGround && _core.Rb.velocity.y < 0f && Mathf.Abs(_core.Rb.velocity.x) > 0.1f)
-            ApplyVerticalCornerCorrection();
+            if (!State.OnGround && _core.Rb.velocity.y < 0f && Mathf.Abs(_core.Rb.velocity.x) > 0.1f)
+                ApplyVerticalCornerCorrection();
+        }
     }
 
     // ─── Ceiling Detection ────────────────────────────────────────────────────

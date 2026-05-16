@@ -79,6 +79,7 @@ public class SpriteSwapArea : MonoBehaviour
         if (!_soundPlayedFor.Add(core.PlayerIndex)) return;
 
         var clip = core.Powerup?.Character?.GetEmoteAudio(emote);
+        Debug.Log("playing audio:" + clip);
         if (clip != null)
             AudioManager.Instance?.PlayAtPosition(clip, core.transform.position, SoundCategory.SFX);
     }

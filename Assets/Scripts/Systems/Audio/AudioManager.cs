@@ -224,7 +224,7 @@ public class AudioManager : MonoBehaviour
         source.clip = clip;
         source.volume = volume;
         source.pitch = pitch;
-        source.spatialBlend = 1f; // 3D positional sound
+        source.spatialBlend = 0.5f; // 3D positional sound
         source.outputAudioMixerGroup = category == SoundCategory.BGM ? bgmMixerGroup : sfxMixerGroup;
         source.Play();
 

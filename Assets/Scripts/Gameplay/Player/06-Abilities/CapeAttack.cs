@@ -43,6 +43,7 @@ public class CapeAttack : MarioAbility
 
     public override void onExtraActionPressed()
     {
+        if (!enabled) return;   // Stop cape from working if script is disabled
         Debug.Log($"[Cape] onExtraActionPressed called. canCape={canCape} IsCapeActive={State.IsCapeActive} IsMidairSpinning={State.IsMidairSpinning}");
         if (!canCape) return;
 

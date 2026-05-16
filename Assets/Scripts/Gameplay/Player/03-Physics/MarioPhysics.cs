@@ -76,15 +76,15 @@ public class MarioPhysics : MonoBehaviour
     public void TransferMovingPlatformMomentum()
     {
         if (!State.DoMovingPlatformMomentum) return;
-        if (State.OnMovingPlatform == null)  return;
-
-        Transform parent = _core.transform.parent;
-        if (parent == null) return;
-
-        if (parent.TryGetComponent(out MovingPlatform platform))
+        
+        if (State.OnMovingPlatform != null && State.OnMovingPlatform.TryGetComponent(out MovingPlatform platform))
+        {
             _core.Rb.velocity += platform.velocity;
-        else if (parent.TryGetComponent(out ConveyorBelt belt))
+        }
+        else if (State.OnConveyor != null && State.OnConveyor.TryGetComponent(out ConveyorBelt belt))
+        {
             _core.Rb.velocity += belt.Velocity;
+        }
     }
 
     // ─── Visual Root Helpers ─────────────────────────────────────────────────
