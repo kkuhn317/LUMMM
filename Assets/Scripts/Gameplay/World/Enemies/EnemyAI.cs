@@ -373,7 +373,10 @@ public class EnemyAI : ObjectPhysics
             // velocity will be limited by the swimming state
             player.Rb.velocity = new Vector2(player.Rb.velocity.x, 1000);
         else
+        {
+            player.State.IsBounced = true;
             player.StateMachine.ForceTransition(MarioStateID.Rise);
+        }   
     }
 
     public void releaseItem() {

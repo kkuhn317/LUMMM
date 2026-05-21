@@ -119,5 +119,6 @@ public sealed class ProgressStore : IProgressStore
     {
         if (Current == null) return;
         SaveManager.Save();
+        Debug.Log("Progress saved.");
     }
 }

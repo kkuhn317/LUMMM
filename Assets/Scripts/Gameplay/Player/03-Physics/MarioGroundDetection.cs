@@ -67,6 +67,11 @@ public class MarioGroundDetection : MonoBehaviour
     private int _groundSeamFlatFrames;
     private float _groundSeamSnapY;
     private Vector3 _platformLastPos;
+    private Vector2 _prePhysicsVelocity;
+
+    private const float FootCornerMinNormalY = 0.25f;
+    private const float FootCornerMinNormalX = 0.25f;
+    private const float FootCornerBand = 0.16f;
 
     /// <summary>
     /// Set this to true from RiseState/SpinJumpState Enter() to prevent
@@ -89,6 +94,7 @@ public class MarioGroundDetection : MonoBehaviour
         _ceilingCCFiredLeft = _ceilingCCFiredRight = false;
         _verticalCCFiredLeft = _verticalCCFiredRight = false;
         _treatGroundAsFlat = false;
+        _prePhysicsVelocity = _core.Rb.velocity;
 
         // Do NOT cache SkipConstraintsThisFrame here.
         // GD runs at execution order -100, FSM at -90.
@@ -165,9 +171,66 @@ public class MarioGroundDetection : MonoBehaviour
                 MarioEvents.FireBonked(_core.PlayerIndex);
             }
         }
+
+        CorrectAirborneBlockFootCornerPush(collision);
     }
 
     // ─── Ground Detection ────────────────────────────────────────────────────
+
+    private void OnCollisionStay2D(Collision2D collision)
+    {
+        CorrectAirborneBlockFootCornerPush(collision);
+    }
+
+    private void CorrectAirborneBlockFootCornerPush(Collision2D collision)
+    {
+        if (((1 << collision.gameObject.layer) & _core.Physics.GroundLayer) == 0)
+            return;
+
+        if (State.OnGround || State.Swimming || State.Climbing)
+            return;
+
+        if (!collision.transform.GetComponentInParent<BumpableBlock>()
+            && !collision.transform.GetComponentInParent<BreakableBlocks>())
+            return;
+
+        Bounds bounds = _core.Collider.bounds;
+        float footBandTop = bounds.min.y + FootCornerBand;
+
+        bool footCornerHit = false;
+        float pushDir = 0f;
+
+        for (int i = 0; i < collision.contactCount; i++)
+        {
+            ContactPoint2D contact = collision.GetContact(i);
+
+            if (contact.point.y > footBandTop)
+                continue;
+
+            if (contact.normal.y < FootCornerMinNormalY)
+                continue;
+
+            if (Mathf.Abs(contact.normal.x) < FootCornerMinNormalX)
+                continue;
+
+            footCornerHit = true;
+            pushDir = Mathf.Sign(contact.normal.x);
+            break;
+        }
+
+        if (!footCornerHit)
+            return;
+
+        float currentX = _core.Rb.velocity.x;
+        float previousX = _prePhysicsVelocity.x;
+        float inputX = State.Direction.x;
+
+        bool pushedLeft = pushDir < 0f && currentX < previousX && (previousX > 0.01f || inputX > 0.1f);
+        bool pushedRight = pushDir > 0f && currentX > previousX && (previousX < -0.01f || inputX < -0.1f);
+
+        if (pushedLeft || pushedRight)
+            _core.Rb.velocity = new Vector2(previousX, _core.Rb.velocity.y);
+    }
 
     private Vector2 GroundCheckOffset
     {

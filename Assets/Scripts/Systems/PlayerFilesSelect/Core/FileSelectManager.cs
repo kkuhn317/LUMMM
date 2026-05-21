@@ -166,7 +166,6 @@ public class FileSelectManager : MonoBehaviour
         {
             Debug.Log("FileSelectManager: HandleCancel");
 
-            // If we are in a non-normal mode, cancel the mode first
             if (slotManager != null && slotManager.CurrentMode != SaveSlotManager.InteractionMode.Normal)
             {
                 bool wasDelete = slotManager.CurrentMode == SaveSlotManager.InteractionMode.Delete;
@@ -191,7 +190,6 @@ public class FileSelectManager : MonoBehaviour
                 yield break;
             }
 
-            // Normal cancel behavior (move to cancel anchor + invoke onCancel)
             if (mario != null && cancelAnchor != null)
             {
                 mario.SetFollowSelection(false);
@@ -210,11 +208,16 @@ public class FileSelectManager : MonoBehaviour
         {
             isCancelling = false;
 
-            // Unlock only if still locked (same reason: sequences may have unlocked early)
-            if (uiInputLock != null && TryGetUILockCount(uiInputLock) > 0)
+            if (uiInputLock != null && uiInputLock.GetLockCount() > 0)
+                uiInputLock.Unlock(restoreSelection: false);
+
+            // Always restore focus after a cancel, regardless of lock state
+            if (!ConfirmPopup.IsAnyPopupOpen && !SaveSlotRename.IsAnyPopupOpen)
             {
-                bool restoreSelection = !ConfirmPopup.IsAnyPopupOpen;
-                uiInputLock.Unlock(restoreSelection: restoreSelection);
+                var fallback = slotManager?.slotCards?[slotManager.FocusedSlotIndex >= 0
+                    ? slotManager.FocusedSlotIndex : 0]?.gameObject;
+                if (EventSystem.current != null && fallback != null)
+                    EventSystem.current.SetSelectedGameObject(fallback);
             }
 
             isBusy = false;

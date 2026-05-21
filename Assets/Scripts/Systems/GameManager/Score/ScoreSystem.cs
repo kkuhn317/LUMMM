@@ -30,7 +30,6 @@ public class ScoreSystem : MonoBehaviour
         {
             currentHighScore = GlobalVariables.score;
             progressStore.SaveHighScoreIfBetter(levelId, currentHighScore);
-            progressStore.Save();
             GameEvents.TriggerHighScoreChanged(currentHighScore);
             GameEvents.TriggerNewHighScore(currentHighScore);
         }

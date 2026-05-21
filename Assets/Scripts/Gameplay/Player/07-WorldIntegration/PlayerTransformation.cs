@@ -30,6 +30,7 @@ public class PlayerTransformation : MonoBehaviour
 
     // ─── Transform ────────────────────────────────────────────────────────────
     private float     _cachedOldFeetY;
+    private float     _cachedOldPivotToFeetOffset; // signed distance from pivot to feet, always <= 0
     private Vector3   _cachedSpawnPosition;
     private bool      _cachedOnGround;
     private bool      _cachedFacingRight;
@@ -83,8 +84,12 @@ public class PlayerTransformation : MonoBehaviour
         }
 
         // ── Cache feet Y ──────────────────────────────────────────────────────
-        var oldCol = oldPlayer.GetComponent<Collider2D>();
-        _cachedOldFeetY = oldCol != null ? oldCol.bounds.min.y : oldPlayer.transform.position.y;
+        // Use MarioCore.Collider / child collider, not GetComponent on the root.
+        // The root can have no collider or a different helper collider, which causes
+        // small → big swaps to spawn lower/higher than the original player.
+        var oldCol = GetPrimaryBodyCollider(oldCore, oldPlayer);
+        _cachedOldFeetY             = oldCol != null ? oldCol.bounds.min.y : oldPlayer.transform.position.y;
+        _cachedOldPivotToFeetOffset = _cachedOldFeetY - _cachedSpawnPosition.y;
 
         // ── Cache all runtime state as plain values ───────────────────────────
         var s = oldCore.State;
@@ -112,7 +117,7 @@ public class PlayerTransformation : MonoBehaviour
         _cachedPlayerInput              = oldPlayer.GetComponent<PlayerInput>();
         _cachedPlayerIndex              = oldCore.PlayerIndex;
 
-        // Cache carried object — detach it from old Mario so it survives destruction
+        // Cache carried object — detach it from old Mario so it survives destruction.
         if (s.Carrying && oldCore.Carry.HeldObjectPosition.transform.childCount > 0)
         {
             _cachedCarriedObject = oldCore.Carry.HeldObjectPosition.transform.GetChild(0).gameObject;
@@ -144,14 +149,19 @@ public class PlayerTransformation : MonoBehaviour
 
         var oldChildLib = oldChild.GetComponent<SpriteLibrary>();
         var newChildLib = newChild.GetComponent<SpriteLibrary>();
-        if (oldLib != null && oldChildLib != null) oldChildLib.spriteLibraryAsset = oldLib.spriteLibraryAsset;
-        if (newLib != null && newChildLib != null) newChildLib.spriteLibraryAsset = newLib.spriteLibraryAsset;
+
+        if (oldLib != null && oldChildLib != null)
+            oldChildLib.spriteLibraryAsset = oldLib.spriteLibraryAsset;
+
+        if (newLib != null && newChildLib != null)
+            newChildLib.spriteLibraryAsset = newLib.spriteLibraryAsset;
 
         // ── Sync oldChild to the exact sprite the player was showing ─────────
         var shellSR = oldChild.GetComponent<SpriteRenderer>();
         if (shellSR != null)
         {
             SpriteRenderer playerSR = null;
+
             foreach (var sr in oldPlayer.GetComponentsInChildren<SpriteRenderer>())
             {
                 if (sr.gameObject.name == "SpriteSimple")
@@ -160,6 +170,7 @@ public class PlayerTransformation : MonoBehaviour
                     break;
                 }
             }
+
             if (playerSR != null)
                 shellSR.sprite = playerSR.sprite;
             else
@@ -174,6 +185,7 @@ public class PlayerTransformation : MonoBehaviour
         {
             var scale = transform.localScale;
             transform.localScale = new Vector3(-scale.x, scale.y, scale.z);
+
             oldChild.GetComponent<SpriteRenderer>().flipX = true;
             newChild.GetComponent<SpriteRenderer>().flipX = true;
         }
@@ -188,12 +200,12 @@ public class PlayerTransformation : MonoBehaviour
         bool isSmall  = _newPowerupState == PowerupState.small;
         bool isTiny   = _newPowerupState == PowerupState.tiny;
 
-        if      (wasBig   && isTiny)              animator.Play("BigToTiny");
-        else if (wasTiny  && isBig)               animator.Play("TinyToBig");
-        else if (wasBig   && isSmall)             animator.Play("BigToSmall");
-        else if (wasSmall && isBig)               animator.Play("SmallToBig");
-        else if ((wasSmall || wasTiny) && isTiny) animator.Play("SmallToTiny");
-        else if (wasBig   && isBig)               animator.Play("BigToBig");
+        if      (wasBig && isTiny)                 animator.Play("BigToTiny");
+        else if (wasTiny && isBig)                 animator.Play("TinyToBig");
+        else if (wasBig && isSmall)                animator.Play("BigToSmall");
+        else if (wasSmall && isBig)                animator.Play("SmallToBig");
+        else if ((wasSmall || wasTiny) && isTiny)  animator.Play("SmallToTiny");
+        else if (wasBig && isBig)                  animator.Play("BigToBig");
         else                                       animator.Play("SmallToBig");
 
         Invoke(nameof(SpawnNewMario), 1f);
@@ -208,15 +220,12 @@ public class PlayerTransformation : MonoBehaviour
             return;
         }
 
-        GameObject newMario = Instantiate(newPlayer, _cachedSpawnPosition, Quaternion.identity);
-
-        // ── Align feet ────────────────────────────────────────────────────────
-        var newCol = newMario.GetComponent<Collider2D>();
-        if (newCol != null)
-        {
-            float deltaY = _cachedOldFeetY - newCol.bounds.min.y;
-            newMario.transform.position += new Vector3(0f, deltaY, 0f);
-        }
+        // Seed the Y so new Mario's feet start near _cachedOldFeetY before correction.
+        // Using the old pivot→feet offset as the seed minimises the post-sync correction
+        // and guarantees it is always upward (never the negative delta that caused the teleport).
+        float seedY      = _cachedOldFeetY - _cachedOldPivotToFeetOffset;
+        var   seedPos    = new Vector3(_cachedSpawnPosition.x, seedY, _cachedSpawnPosition.z);
+        GameObject newMario = Instantiate(newPlayer, seedPos, Quaternion.identity);
 
         var newCore = newMario.GetComponent<MarioCore>();
         if (newCore == null)
@@ -226,12 +235,44 @@ public class PlayerTransformation : MonoBehaviour
             return;
         }
 
-        // Block damage immediately — enemy colliders may already be overlapping
+        // ── Align feet ────────────────────────────────────────────────────────
+        // The downward teleport happens because new Mario is instantiated at the old
+        // Mario's pivot, but big Mario's body collider lives on a child object whose
+        // localPosition.y differs from small Mario's. This makes newCol.bounds.min.y
+        // land higher than _cachedOldFeetY, so deltaY goes negative → teleports down.
+        //
+        // Fix: seed the spawn Y using the old Mario's known pivot→feet offset so the
+        // new Mario starts close to the right place. After SyncTransforms, measure the
+        // true remaining error and correct it. Because we start close, the correction
+        // is always small and always positive (upward) — the negative delta is impossible.
+        //
+        // Block overlaps (growing under a block) are left to Rigidbody depenetration,
+        // which handles them correctly over 1-2 frames without shoving Mario sideways.
+        // The only intervention needed is cancelling any cached upward velocity so Mario
+        // doesn't rocket into the ceiling on frame one.
+        var newCol = GetPrimaryBodyCollider(newCore, newMario);
+        if (newCol != null)
+        {
+            Physics2D.SyncTransforms();
+
+            float remainingError = _cachedOldFeetY - newCol.bounds.min.y;
+            if (!Mathf.Approximately(remainingError, 0f))
+            {
+                newMario.transform.position += new Vector3(0f, remainingError, 0f);
+                Physics2D.SyncTransforms();
+            }
+
+            if (newCore.Rb != null && newCore.Rb.velocity.y > 0f)
+                newCore.Rb.velocity = new Vector2(newCore.Rb.velocity.x, 0f);
+        }
+
+        // Block damage immediately — enemy colliders may already be overlapping.
         newCore.State.InvincibilityTimeRemaining = _cachedInvincibilityTime;
         newCore.State.IsTransforming             = true;
 
         // ── Apply all non-input state ─────────────────────────────────────────
         var t = newCore.State;
+
         newCore.Rb.velocity                  = _cachedVelocity;
         t.PlayerIndex                        = _cachedPlayerIndex;
         t.CanWallJump                        = _cachedCanWallJump;
@@ -240,17 +281,19 @@ public class PlayerTransformation : MonoBehaviour
         t.CanGroundPound                     = _cachedCanGroundPound;
         t.CanMidairSpin                      = _cachedCanMidairSpin;
         t.AllowMultipleMidairSpins           = _cachedAllowMultipleMidairSpins;
+
         // CanCrawl is derived from the new Mario's powerup state, not transferred
         // from the old Mario — big Mario sets it false and would poison small Mario.
         var newPowerup = newMario.GetComponent<MarioPowerup>();
         t.CanCrawl = newPowerup != null
             ? PowerStates.IsSmall(newPowerup.PowerupState)
             : PowerStates.IsSmall(t.PowerupState);
-        t.CurrentClimbable                   = _cachedCurrentClimbable;
-        newCore.Carry.PressRunToGrab         = _cachedPressRunToGrab;
-        newCore.Carry.CrouchToGrab           = _cachedCrouchToGrab;
-        newCore.Carry.CarryMethod            = _cachedCarryMethod;
-        newCore.Physics.GroundLayer          = _cachedGroundLayer;
+
+        t.CurrentClimbable           = _cachedCurrentClimbable;
+        newCore.Carry.PressRunToGrab = _cachedPressRunToGrab;
+        newCore.Carry.CrouchToGrab   = _cachedCrouchToGrab;
+        newCore.Carry.CarryMethod    = _cachedCarryMethod;
+        newCore.Physics.GroundLayer  = _cachedGroundLayer;
 
         if (_cachedParent != null)
             newMario.transform.SetParent(_cachedParent, worldPositionStays: true);
@@ -258,7 +301,7 @@ public class PlayerTransformation : MonoBehaviour
         if (_cachedStarPower)
             newCore.Combat.StartStarPower(_cachedStarPowerTime);
 
-        // Re-attach carried object to new Mario
+        // Re-attach carried object to new Mario.
         if (_cachedCarriedObject != null)
         {
             _cachedCarriedObject.transform.SetParent(newCore.Carry.HeldObjectPosition.transform);
@@ -266,26 +309,28 @@ public class PlayerTransformation : MonoBehaviour
             newCore.State.Carrying = true;
         }
 
-        // ── Device transfer (best-effort) ─────────────────────────────────────
+        // ── Device transfer, best-effort ──────────────────────────────────────
         if (_cachedPlayerInput != null && newMario.TryGetComponent(out PlayerInput dst))
         {
-            try { dst.SwitchCurrentControlScheme(_cachedPlayerInput.devices.ToArray()); }
-            catch { Debug.Log("[PT] Could not transfer input device."); }
+            try
+            {
+                dst.SwitchCurrentControlScheme(_cachedPlayerInput.devices.ToArray());
+            }
+            catch
+            {
+                Debug.Log("[PT] Could not transfer input device.");
+            }
         }
 
         // ── Seed input state from snapshot ────────────────────────────────────
-        // The new PlayerInput's action phases are all Waiting (no press edges seen), so
-        // the Input System fires no callbacks for held or released inputs. We seed from
-        // the 1-second-old snapshot as a starting point, then immediately activate
-        // raw-control polling in MarioInput.Update() to track actual hardware state.
-        // control.IsPressed() / ReadValue() bypass action phase completely.
+        // The new PlayerInput's action phases are all Waiting, so no held/released
+        // callbacks are fired automatically. Seed from the cached values, then let
+        // MarioInput poll raw controls after the transformation.
         t.RunPressed  = _cachedRunPressed;
         t.JumpPressed = _cachedJumpPressed;
         t.MoveInput   = _cachedMoveInput;
         t.Direction   = _cachedMoveInput;
 
-        // Activate polling for both Run and Move — stops per-action the moment a real
-        // press edge is detected and normal callbacks resume.
         newMario.GetComponent<MarioInput>()?.BeginPostTransformationPolling();
 
         // ── Register ──────────────────────────────────────────────────────────
@@ -297,10 +342,50 @@ public class PlayerTransformation : MonoBehaviour
         Destroy(gameObject);
     }
 
+    private static Collider2D GetPrimaryBodyCollider(MarioCore core, GameObject player)
+    {
+        if (core != null
+            && core.Collider != null
+            && core.Collider.enabled
+            && !core.Collider.isTrigger
+            && (core.CrushCollider == null || core.Collider != core.CrushCollider))
+        {
+            return core.Collider;
+        }
+
+        if (player != null)
+        {
+            var boxes = player.GetComponentsInChildren<BoxCollider2D>(true);
+
+            foreach (var box in boxes)
+            {
+                if (box == null || !box.enabled || box.isTrigger)
+                    continue;
+
+                if (core != null && box == core.CrushCollider)
+                    continue;
+
+                if (box.GetComponent<CrushDetection>() != null)
+                    continue;
+
+                return box;
+            }
+        }
+
+        if (core != null && core.Collider != null)
+            return core.Collider;
+
+        return player != null
+            ? player.GetComponentInChildren<Collider2D>(true)
+            : null;
+    }
+
     private IEnumerator ForceStateNextFrame(MarioCore target)
     {
         yield return null;
-        if (target == null) yield break;
+
+        if (target == null)
+            yield break;
 
         // Clear the transformation lock so the combat system can land hits again.
         target.State.IsTransforming = false;
