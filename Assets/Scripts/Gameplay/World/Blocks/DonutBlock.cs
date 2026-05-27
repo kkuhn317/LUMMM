@@ -1,8 +1,7 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class DonutBlock : MonoBehaviour, IDestructible
+public class DonutBlock : MonoBehaviour, IDestructible, IStandable
 {
     public float dropTime = 3f;
     public float regenerateTime = 3f;
@@ -10,7 +9,7 @@ public class DonutBlock : MonoBehaviour, IDestructible
     public Sprite normalSprite;
     public Sprite droppedSprite;
 
-    private bool isPlayerOn = false;
+    private int playersOnBlock = 0;
     private bool isDropping = false;
     private bool isRegenerating = false;
     private float timeOnBlock = 0f;
@@ -30,10 +29,20 @@ public class DonutBlock : MonoBehaviour, IDestructible
         rb.isKinematic = true;
     }
 
+    public void OnStandEnter(MarioCore mario)
+    {
+        playersOnBlock++;
+    }
+
+    public void OnStandExit(MarioCore mario)
+    {
+        playersOnBlock--;
+        if (playersOnBlock < 0) playersOnBlock = 0;
+    }
+
     private void Update()
     {
-        // Check if the player is on the block
-        isPlayerOn = transform.childCount > 1;
+        bool isPlayerOn = playersOnBlock > 0;
 
         // Change the sprite based on player interaction
         if (isPlayerOn)
@@ -41,6 +50,7 @@ public class DonutBlock : MonoBehaviour, IDestructible
             animator.enabled = true;
             spriteRenderer.sprite = droppedSprite; // Change to droppedSprite when the player steps on the block
             timeOnBlock += Time.deltaTime;
+            
             if (timeOnBlock >= dropTime && !isDropping && !isRegenerating)
             {
                 isDropping = true;
@@ -70,7 +80,7 @@ public class DonutBlock : MonoBehaviour, IDestructible
 
         yield return new WaitForSeconds(dropTime);
 
-        isPlayerOn = false;
+        playersOnBlock = 0;
         isDropping = false;
         isRegenerating = true;
 

@@ -69,6 +69,10 @@ public class MarioGroundDetection : MonoBehaviour
     private Vector3 _platformLastPos;
     private Vector2 _prePhysicsVelocity;
 
+    // For notifying objects when Mario stands on them
+    private GameObject _currentGroundObj;
+    private IStandable _currentStandable;
+
     private const float FootCornerMinNormalY = 0.25f;
     private const float FootCornerMinNormalX = 0.25f;
     private const float FootCornerBand = 0.16f;
@@ -123,20 +127,28 @@ public class MarioGroundDetection : MonoBehaviour
         _wasGrounded = State.OnGround;
 
         bool skipGroundCheck = State.Climbing;
-
         RaycastHit2D? hit = skipGroundCheck ? null : CheckGround();
+
+        GameObject newGround = null; // Track what Mario landed on
 
         if (hit.HasValue)
         {
             ProcessGrounding(hit.Value, _wasGrounded, wasOnMovingPlatform);
             ApplyConveyorBelt();
             ApplyMovingPlatformMovement();
+
+            if (State.OnGround)
+            {
+                newGround = hit.Value.transform.gameObject;
+            }
         }
         else
         {
             State.OnGround = false;
             ProcessAirborne(wasOnMovingPlatform);
         }
+
+        UpdateStandableObject(newGround);
 
         if (State.DoCornerCorrection) {
             if (_core.Rb.velocity.y > 0f)
@@ -934,5 +946,31 @@ public class MarioGroundDetection : MonoBehaviour
         
         // Save the position for next frame's math
         _platformLastPos = State.OnMovingPlatform.position;
+    }
+
+    private void UpdateStandableObject(GameObject newGround)
+    {
+        if (_currentGroundObj == newGround) return;
+
+        // Did Mario step off the old object?
+        if (_currentStandable != null)
+        {
+            _currentStandable.OnStandExit(_core);
+        }
+
+        _currentGroundObj = newGround;
+        _currentStandable = null;
+
+        // Did Mario step onto a new object?
+        if (_currentGroundObj != null)
+        {
+            // Use GetComponentInParent in case the collider is on a child object
+            _currentStandable = _currentGroundObj.GetComponentInParent<IStandable>();
+            
+            if (_currentStandable != null)
+            {
+                _currentStandable.OnStandEnter(_core);
+            }
+        }
     }
 }
