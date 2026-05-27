@@ -4847,6 +4847,10 @@ PrefabInstance:
       propertyPath: m_Volume
       value: 0.6
       objectReference: {fileID: 0}
+    - target: {fileID: 3793849051379977739, guid: 007d8e12425c17b40857a50ed98ac42a, type: 3}
+      propertyPath: cutsceneTime
+      value: 7
+      objectReference: {fileID: 0}
     - target: {fileID: 4714294256444020268, guid: 007d8e12425c17b40857a50ed98ac42a, type: 3}
       propertyPath: m_Sprite
       value: 
@@ -6824,6 +6828,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1907827994}
   - component: {fileID: 1907827993}
+  - component: {fileID: 1907827995}
   m_Layer: 3
   m_Name: Mario Invis Platform
   m_TagString: Untagged
@@ -6861,7 +6866,7 @@ BoxCollider2D:
     serializedVersion: 2
     m_Bits: 4294967295
   m_IsTrigger: 0
-  m_UsedByEffector: 0
+  m_UsedByEffector: 1
   m_UsedByComposite: 0
   m_Offset: {x: -0.46376312, y: 0}
   m_SpriteTilingProperty:
@@ -6891,6 +6896,25 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!251 &1907827995
+PlatformEffector2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1907827992}
+  m_Enabled: 1
+  m_UseColliderMask: 1
+  m_ColliderMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_RotationalOffset: 180
+  m_UseOneWay: 1
+  m_UseOneWayGrouping: 0
+  m_SurfaceArc: 100
+  m_UseSideFriction: 0
+  m_UseSideBounce: 0
+  m_SideArc: 1
 --- !u!1 &2020014599
 GameObject:
   m_ObjectHideFlags: 0

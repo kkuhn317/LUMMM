@@ -257,8 +257,10 @@ public class MarioInput : MonoBehaviour
 
     public void Jump(InputAction.CallbackContext context)
     {
-        if (context.performed && !State.InputLocked) OnJumpPressed();
-        if (context.canceled && !State.InputLocked) OnJumpReleased();
+        if (State.InputLocked || State.IsFrozen) return;
+
+        if (context.performed) OnJumpPressed();
+        if (context.canceled) OnJumpReleased();
     }
 
     public void OnJumpPressed()
@@ -280,7 +282,7 @@ public class MarioInput : MonoBehaviour
 
     public void Spin(InputAction.CallbackContext context)
     {
-        if (State.InputLocked || State.IsCapeActive) return;
+        if (State.InputLocked || State.IsCapeActive || State.IsFrozen) return;
 
         if (context.performed) OnSpinPressed();
         if (context.canceled)  OnSpinReleased();
@@ -320,7 +322,7 @@ public class MarioInput : MonoBehaviour
 
     public void Shoot(InputAction.CallbackContext context)
     {
-        if (State.InputLocked) return;
+        if (State.InputLocked || State.IsFrozen) return;
 
         if (context.performed) OnShootPressed();
         if (context.canceled)  OnShootReleased();
@@ -338,7 +340,7 @@ public class MarioInput : MonoBehaviour
 
     public void ExtraAction(InputAction.CallbackContext context)
     {
-        if (State.InputLocked) return;
+        if (State.InputLocked || State.IsFrozen) return;
         if (context.performed) OnExtraActionPressed();
     }
 
@@ -366,7 +368,7 @@ public class MarioInput : MonoBehaviour
 
     public void Crouch(InputAction.CallbackContext context)
     {
-        if (State.InputLocked) return;
+        if (State.InputLocked || State.IsFrozen) return;
 
         if (context.performed)
             State.MoveInput = new Vector2(State.MoveInput.x, -1f);

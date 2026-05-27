@@ -53,9 +53,10 @@ public class POWEffect : MonoBehaviour
             onEnemyAffected?.Invoke();
         }
 
-        // POW sound at camera
-        if (powBlockSound != null && hasCachedCamera && mainCamera != null)
-            AudioSource.PlayClipAtPoint(powBlockSound, mainCamera.transform.position, 1f);
+        // POW sound
+        AudioSource audioSource = GetComponent<AudioSource>();
+        if (powBlockSound != null && audioSource != null)
+            audioSource.PlayOneShot(powBlockSound);
 
         // Screen shake
         if (hasCachedCamera && mainCamera != null)
