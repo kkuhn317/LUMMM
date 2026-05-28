@@ -462,11 +462,22 @@ public class QuestionBlock : BumpableBlock
     {
         if (items == null || items.Count == 0) return;
 
-        // Use shared presenter (no duplication)
         foreach (GameObject prefab in items)
         {
             if (prefab == null) continue;
 
+            // Check if this specific prefab wants to pop out instantly
+            InstantReveal revealBehavior = prefab.GetComponent<InstantReveal>();
+            if (revealBehavior != null)
+            {
+                // Instantiate it immediately above the block
+                GameObject spawnedItem = Instantiate(prefab, transform.parent);
+                float startY = originalPosition.y + (boxCollider != null ? boxCollider.size.y : 1f);
+                spawnedItem.transform.position = new Vector2(originalPosition.x, startY);
+                continue;
+            }
+
+            // It doesn't have the script, so let it rise slowly
             risingPresenter.PresentRising(
                 prefab: prefab,
                 parent: transform.parent,

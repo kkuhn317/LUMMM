@@ -2869,8 +2869,8 @@ TilemapRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: -989642263
-  m_SortingLayer: 6
+  m_SortingLayerID: -479451879
+  m_SortingLayer: 3
   m_SortingOrder: 3
   m_ChunkSize: {x: 32, y: 32, z: 32}
   m_ChunkCullingBounds: {x: 0, y: 0, z: 0}
@@ -3595,8 +3595,8 @@ TilemapRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 1497974571
-  m_SortingLayer: -1
+  m_SortingLayerID: -479451879
+  m_SortingLayer: 3
   m_SortingOrder: 3
   m_ChunkSize: {x: 32, y: 32, z: 32}
   m_ChunkCullingBounds: {x: 0, y: 0, z: 0}
@@ -5196,6 +5196,10 @@ PrefabInstance:
     - target: {fileID: 5915080137997128297, guid: be20c791868da4d45be211c199b927f3, type: 3}
       propertyPath: m_Name
       value: Tiny Mario
+      objectReference: {fileID: 0}
+    - target: {fileID: 5915080137997128297, guid: be20c791868da4d45be211c199b927f3, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5926770413878091520, guid: be20c791868da4d45be211c199b927f3, type: 3}
       propertyPath: m_LocalPosition.x
@@ -15087,6 +15091,63 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!1001 &1034801036
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 5915080137997128297, guid: be20c791868da4d45be211c199b927f3, type: 3}
+      propertyPath: m_Name
+      value: Tiny Mario (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 5926770413878091520, guid: be20c791868da4d45be211c199b927f3, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 5.73
+      objectReference: {fileID: 0}
+    - target: {fileID: 5926770413878091520, guid: be20c791868da4d45be211c199b927f3, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 1.51
+      objectReference: {fileID: 0}
+    - target: {fileID: 5926770413878091520, guid: be20c791868da4d45be211c199b927f3, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5926770413878091520, guid: be20c791868da4d45be211c199b927f3, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5926770413878091520, guid: be20c791868da4d45be211c199b927f3, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5926770413878091520, guid: be20c791868da4d45be211c199b927f3, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5926770413878091520, guid: be20c791868da4d45be211c199b927f3, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5926770413878091520, guid: be20c791868da4d45be211c199b927f3, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5926770413878091520, guid: be20c791868da4d45be211c199b927f3, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5926770413878091520, guid: be20c791868da4d45be211c199b927f3, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: be20c791868da4d45be211c199b927f3, type: 3}
 --- !u!1 &1039032782
 GameObject:
   m_ObjectHideFlags: 0
@@ -17662,8 +17723,8 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1236960250}
-        m_TargetAssemblyTypeName: PlayShrugAnimation, Assembly-CSharp
-        m_MethodName: TryPlayShrug
+        m_TargetAssemblyTypeName: MarioPlayAnimation, Assembly-CSharp
+        m_MethodName: TryPlay
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -17743,6 +17804,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ceb6fdcede3bbe247af327e98ff21d32, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  animName: mario_shrug
+  stopAnimTrigger: 
 --- !u!4 &1237532551 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 648239456224336777, guid: 6b5d1237dc444ef4b89747dacc3314e6, type: 3}
@@ -18684,8 +18747,8 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: -989642263
-  m_SortingLayer: 6
+  m_SortingLayerID: 1060715781
+  m_SortingLayer: 1
   m_SortingOrder: 2
   m_Sprite: {fileID: 21300000, guid: 4b893f488aa9668498c285b646c33708, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 0.5882353}
@@ -20469,6 +20532,10 @@ PrefabInstance:
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[2].m_Arguments.m_ObjectArgumentAssemblyTypeName
       value: UnityEngine.GameObject, UnityEngine
       objectReference: {fileID: 0}
+    - target: {fileID: 4824005343206220046, guid: 6c3da054316607e43b17e4af15d611e6, type: 3}
+      propertyPath: loseLifeSceneName
+      value: LivesTinyGoombaMaze
+      objectReference: {fileID: 0}
     - target: {fileID: 5103801115137626365, guid: 6c3da054316607e43b17e4af15d611e6, type: 3}
       propertyPath: m_LocalScale.x
       value: 0.25
@@ -21393,6 +21460,7 @@ GameObject:
   - component: {fileID: 1444469787}
   - component: {fileID: 1444469786}
   - component: {fileID: 1444469788}
+  - component: {fileID: 1444469789}
   m_Layer: 0
   m_Name: Animation with sound trigger
   m_TagString: AnimationYeah
@@ -21487,6 +21555,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 1444469789}
+        m_TargetAssemblyTypeName: MarioPlayAnimation, Assembly-CSharp
+        m_MethodName: TryPlay
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   onPlayerExit:
     m_PersistentCalls:
       m_Calls: []
@@ -21500,6 +21580,20 @@ MonoBehaviour:
   onLayerExit:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &1444469789
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1444469785}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb6fdcede3bbe247af327e98ff21d32, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  animName: mario_celebrate2
+  stopAnimTrigger: 
 --- !u!1001 &1450741219
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -26843,7 +26937,6 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1059175995}
-  - {fileID: 1868680589}
   - {fileID: 104645507}
   - {fileID: 197163834}
   - {fileID: 116591689}
@@ -28703,117 +28796,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 5d82c8b7118f18f4fb1e3be77b2169a2, type: 3}
---- !u!1001 &1868680587
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 1751007384}
-    m_Modifications:
-    - target: {fileID: 6477663924998199153, guid: daab92451a0f063498ec7dbc63283e55, type: 3}
-      propertyPath: width
-      value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 6477663924998199153, guid: daab92451a0f063498ec7dbc63283e55, type: 3}
-      propertyPath: gravity
-      value: 15
-      objectReference: {fileID: 0}
-    - target: {fileID: 6477663924998199153, guid: daab92451a0f063498ec7dbc63283e55, type: 3}
-      propertyPath: movingLeft
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6477663924998199153, guid: daab92451a0f063498ec7dbc63283e55, type: 3}
-      propertyPath: velocity.x
-      value: 0.8
-      objectReference: {fileID: 0}
-    - target: {fileID: 6477663924998199153, guid: daab92451a0f063498ec7dbc63283e55, type: 3}
-      propertyPath: velocity.y
-      value: 3.25
-      objectReference: {fileID: 0}
-    - target: {fileID: 6477663924998199153, guid: daab92451a0f063498ec7dbc63283e55, type: 3}
-      propertyPath: bounceHeight
-      value: 3.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 6477663924998199153, guid: daab92451a0f063498ec7dbc63283e55, type: 3}
-      propertyPath: shouldntEnemyMoveWhenDie
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6477663924998199156, guid: daab92451a0f063498ec7dbc63283e55, type: 3}
-      propertyPath: m_RootOrder
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 6477663924998199156, guid: daab92451a0f063498ec7dbc63283e55, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: -6.034
-      objectReference: {fileID: 0}
-    - target: {fileID: 6477663924998199156, guid: daab92451a0f063498ec7dbc63283e55, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0.606
-      objectReference: {fileID: 0}
-    - target: {fileID: 6477663924998199156, guid: daab92451a0f063498ec7dbc63283e55, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6477663924998199156, guid: daab92451a0f063498ec7dbc63283e55, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 6477663924998199156, guid: daab92451a0f063498ec7dbc63283e55, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6477663924998199156, guid: daab92451a0f063498ec7dbc63283e55, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6477663924998199156, guid: daab92451a0f063498ec7dbc63283e55, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6477663924998199156, guid: daab92451a0f063498ec7dbc63283e55, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6477663924998199156, guid: daab92451a0f063498ec7dbc63283e55, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6477663924998199156, guid: daab92451a0f063498ec7dbc63283e55, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6477663924998199162, guid: daab92451a0f063498ec7dbc63283e55, type: 3}
-      propertyPath: m_Name
-      value: TinyParagoomba
-      objectReference: {fileID: 0}
-    - target: {fileID: 6477663924998199162, guid: daab92451a0f063498ec7dbc63283e55, type: 3}
-      propertyPath: m_Layer
-      value: 7
-      objectReference: {fileID: 0}
-    - target: {fileID: 6477663924998199162, guid: daab92451a0f063498ec7dbc63283e55, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6477663924998199163, guid: daab92451a0f063498ec7dbc63283e55, type: 3}
-      propertyPath: m_SortingOrder
-      value: 1
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: daab92451a0f063498ec7dbc63283e55, type: 3}
---- !u!1 &1868680588 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 6477663924998199162, guid: daab92451a0f063498ec7dbc63283e55, type: 3}
-  m_PrefabInstance: {fileID: 1868680587}
-  m_PrefabAsset: {fileID: 0}
---- !u!4 &1868680589 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 6477663924998199156, guid: daab92451a0f063498ec7dbc63283e55, type: 3}
-  m_PrefabInstance: {fileID: 1868680587}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1874637664
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -34106,7 +34088,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6115455793969980353, guid: fb1f702c0eae34342aa7b8ed91180b12, type: 3}
       propertyPath: spawnableItems.Array.size
-      value: 1
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 6115455793969980353, guid: fb1f702c0eae34342aa7b8ed91180b12, type: 3}
       propertyPath: spawnableItems.Array.data[0]
@@ -34115,10 +34097,10 @@ PrefabInstance:
     - target: {fileID: 6115455793969980353, guid: fb1f702c0eae34342aa7b8ed91180b12, type: 3}
       propertyPath: spawnableItems.Array.data[1]
       value: 
-      objectReference: {fileID: 6477663924998199162, guid: daab92451a0f063498ec7dbc63283e55, type: 3}
+      objectReference: {fileID: 2585304570449530313, guid: 8e6ec559e5e9d9144a7f10aecfd9ec2c, type: 3}
     - target: {fileID: 6115455793969980353, guid: fb1f702c0eae34342aa7b8ed91180b12, type: 3}
       propertyPath: onBlockActivated.m_PersistentCalls.m_Calls.Array.size
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6115455793969980353, guid: fb1f702c0eae34342aa7b8ed91180b12, type: 3}
       propertyPath: onBlockActivated.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
@@ -34127,7 +34109,7 @@ PrefabInstance:
     - target: {fileID: 6115455793969980353, guid: fb1f702c0eae34342aa7b8ed91180b12, type: 3}
       propertyPath: onBlockActivated.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 1868680588}
+      objectReference: {fileID: 0}
     - target: {fileID: 6115455793969980353, guid: fb1f702c0eae34342aa7b8ed91180b12, type: 3}
       propertyPath: onBlockActivated.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
       value: 2
@@ -36350,6 +36332,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 9081591548840351398, guid: 61fc9e4b267d61c4bb385a3cb729ea7b, type: 3}
+      propertyPath: m_Size.y
+      value: 0.41123405
+      objectReference: {fileID: 0}
+    - target: {fileID: 9081591548840351398, guid: 61fc9e4b267d61c4bb385a3cb729ea7b, type: 3}
+      propertyPath: m_Offset.y
+      value: 0.0131329745
+      objectReference: {fileID: 0}
     - target: {fileID: 9081591548840351399, guid: 61fc9e4b267d61c4bb385a3cb729ea7b, type: 3}
       propertyPath: m_Name
       value: Tinybulletcannon
@@ -36507,6 +36497,7 @@ SceneRoots:
   - {fileID: 1286294151}
   - {fileID: 1917459687}
   - {fileID: 297718267}
+  - {fileID: 1034801036}
   - {fileID: 71431725}
   - {fileID: 1751007384}
   - {fileID: 1308918730}

@@ -86,6 +86,7 @@ public class MarioPhysicsConfig : ScriptableObject
     public float SwimGravity = 1f;
     public float SwimDrag = 3f;
     public float SwimTerminalVelocity = 2f;
+    public float SwimBounceVelocity = 1f;
     public float BubbleSpawnDelay = 2.5f;
 
     [Header("Collision / Ground Check")]

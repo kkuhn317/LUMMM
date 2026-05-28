@@ -316,6 +316,9 @@ MonoBehaviour:
   carryable: 0
   carried: 0
   throwVelocity: {x: 12, y: 10}
+  throwVisualType: 0
+  throwSpriteRenderer: {fileID: 0}
+  throwRotateSpeed: 720
   rotateAroundCenter: 0
   knockAwayVelocity: {x: 5, y: 5}
   overrideKnockAwayGravity: 0
@@ -333,7 +336,7 @@ MonoBehaviour:
   stompHeight: 0.025
   heldItem: {fileID: 0}
   itemSpawnOffset: {x: 0, y: 0, z: 0}
-  customDeath: {fileID: 0}
+  customDeathCause: {fileID: 0}
   popupOffset: {x: 0, y: 0.5}
   onPlayerDamaged:
     m_PersistentCalls:
@@ -341,7 +344,7 @@ MonoBehaviour:
   spinJumpEffect: 1
   state: 0
   stompable: 1
-  shouldntEnemyMoveWhenDie: 1
+  shouldntEnemyMoveWhenDie: 0
   shouldDestroyAfterCrush: 1
   timeBeforeDestroy: 1
   cutscene: {fileID: 0}

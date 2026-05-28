@@ -152,10 +152,10 @@ public class MarioGroundDetection : MonoBehaviour
 
         if (State.DoCornerCorrection) {
             if (_core.Rb.velocity.y > 0f)
-                ApplyCornerCorrection();
+                ApplyCeilingCornerCorrection();
 
             if (!State.OnGround && _core.Rb.velocity.y < 0f && Mathf.Abs(_core.Rb.velocity.x) > 0.1f)
-                ApplyVerticalCornerCorrection();
+                ApplyFloorCornerCorrection();
         }
     }
 
@@ -655,7 +655,7 @@ public class MarioGroundDetection : MonoBehaviour
 
     // ─── Ceiling Corner Correction ───────────────────────────────────────────
 
-    private void ApplyCornerCorrection()
+    private void ApplyCeilingCornerCorrection()
     {
         var bounds = _core.Collider.bounds;
         float startHeight = bounds.size.y / 2f + (_core.Rb.velocity.y * Time.fixedDeltaTime) + 0.01f + Cfg.CeilingCorrectionOffset.y;
@@ -700,7 +700,7 @@ public class MarioGroundDetection : MonoBehaviour
 
     // ─── Floor Corner Correction ─────────────────────────────────────────────
 
-    private void ApplyVerticalCornerCorrection()
+    private void ApplyFloorCornerCorrection()
     {
         var bounds = _core.Collider.bounds;
         float startHeight = bounds.size.y / 2f + Mathf.Abs(_core.Rb.velocity.y * Time.fixedDeltaTime) + 0.01f;
@@ -768,19 +768,46 @@ public class MarioGroundDetection : MonoBehaviour
 
         // Ground overlap box (red)
         Gizmos.color = Color.red;
-
         Vector2 groundBoxSize = cfg.GroundCheckSize;
         Vector2 groundOffset = cfg.GroundCheckOffset;
-
         Vector3 groundOrigin = transform.position + (Vector3)groundOffset;
         Gizmos.DrawWireCube(groundOrigin, groundBoxSize);
 
-        // Downward probe for snap / floor info
+        // Downward BoxCast Probe (Cyan)
         Gizmos.color = Color.cyan;
+        float currentProbeDist = GroundSupportProbeDistanceGrounded;
+        
+        // If playing, calculate the exact dynamic stretch happening right now
+        if (Application.isPlaying)
+        {
+            currentProbeDist = core.State.OnGround ? GroundSupportProbeDistanceGrounded : GroundSupportProbeDistanceAir;
+            if (core.State.OnGround && core.State.FloorAngle != 0f)
+            {
+                float downhillSpeed = Mathf.Max(0f, -core.Rb.velocity.y);
+                float extra = Mathf.Min(downhillSpeed * GroundSupportProbeVelocityScale, GroundSupportProbeMaxExtra);
+                currentProbeDist += extra;
+            }
+        }
+        
+        // Draw the full swept volume of the BoxCast, not just a line
+        Vector3 sweepCenter = groundOrigin + (Vector3.down * (currentProbeDist / 2f));
+        Vector3 sweepSize = new Vector3(groundBoxSize.x, groundBoxSize.y + currentProbeDist, 0f);
+        Gizmos.DrawWireCube(sweepCenter, sweepSize);
 
-        Vector3 probeOrigin = groundOrigin;
-        float probeDistance = GroundSupportProbeDistanceGrounded;
-        Gizmos.DrawLine(probeOrigin, probeOrigin + Vector3.down * probeDistance);
+        // 3. Surface Normal (Blue) - Shows exactly how the floor is pushing Mario
+        if (Application.isPlaying && core.State.OnGround)
+        {
+            Gizmos.color = Color.blue;
+            DrawRay(core.State.GroundPosition, core.State.FloorNormal, collider.size.y); 
+        }
+
+        // 4. Foot Corner Correction Band (Green) - The "Snag Zone"
+        Gizmos.color = Color.green;
+        Bounds bounds = collider.bounds;
+        float footBandCenterY = bounds.min.y + (FootCornerBand / 2f);
+        Vector3 footBandCenter = new Vector3(bounds.center.x, footBandCenterY, 0f);
+        Vector3 footBandSize = new Vector3(bounds.size.x, FootCornerBand, 0f);
+        Gizmos.DrawWireCube(footBandCenter, footBandSize);
 
         // Ground pound landing rays (magenta)
         Gizmos.color = Color.magenta;

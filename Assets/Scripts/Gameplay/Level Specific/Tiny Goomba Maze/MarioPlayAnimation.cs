@@ -1,14 +1,19 @@
 using System.Collections;
 using UnityEngine;
 
-public class PlayShrugAnimation : MonoBehaviour
+// TODO: Improve this script as much as needed, then move it out of Tiny Goomba Maze folder
+public class MarioPlayAnimation : MonoBehaviour
 {
-    private bool hasPlayedShrug = false;
+    private bool hasPlayed = false;
+    public string animName = "";
+    public string stopAnimTrigger = "";
 
-    public void TryPlayShrug()
+    public void TryPlay()
     {
         // Find the player in the scene
-        GameObject player = GameObject.FindGameObjectWithTag("Player");
+        PlayerRegistry playerRegistry = GameManager.Instance.GetSystem<PlayerRegistry>();
+        GameObject[] players = playerRegistry != null ? playerRegistry.GetAllPlayerObjects() : null;
+        GameObject player = players != null && players.Length > 0 ? players[0] : null; // Todo: account for multiplayer
 
         // Ensure player exists before proceeding
         if (player == null)
@@ -20,6 +25,7 @@ public class PlayShrugAnimation : MonoBehaviour
         // Get Animator and MarioMovement from the player
         Animator animator = player.GetComponent<Animator>();
         MarioCore marioMovement = player.GetComponent<MarioCore>();
+        
 
         // Check if components exist before using them
         if (animator == null)
@@ -34,25 +40,26 @@ public class PlayShrugAnimation : MonoBehaviour
         }
 
         // If animation has already played, don't play it again
-        if (hasPlayedShrug) return;
+        if (hasPlayed) return;
 
         // Check if the player is still
         if (!marioMovement.State.IsMoving)
         {
-            // Play shrug animation
-            animator.Play("mario_shrug");
-            hasPlayedShrug = true;
-            StartCoroutine(WaitForShrugAnimation(animator));
+            // Play animation
+            animator.Play(animName);
+            hasPlayed = true;
+            StartCoroutine(WaitForAnimation(animator));
         }
     }
 
-    private IEnumerator WaitForShrugAnimation(Animator animator)
+    private IEnumerator WaitForAnimation(Animator animator)
     {
-        // Wait for the shrug animation to finish
+        // Wait for the animation to finish
         yield return new WaitUntil(() => animator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 1 && 
-                                      animator.GetCurrentAnimatorStateInfo(0).IsName("mario_shrug"));
+                                      animator.GetCurrentAnimatorStateInfo(0).IsName(animName));
 
         // Trigger the stop animation
-        animator.SetTrigger("stopShrug");
+        if (stopAnimTrigger != "")
+            animator.SetTrigger(stopAnimTrigger);
     }
 }

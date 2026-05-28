@@ -192,6 +192,7 @@ public class MarioCombat : MonoBehaviour
     /// </summary>
     public void TransformIntoObject(GameObject prefab)
     {
+        print("transform started");
         if (State.IsInvincible || State.StarPower || GlobalVariables.cheatInvincibility)
         {
             Debug.Log("[MarioCombat] Transform ignored — Mario is invincible.");
@@ -210,6 +211,8 @@ public class MarioCombat : MonoBehaviour
     private IEnumerator ExecuteTransformation(GameObject prefab)
     {
         yield return null;
+
+        print("transform executing!!!!");
 
         GameObject spawned = Instantiate(prefab, transform.position, Quaternion.identity);
 

@@ -33,7 +33,7 @@ public class Magic : EnemyAI
 
     protected override void hitOnSide(GameObject player)
     {  
-        player.GetComponent<MarioCore>()?.Combat.TransformIntoObject(pigMario);
+        player.GetComponentInParent<MarioCore>()?.Combat.TransformIntoObject(pigMario);
         Dissapear();
     }
 

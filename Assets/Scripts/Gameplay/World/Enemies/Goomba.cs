@@ -65,8 +65,8 @@ public class Goomba : EnemyAI
         }
         else
         {
-            velocity.x = 0; 
             movement = ObjectMovement.sliding;
+            stopAfterLand = true;
         }
 
         GetComponent<Animator>().SetBool("isCrushed", true);

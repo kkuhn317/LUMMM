@@ -370,8 +370,7 @@ public class EnemyAI : ObjectPhysics
     protected void BouncePlayer(MarioCore player)
     {
         if (player.State.Swimming)
-            // velocity will be limited by the swimming state
-            player.Rb.velocity = new Vector2(player.Rb.velocity.x, 1000);
+            player.Rb.velocity = new Vector2(player.Rb.velocity.x, player.Physics.Config.SwimBounceVelocity);
         else
         {
             player.State.IsBounced = true;
