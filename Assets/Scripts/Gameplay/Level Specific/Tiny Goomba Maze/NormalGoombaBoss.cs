@@ -219,7 +219,7 @@ public class NormalGoombaBoss : EnemyAI
 
     protected override void hitByStomp(GameObject player)
     {
-        MarioCore playerscript = player.GetComponent<MarioCore>();
+        MarioCore playerscript = player.GetComponentInParent<MarioCore>();
         audioSource.pitch = 1.25f;
         audioSource.PlayOneShot(stompSound);
         BouncePlayer(playerscript);

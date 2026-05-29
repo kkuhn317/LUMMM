@@ -189,6 +189,14 @@ public class Pipe : MonoBehaviour
         if (snapCameraY) camPos.y = connection.position.y;
         Camera.main.transform.position = camPos;
 
+        if (marioCore != null)
+        {
+            if (exitDirection == Direction.Left)
+                marioCore.Physics.FlipTo(false); // Face left
+            else if (exitDirection == Direction.Right)
+                marioCore.Physics.FlipTo(true);  // Face right
+        }
+
         if (playerAnim)
         {
             playerAnim.SetBool("isSkidding", false);

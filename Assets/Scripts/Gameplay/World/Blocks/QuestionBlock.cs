@@ -44,6 +44,10 @@ public class QuestionBlock : BumpableBlock
     // State to control if already used
     public bool IsUsed { get; private set; } = false;
     private bool pendingBrickBreak = false;
+    private bool hasPlayedRiseSoundThisHit = false;
+
+    // This bucket holds the slow-rising items while the block animates
+    private List<GameObject> delayedSpawns = new List<GameObject>();
 
     // Cache references
     private SpriteRenderer spriteRenderer;
@@ -76,33 +80,24 @@ public class QuestionBlock : BumpableBlock
     protected override bool CanActivate(Collision2D other)
     {
         if (!base.CanActivate(other)) return false;
-
-        // Brick blocks can be bumped repeatedly (and may break when big)
         if (brickBlock) return true;
-
-        // Used blocks are dead
         if (IsUsed) return false;
 
-        // Always allow activation if we have ANY content OR if onBlockActivated has listeners
         bool hasSpawnables = spawnableItems != null && spawnableItems.Length > 0;
         bool hasConditional = HasConditionalContent();
         bool hasEventListeners = onBlockActivated != null && onBlockActivated.GetPersistentEventCount() > 0;
 
-        // Allow activation if we have content OR event listeners
         if (!hasSpawnables && !hasConditional && !hasEventListeners) return false;
 
-        // Sequential: allow bumps while we still have something to spawn
         if (spawnMode == SpawnMode.Sequential)
             return HasRemainingSpawnables() || hasConditional || hasEventListeners;
 
-        // AllAtOnce always allow if we have content or event listeners
         return true;
     }
 
     protected override bool CanActivateFromPlayer(MarioCore player)
     {
         if (!base.CanActivateFromPlayer(player)) return false;
-
         if (brickBlock) return true;
         if (IsUsed) return false;
 
@@ -176,21 +171,41 @@ public class QuestionBlock : BumpableBlock
             else
             {
                 skipBounceThisHit = false;
-                return;
             }
         }
 
-        // Spawn coins immediately on hit — don't wait for the bounce animation.
-        // Non-coin items (powerups) still rise from the block via OnAfterBounce.
-        if (!IsUsed && spawnMode == SpawnMode.AllAtOnce
-            && spawnableItems != null && spawnableItems.Length > 0)
+        delayedSpawns.Clear();
+        hasPlayedRiseSoundThisHit = false;
+
+        if (!IsUsed)
         {
-            var coins = new System.Collections.Generic.List<GameObject>();
-            foreach (var item in spawnableItems)
-                if (item != null && item.GetComponent<Coin>() != null)
-                    coins.Add(item);
-            if (coins.Count > 0)
-                PresentCoins(coins);
+            bool hasSpawnables = spawnableItems != null && spawnableItems.Length > 0;
+            bool hasConditional = HasConditionalContent();
+
+            if (hasSpawnables || hasConditional)
+            {
+                // 1. Figure out exactly what is spawning on this hit
+                List<GameObject> itemsForThisHit = GetItemsForThisHit(player);
+
+                // 2. Sort them into the Instant bucket or the Delayed bucket
+                foreach (GameObject item in itemsForThisHit)
+                {
+                    if (item == null) continue;
+
+                    if (item.GetComponent<Coin>() != null)
+                    {
+                        PresentCoins(new List<GameObject> { item });
+                    }
+                    else if (item.GetComponent<InstantReveal>() != null)
+                    {
+                        PresentInstantItem(item);
+                    }
+                    else
+                    {
+                        delayedSpawns.Add(item); // Save for after the bounce!
+                    }
+                }
+            }
         }
     }
 
@@ -209,25 +224,25 @@ public class QuestionBlock : BumpableBlock
         if (IsUsed)
             return;
 
-        bool hasSpawnables = spawnableItems != null && spawnableItems.Length > 0;
-        bool hasConditional = HasConditionalContent();
-
-        // If block has no content but has event listeners, just become empty
-        if (!hasSpawnables && !hasConditional)
+        // 3. The bounce is finished! Spawn any slow-rising items we saved.
+        if (delayedSpawns.Count > 0)
         {
-            MarkUsedAndEmpty();
-            return;
+            PresentDelayedItems(delayedSpawns);
+            delayedSpawns.Clear();
         }
 
+        // 4. Mark the block empty if it's out of items
         if (spawnMode == SpawnMode.Sequential)
         {
-            SpawnNext(player);
-            return;
+            if (!HasRemainingSpawnables())
+            {
+                MarkUsedAndEmpty();
+            }
         }
-
-        // All at once
-        SpawnAllAtOnce(player);
-        MarkUsedAndEmpty();
+        else
+        {
+            MarkUsedAndEmpty(); // All-At-Once blocks are always empty after 1 hit
+        }
     }
 
     #endregion
@@ -236,13 +251,18 @@ public class QuestionBlock : BumpableBlock
 
     private void BreakBrick(MarioCore player)
     {
+        // If brick contains something, evaluate what drops before destroying
         bool hasSpawnables = spawnableItems != null && spawnableItems.Length > 0;
         bool hasConditional = HasConditionalContent();
 
-        // If brick contains something, spawn before breaking
         if (hasSpawnables || hasConditional)
         {
-            SpawnAllAtOnce(player);
+            List<GameObject> itemsForThisHit = GetItemsForThisHit(player);
+            foreach (var item in itemsForThisHit)
+            {
+                if (item.GetComponent<Coin>() != null) PresentCoins(new List<GameObject> { item });
+                else PresentInstantItem(item); // If the block explodes, ALL items pop instantly
+            }
         }
 
         GameManager.Instance?.GetSystem<ScoreSystem>()?.AddScore(50);
@@ -254,7 +274,7 @@ public class QuestionBlock : BumpableBlock
 
     #endregion
 
-    #region Spawn Helpers
+    #region Spawn Sorting Logic
 
     [System.Serializable]
     public enum SpawnMode
@@ -263,19 +283,100 @@ public class QuestionBlock : BumpableBlock
         Sequential
     }
 
+    // Calculates exactly what items should spawn on the CURRENT hit
+    private List<GameObject> GetItemsForThisHit(MarioCore player)
+    {
+        List<GameObject> result = new List<GameObject>();
+
+        if (spawnMode == SpawnMode.AllAtOnce)
+        {
+            bool hasSpawnables = spawnableItems != null && spawnableItems.Length > 0;
+
+            if (!hasSpawnables)
+            {
+                if (IsConditionalActive())
+                {
+                    var conditional = ResolveConditionalItem(player);
+                    if (conditional != null) result.Add(conditional);
+                }
+                return result;
+            }
+
+            List<GameObject> nonCoins = new List<GameObject>();
+            foreach (GameObject item in spawnableItems)
+            {
+                if (item == null) continue;
+                if (item.GetComponent<Coin>() != null) result.Add(item); 
+                else nonCoins.Add(item);
+            }
+
+            if (nonCoins.Count > 0)
+            {
+                if (IsConditionalActive())
+                {
+                    var conditional = ResolveConditionalItem(player);
+                    if (conditional != null) result.Add(conditional);
+                    else result.AddRange(nonCoins);
+                }
+                else
+                {
+                    result.AddRange(nonCoins);
+                }
+            }
+        }
+        else // Sequential
+        {
+            if (spawnableItems == null || spawnableItems.Length == 0)
+            {
+                if (IsConditionalActive())
+                {
+                    var conditional = ResolveConditionalItem(player);
+                    if (conditional != null) result.Add(conditional);
+                }
+                return result;
+            }
+
+            GameObject originalPrefab = null;
+            while (nextSpawnIndex < spawnableItems.Length && originalPrefab == null)
+            {
+                originalPrefab = spawnableItems[nextSpawnIndex];
+                nextSpawnIndex++;
+            }
+
+            if (originalPrefab == null) return result;
+
+            if (originalPrefab.GetComponent<Coin>() != null)
+            {
+                result.Add(originalPrefab);
+            }
+            else
+            {
+                if (IsConditionalActive())
+                {
+                    var conditional = ResolveConditionalItem(player);
+                    if (conditional != null) result.Add(conditional);
+                    else result.Add(originalPrefab);
+                }
+                else
+                {
+                    result.Add(originalPrefab);
+                }
+            }
+        }
+
+        return result;
+    }
+
     private bool HasRemainingSpawnables()
     {
         if (spawnableItems == null) return false;
-
         for (int i = nextSpawnIndex; i < spawnableItems.Length; i++)
         {
-            if (spawnableItems[i] != null)
-                return true;
+            if (spawnableItems[i] != null) return true;
         }
         return false;
     }
 
-    // Block has "content" if it has valid conditional rules
     private bool HasConditionalContent()
     {
         return conditionalItemRules != null &&
@@ -303,150 +404,53 @@ public class QuestionBlock : BumpableBlock
         return null;
     }
 
+    private bool IsConditionalActive()
+    {
+        return conditionalItemRules != null && 
+               conditionalItemRules.enabled && 
+               conditionalItemRules.HasAnyConfiguredItem();
+    }
+
     #endregion
 
-    #region Item Spawning
-
-    private void SpawnAllAtOnce(MarioCore player)
-    {
-        bool hasSpawnables = spawnableItems != null && spawnableItems.Length > 0;
-
-        // If there are NO spawnables, we can still spawn conditional powerup only
-        if (!hasSpawnables)
-        {
-            if (IsConditionalActive())
-            {
-                var conditionalItem = ResolveConditionalItem(player);
-                if (conditionalItem != null)
-                    PresentItems(new List<GameObject> { conditionalItem });
-            }
-            return;
-        }
-
-        List<GameObject> coins = new List<GameObject>();
-        List<GameObject> nonCoins = new List<GameObject>();
-
-        foreach (GameObject item in spawnableItems)
-        {
-            if (item == null) continue;
-
-            if (item.GetComponent<Coin>() != null)
-                coins.Add(item);
-            else
-                nonCoins.Add(item);
-        }
-
-        // Coins were already spawned immediately in OnBeforeBounce — skip here.
-        // if (coins.Count > 0) PresentCoins(coins);
-
-        // Non-coins: either original behavior or conditional override
-        if (nonCoins.Count == 0) return;
-
-        if (!IsConditionalActive())
-        {
-            PresentItems(nonCoins);
-            return;
-        }
-
-        // Conditional ON: try resolve items using rules
-        var conditionalResolved = ResolveConditionalItem(player);
-
-        if (conditionalResolved != null)
-        {
-            // If we got an item from rules (either matched rule or fallback), spawn it
-            PresentItems(new List<GameObject> { conditionalResolved });
-        }
-        else
-        {
-            // If Resolve() returns null (NoMatchMode.ReturnNull with no match), 
-            // spawn original non-coins as fallback
-            PresentItems(nonCoins);
-        }
-    }
-
-    private void SpawnNext(MarioCore player)
-    {
-        // No spawnableItems, but conditional exists -> spawn conditional once, then empty
-        if (spawnableItems == null || spawnableItems.Length == 0)
-        {
-            if (IsConditionalActive())
-            {
-                var conditionalItem = ResolveConditionalItem(player);
-                if (conditionalItem != null)
-                    PresentItems(new List<GameObject> { conditionalItem });
-            }
-            MarkUsedAndEmpty();
-            return;
-        }
-
-        // Find next valid prefab
-        GameObject originalPrefab = null;
-        while (nextSpawnIndex < spawnableItems.Length && originalPrefab == null)
-        {
-            originalPrefab = spawnableItems[nextSpawnIndex];
-            nextSpawnIndex++;
-        }
-
-        if (originalPrefab == null)
-        {
-            MarkUsedAndEmpty();
-            return;
-        }
-
-        // Coins always spawn the same (never conditional)
-        if (originalPrefab.GetComponent<Coin>() != null)
-        {
-            PresentCoins(new List<GameObject> { originalPrefab });
-        }
-        else
-        {
-            // Non-coin: use conditional rules if active
-            if (IsConditionalActive())
-            {
-                var conditionalResolved = ResolveConditionalItem(player);
-
-                if (conditionalResolved != null)
-                {
-                    PresentItems(new List<GameObject> { conditionalResolved });
-                }
-                else
-                {
-                    // If Resolve() returns null, spawn original as fallback
-                    PresentItems(new List<GameObject> { originalPrefab });
-                }
-            }
-            else
-            {
-                PresentItems(new List<GameObject> { originalPrefab });
-            }
-        }
-
-        if (!HasRemainingSpawnables())
-        {
-            MarkUsedAndEmpty();
-        }
-    }
+    #region Item Presentation
 
     private void ChangeToEmptySprite()
     {
-        if (animator != null)
-            animator.enabled = false;
+        if (animator != null) animator.enabled = false;
+        if (spriteRenderer != null && emptyBlockSprite != null) spriteRenderer.sprite = emptyBlockSprite;
+    }
 
-        if (spriteRenderer != null && emptyBlockSprite != null)
-            spriteRenderer.sprite = emptyBlockSprite;
+    private void TryPlayRiseSound()
+    {
+        if (!hasPlayedRiseSoundThisHit && audioSource != null && itemRiseSound != null)
+        {
+            audioSource.PlayOneShot(itemRiseSound);
+            hasPlayedRiseSoundThisHit = true; // Lock the gate!
+        }
     }
 
     private void PresentCoins(List<GameObject> coins)
     {
         if (coins == null || coins.Count == 0 || boxCollider == null) return;
-
         float startY = originalPosition.y + boxCollider.size.y;
 
         foreach (GameObject coinPrefab in coins)
         {
             if (coinPrefab == null) continue;
-
-            GameObject coin = Instantiate(coinPrefab, transform.parent);
+            
+            GameObject coin;
+            // Check if it's already in the scene
+            if (coinPrefab.scene.IsValid())
+            {
+                coin = coinPrefab;
+                coin.SetActive(true); // Wake it up
+            }
+            else
+            {
+                coin = Instantiate(coinPrefab, transform.parent);
+            }
+            
             coin.transform.position = new Vector2(originalPosition.x, startY);
 
             Coin coinScript = coin.GetComponent<Coin>();
@@ -458,26 +462,36 @@ public class QuestionBlock : BumpableBlock
         }
     }
 
-    private void PresentItems(List<GameObject> items)
+    private void PresentInstantItem(GameObject prefab)
     {
-        if (items == null || items.Count == 0) return;
+        // Play sound
+        TryPlayRiseSound();
 
+        // Check if it's a scene object or a project prefab
+        GameObject spawnedItem;
+        if (prefab.scene.IsValid())
+        {
+            spawnedItem = prefab;
+            spawnedItem.SetActive(true);
+        }
+        else
+        {
+            spawnedItem = Instantiate(prefab, transform.parent);
+        }
+
+        float startY = originalPosition.y + (boxCollider != null ? boxCollider.size.y : 1f);
+        spawnedItem.transform.position = new Vector2(originalPosition.x, startY);
+    }
+
+    private void PresentDelayedItems(List<GameObject> items)
+    {
+        if (items.Count > 0) TryPlayRiseSound();
+
+        // Pass everything to the RisingPresenter to handle the slow animation
         foreach (GameObject prefab in items)
         {
             if (prefab == null) continue;
-
-            // Check if this specific prefab wants to pop out instantly
-            InstantReveal revealBehavior = prefab.GetComponent<InstantReveal>();
-            if (revealBehavior != null)
-            {
-                // Instantiate it immediately above the block
-                GameObject spawnedItem = Instantiate(prefab, transform.parent);
-                float startY = originalPosition.y + (boxCollider != null ? boxCollider.size.y : 1f);
-                spawnedItem.transform.position = new Vector2(originalPosition.x, startY);
-                continue;
-            }
-
-            // It doesn't have the script, so let it rise slowly
+            
             risingPresenter.PresentRising(
                 prefab: prefab,
                 parent: transform.parent,
@@ -485,23 +499,9 @@ public class QuestionBlock : BumpableBlock
                 moveHeight: itemMoveHeight,
                 moveSpeed: itemMoveSpeed,
                 audioSource: audioSource,
-                riseSound: itemRiseSound
+                riseSound: null // Rise sound is already handled here
             );
         }
-    }
-
-    #endregion
-
-    #region Conditional Helper Methods
-
-    /// <summary>
-    /// Returns true if conditional item rules are active and configured.
-    /// </summary>
-    private bool IsConditionalActive()
-    {
-        return conditionalItemRules != null && 
-               conditionalItemRules.enabled && 
-               conditionalItemRules.HasAnyConfiguredItem();
     }
 
     #endregion
@@ -510,8 +510,7 @@ public class QuestionBlock : BumpableBlock
 
     public void StopRiseUp()
     {
-        if (risingPresenter != null)
-            risingPresenter.StopAllRising();
+        if (risingPresenter != null) risingPresenter.StopAllRising();
     }
 
     public void OnPlayerGrabItem()
@@ -524,13 +523,10 @@ public class QuestionBlock : BumpableBlock
         IsUsed = false;
         nextSpawnIndex = 0;
         pendingBrickBreak = false;
+        delayedSpawns.Clear();
 
-        if (risingPresenter != null)
-            risingPresenter.ResetStop();
-
-        if (animator != null)
-            animator.enabled = true;
-
+        if (risingPresenter != null) risingPresenter.ResetStop();
+        if (animator != null) animator.enabled = true;
         if (spriteRenderer != null && isInvisible) spriteRenderer.enabled = false;
     }
 

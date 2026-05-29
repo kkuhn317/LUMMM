@@ -50,7 +50,7 @@ public class RisingItemPresenter : MonoBehaviour
     }
 
     /// <summary>
-    /// Spawns prefab and performs rise-up.
+    /// Spawns prefab (or enables object already in scene) and performs rise-up.
     /// Returns the spawned instance (or null).
     /// </summary>
     public GameObject PresentRising(
@@ -70,7 +70,18 @@ public class RisingItemPresenter : MonoBehaviour
         if (audioSource != null && riseSound != null)
             audioSource.PlayOneShot(riseSound);
 
-        GameObject item = Instantiate(prefab, parent, true);
+        // Check if it's a scene object or a project prefab
+        GameObject item;
+        if (prefab.scene.IsValid())
+        {
+            item = prefab;
+            item.SetActive(true);
+        }
+        else
+        {
+            item = Instantiate(prefab, parent, true);
+        }
+        
         item.transform.position = origin;
 
         // Disable scripts while rising
