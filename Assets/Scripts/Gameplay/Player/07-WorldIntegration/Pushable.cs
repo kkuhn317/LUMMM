@@ -129,14 +129,10 @@ public class Pushable : MonoBehaviour
     private void OnTriggerExit2D(Collider2D col)
     {
         var core = col.GetComponent<MarioCore>() ?? col.GetComponentInParent<MarioCore>();
+        
         if (core != null && core == _player)
         {
-            if (_player != null)
-            {
-                _player.Carry.StopPushing();
-                _player = null;
-            }
-            _physics.velocity.x = 0f;
+            StopPushing(); 
         }
     }
 }
