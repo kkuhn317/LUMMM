@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class TimerManager : MonoBehaviour
@@ -15,6 +16,18 @@ public class TimerManager : MonoBehaviour
     public float CurrentTime => currentTime;
     public bool IsTimeUp => currentTime <= 0;
 
+    private void OnEnable()
+    {
+        GameEvents.OnGamePaused  += PauseTimers;
+        GameEvents.OnGameResumed += ResumeTimers;
+    }
+
+    private void OnDisable()
+    {
+        GameEvents.OnGamePaused  -= PauseTimers;
+        GameEvents.OnGameResumed -= ResumeTimers;
+    }
+
     private void Start()
     {
         currentTime = startingTime;
@@ -22,7 +35,11 @@ public class TimerManager : MonoBehaviour
         GameEvents.TriggerTimerChanged(currentTime);
 
         if (GlobalVariables.SpeedrunMode)
+        {
+            GlobalVariables.speedrunTimer.Reset();
+            GlobalVariables.timerOffset = TimeSpan.Zero;
             GlobalVariables.speedrunTimer.Start();
+        }
     }
 
     private void Update()
@@ -62,8 +79,7 @@ public class TimerManager : MonoBehaviour
         timeWarningInstance.GetComponent<MusicOverride>()?.stopPlayingAfterTime(3f);
         timeWarningActive = true;
     }
-
-    // NEW: Legacy parity cleanup
+    
     public void StopTimeWarningMusic()
     {
         if (timeWarningInstance != null)

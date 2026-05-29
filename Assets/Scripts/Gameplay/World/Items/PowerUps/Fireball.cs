@@ -49,9 +49,9 @@ public class Fireball : ObjectPhysics
         deleteFireball();
     }
 
-    public override bool CheckWalls(Vector3 pos, float direction)
+    public override bool CheckWalls(ref Vector3 pos, float direction)
     {
-        bool hit = base.CheckWalls(pos, direction);
+        bool hit = base.CheckWalls(ref pos, direction);
         if (hit) {
             hitWall();
         }

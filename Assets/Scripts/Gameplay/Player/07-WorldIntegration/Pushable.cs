@@ -72,23 +72,23 @@ public class Pushable : MonoBehaviour
     // Multiple rays at different heights, ignores slope surfaces
     private bool WallDistanceCheck(bool checkRight)
     {
-        if (stopWallDistance <= 0f) return false;
-
         var col = GetComponent<Collider2D>();
         if (col == null) return false;
 
-        float minY = col.bounds.min.y;
-        float maxY = col.bounds.max.y;
-        float originX = checkRight ? col.bounds.max.x : col.bounds.min.x;
-        Vector2 dir = checkRight ? Vector2.right : Vector2.left;
+        // Use half the coin's width as the stop distance so it halts
+        // exactly at the wall surface regardless of level geometry.
+        float autoDistance = col.bounds.extents.x + (stopWallDistance > 0f ? stopWallDistance : 0.05f);
 
-        // Cast at 33%, 60%, 85% height — skips floor and top edges
+        float minY    = col.bounds.min.y;
+        float maxY    = col.bounds.max.y;
+        float originX = checkRight ? col.bounds.max.x : col.bounds.min.x;
+        Vector2 dir   = checkRight ? Vector2.right : Vector2.left;
+
         float[] heights = { 0.33f, 0.60f, 0.85f };
         foreach (float t in heights)
         {
-            float y = Mathf.Lerp(minY, maxY, t);
-            var hit = Physics2D.Raycast(new Vector2(originX, y), dir, stopWallDistance, wallLayer);
-            // Only count true vertical walls — ignore sloped surfaces (normal.y > 0.3)
+            float y   = Mathf.Lerp(minY, maxY, t);
+            var   hit = Physics2D.Raycast(new Vector2(originX, y), dir, autoDistance, wallLayer);
             if (hit.collider != null && Mathf.Abs(hit.normal.y) < 0.3f)
                 return true;
         }
@@ -108,15 +108,25 @@ public class Pushable : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        if (stopWallDistance <= 0f) return;
+        var col = GetComponent<Collider2D>();
+        if (col == null) return;
+
+        float autoDistance = col.bounds.extents.x + (stopWallDistance > 0f ? stopWallDistance : 0.05f);
+
+        float minY = col.bounds.min.y;
+        float maxY = col.bounds.max.y;
+        float leftX  = col.bounds.min.x;
+        float rightX = col.bounds.max.x;
+
+        float[] heights = { 0.33f, 0.60f, 0.85f };
 
         Gizmos.color = Color.cyan;
-        Gizmos.DrawLine(transform.position, transform.position + Vector3.left  * stopWallDistance);
-        Gizmos.DrawLine(transform.position, transform.position + Vector3.right * stopWallDistance);
-
-        // Draw endpoint markers
-        Gizmos.DrawWireSphere(transform.position + Vector3.left  * stopWallDistance, 0.08f);
-        Gizmos.DrawWireSphere(transform.position + Vector3.right * stopWallDistance, 0.08f);
+        foreach (float t in heights)
+        {
+            float y = Mathf.Lerp(minY, maxY, t);
+            Gizmos.DrawLine(new Vector3(leftX,  y), new Vector3(leftX  - autoDistance, y));
+            Gizmos.DrawLine(new Vector3(rightX, y), new Vector3(rightX + autoDistance, y));
+        }
     }
 
     private void OnTriggerEnter2D(Collider2D col)

@@ -320,7 +320,7 @@ public class ObjectPhysics : MonoBehaviour
         {
             if (velocity.x != 0)
             {
-                CheckWalls(pos, movingLeft ? -1 : 1);
+                CheckWalls(ref pos, movingLeft ? -1 : 1);
             }
         }
 
@@ -747,7 +747,7 @@ public class ObjectPhysics : MonoBehaviour
         }
     }
 
-    public virtual bool CheckWalls(Vector3 pos, float direction)
+    public virtual bool CheckWalls(ref Vector3 pos, float direction)
     {
         //RaycastHit2D hitRay = RaycastWalls (pos, direction);
         RaycastHit2D hitRay = RaycastWalls(pos, direction);
@@ -772,9 +772,15 @@ public class ObjectPhysics : MonoBehaviour
             // TODO: Implement proper object collision
         }
 
+        // Snap position flush with the wall so the object never penetrates it,
+        // even when carried there by a moving platform via parent transform.
+        float halfWidth, halfHeight;
+        Vector2 c;
+        GetBounds(pos, out c, out halfWidth, out halfHeight);
+        pos.x = hitRay.point.x - direction * (halfWidth - boundsOffset.x);
+
         // hit something
         onTouchWall(hitRay.collider.gameObject);
-        
         return true;
     }
 

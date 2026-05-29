@@ -18,50 +18,59 @@ public class ButtonSelector : MonoBehaviour
     // How many frames to keep retrying if no selection is found on enable
     [SerializeField] private int maxRefreshRetries = 10;
 
-    private RectTransform currentTarget;
+    [Header("Debug")]
+    [SerializeField] private bool verboseLogging = false;
+
+    // What the selector is CURRENTLY, successfully positioned on. Distinct from
+    // lastSelectedObject: this only advances when placement actually happened.
+    private GameObject positionedOn;
+    private bool needsReposition;
+
+    // Edge-detection for SFX / events only.
     private GameObject lastSelectedObject;
 
-    // Ignore exactly the first selection change after this component is enabled
+    // Ignore exactly the first selection change after this component is enabled.
     private bool ignoreNextSelectionChangeSfx;
 
-    // Cached canvas camera for correct coordinate conversion
     private Camera canvasCamera;
+
+    private string SceneTag => $"[ButtonSelector | {gameObject.scene.name} | {name}]";
+    private void Log(string m)  { if (verboseLogging) Debug.Log($"{SceneTag} {m}", this); }
+    private void Warn(string m) { if (verboseLogging) Debug.LogWarning($"{SceneTag} {m}", this); }
 
     private void OnEnable()
     {
         if (!ValidateComponents()) return;
 
         lastSelectedObject = null;
-        currentTarget = null;
+        positionedOn = null;
+        needsReposition = true;
         ignoreNextSelectionChangeSfx = true;
 
         CacheCanvasCamera();
-        StartCoroutine(DelayedRefresh());
+        StartCoroutine(EnsureSelection());
     }
 
-    /// <summary>
-    /// Resolves the correct camera to use for world-to-screen conversion,
-    /// based on the render mode of the parent Canvas. Passing null to
-    /// WorldToScreenPoint only works for Screen Space - Overlay canvases.
-    /// </summary>
+    private void OnDisable()
+    {
+        CancelSelectorTweens();
+    }
+
     private void CacheCanvasCamera()
     {
         Canvas canvas = selectorImage.GetComponentInParent<Canvas>();
-        if (canvas == null)
-        {
-            canvasCamera = null;
-            return;
-        }
-
-        // For Overlay mode there is no camera; for Camera / World Space there is.
-        canvasCamera = canvas.renderMode == RenderMode.ScreenSpaceOverlay
-            ? null
-            : canvas.worldCamera;
+        canvasCamera = (canvas != null && canvas.renderMode != RenderMode.ScreenSpaceOverlay)
+            ? canvas.worldCamera
+            : null;
     }
 
-    private IEnumerator DelayedRefresh()
+    /// <summary>
+    /// Only responsibility: make sure SOMETHING is selected at startup.
+    /// Positioning is deliberately NOT done here — Update owns that, so it can
+    /// keep retrying until the selector is actually active and laid out.
+    /// </summary>
+    private IEnumerator EnsureSelection()
     {
-        // Let UI initialize
         yield return null;
         Canvas.ForceUpdateCanvases();
         yield return new WaitForEndOfFrame();
@@ -70,175 +79,167 @@ public class ButtonSelector : MonoBehaviour
         {
             if (TryGetSelectedObject(out GameObject selected))
             {
-                // If EventSystem has no current selection yet, force it
                 if (EventSystem.current.currentSelectedGameObject == null)
                     EventSystem.current.SetSelectedGameObject(selected);
 
-                // First snap
-                ForceRefreshToCurrentSelection();
-
-                // Extra correction pass after layout settles
-                yield return null;
-                Canvas.ForceUpdateCanvases();
-                yield return new WaitForEndOfFrame();
-                ForceRefreshToCurrentSelection();
-
-                lastSelectedObject = EventSystem.current.currentSelectedGameObject;
+                needsReposition = true; // hand off to Update; it retries until placed
+                Log($"EnsureSelection: selection is '{selected.name}' after {attempt + 1} attempt(s).");
                 yield break;
             }
-
             yield return null;
             Canvas.ForceUpdateCanvases();
         }
 
-        // Final fallback
-        ForceRefreshToCurrentSelection();
-        lastSelectedObject = EventSystem.current?.currentSelectedGameObject;
-    }
-
-    private void OnDisable()
-    {
-        CancelSelectorTweens();
+        Warn($"EnsureSelection: no selectable object after {maxRefreshRetries} attempts.");
     }
 
     private void Update()
     {
-        if (selectorImage == null || !selectorImage.gameObject.activeInHierarchy)
-            return;
+        if (selectorImage == null) return;
 
-        GameObject currentSelected = EventSystem.current?.currentSelectedGameObject;
+        GameObject sel = EventSystem.current != null
+            ? EventSystem.current.currentSelectedGameObject
+            : null;
 
-        if (currentSelected == lastSelectedObject)
-            return;
-
-        lastSelectedObject = currentSelected;
-
-        if (currentSelected == null)
+        // --- 1) SFX / event: fire on a genuine selection change, regardless of
+        //         whether we can position yet. ---
+        if (sel != lastSelectedObject)
         {
-            currentTarget = null;
-            CancelSelectorTweens();
+            lastSelectedObject = sel;
+            needsReposition = true;
+
+            if (sel != null)
+            {
+                if (ignoreNextSelectionChangeSfx)
+                {
+                    ignoreNextSelectionChangeSfx = false;
+                }
+                else
+                {
+                    if (selectionSfx != null && AudioManager.Instance != null)
+                        AudioManager.Instance.Play(selectionSfx, SoundCategory.SFX);
+                    onSelectionChanged?.Invoke();
+                }
+            }
+        }
+
+        // --- 2) Positioning: retried every frame until it actually succeeds. ---
+        // Nothing left to do if we're already correctly placed on the current selection.
+        if (!needsReposition && positionedOn == sel)
+            return;
+
+        if (sel == null)
+        {
+            currentTargetCleanup();
+            positionedOn = null;
+            needsReposition = false;
             return;
         }
 
-        RectTransform targetRect = currentSelected.GetComponent<RectTransform>();
-        if (targetRect == null)
+        // Not ready yet (selector hidden by an intro/transition): stay dirty, retry next frame.
+        if (!selectorImage.gameObject.activeInHierarchy)
+            return;
+
+        RectTransform rect = sel.GetComponent<RectTransform>();
+        if (rect == null)
         {
-            currentTarget = null;
-            CancelSelectorTweens();
+            currentTargetCleanup();
+            positionedOn = sel;        // nothing we can do for this target; stop retrying it
+            needsReposition = false;
             return;
         }
 
-        currentTarget = targetRect;
+        // Snap when first acquiring (or recovering), animate when moving between buttons.
+        bool animate = positionedOn != null && positionedOn != sel;
+        bool placed = PositionSelector(rect, animate);
 
-        AnimateSelectorToCurrentTarget();
-
-        if (ignoreNextSelectionChangeSfx)
+        if (placed)
         {
-            ignoreNextSelectionChangeSfx = false;
-            return;
+            Log($"Positioned selector on '{sel.name}' (animate={animate}).");
+            positionedOn = sel;
+            needsReposition = false;
         }
+        // If not placed (bounds not ready / zero-size layout), remain dirty and retry next frame.
+    }
 
-        if (selectionSfx != null && AudioManager.Instance != null)
-            AudioManager.Instance.Play(selectionSfx, SoundCategory.SFX);
+    private RectTransform currentTarget;
 
-        onSelectionChanged?.Invoke();
+    private void currentTargetCleanup()
+    {
+        currentTarget = null;
+        CancelSelectorTweens();
     }
 
     private bool TryGetSelectedObject(out GameObject selected)
     {
         selected = null;
+        if (EventSystem.current == null) return false;
 
-        if (EventSystem.current == null)
-            return false;
+        selected = EventSystem.current.currentSelectedGameObject
+                   ?? EventSystem.current.firstSelectedGameObject;
 
-        selected = EventSystem.current.currentSelectedGameObject;
-
-        if (selected == null)
-            selected = EventSystem.current.firstSelectedGameObject;
-
-        if (selected == null || !selected.activeInHierarchy)
-            return false;
-
-        if (selected.GetComponent<RectTransform>() == null)
-            return false;
-
+        if (selected == null || !selected.activeInHierarchy) { selected = null; return false; }
+        if (selected.GetComponent<RectTransform>() == null)  { selected = null; return false; }
         return true;
     }
 
-    private void ForceRefreshToCurrentSelection()
+    /// <summary>
+    /// Returns true ONLY if the selector was actually moved/sized to the target.
+    /// Returns false if the selector isn't active or the target has no usable
+    /// bounds yet (e.g. layout not built, async-localized text still arriving) —
+    /// the caller treats false as "retry next frame".
+    /// </summary>
+    private bool PositionSelector(RectTransform target, bool animate)
     {
-        if (selectorImage == null || !selectorImage.gameObject.activeInHierarchy)
-            return;
+        if (target == null) return false;
+        if (!selectorImage.gameObject.activeInHierarchy) return false;
 
-        Canvas.ForceUpdateCanvases();
+        if (!TryGetTargetBounds(target, out Vector2 size, out Vector3 pos))
+            return false;
 
-        GameObject selected = EventSystem.current?.currentSelectedGameObject;
+        // Guard against positioning to a degenerate box before layout has built.
+        if (size.x <= padding * 2f + 0.01f && size.y <= padding * 2f + 0.01f)
+            return false;
 
-        if (selected == null)
-            selected = EventSystem.current?.firstSelectedGameObject;
-
-        if (selected == null)
-        {
-            currentTarget = null;
-            return;
-        }
-
-        RectTransform rect = selected.GetComponent<RectTransform>();
-        if (rect == null || !rect.gameObject.activeInHierarchy)
-        {
-            currentTarget = null;
-            return;
-        }
-
-        currentTarget = rect;
-        SnapSelectorToCurrentTarget();
-    }
-
-    private void SnapSelectorToCurrentTarget()
-    {
-        if (currentTarget == null) return;
-        if (!selectorImage.gameObject.activeInHierarchy) return;
-
-        if (!TryGetTargetBounds(currentTarget, out Vector2 targetSize, out Vector3 targetPos))
-            return;
-
-        CancelSelectorTweens();
-        selectorImage.sizeDelta = targetSize;
-        selectorImage.localPosition = targetPos;
-    }
-
-    private void AnimateSelectorToCurrentTarget()
-    {
-        if (currentTarget == null) return;
-        if (!selectorImage.gameObject.activeInHierarchy) return;
-
-        if (!TryGetTargetBounds(currentTarget, out Vector2 targetSize, out Vector3 targetPos))
-            return;
-
+        currentTarget = target;
         CancelSelectorTweens();
 
-        LeanTween.size(selectorImage, targetSize, animationTime)
-            .setEase(tweenType)
-            .setIgnoreTimeScale(true)
-            .setOnComplete(() =>
-            {
-                // Final correction to ensure the selector ends exactly on target
-                if (selectorImage != null && currentTarget != null && selectorImage.gameObject.activeInHierarchy)
+        if (animate)
+        {
+            LeanTween.size(selectorImage, size, animationTime)
+                .setEase(tweenType)
+                .setIgnoreTimeScale(true)
+                .setOnComplete(() =>
                 {
-                    SnapSelectorToCurrentTarget();
-                }
-            });
+                    if (selectorImage != null && currentTarget == target &&
+                        selectorImage.gameObject.activeInHierarchy)
+                    {
+                        // Final exact correction in case layout shifted mid-tween.
+                        if (TryGetTargetBounds(target, out Vector2 s2, out Vector3 p2))
+                        {
+                            selectorImage.sizeDelta = s2;
+                            selectorImage.localPosition = p2;
+                        }
+                    }
+                });
 
-        LeanTween.moveLocal(selectorImage.gameObject, targetPos, animationTime)
-            .setEase(tweenType)
-            .setIgnoreTimeScale(true);
+            LeanTween.moveLocal(selectorImage.gameObject, pos, animationTime)
+                .setEase(tweenType)
+                .setIgnoreTimeScale(true);
+        }
+        else
+        {
+            selectorImage.sizeDelta = size;
+            selectorImage.localPosition = pos;
+        }
+
+        return true;
     }
 
     private bool TryGetTargetBounds(RectTransform target, out Vector2 targetSize, out Vector3 targetPos)
     {
         targetSize = Vector2.zero;
-        targetPos = Vector3.zero;
-
+        targetPos  = Vector3.zero;
         if (target == null) return false;
 
         RectTransform parentRect = selectorImage.transform.parent as RectTransform;
@@ -251,38 +252,23 @@ public class ButtonSelector : MonoBehaviour
         Vector3[] worldCorners = new Vector3[4];
         target.GetWorldCorners(worldCorners);
 
-        Vector2 min = Vector2.positiveInfinity;
-        Vector2 max = Vector2.negativeInfinity;
-
+        Vector2 min = new Vector2(float.MaxValue, float.MaxValue);
+        Vector2 max = new Vector2(float.MinValue, float.MinValue);
         for (int i = 0; i < 4; i++)
         {
-            Vector2 screenPoint = RectTransformUtility.WorldToScreenPoint(canvasCamera, worldCorners[i]);
-
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(
-                parentRect,
-                screenPoint,
-                canvasCamera,
-                out Vector2 localPoint
-            );
-
-            min = Vector2.Min(min, localPoint);
-            max = Vector2.Max(max, localPoint);
+            Vector2 local = parentRect.InverseTransformPoint(worldCorners[i]);
+            min = Vector2.Min(min, local);
+            max = Vector2.Max(max, local);
         }
 
-        targetSize = new Vector2(
-            (max.x - min.x) + padding * 2f,
-            (max.y - min.y) + padding * 2f
-        );
-
-        targetPos = (min + max) / 2f;
-
+        targetSize = new Vector2((max.x - min.x) + padding * 2f, (max.y - min.y) + padding * 2f);
+        targetPos  = (min + max) / 2f;
         return true;
     }
 
     private void CancelSelectorTweens()
     {
         if (selectorImage == null) return;
-
         LeanTween.cancel(selectorImage.gameObject);
     }
 
@@ -290,25 +276,22 @@ public class ButtonSelector : MonoBehaviour
     {
         if (selectorImage == null)
         {
-            Debug.LogError("Selector image not assigned.");
+            Debug.LogError($"{SceneTag} Selector image not assigned.", this);
             enabled = false;
             return false;
         }
-
         if (EventSystem.current == null)
         {
-            Debug.LogError("No EventSystem in scene.");
+            Debug.LogError($"{SceneTag} No EventSystem in scene.", this);
             enabled = false;
             return false;
         }
-
         if (selectorImage.transform.parent == null)
         {
-            Debug.LogError("Selector image must have a parent.");
+            Debug.LogError($"{SceneTag} Selector image must have a parent.", this);
             enabled = false;
             return false;
         }
-
         return true;
     }
 }

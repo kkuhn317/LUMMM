@@ -10,6 +10,7 @@ public class Trampoline : MonoBehaviour
     public bool sideways = false; // If the spring is sideways
 
     private bool _isVisible = false; // If the spring is visible to the camera
+    private bool _bouncedThisContact = false;
 
     private Animator    _animator;
     private AudioSource _audioSource;
@@ -26,6 +27,7 @@ public class Trampoline : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D other)
     {
+        _bouncedThisContact = false;
         Vector2 impulse = Vector2.zero;
 
         int contactCount = other.contactCount;
@@ -49,8 +51,12 @@ public class Trampoline : MonoBehaviour
             {
                 Rigidbody2D rb = player.Rb;
 
-                if (impulse.y < 0 && !sideways)
+                bool hittingFromAbove = impulse.y < 0 ||
+                    (player.State.OnGround && !sideways && other.GetContact(0).normal.y > 0.5f);
+
+                if (hittingFromAbove && !sideways && !_bouncedThisContact)
                 {
+                    _bouncedThisContact = true;
                     if (player.State.GroundPounding)
                         MarioEvents.FireGroundPoundCancelled(player.PlayerIndex);
                     player.State.GroundPounding = false;
@@ -78,6 +84,8 @@ public class Trampoline : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
+        _bouncedThisContact = false;
+
         // Check if the triggering object is the player
         if (other.gameObject.CompareTag("Player"))
         {

@@ -211,6 +211,7 @@ public class GameManager : MonoBehaviour, IGameManager
     private void RestartLevelInternal(bool fromCheckpoint)
     {
         pauseMenuController.PreparePausedSceneTransition(true);
+        timerManager?.StopAllTimers();
 
         if (!fromCheckpoint)
         {
