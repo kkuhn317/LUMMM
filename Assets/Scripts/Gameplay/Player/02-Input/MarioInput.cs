@@ -257,10 +257,8 @@ public class MarioInput : MonoBehaviour
 
     public void Jump(InputAction.CallbackContext context)
     {
-        if (State.InputLocked || State.IsFrozen) return;
-
-        if (context.performed) OnJumpPressed();
-        if (context.canceled) OnJumpReleased();
+        if (context.performed && !State.InputLocked) OnJumpPressed();
+        if (context.canceled && !State.InputLocked) OnJumpReleased();
     }
 
     public void OnJumpPressed()
@@ -282,7 +280,7 @@ public class MarioInput : MonoBehaviour
 
     public void Spin(InputAction.CallbackContext context)
     {
-        if (State.InputLocked || State.IsCapeActive || State.IsFrozen) return;
+        if (State.InputLocked || State.IsCapeActive) return;
 
         if (context.performed) OnSpinPressed();
         if (context.canceled)  OnSpinReleased();
@@ -322,7 +320,7 @@ public class MarioInput : MonoBehaviour
 
     public void Shoot(InputAction.CallbackContext context)
     {
-        if (State.InputLocked || State.IsFrozen) return;
+        if (State.InputLocked) return;
 
         if (context.performed) OnShootPressed();
         if (context.canceled)  OnShootReleased();
@@ -340,7 +338,7 @@ public class MarioInput : MonoBehaviour
 
     public void ExtraAction(InputAction.CallbackContext context)
     {
-        if (State.InputLocked || State.IsFrozen) return;
+        if (State.InputLocked) return;
         if (context.performed) OnExtraActionPressed();
     }
 
@@ -368,7 +366,7 @@ public class MarioInput : MonoBehaviour
 
     public void Crouch(InputAction.CallbackContext context)
     {
-        if (State.InputLocked || State.IsFrozen) return;
+        if (State.InputLocked) return;
 
         if (context.performed)
             State.MoveInput = new Vector2(State.MoveInput.x, -1f);
@@ -379,14 +377,26 @@ public class MarioInput : MonoBehaviour
     // ─── Mobile Fallbacks ────────────────────────────────────────────────────
     // Called by on-screen button UI elements directly.
 
-    public void OnMobileLeftPressed()  => State.MoveInput = new Vector2(-1f, State.MoveInput.y);
-    public void OnMobileLeftReleased() => State.MoveInput = new Vector2( 0f, State.MoveInput.y);
-    public void OnMobileRightPressed() => State.MoveInput = new Vector2( 1f, State.MoveInput.y);
-    public void OnMobileRightReleased()=> State.MoveInput = new Vector2( 0f, State.MoveInput.y);
-    public void OnMobileUpPressed()    => State.MoveInput = new Vector2(State.MoveInput.x,  1f);
-    public void OnMobileUpReleased()   => State.MoveInput = new Vector2(State.MoveInput.x,  0f);
-    public void OnMobileDownPressed()  => State.MoveInput = new Vector2(State.MoveInput.x, -1f);
-    public void OnMobileDownReleased() => State.MoveInput = new Vector2(State.MoveInput.x,  0f);
+    private void SetMobileMoveInput(Vector2 value)
+    {
+        if (value != Vector2.zero)
+        {
+            _pollingMove     = false;
+            _moveActionCache = null;
+        }
+        State.MoveInput = value;
+        if (!State.InputLocked && !State.IsFrozen && !State.IsPaused)
+            State.Direction = value;
+    }
+
+    public void OnMobileLeftPressed()  => SetMobileMoveInput(new Vector2(-1f, State.MoveInput.y));
+    public void OnMobileLeftReleased() => SetMobileMoveInput(new Vector2( 0f, State.MoveInput.y));
+    public void OnMobileRightPressed() => SetMobileMoveInput(new Vector2( 1f, State.MoveInput.y));
+    public void OnMobileRightReleased()=> SetMobileMoveInput(new Vector2( 0f, State.MoveInput.y));
+    public void OnMobileUpPressed()    => SetMobileMoveInput(new Vector2(State.MoveInput.x,  1f));
+    public void OnMobileUpReleased()   => SetMobileMoveInput(new Vector2(State.MoveInput.x,  0f));
+    public void OnMobileDownPressed()  => SetMobileMoveInput(new Vector2(State.MoveInput.x, -1f));
+    public void OnMobileDownReleased() => SetMobileMoveInput(new Vector2(State.MoveInput.x,  0f));
 
     // ─── Deadzone Processing ─────────────────────────────────────────────────
 

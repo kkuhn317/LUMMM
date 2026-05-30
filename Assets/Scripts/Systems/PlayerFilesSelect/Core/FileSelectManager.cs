@@ -3,6 +3,7 @@ using System.Reflection;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class FileSelectManager : MonoBehaviour
 {
@@ -160,6 +161,15 @@ public class FileSelectManager : MonoBehaviour
     private IEnumerator HandleCancel()
     {
         isBusy = true;
+
+        // Remember what was selected when the user hit cancel, BEFORE locking
+        // (locking can clear/alter the EventSystem selection). Cancel should just
+        // cancel the mode and leave focus where it was (e.g. the Import/Export
+        // button) — it does NOT need to select a slot.
+        GameObject selectionAtCancel = EventSystem.current != null
+            ? EventSystem.current.currentSelectedGameObject
+            : null;
+
         uiInputLock?.Lock();
 
         try
@@ -186,22 +196,39 @@ public class FileSelectManager : MonoBehaviour
                     mario.SetIdle();
                     mario.SetFollowSelection(true);
                 }
+            }
+            else
+            {
+                if (mario != null && cancelAnchor != null)
+                {
+                    mario.SetFollowSelection(false);
+                    yield return StartCoroutine(mario.MoveTo(cancelAnchor));
+                    mario.SetIdle();
+                    mario.SetFollowSelection(true);
+                }
 
-                yield break;
+                if (!didInvokeOnCancel)
+                {
+                    didInvokeOnCancel = true;
+                    onCancel?.Invoke();
+                }
             }
 
-            if (mario != null && cancelAnchor != null)
-            {
-                mario.SetFollowSelection(false);
-                yield return StartCoroutine(mario.MoveTo(cancelAnchor));
-                mario.SetIdle();
-                mario.SetFollowSelection(true);
-            }
+            // Restore selection after a frame so UIInputLock has settled
+            yield return null;
+            yield return null;
 
-            if (!didInvokeOnCancel)
+            if (!ConfirmPopup.IsAnyPopupOpen && !SaveSlotRename.IsAnyPopupOpen && EventSystem.current != null)
             {
-                didInvokeOnCancel = true;
-                onCancel?.Invoke();
+                // Put focus back where the user was when they cancelled.
+                // Only fall back to a slot if that target is gone, purely so we
+                // never end on a null selection and kill keyboard navigation.
+                GameObject restore = IsUsableSelection(selectionAtCancel)
+                    ? selectionAtCancel
+                    : GetFocusedSlotSelectionTarget();
+
+                if (restore != null)
+                    EventSystem.current.SetSelectedGameObject(restore);
             }
         }
         finally
@@ -211,17 +238,35 @@ public class FileSelectManager : MonoBehaviour
             if (uiInputLock != null && uiInputLock.GetLockCount() > 0)
                 uiInputLock.Unlock(restoreSelection: false);
 
-            // Always restore focus after a cancel, regardless of lock state
-            if (!ConfirmPopup.IsAnyPopupOpen && !SaveSlotRename.IsAnyPopupOpen)
-            {
-                var fallback = slotManager?.slotCards?[slotManager.FocusedSlotIndex >= 0
-                    ? slotManager.FocusedSlotIndex : 0]?.gameObject;
-                if (EventSystem.current != null && fallback != null)
-                    EventSystem.current.SetSelectedGameObject(fallback);
-            }
-
             isBusy = false;
         }
+    }
+
+    /// <summary>
+    /// True if the GameObject can hold EventSystem focus and keep keyboard navigation
+    /// working: it must be active and carry an enabled, interactable Selectable.
+    /// </summary>
+    private static bool IsUsableSelection(GameObject go)
+    {
+        if (go == null || !go.activeInHierarchy) return false;
+
+        var sel = go.GetComponent<Selectable>();
+        return sel != null && sel.enabled && sel.IsInteractable();
+    }
+
+    /// <summary>
+    /// Last-resort target so cancel never lands on a null selection.
+    /// Returns the focused slot's Selectable (its child button), never the card root.
+    /// </summary>
+    private GameObject GetFocusedSlotSelectionTarget()
+    {
+        if (slotManager?.slotCards == null) return null;
+
+        int idx = slotManager.FocusedSlotIndex >= 0 ? slotManager.FocusedSlotIndex : 0;
+        if (idx < 0 || idx >= slotManager.slotCards.Length) return null;
+
+        var card = slotManager.slotCards[idx];
+        return card != null ? card.SelectionTarget : null;
     }
 
     private IEnumerator ExitDeleteModeCleanRoutine()

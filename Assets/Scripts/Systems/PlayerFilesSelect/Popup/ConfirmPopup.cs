@@ -136,6 +136,7 @@ public class ConfirmPopup : MonoBehaviour
 
     private void OnCancelPerformed(InputAction.CallbackContext context)
     {
+        if (!IsOpen) return;
         // Only respond if this popup is active and No button exists
         if (gameObject.activeInHierarchy && noButton != null && noButton.interactable)
         {

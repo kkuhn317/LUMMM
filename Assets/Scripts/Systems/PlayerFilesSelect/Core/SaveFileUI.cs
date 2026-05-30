@@ -23,6 +23,20 @@ public class SaveFileUI : MonoBehaviour, ISelectHandler, IDeselectHandler
     public Color normalColor = Color.white;
     public Color focusedColor = new Color(1f, 0.95f, 0.7f);
 
+    /// <summary>
+    /// The GameObject the EventSystem should select to keep keyboard navigation alive.
+    /// The card root has no Selectable, so selecting it directly breaks navigation;
+    /// this resolves the card's button (first Selectable in children) instead.
+    /// </summary>
+    public GameObject SelectionTarget
+    {
+        get
+        {
+            var sel = GetComponentInChildren<Selectable>(true);
+            return sel != null ? sel.gameObject : gameObject;
+        }
+    }
+
     [HideInInspector] public int slotIndex;
 
     private SaveSlotManager manager;

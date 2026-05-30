@@ -21,10 +21,19 @@ public class ButtonSelector : MonoBehaviour
     [Header("Debug")]
     [SerializeField] private bool verboseLogging = false;
 
-    // What the selector is CURRENTLY, successfully positioned on. Distinct from
-    // lastSelectedObject: this only advances when placement actually happened.
+    // What the selector is CURRENTLY, successfully positioned on. This only
+    // advances when placement actually FINISHED (snap, or animation reached t=1).
     private GameObject positionedOn;
     private bool needsReposition;
+
+    // Manual animation state. We drive the move ourselves on unscaled time instead
+    // of handing off to an external tween, so positioning can never silently no-op
+    // (and "done" is recorded on arrival, not when an animation is merely scheduled).
+    private bool animating;
+    private GameObject animatingTo;
+    private float animStartTime;
+    private Vector2 animStartSize;
+    private Vector3 animStartPos;
 
     // Edge-detection for SFX / events only.
     private GameObject lastSelectedObject;
@@ -45,6 +54,8 @@ public class ButtonSelector : MonoBehaviour
         lastSelectedObject = null;
         positionedOn = null;
         needsReposition = true;
+        animating = false;
+        animatingTo = null;
         ignoreNextSelectionChangeSfx = true;
 
         CacheCanvasCamera();
@@ -53,6 +64,8 @@ public class ButtonSelector : MonoBehaviour
 
     private void OnDisable()
     {
+        animating = false;
+        animatingTo = null;
         CancelSelectorTweens();
     }
 
@@ -66,8 +79,7 @@ public class ButtonSelector : MonoBehaviour
 
     /// <summary>
     /// Only responsibility: make sure SOMETHING is selected at startup.
-    /// Positioning is deliberately NOT done here — Update owns that, so it can
-    /// keep retrying until the selector is actually active and laid out.
+    /// Positioning is owned by Update, which retries until the selector is laid out.
     /// </summary>
     private IEnumerator EnsureSelection()
     {
@@ -101,8 +113,7 @@ public class ButtonSelector : MonoBehaviour
             ? EventSystem.current.currentSelectedGameObject
             : null;
 
-        // --- 1) SFX / event: fire on a genuine selection change, regardless of
-        //         whether we can position yet. ---
+        // --- 1) SFX / event: fire on a genuine selection change. ---
         if (sel != lastSelectedObject)
         {
             lastSelectedObject = sel;
@@ -123,9 +134,9 @@ public class ButtonSelector : MonoBehaviour
             }
         }
 
-        // --- 2) Positioning: retried every frame until it actually succeeds. ---
-        // Nothing left to do if we're already correctly placed on the current selection.
-        if (!needsReposition && positionedOn == sel)
+        // --- 2) Positioning ---
+        // Idle: resting on the current selection, nothing animating, nothing dirty.
+        if (!needsReposition && !animating && positionedOn == sel)
             return;
 
         if (sel == null)
@@ -136,7 +147,7 @@ public class ButtonSelector : MonoBehaviour
             return;
         }
 
-        // Not ready yet (selector hidden by an intro/transition): stay dirty, retry next frame.
+        // Selector hidden by an intro/transition: stay dirty, retry next frame.
         if (!selectorImage.gameObject.activeInHierarchy)
             return;
 
@@ -149,24 +160,66 @@ public class ButtonSelector : MonoBehaviour
             return;
         }
 
-        // Snap when first acquiring (or recovering), animate when moving between buttons.
-        bool animate = positionedOn != null && positionedOn != sel;
-        bool placed = PositionSelector(rect, animate);
+        // Need valid bounds before placing/animating. If not ready, retry next frame.
+        if (!TryGetTargetBounds(rect, out Vector2 targetSize, out Vector3 targetPos))
+            return;
 
-        if (placed)
+        // Guard against a degenerate box before layout has built.
+        if (targetSize.x <= padding * 2f + 0.01f && targetSize.y <= padding * 2f + 0.01f)
+            return;
+
+        // First acquisition (or recovery from a null selection): snap, no animation.
+        if (positionedOn == null && !animating)
         {
-            Log($"Positioned selector on '{sel.name}' (animate={animate}).");
+            selectorImage.sizeDelta = targetSize;
+            selectorImage.localPosition = targetPos;
             positionedOn = sel;
             needsReposition = false;
+            Log($"Positioned selector on '{sel.name}' (animate=False).");
+            return;
         }
-        // If not placed (bounds not ready / zero-size layout), remain dirty and retry next frame.
-    }
 
-    private RectTransform currentTarget;
+        // If where we're headed (or resting) isn't the current selection, (re)start
+        // an animation from wherever the selector physically is RIGHT NOW. This also
+        // redirects cleanly if the player moves again mid-animation.
+        GameObject currentDest = animating ? animatingTo : positionedOn;
+        if (currentDest != sel)
+        {
+            animating = true;
+            animatingTo = sel;
+            animStartTime = Time.unscaledTime;
+            animStartSize = selectorImage.sizeDelta;
+            animStartPos = selectorImage.localPosition;
+            needsReposition = false;
+        }
+
+        // Drive the manual animation toward the (re-evaluated each frame) target,
+        // so layout shifts during the move are tracked. Commit ONLY on arrival.
+        if (animating && animatingTo == sel)
+        {
+            float dur = Mathf.Max(0.0001f, animationTime);
+            float t = Mathf.Clamp01((Time.unscaledTime - animStartTime) / dur);
+            float e = ApplyEase(t);
+
+            selectorImage.sizeDelta = Vector2.LerpUnclamped(animStartSize, targetSize, e);
+            selectorImage.localPosition = Vector3.LerpUnclamped(animStartPos, targetPos, e);
+
+            if (t >= 1f)
+            {
+                selectorImage.sizeDelta = targetSize;
+                selectorImage.localPosition = targetPos;
+                animating = false;
+                positionedOn = sel;
+                needsReposition = false;
+                Log($"Positioned selector on '{sel.name}' (animate=True).");
+            }
+        }
+    }
 
     private void currentTargetCleanup()
     {
-        currentTarget = null;
+        animating = false;
+        animatingTo = null;
         CancelSelectorTweens();
     }
 
@@ -184,58 +237,9 @@ public class ButtonSelector : MonoBehaviour
     }
 
     /// <summary>
-    /// Returns true ONLY if the selector was actually moved/sized to the target.
-    /// Returns false if the selector isn't active or the target has no usable
-    /// bounds yet (e.g. layout not built, async-localized text still arriving) —
-    /// the caller treats false as "retry next frame".
+    /// Computes the selector size/position (in the selector parent's local space) that
+    /// frames the given target, padded. Returns false only if references are missing.
     /// </summary>
-    private bool PositionSelector(RectTransform target, bool animate)
-    {
-        if (target == null) return false;
-        if (!selectorImage.gameObject.activeInHierarchy) return false;
-
-        if (!TryGetTargetBounds(target, out Vector2 size, out Vector3 pos))
-            return false;
-
-        // Guard against positioning to a degenerate box before layout has built.
-        if (size.x <= padding * 2f + 0.01f && size.y <= padding * 2f + 0.01f)
-            return false;
-
-        currentTarget = target;
-        CancelSelectorTweens();
-
-        if (animate)
-        {
-            LeanTween.size(selectorImage, size, animationTime)
-                .setEase(tweenType)
-                .setIgnoreTimeScale(true)
-                .setOnComplete(() =>
-                {
-                    if (selectorImage != null && currentTarget == target &&
-                        selectorImage.gameObject.activeInHierarchy)
-                    {
-                        // Final exact correction in case layout shifted mid-tween.
-                        if (TryGetTargetBounds(target, out Vector2 s2, out Vector3 p2))
-                        {
-                            selectorImage.sizeDelta = s2;
-                            selectorImage.localPosition = p2;
-                        }
-                    }
-                });
-
-            LeanTween.moveLocal(selectorImage.gameObject, pos, animationTime)
-                .setEase(tweenType)
-                .setIgnoreTimeScale(true);
-        }
-        else
-        {
-            selectorImage.sizeDelta = size;
-            selectorImage.localPosition = pos;
-        }
-
-        return true;
-    }
-
     private bool TryGetTargetBounds(RectTransform target, out Vector2 targetSize, out Vector3 targetPos)
     {
         targetSize = Vector2.zero;
@@ -266,10 +270,24 @@ public class ButtonSelector : MonoBehaviour
         return true;
     }
 
+    private float ApplyEase(float t)
+    {
+        switch (tweenType)
+        {
+            case LeanTweenType.linear:        return t;
+            case LeanTweenType.easeInQuad:    return t * t;
+            case LeanTweenType.easeOutQuad:   return 1f - (1f - t) * (1f - t);
+            case LeanTweenType.easeInOutQuad: return t < 0.5f ? 2f * t * t : 1f - Mathf.Pow(-2f * t + 2f, 2f) / 2f;
+            case LeanTweenType.easeInCubic:   return t * t * t;
+            case LeanTweenType.easeOutCubic:  return 1f - Mathf.Pow(1f - t, 3f);
+            default:                          return 1f - (1f - t) * (1f - t); // easeOutQuad
+        }
+    }
+
     private void CancelSelectorTweens()
     {
         if (selectorImage == null) return;
-        LeanTween.cancel(selectorImage.gameObject);
+        LeanTween.cancel(selectorImage.gameObject); // harmless safety if anything else tweened it
     }
 
     private bool ValidateComponents()

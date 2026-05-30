@@ -289,6 +289,7 @@ public class SaveSlotRename : MonoBehaviour
 
     private void OnCancelPerformed(InputAction.CallbackContext context)
     {
+        if (!IsOpen) return;
         // Only respond if this popup is active and cancel button exists
         if (gameObject.activeInHierarchy && cancelButton != null && cancelButton.interactable)
         {
