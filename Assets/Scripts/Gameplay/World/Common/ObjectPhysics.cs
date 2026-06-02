@@ -149,7 +149,7 @@ public class ObjectPhysics : MonoBehaviour
 
     public ObjectState objectState = ObjectState.falling;
     public ObjectMovement movement = ObjectMovement.sliding;
-
+    public bool bounceOnceThenGround = false;
     public bool stopAfterLand = false;  // do we set the horizontal velocity to 0 after landing?
 
     [Header("Bouncing")]
@@ -414,9 +414,9 @@ public class ObjectPhysics : MonoBehaviour
         Vector2 originMiddle = new Vector2(c.x,                               c.y - halfHeight + 0.02f);
         Vector2 originRight  = new Vector2(c.x + halfWidth - floorRaycastSpacing, c.y - halfHeight + 0.02f);
 
-        RaycastHit2D[] groundLeft   = Physics2D.RaycastAll(originLeft,   Vector2.down, -velocity.y * adjDeltaTime + .04f, floorMask);
-        RaycastHit2D[] groundMiddle = Physics2D.RaycastAll(originMiddle, Vector2.down, -velocity.y * adjDeltaTime + .04f, floorMask);
-        RaycastHit2D[] groundRight  = Physics2D.RaycastAll(originRight,  Vector2.down, -velocity.y * adjDeltaTime + .04f, floorMask);
+        RaycastHit2D[] groundLeft   = Physics2D.RaycastAll(originLeft,   Vector2.down, -velocity.y * adjDeltaTime + 0.2f, floorMask);
+        RaycastHit2D[] groundMiddle = Physics2D.RaycastAll(originMiddle, Vector2.down, -velocity.y * adjDeltaTime + 0.2f, floorMask);
+        RaycastHit2D[] groundRight  = Physics2D.RaycastAll(originRight,  Vector2.down, -velocity.y * adjDeltaTime + 0.2f, floorMask); // old = 0.04f 
 
 
         RaycastHit2D[][] groundCollides = { groundLeft, groundMiddle, groundRight };
@@ -488,6 +488,9 @@ public class ObjectPhysics : MonoBehaviour
                     // bounce
                     velocity.y = bounceHeight;
                     OnBounced();
+
+                    if (bounceOnceThenGround)
+                        movement = ObjectMovement.sliding;   // next ground contact will Land()
                 }
                 else
                 {

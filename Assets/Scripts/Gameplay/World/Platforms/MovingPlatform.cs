@@ -24,6 +24,8 @@ public class MovingPlatform : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+         float dt = Mathf.Min(Time.deltaTime, 0.05f); // lag guard — never teleport on a spike
+         
         if (!isWaiting && transform.position == nextPoint) // if it's waiting and it's already on the next point
         {
             StartCoroutine(WaitBeforeNextPoint()); // updated to the new target point after the wait is over, which takes a few seconds
@@ -32,7 +34,7 @@ public class MovingPlatform : MonoBehaviour
         if (!isWaiting) // if the platform is not currently waiting
         {
             nextPoint = points[nextPointNum].position; // update the next target point
-            transform.position = Vector3.MoveTowards(transform.position, nextPoint, speed * Time.deltaTime); // move the platform towards the next point
+            transform.position = Vector3.MoveTowards(transform.position, nextPoint, speed * dt); // move the platform towards the next point
         }
     }
 

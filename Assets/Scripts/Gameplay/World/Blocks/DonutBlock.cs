@@ -42,7 +42,7 @@ public class DonutBlock : MonoBehaviour, IDestructible, IStandable
 
     private void Update()
     {
-        bool isPlayerOn = playersOnBlock > 0;
+        bool isPlayerOn = playersOnBlock > 0 || HasObjectPhysicsChild();
 
         // Change the sprite based on player interaction
         if (isPlayerOn)
@@ -67,6 +67,16 @@ public class DonutBlock : MonoBehaviour, IDestructible, IStandable
                 timeOnBlock = 0f; // Reset the timer if the player leaves the block
             }
         }
+    }
+
+    private bool HasObjectPhysicsChild()
+    {
+        for (int i = 0; i < transform.childCount; i++)
+        {
+            if (transform.GetChild(i).GetComponent<ObjectPhysics>() != null)
+                return true;
+        }
+        return false;
     }
 
     private IEnumerator Drop()
