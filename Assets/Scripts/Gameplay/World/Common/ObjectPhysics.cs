@@ -1055,19 +1055,6 @@ public class ObjectPhysics : MonoBehaviour
         }
         
         TryApplyThrownObjectCombo(collision);
-
-        // TODO: This was code for throwing a POW block. Move it to the POW block script probably
-        //if (collision.gameObject.CompareTag("Ground") || collision.gameObject.CompareTag("Enemy") || collision.gameObject.CompareTag("Default"))
-        //{
-            // if (hasBeenThrown && objectState == ObjectState.falling)
-            // {
-            //     POWBlock pow = collision.gameObject.GetComponent<POWBlock>();
-            //     if (pow != null)
-            //     {
-            //         pow.ActivatePOWBlock();
-            //     }
-            // }
-        //}    
     }
 
     void OnTriggerStay2D(Collider2D collision)

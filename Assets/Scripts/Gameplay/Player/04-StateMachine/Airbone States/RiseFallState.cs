@@ -28,7 +28,7 @@ public class RiseState : AirborneStateBase
         base.Enter(previousState);
 
         // Execute the jump impulse
-        bool useWalkSpeed = Mathf.Abs(Rb.velocity.x) > Cfg.WalkJumpSpeedRequired;
+        bool useWalkSpeed = Mathf.Abs(Rb.velocity.x) > Cfg.WalkJumpSpeedRequired || State.IsBounced;
         float speed       = useWalkSpeed ? Cfg.WalkJumpSpeed : Cfg.JumpSpeed;
 
         // Tell ground detection to skip velocity constraints this frame.
@@ -100,9 +100,7 @@ public class RiseState : AirborneStateBase
     private void ApplyRiseGravity()
     {
         bool airTimerActive = State.AirTimer > Time.time;
-        bool jumpHeld = State.Spinning
-            ? State.SpinHeld // spin jump: hold spin button to sustain
-            : State.JumpPressed; // regular jump: hold jump button to sustain
+        bool jumpHeld = State.JumpPressed || State.SpinHeld;    // can hold jump when bouncing off an enemy while spinning
 
         if (!airTimerActive || Rb.velocity.y < Cfg.StartFallingSpeed)
         {

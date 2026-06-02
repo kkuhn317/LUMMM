@@ -81,8 +81,8 @@ public abstract class AirborneStateBase : MarioStateBase
             if (State.Direction.y <= 0.5f) State.ClimbExitedWhilePressingUp = false;
             if (State.Direction.y >= -0.5f) State.ClimbExitedWhilePressingDown = false;
 
-            // Only allow attaching with vertical intent
-            bool verticalIntent = Mathf.Abs(State.Direction.y) > 0.5f;
+            // Only allow attaching when pressing up
+            bool verticalIntent = State.Direction.y > 0.5f;
 
             if (verticalIntent)
             {

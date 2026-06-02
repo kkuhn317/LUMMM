@@ -35,17 +35,7 @@ public class SpikeyHazard : MonoBehaviour
             if (playerscript.State.Spinning)
             {
                 MarioEvents.FireSpinJumpBounced(playerscript.PlayerIndex);
-
-                // Set the bounce velocity then transition into RiseState so that
-                // holding the spin button sustains the bounce height normally via
-                // RiseState.ApplyRiseGravity (State.SpinHeld). A raw velocity set
-                // without transitioning to Rise means SpinHeld is never checked.
-                playerscript.Rb.velocity = new Vector2(
-                    playerscript.Rb.velocity.x,
-                    playerscript.Physics.Config.JumpSpeed * 0.6f);
-
-                playerscript.State.AirTimer = Time.time + playerscript.Physics.Config.Airtime;
-                playerscript.State.JumpTimer = 0f;
+                playerscript.State.IsBounced = true;
                 playerscript.StateMachine.ForceTransition(MarioStateID.Rise);
             }
             else

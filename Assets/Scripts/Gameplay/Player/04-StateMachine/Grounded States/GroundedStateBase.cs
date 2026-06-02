@@ -230,7 +230,7 @@ public abstract class GroundedStateBase : MarioStateBase
         if (!State.Climbing && State.CurrentClimbable != null
             && !State.ClimbExitedWhilePressingDown
             && !State.JustLeftClimbing
-            && Mathf.Abs(State.Direction.y) > 0.5f
+            && State.Direction.y > 0.5f
             && Time.time >= State.JumpTimer)
         {
             var method = State.CurrentClimbable.climbMethod;
