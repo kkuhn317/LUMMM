@@ -152,26 +152,26 @@ public class BumpableBlock : MonoBehaviour, IBumpable
     protected virtual IEnumerator BounceRoutine(BlockHitDirection direction)
     {
         float dirMult = direction == BlockHitDirection.Down ? -1f : 1f;
-        float half = bounceDuration / 2f;
         float elapsed = 0f;
 
-        while (elapsed < half)
+        while (elapsed < bounceDuration)
         {
             elapsed += Time.deltaTime;
-            transform.position = (Vector3)originalPosition
-                + Vector3.up * (dirMult * bounceHeight * (elapsed / half));
+            
+            // Calculate the percentage of completion (0.0 to 1.0)
+            float t = elapsed / bounceDuration;
+            
+            // Evaluate a sine wave from 0 to PI (180 degrees).
+            // This naturally eases out at the top, and eases in at the bottom.
+            float currentHeight = Mathf.Sin(t * Mathf.PI) * bounceHeight;
+
+            transform.position = (Vector3)originalPosition 
+                + Vector3.up * (dirMult * currentHeight);
+                
             yield return null;
         }
 
-        elapsed = 0f;
-        while (elapsed < half)
-        {
-            elapsed += Time.deltaTime;
-            transform.position = (Vector3)originalPosition
-                + Vector3.up * (dirMult * bounceHeight * (1f - elapsed / half));
-            yield return null;
-        }
-
+        // Snap perfectly back to the origin to prevent floating point drift
         transform.position = originalPosition;
     }
 

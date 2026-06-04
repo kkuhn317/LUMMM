@@ -56,32 +56,30 @@ public class NoteBlockController : BumpableBlock
     {
         isAnimating = true;
 
-        float targetOffset = direction == BlockHitDirection.Down ? -animationDistance : animationDistance;
-        // Use Vector2 for all calculations to be consistent with base class
-        Vector2 targetPosition = originalPosition + Vector2.up * targetOffset;
+        float dirMult = direction == BlockHitDirection.Down ? -1f : 1f;
+        float elapsed = 0f;
 
-        // Move to target position
-        float elapsedTime = 0f;
-        while (elapsedTime < animationDuration)
+        // Multiply duration by 2 because the original Note Block logic
+        // ran two separate 'animationDuration' loops (one up, one down).
+        float totalTime = animationDuration * 2f; 
+
+        while (elapsed < totalTime)
         {
-            float t = elapsedTime / animationDuration;
-            transform.position = Vector2.Lerp(originalPosition, targetPosition, t);
-            elapsedTime += Time.deltaTime;
+            elapsed += Time.deltaTime;
+            
+            // Calculate percentage from 0.0 to 1.0
+            float t = elapsed / totalTime;
+            
+            // Evaluate sine wave for smooth easing
+            float currentHeight = Mathf.Sin(t * Mathf.PI) * animationDistance;
+
+            transform.position = (Vector3)originalPosition 
+                + Vector3.up * (dirMult * currentHeight);
+                
             yield return null;
         }
 
-        transform.position = targetPosition;
-
-        // Return to original position
-        elapsedTime = 0f;
-        while (elapsedTime < animationDuration)
-        {
-            float t = elapsedTime / animationDuration;
-            transform.position = Vector2.Lerp(targetPosition, originalPosition, t);
-            elapsedTime += Time.deltaTime;
-            yield return null;
-        }
-
+        // Snap perfectly back to the origin
         transform.position = originalPosition;
         isAnimating = false;
     }

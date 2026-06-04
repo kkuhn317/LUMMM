@@ -262,6 +262,9 @@ public class FlagSlide : MonoBehaviour
         if (prefab == null) return null;
 
         var instance = Instantiate(prefab);
+
+        instance.transform.localScale = mario.transform.lossyScale;
+
         instance.SetActive(false);
         instance.transform.position = new Vector2(
             transform.position.x + (flagOnRight ? 0.4f : -0.4f),

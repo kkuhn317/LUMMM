@@ -184,10 +184,10 @@ public class QuestionBlock : BumpableBlock
 
             if (hasSpawnables || hasConditional)
             {
-                // 1. Figure out exactly what is spawning on this hit
+                // Figure out exactly what is spawning on this hit
                 List<GameObject> itemsForThisHit = GetItemsForThisHit(player);
 
-                // 2. Sort them into the Instant bucket or the Delayed bucket
+                // Sort them into the Instant bucket or the Delayed bucket
                 foreach (GameObject item in itemsForThisHit)
                 {
                     if (item == null) continue;
@@ -206,6 +206,24 @@ public class QuestionBlock : BumpableBlock
                     }
                 }
             }
+
+            // Change to empty sprite if no more spawnables (and its not just a plain brick block)
+            bool isEmptyBrickBlock = brickBlock && !hasSpawnables && !hasConditional;
+
+            if (!isEmptyBrickBlock)
+            {
+                if (spawnMode == SpawnMode.Sequential)
+                {
+                    if (!HasRemainingSpawnables())
+                    {
+                        MarkUsedAndEmpty();
+                    }
+                }
+                else
+                {
+                    MarkUsedAndEmpty(); // All-At-Once blocks are always empty after 1 hit
+                }
+            }
         }
     }
 
@@ -221,27 +239,11 @@ public class QuestionBlock : BumpableBlock
             return;
         }
 
-        if (IsUsed)
-            return;
-
-        // 3. The bounce is finished! Spawn any slow-rising items we saved.
+        // The bounce is finished, spawn any slow-rising items we saved.
         if (delayedSpawns.Count > 0)
         {
             PresentDelayedItems(delayedSpawns);
             delayedSpawns.Clear();
-        }
-
-        // 4. Mark the block empty if it's out of items
-        if (spawnMode == SpawnMode.Sequential)
-        {
-            if (!HasRemainingSpawnables())
-            {
-                MarkUsedAndEmpty();
-            }
-        }
-        else
-        {
-            MarkUsedAndEmpty(); // All-At-Once blocks are always empty after 1 hit
         }
     }
 
