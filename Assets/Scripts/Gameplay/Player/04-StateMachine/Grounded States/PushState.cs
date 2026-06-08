@@ -23,18 +23,28 @@ public class PushState : GroundedStateBase
         int   dir = State.FacingRight ? 1 : -1;
         float spd = State.PushingSpeed;
 
-        // Direct velocity set — no forces while pushing
-        Rb.velocity = new Vector2(spd * dir, Rb.velocity.y);
-
         if (State.OnGround)
         {
             Rb.gravityScale = 0f;
             Rb.drag         = 0f;
+
+            // Get the normal of the floor Mario is standing on
+            Vector2 floorNormal = State.FloorNormal;
+
+            // Calculate the Tangent
+            Vector2 slopeTangent = new Vector2(floorNormal.y, -floorNormal.x).normalized;
+
+            // Apply the pushing speed along that specific slope line
+            Rb.velocity = slopeTangent * (spd * dir);
         }
         else
         {
             Rb.gravityScale = Cfg.FallGravity;
             Rb.drag         = 0f;
+
+            // If Mario pushes an object off a ledge, revert to flat horizontal pushing
+            // so gravity can naturally pull him down.
+            Rb.velocity = new Vector2(spd * dir, Rb.velocity.y);
         }
     }
 

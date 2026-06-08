@@ -82,6 +82,12 @@ public class Trampoline : MonoBehaviour
         TryBounceObject(other.transform, other.gameObject.GetComponent<ObjectPhysics>());
     }
 
+    // Sometimes OnCollisionEnter doesnt detect Mario being on top of the spring. This makes sure that its detected
+    private void OnCollisionStay2D(Collision2D other)
+    {
+        OnCollisionEnter2D(other);
+    }
+
     private void OnTriggerEnter2D(Collider2D other)
     {
         _bouncedThisContact = false;

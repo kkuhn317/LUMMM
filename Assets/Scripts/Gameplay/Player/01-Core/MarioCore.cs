@@ -67,16 +67,6 @@ public class MarioCore : MonoBehaviour
     public float ColliderOriginalOffsetY      { get; private set; }
     public float CrushColliderOriginalOffsetY { get; private set; }
 
-    // Physics materials switched based on grounded state:
-    // grounded = friction grips slopes; airborne = frictionless so box edges don't catch
-    private PhysicsMaterial2D _groundedMaterial;
-    private PhysicsMaterial2D _airborneMaterial;
-    public void SetAirborneFriction(bool airborne)
-    {
-        if (Collider != null)
-            Collider.sharedMaterial = airborne ? _airborneMaterial : _groundedMaterial;
-    }
-
     // ─── Abilities ───────────────────────────────────────────────────────────
 
     private readonly List<MarioAbility> _abilities = new();
@@ -101,10 +91,6 @@ public class MarioCore : MonoBehaviour
         ColliderOriginalHeight  = Collider.size.y;
         ColliderOriginalOffsetY = Collider.offset.y;
         CrushColliderOriginalOffsetY = CrushCollider.offset.y;
-
-        _groundedMaterial = new PhysicsMaterial2D("MarioGrounded")  { friction = 0.4f, bounciness = 0f };
-        _airborneMaterial = new PhysicsMaterial2D("MarioAirborne")  { friction = 0f,   bounciness = 0f };
-        Collider.sharedMaterial = _groundedMaterial;
 
         // Cache all sibling modules
         // Order matters: StateMachine last so modules are ready when it initializes
