@@ -157,6 +157,8 @@ public class MarioGroundDetection : MonoBehaviour
             if (!State.OnGround && _core.Rb.velocity.y < 0f && Mathf.Abs(_core.Rb.velocity.x) > 0.1f)
                 ApplyFloorCornerCorrection();
         }
+
+        SkipConstraintsThisFrame = false;   // consume
     }
 
     // ─── Ceiling Detection ────────────────────────────────────────────────────
@@ -530,7 +532,6 @@ public class MarioGroundDetection : MonoBehaviour
 
         if (!_core.State.Climbing && !SkipConstraintsThisFrame)
         {
-            SkipConstraintsThisFrame = false; // consume
             SnapToGround(hit);
 
             if (isFlat)
