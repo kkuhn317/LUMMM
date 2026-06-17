@@ -17,6 +17,7 @@ public class MarioPhysics : MonoBehaviour
 
     [Header("Layers")]
     public LayerMask GroundLayer;
+    public LayerMask CeilingLayer; // For detecting bumps against ceiling
 
     private MarioCore  _core;
     private MarioState State => _core.State;

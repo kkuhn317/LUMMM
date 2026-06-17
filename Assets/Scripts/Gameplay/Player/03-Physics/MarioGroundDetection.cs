@@ -165,8 +165,8 @@ public class MarioGroundDetection : MonoBehaviour
     
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        // Check if we hit something in the GroundLayer
-        if (((1 << collision.gameObject.layer) &  _core.Physics.GroundLayer) != 0)
+        // Check if we hit something in the CeilingLayer
+        if (((1 << collision.gameObject.layer) & _core.Physics.CeilingLayer) != 0)
         {
             float totalImpulseY = 0f;
             
