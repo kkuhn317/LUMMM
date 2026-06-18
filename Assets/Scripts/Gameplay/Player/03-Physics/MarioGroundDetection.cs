@@ -390,26 +390,14 @@ public class MarioGroundDetection : MonoBehaviour
         _groundSeamSnapY = highestPointY;
 
         // Prevent re-grounding while rising in an airborne state.
-        // We keep the IsAirborne guard here intentionally: without it, any small upward
-        // velocity on a slope seam sets OnGround=false for one frame, causing jitter.
-        // The jump-cancellation issue is handled in SnapToGround instead.
-        // If the overlap box is touching the floor, Mario is grounded regardless.
-        if (anyOverlap)
-        {
-            // Still respect the goingUp guard — on the jump frame the overlap box
-            // is still touching the floor but Mario is already rising.
-            bool isAirborneState = _core.StateMachine.IsAirborne;
-            bool movingUpInWorld = _core.Rb.velocity.y > 1.0f;
-            bool goingUp = isAirborneState && movingUpInWorld;
-            State.OnGround = !goingUp;
-        }
-        else
-        {
-            bool isAirborneState = _core.StateMachine.IsAirborne;
-            bool movingUpInWorld = _core.Rb.velocity.y > 1.0f;
-            bool goingUp = isAirborneState && movingUpInWorld;
-            State.OnGround = !goingUp;
-        }
+        bool isAirborneState = _core.StateMachine.IsAirborne;
+        
+        // Instead of checking global Y velocity, check if Mario's momentum 
+        // is actively carrying him AWAY from the surface he just hit.
+        float awaySpeed = Vector2.Dot(_core.Rb.velocity, bestHit.normal);
+        bool jumpingAway = isAirborneState && awaySpeed > 0.5f;
+
+        State.OnGround = !jumpingAway;
 
     #if UNITY_EDITOR
         /*if (anyHit)

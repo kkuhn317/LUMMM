@@ -70,22 +70,31 @@ public class WalkState : GroundedStateBase
         if (horizontal == 0f) return;
 
         Vector2 moveDir = GetSlopeMoveDir();
-
-        // FIX: On a slope, measure total speed along the slope rather than just X.
-        // velocity.x alone under-counts speed going uphill and over-counts downhill,
-        // causing SlowDownForce to fire at the wrong times.
         float speed = State.FloorAngle != 0f ? Rb.velocity.magnitude : Mathf.Abs(Rb.velocity.x);
 
-        // Compare direction along the slope, not raw velocity.x — on a slope
-        // velocity.x sign can mismatch input sign even when moving forward.
         Vector2 slopeDir = moveDir * Mathf.Sign(horizontal);
         float speedAlongInput = Vector2.Dot(Rb.velocity, slopeDir);
         bool movingWithInput = speedAlongInput > 0f;
 
-        if (speed <= Cfg.MaxSpeed || !movingWithInput)
-            Rb.AddForce(horizontal * Cfg.MoveSpeed * moveDir);
+        float mult = GetSlopeMultiplier(horizontal);
+        float effectiveMaxSpeed = Cfg.MaxSpeed * mult;
+        float effectiveForce = Cfg.MoveSpeed * mult;
+
+        if (speed <= effectiveMaxSpeed || !movingWithInput)
+        {
+            Rb.AddForce(horizontal * effectiveForce * moveDir);
+        }
         else
-            Rb.AddForce(-slopeDir * Cfg.SlowDownForce);
+        {
+            float activeBrakingForce = Cfg.SlowDownForce;
+            if (slopeDir.y > 0.01f)
+                {
+                    // Multiply the braking force when going uphill, so you slow down faster
+                    activeBrakingForce *= 4f; 
+                }
+
+            Rb.AddForce(-slopeDir * activeBrakingForce);
+        }
     }
 
     protected Vector2 GetSlopeMoveDir()
@@ -159,6 +168,30 @@ public class RunState : WalkState
         if (horizontal == 0f) return;
 
         Vector2 moveDir = GetSlopeMoveDir();
-        Rb.AddForce(horizontal * Cfg.RunSpeed * moveDir);
+        float speed = State.FloorAngle != 0f ? Rb.velocity.magnitude : Mathf.Abs(Rb.velocity.x);
+
+        Vector2 slopeDir = moveDir * Mathf.Sign(horizontal);
+        float speedAlongInput = Vector2.Dot(Rb.velocity, slopeDir);
+        bool movingWithInput = speedAlongInput > 0f;
+
+        float mult = GetSlopeMultiplier(horizontal);
+        float effectiveMaxSpeed = Cfg.MaxRunSpeed * mult;
+        float effectiveForce = Cfg.RunSpeed * mult;
+
+        if (speed <= effectiveMaxSpeed || !movingWithInput)
+        {
+            Rb.AddForce(horizontal * effectiveForce * moveDir);
+        }
+        else
+        {
+            float activeBrakingForce = Cfg.SlowDownForce;
+            if (slopeDir.y > 0.01f)
+                {
+                    // Multiply the braking force when going uphill, so you slow down faster
+                    activeBrakingForce *= 4f; 
+                }
+
+            Rb.AddForce(-slopeDir * activeBrakingForce);
+        }
     }
 }

@@ -61,6 +61,25 @@ public abstract class GroundedStateBase : MarioStateBase
     protected float GroundSpeed => Vector2.Dot(Rb.velocity, GroundTangent);
     protected float GroundAbsSpeed => Mathf.Abs(GroundSpeed);
 
+    protected float GetSlopeMultiplier(float directionX)
+    {
+        // Flat ground or no input = normal speed
+        if (State.FloorNormal == Vector2.up || State.FloorNormal == Vector2.zero || directionX == 0f)
+            return 1f;
+
+        Vector2 n = GroundNormal;
+        Vector2 tangent = new Vector2(n.y, -n.x);
+        
+        // This is the vector pointing exactly where Mario is trying to run along the slope
+        Vector2 slopeDir = tangent * Mathf.Sign(directionX);
+
+        // slopeDir.y is > 0 when uphill, < 0 when downhill.
+        // A slopeInfluence of 0.4 means a 45-degree slope scales speed by ~28%
+        const float slopeInfluence = 0.4f; 
+        
+        return 1f - (slopeDir.y * slopeInfluence);
+    }
+
     protected void SetGroundSpeed(float speed)
     {
         Vector2 n = GroundNormal;
@@ -131,20 +150,41 @@ public abstract class GroundedStateBase : MarioStateBase
         if (State.IsCrouching || (!State.FacingRight && GroundSpeed > 0f) || (State.FacingRight && GroundSpeed < 0f))
             Rb.drag *= 1.5f;
 
+        bool onSlope = Mathf.Abs(State.FloorAngle) > 0.1f;
+
+        if (!holding && onSlope)
+        {
+            float velocityY = Rb.velocity.normalized.y;
+            float dynamicDragMult = 1f;
+
+            if (velocityY > 0.01f)
+            {
+                // Coasting UPHILL: Stop significantly faster
+                dynamicDragMult = velocityY * 4f; 
+            }
+            else if (velocityY < -0.01f)
+            {
+                // Coasting DOWNHILL: Coast much further
+                dynamicDragMult = velocityY * 3f; 
+            }
+
+            dynamicDragMult = Mathf.Max(dynamicDragMult, 0.5f);
+            Rb.drag *= dynamicDragMult;
+        }
+
         if (Rb.drag > 100_000_000f)
             Rb.drag = 100_000_000f;
     }
 
     protected void ClampHorizontalSpeed()
     {
-        // ONLY hard-clamp the absolute maximum run speed ceiling.
-        // If Mario is walking but currently moving faster than walk speed (coasting),
-        // WalkState's SlowDownForce will handle braking him smoothly.
-        float maxSpd = Cfg.MaxRunSpeed; 
+        // Set an absolute safety ceiling to prevent physics explosions (1.5x max run speed).
+        // The actual smooth gameplay speed caps are now handled in WalkState/RunState!
+        float absoluteMax = Cfg.MaxRunSpeed * 1.5f; 
         float speed = GroundSpeed;
 
-        if (Mathf.Abs(speed) > maxSpd)
-            SetGroundSpeed(Mathf.Sign(speed) * maxSpd);
+        if (Mathf.Abs(speed) > absoluteMax)
+            SetGroundSpeed(Mathf.Sign(speed) * absoluteMax);
     }
 
     protected void HandleFacing()

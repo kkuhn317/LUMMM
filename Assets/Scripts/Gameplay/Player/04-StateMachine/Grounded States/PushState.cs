@@ -34,8 +34,14 @@ public class PushState : GroundedStateBase
             // Calculate the Tangent
             Vector2 slopeTangent = new Vector2(floorNormal.y, -floorNormal.x).normalized;
 
-            // Apply the pushing speed along that specific slope line
-            Rb.velocity = slopeTangent * (spd * dir);
+            // Scale the diagonal pushing speed so x velocity stays consistent
+            float tangentSpeed = spd;
+            if (floorNormal.y > 0.01f)
+            {
+                tangentSpeed = spd / floorNormal.y;
+            }
+
+            Rb.velocity = slopeTangent * (tangentSpeed * dir);
         }
         else
         {
