@@ -53,7 +53,7 @@ public class WalkState : GroundedStateBase
             return;
         }
 
-        if (IsChangingDirection && Mathf.Abs(Rb.velocity.x) >= Cfg.MaxRunSpeed * 0.9f)
+        if (IsChangingDirection && currentSpeed >= Cfg.MaxRunSpeed * 0.9f)
         {
             RequestTransition(MarioStateID.Skid);
             return;
@@ -144,7 +144,7 @@ public class RunState : WalkState
             return;
         }
 
-        if (IsChangingDirection && Mathf.Abs(Rb.velocity.x) >= Cfg.MaxRunSpeed * 0.9f)
+        if (IsChangingDirection && currentSpeed >= Cfg.MaxRunSpeed * 0.9f)
         {
             RequestTransition(MarioStateID.Skid);
             return;

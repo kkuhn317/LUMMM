@@ -59,7 +59,7 @@ public class MarioGroundDetection : MonoBehaviour
     // losing ground contact when descending a slope quickly.
     private const float GroundSupportProbeVelocityScale = 0.04f;
     private const float GroundSupportProbeMaxExtra = 0.20f;
-    private const float FlatSupportNormalY = 0.85f;
+    private const float FlatSupportNormalY = 0.98f;
     private const int GroundSeamFlatFrameBuffer = 0;
     private const float GroundSupportHeightTolerance = 0.03f;
 
@@ -68,6 +68,7 @@ public class MarioGroundDetection : MonoBehaviour
     private float _groundSeamSnapY;
     private Vector3 _platformLastPos;
     private Vector2 _prePhysicsVelocity;
+    private Vector2 _lastFrameVelocity;
 
     // For notifying objects when Mario stands on them
     private GameObject _currentGroundObj;
@@ -159,6 +160,8 @@ public class MarioGroundDetection : MonoBehaviour
         }
 
         SkipConstraintsThisFrame = false;   // consume
+
+        _lastFrameVelocity = _core.Rb.velocity;
     }
 
     // ─── Ceiling Detection ────────────────────────────────────────────────────
@@ -364,17 +367,6 @@ public class MarioGroundDetection : MonoBehaviour
             return null;
         }
 
-        // Hit by BoxCast but no overlap — only stay grounded if we were already grounded
-        // last frame. This prevents Mario from floating above the floor after jump spamming
-        // in tight spaces, where the BoxCast reaches the floor but Mario isn't touching it.
-        if (!anyOverlap && !_wasGrounded)
-        {
-            State.OnGround = false;
-            _treatGroundAsFlat = false;
-            _groundSeamFlatFrames = 0;
-            return null;
-        }
-
         // Height delta between the highest and closest hit points.
         // On open slope, adjacent tiles differ by ~tan(slope_angle) * box_width ≈ 0.25–0.40 units.
         // At a flat→slope corner the delta jumps to ~0.50+ units.
@@ -495,29 +487,40 @@ public class MarioGroundDetection : MonoBehaviour
             const float inputDeadzone = 0.1f;
             const float slopeStopSpeed = 0.8f;
 
-            // When the previous frame was in flat/seam mode, oldNormal is Vector2.up
-            // and dotting against it gives the wrong tangent speed for a slope.
-            // Use newNormal's tangent directly in that case — velocity is already horizontal.
-            Vector2 tangentRef = _treatGroundAsFlat ? newNormal : oldNormal;
-            float tangentSpeed = Vector2.Dot(_core.Rb.velocity, GetGroundTangent(tangentRef));
+            // Preserve X velocity
+            float incomingX = _lastFrameVelocity.x;
+
+            // Scale the diagonal speed so its horizontal component perfectly matches incomingX
+            float tangentSpeed = 0f;
+            if (newNormal.y > 0.01f)
+            {
+                tangentSpeed = incomingX / newNormal.y;
+            }
 
             // Do not preserve tiny residual motion when the player is not actively moving.
             if (Mathf.Abs(State.Direction.x) < inputDeadzone && Mathf.Abs(tangentSpeed) < slopeStopSpeed)
+            {
                 tangentSpeed = 0f;
+            }
 
             ReprojectVelocityOnSurface(newNormal, tangentSpeed);
         }
 
         if (newAngle != 0f && wasInAir)
         {
+            // Preserve horizontal velocity
+            float incomingX = _lastFrameVelocity.x;
+
+            // Calculate tangent speed
+            float tangentSpeed = (newNormal.y > 0.01f) ? (incomingX / newNormal.y) : 0f;
+
             const float inputDeadzone = 0.1f;
 
-            float tangentSpeed = Vector2.Dot(_core.Rb.velocity, GetGroundTangent(newNormal));
-
-            // Preserve intentional horizontal landing, but do not create sideways drift
-            // from a purely vertical drop onto a slope.
-            if (Mathf.Abs(State.Direction.x) < inputDeadzone)
+            // If dropping perfectly straight down, don't invent sliding momentum
+            if (Mathf.Abs(State.Direction.x) < inputDeadzone && Mathf.Abs(incomingX) < 0.1f)
+            {
                 tangentSpeed = 0f;
+            }
 
             ReprojectVelocityOnSurface(newNormal, tangentSpeed, keepIntoSurfaceVelocity: false);
         }

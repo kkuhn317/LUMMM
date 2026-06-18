@@ -107,31 +107,10 @@ public abstract class GroundedStateBase : MarioStateBase
     protected void ApplyGroundedDrag()
     {
         const float inputDeadzone = 0.1f;
-        const float normalStopSpeed = 0.25f;
 
         float horizontal = State.Direction.x;
         bool holding = Mathf.Abs(horizontal) > inputDeadzone && !IsChangingDirection;
         float spd = GroundAbsSpeed;
-
-        bool onSlope = Mathf.Abs(State.FloorAngle) > 0.1f;
-        bool shouldPinToSlope = onSlope
-                            && !holding
-                            && State.OnConveyor == null
-                            && State.OnMovingPlatform == null;
-
-        if (shouldPinToSlope)
-        {
-            SetGroundSpeed(0f);
-
-            Vector2 n = GroundNormal;
-            float normalSpeed = Vector2.Dot(Rb.velocity, n);
-            if (Mathf.Abs(normalSpeed) < normalStopSpeed)
-                Rb.velocity -= n * normalSpeed;
-
-            Rb.drag = 0f;
-            _justLanded = false;
-            return;
-        }
 
         if (_justLanded)
             _justLanded = false;
