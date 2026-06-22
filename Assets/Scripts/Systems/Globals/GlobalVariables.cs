@@ -52,18 +52,9 @@ public static class GlobalVariables
     public static bool cheatRandomizer = false;
 
     // Speedrun Timer
-    public static Stopwatch speedrunTimer = new();
+    public static Stopwatch speedrunTimer = new();  // Don't read the time from this, use elapsedTime instead!
     public static TimeSpan timerOffset = TimeSpan.Zero;
     public static TimeSpan elapsedTime => timerOffset.Add(speedrunTimer.Elapsed);
-
-    // Converts to String FOR USE BY PLAYERPREFS (not for displaying)
-    public static string ElapsedTimeToString() {
-        return elapsedTime.TotalMilliseconds.ToString(System.Globalization.CultureInfo.InvariantCulture);
-    }
-
-    public static void SetTimerOffsetFromString(string timeString) {
-        timerOffset = TimeSpan.FromMilliseconds(double.Parse(timeString, System.Globalization.CultureInfo.InvariantCulture));
-    }
 
     // Other
     public static void ResetForLevel()

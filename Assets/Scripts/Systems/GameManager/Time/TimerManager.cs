@@ -31,15 +31,11 @@ public class TimerManager : MonoBehaviour
     private void Start()
     {
         currentTime = startingTime;
-
         GameEvents.TriggerTimerChanged(currentTime);
 
-        if (GlobalVariables.SpeedrunMode)
-        {
-            GlobalVariables.speedrunTimer.Reset();
-            GlobalVariables.timerOffset = TimeSpan.Zero;
-            GlobalVariables.speedrunTimer.Start();
-        }
+        // Speedrun Timer Offset (timerOffset) is managed by CheckpointManager
+        GlobalVariables.speedrunTimer.Reset();
+        GlobalVariables.speedrunTimer.Start();
     }
 
     private void Update()
@@ -67,8 +63,7 @@ public class TimerManager : MonoBehaviour
             }
         }
 
-        if (GlobalVariables.SpeedrunMode)
-            GameEvents.TriggerSpeedrunTimeChanged(GlobalVariables.elapsedTime);
+        GameEvents.TriggerSpeedrunTimeChanged(GlobalVariables.elapsedTime);
     }
 
     private void TriggerTimeWarning()

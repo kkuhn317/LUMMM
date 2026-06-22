@@ -222,6 +222,10 @@ public class GameManager : MonoBehaviour, IGameManager
                 Debug.LogError($"{nameof(GameManager)}: {nameof(CheckpointManager)} not found when restarting from beginning.");
             else
                 cp.ClearCheckpoint();
+        } else
+        {
+            // Save speedrun time so it doesnt go backward when you load from checkpoint
+            checkpointManager.SaveCheckpointBeforeManualRestart();
         }
 
         StopAllLevelMusic();

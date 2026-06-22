@@ -143,6 +143,10 @@ public class LevelFlowController : MonoBehaviour
 
         bool gameOver = lifeSystem.RemoveLifeSilent();
 
+        // pause speedrun timer
+        GlobalVariables.speedrunTimer.Stop();
+        
+        // Save current state in case you leave and come back to the level later
         if (checkpointManager != null && checkpointManager.HasCheckpoint)
             checkpointManager.SaveCurrentCheckpoint();
 

@@ -55,8 +55,6 @@ public class WinScreenController : MonoBehaviour
     private PlayerRank highestRank = PlayerRank.Default;
     private PlayerRank highestRankAtLevelStart = PlayerRank.Default;
     private bool gotNewBestRankThisRun = false;
-
-    private bool speedrunTimerVisible = false;
     private bool isWinScreenActive = false;
     private bool isClosingWinScreen;
 
@@ -68,8 +66,6 @@ public class WinScreenController : MonoBehaviour
         currentScore = GlobalVariables.score;
         currentCoins = GlobalVariables.coinCount;
         currentTime = GlobalVariables.infiniteTimeMode ? 0 : 300f;
-
-        speedrunTimerVisible = GlobalVariables.SpeedrunMode;
 
         LoadHighScore();
         CaptureHighestRankAtStart();
@@ -451,6 +447,8 @@ public class WinScreenController : MonoBehaviour
 
     private void UpdateWinScreenSpeedrunTime()
     {
+        bool speedrunTimerVisible = GlobalVariables.SpeedrunMode;
+        
         if (winScreenSpeedrunTimeBox != null)
             winScreenSpeedrunTimeBox.SetActive(speedrunTimerVisible);
         else if (winScreenSpeedrunTimeText != null)

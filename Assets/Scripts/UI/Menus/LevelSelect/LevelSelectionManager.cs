@@ -303,32 +303,6 @@ public class LevelSelectionManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Loads checkpoint data from the new SaveManager system for this level.
-    /// Returns true if a valid checkpoint was loaded.
-    /// </summary>
-    private bool TryLoadCheckpointFromSaveManager(string levelID)
-    {
-        var checkpoint = SaveManager.Current.checkpoint;
-
-        if (!checkpoint.hasCheckpoint || checkpoint.levelID != levelID)
-            return false;
-
-        GlobalVariables.lives = checkpoint.lives;
-        GlobalVariables.coinCount = checkpoint.coins;
-        GlobalVariables.checkpoint = checkpoint.checkpointId;
-
-        if (checkpoint.speedrunMs > 0)
-        {
-            // Basic restoration for the timer; the exact elapsed value handling can be refined later.
-            GlobalVariables.speedrunTimer = new System.Diagnostics.Stopwatch();
-            GlobalVariables.speedrunTimer.Start();
-        }
-
-        Debug.Log($"Loading checkpoint from SaveData for level {levelID}, checkpoint {checkpoint.checkpointId}");
-        return true;
-    }
-
-    /// <summary>
     /// Loads checkpoint data from the legacy PlayerPrefs keys if they belong to this level.
     /// Returns true if a valid legacy save was loaded.
     /// </summary>
@@ -380,29 +354,6 @@ public class LevelSelectionManager : MonoBehaviour
         // Reset global variables for the level
         GlobalVariables.levelInfo = selectedLevelButton.levelInfo;
         GlobalVariables.ResetForLevel();
-
-        string levelID = selectedLevelButton.levelInfo.levelID;
-        bool loadedCheckpoint = false;
-
-        // First try checkpoint from the new save system
-        if (SaveManager.HasCheckpointForLevel(levelID))
-        {
-            loadedCheckpoint = TryLoadCheckpointFromSaveManager(levelID);
-        }
-
-        // If there is no save-data checkpoint, try legacy PlayerPrefs
-        /*if (!loadedCheckpoint)
-        {
-            loadedCheckpoint = TryLoadCheckpointFromPlayerPrefs(levelID);
-        }*/
-
-        // If nothing could be loaded, start fresh
-        if (!loadedCheckpoint)
-        {
-            GlobalVariables.lives = selectedLevelButton.levelInfo.lives;
-            GlobalVariables.coinCount = 0;
-            GlobalVariables.checkpoint = -1;
-        }
 
         // Update gameplay modifiers from SaveData (new system)
         var modifiers = SaveManager.Current.modifiers;

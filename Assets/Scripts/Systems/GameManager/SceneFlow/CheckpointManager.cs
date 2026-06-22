@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using System;
 
 public class CheckpointManager : MonoBehaviour
 {
@@ -16,6 +17,7 @@ public class CheckpointManager : MonoBehaviour
     private bool hasCheckpointSnapshot;
     private int snapshotCheckpointId;
     private int snapshotCoins;
+    private int snapshotLives;
     private int snapshotScore;
     private double snapshotSpeedrunMs;
     private bool[] snapshotGreenCoinsInRun;
@@ -174,16 +176,11 @@ public class CheckpointManager : MonoBehaviour
         if (!GlobalVariables.enableCheckpoints)
             return;
 
-        GlobalVariables.checkpoint = checkpoint.checkpointID;
+        // Don't save again if already hit
+        if (GlobalVariables.checkpoint == checkpoint.checkpointID)
+            return;
 
-        hasCheckpointSnapshot = true;
-        snapshotCheckpointId = GlobalVariables.checkpoint;
-        snapshotCoins = GlobalVariables.coinCount;
-        snapshotScore = GlobalVariables.score;
-        snapshotSpeedrunMs = GlobalVariables.speedrunTimer.Elapsed.TotalMilliseconds;
-        snapshotGreenCoinsInRun = greenCoinSystem != null
-            ? greenCoinSystem.GetGreenCoinsInRunArray()
-            : new bool[0];
+        GlobalVariables.checkpoint = checkpoint.checkpointID;
 
         UpdateCheckpointVisuals(playFeedbackForActive: true);
         SaveCurrentCheckpoint();
@@ -216,13 +213,8 @@ public class CheckpointManager : MonoBehaviour
 
         if (!progressStore.TryGetCheckpoint(levelId, out var checkpoint))
         {
-            GlobalVariables.checkpoint = -1;
-            GlobalVariables.coinCount = 0;
-            GlobalVariables.score = 0;
-
             hasCheckpointSnapshot = false;
             snapshotGreenCoinsInRun = null;
-
             return;
         }
 
@@ -230,6 +222,7 @@ public class CheckpointManager : MonoBehaviour
         GlobalVariables.coinCount = checkpoint.coins;
         GlobalVariables.lives = checkpoint.lives;
         GlobalVariables.score = checkpoint.score;
+        GlobalVariables.timerOffset = TimeSpan.FromMilliseconds(checkpoint.speedrunMs);
 
         if (greenCoinSystem != null && checkpoint.greenCoinsInRun != null)
             greenCoinSystem.ApplyGreenCoinsInRun(checkpoint.greenCoinsInRun);
@@ -237,6 +230,7 @@ public class CheckpointManager : MonoBehaviour
         hasCheckpointSnapshot = true;
         snapshotCheckpointId = GlobalVariables.checkpoint;
         snapshotCoins = GlobalVariables.coinCount;
+        snapshotLives = GlobalVariables.lives;
         snapshotScore = GlobalVariables.score;
         snapshotSpeedrunMs = checkpoint.speedrunMs;
         snapshotGreenCoinsInRun = checkpoint.greenCoinsInRun;
@@ -265,23 +259,21 @@ public class CheckpointManager : MonoBehaviour
 
         levelId = ResolveLevelId();
 
-        if (!hasCheckpointSnapshot)
-        {
-            hasCheckpointSnapshot = true;
-            snapshotCheckpointId = GlobalVariables.checkpoint;
-            snapshotCoins = GlobalVariables.coinCount;
-            snapshotScore = GlobalVariables.score;
-            snapshotSpeedrunMs = GlobalVariables.speedrunTimer.Elapsed.TotalMilliseconds;
-            snapshotGreenCoinsInRun = greenCoinSystem != null
-                ? greenCoinSystem.GetGreenCoinsInRunArray()
-                : new bool[0];
-        }
+        hasCheckpointSnapshot = true;
+        snapshotCheckpointId = GlobalVariables.checkpoint;
+        snapshotCoins = GlobalVariables.coinCount;
+        snapshotLives = GlobalVariables.lives;
+        snapshotScore = GlobalVariables.score;
+        snapshotSpeedrunMs = GlobalVariables.elapsedTime.TotalMilliseconds;
+        snapshotGreenCoinsInRun = greenCoinSystem != null
+            ? greenCoinSystem.GetGreenCoinsInRunArray()
+            : new bool[0];
 
         progressStore.SaveCheckpoint(
             levelId: levelId,
             checkpointId: snapshotCheckpointId,
             coins: snapshotCoins,
-            lives: GlobalVariables.lives,
+            lives: snapshotLives,
             score: snapshotScore,
             speedrunMs: snapshotSpeedrunMs,
             greenCoinsInRun: snapshotGreenCoinsInRun
@@ -289,6 +281,29 @@ public class CheckpointManager : MonoBehaviour
 
         progressStore.Save();
         GameEvents.TriggerCheckpointSaved();
+    }
+
+    // Partial save when choosing "restart from checkpoint" in pause menu
+    public void SaveCheckpointBeforeManualRestart()
+    {
+        if (!HasCheckpoint) return;
+
+        levelId = ResolveLevelId();
+
+        snapshotSpeedrunMs = GlobalVariables.elapsedTime.TotalMilliseconds;
+
+        // This should ONLY save the speedrun time, everything else can reset
+        progressStore.SaveCheckpoint(
+            levelId: levelId,
+            checkpointId: snapshotCheckpointId,
+            coins: snapshotCoins,
+            lives: snapshotLives,
+            score: snapshotScore,
+            speedrunMs: snapshotSpeedrunMs,
+            greenCoinsInRun: snapshotGreenCoinsInRun
+        );
+
+        progressStore.Save();
     }
 
     public void ClearCheckpoint()

@@ -50,14 +50,11 @@ public class LevelCompletionController : MonoBehaviour
         }
         
         // Save best time
-        if (GlobalVariables.SpeedrunMode)
+        double currentTimeMs = GlobalVariables.elapsedTime.TotalMilliseconds;
+        if (levelData.bestTimeMs == 0 || currentTimeMs < levelData.bestTimeMs)
         {
-            double currentTimeMs = GlobalVariables.elapsedTime.TotalMilliseconds;
-            if (levelData.bestTimeMs == 0 || currentTimeMs < levelData.bestTimeMs)
-            {
-                levelData.bestTimeMs = currentTimeMs;
-                GameEvents.TriggerNewBestTime(currentTimeMs);
-            }
+            levelData.bestTimeMs = currentTimeMs;
+            GameEvents.TriggerNewBestTime(currentTimeMs);
         }
         
         progressStore.Save();

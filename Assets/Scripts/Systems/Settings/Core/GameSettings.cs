@@ -398,11 +398,6 @@ public class GameSettings : MonoBehaviour
         GlobalVariables.SpeedrunMode = isSpeedrunModeEnabled;
         SpeedrunModeImage.sprite = isSpeedrunModeEnabled ? enabledSpeedrunMode : disabledSpeedrunMode;
 
-        /*if (GameManager.Instance != null)
-        {
-            GameManager.Instance.UpdateSpeedrunTimerVisiblity();
-        }*/
-
         if (GameManager.Instance != null)
         {
             var hudController = GameManager.Instance.GetSystem<HUDController>();
