@@ -172,7 +172,11 @@ public class SpinJumpState : AirborneStateBase
 
     public override void CheckTransitions()
     {
-        if (IsPressingDown && State.CanGroundPound && !State.WallSliding && !State.JumpedWhileCrouching)
+        // Require mainly downward press (not diagonal)
+        float absX = Mathf.Abs(State.Direction.x);
+        float absY = Mathf.Abs(State.Direction.y);
+        bool isStrictDown = absY > (absX * 1.5f);
+        if (IsPressingDown && isStrictDown && State.CanGroundPound && !State.WallSliding && !State.JumpedWhileCrouching)
         {
             RequestTransition(MarioStateID.GroundPoundSpin);
             return;
@@ -261,7 +265,11 @@ public class WallJumpState : AirborneStateBase
 
     public override void CheckTransitions()
     {
-        if (IsPressingDown && State.CanGroundPound)
+        // Require mainly downward press (not diagonal)
+        float absX = Mathf.Abs(State.Direction.x);
+        float absY = Mathf.Abs(State.Direction.y);
+        bool isStrictDown = absY > (absX * 1.5f);
+        if (IsPressingDown && isStrictDown && State.CanGroundPound)
         {
             RequestTransition(MarioStateID.GroundPoundSpin);
             return;

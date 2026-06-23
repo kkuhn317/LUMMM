@@ -61,15 +61,6 @@ public class GroundPoundSpinState : AirborneStateBase
 
     public override void CheckTransitions()
     {
-        // Cancel: pressing up during spin phase
-        if (State.Direction.y > 0f)
-        {
-            State.GroundPounding = false;
-            MarioEvents.FireGroundPoundCancelled(PlayerIndex);
-            RequestTransition(MarioStateID.Fall);
-            return;
-        }
-
         // Timer elapsed → begin the fall
         if (Time.time >= _fallStartTime)
         {

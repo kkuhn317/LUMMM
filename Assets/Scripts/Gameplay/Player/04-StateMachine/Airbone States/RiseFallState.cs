@@ -65,7 +65,12 @@ public class RiseState : AirborneStateBase
     public override void CheckTransitions()
     {
         // Ground pound - only if allowed and not already in a state that blocks it
-        if (State.DownPressed && State.CanGroundPound && !State.RequireDownReleaseForGroundPound
+        // Require mainly downward press (not diagonal)
+        float absX = Mathf.Abs(State.Direction.x);
+        float absY = Mathf.Abs(State.Direction.y);
+        bool isStrictDown = absY > (absX * 1.5f);
+        
+        if (State.DownPressed && isStrictDown && State.CanGroundPound && !State.RequireDownReleaseForGroundPound
             && State.CurrentClimbable == null)
         {
             State.DownPressed = false;
@@ -175,7 +180,7 @@ public class FallState : AirborneStateBase
         ClampFallSpeed();
     }
 
-    public override void CheckTransitions()
+public override void CheckTransitions()
     {
         // Buffered jump (coyote time still active)
         if (Time.time < State.JumpTimer && State.AirTimer > Time.time && !Machine.IsJumpBlocked())
@@ -193,7 +198,12 @@ public class FallState : AirborneStateBase
         if (!IsPressingDown)
             State.ClimbExitedWhilePressingDown = false;
 
-        if (State.DownPressed && State.CanGroundPound
+        // Require mainly downward press (not diagonal)
+        float absX = Mathf.Abs(State.Direction.x);
+        float absY = Mathf.Abs(State.Direction.y);
+        bool isStrictDown = absY > (absX * 1.5f);
+
+        if (State.DownPressed && isStrictDown && State.CanGroundPound
             && !State.RequireDownReleaseForGroundPound
             && !State.WallSliding
             && !State.Climbing

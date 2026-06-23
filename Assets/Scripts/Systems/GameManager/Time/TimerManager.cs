@@ -40,7 +40,11 @@ public class TimerManager : MonoBehaviour
 
     private void Update()
     {
-        if (GlobalVariables.infiniteTimeMode || stopTimer) return;
+        if (stopTimer) return;
+
+        GameEvents.TriggerSpeedrunTimeChanged(GlobalVariables.elapsedTime);
+
+        if (GlobalVariables.infiniteTimeMode) return;
 
         if (currentTime > 0)
         {
@@ -62,8 +66,6 @@ public class TimerManager : MonoBehaviour
                 GameEvents.TriggerTimeUp();
             }
         }
-
-        GameEvents.TriggerSpeedrunTimeChanged(GlobalVariables.elapsedTime);
     }
 
     private void TriggerTimeWarning()
