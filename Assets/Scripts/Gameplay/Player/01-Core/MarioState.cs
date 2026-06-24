@@ -92,6 +92,7 @@ public class MarioState
     // ─── Swimming ────────────────────────────────────────────────────────────
 
     public bool Swimming;
+    public bool InWaterfall = false;
 
     // ─── Climbing ────────────────────────────────────────────────────────────
 

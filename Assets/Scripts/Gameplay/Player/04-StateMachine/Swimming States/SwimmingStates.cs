@@ -75,8 +75,15 @@ public abstract class SwimmingStateBase : MarioStateBase
             Rb.velocity = new Vector2(Rb.velocity.x, Cfg.SwimTerminalVelocity * 2f);
 
         // Clamp downward speed
-        if (-Rb.velocity.y > Cfg.SwimTerminalVelocity)
-            Rb.velocity = new Vector2(Rb.velocity.x, -Cfg.SwimTerminalVelocity);
+        // If Mario is in a waterfall, let the terminal velocity be much higher
+        float maxDownwardSpeed = State.InWaterfall 
+            ? Cfg.SwimTerminalVelocity * 2.5f 
+            : Cfg.SwimTerminalVelocity;
+
+        if (-Rb.velocity.y > maxDownwardSpeed)
+        {
+            Rb.velocity = new Vector2(Rb.velocity.x, -maxDownwardSpeed);
+        }
 
         // slow horizontal movement when walking on the lake floor underwater
         if (State.OnGround)

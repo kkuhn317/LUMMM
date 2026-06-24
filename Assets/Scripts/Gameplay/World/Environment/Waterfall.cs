@@ -154,13 +154,33 @@ public class Waterfall : MonoBehaviour
         scrollY   = originalScroll.y;
     }
 
-    void OnTriggerEnter2D(Collider2D c) => OnTriggerStay2D(c);
+    void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            var core = other.GetComponentInParent<MarioCore>();
+            if (core != null)
+                core.State.InWaterfall = true;
+        }
+    }
+
     void OnTriggerStay2D(Collider2D other)
     {
         if (other.CompareTag("Player"))
         {
             var rb = other.attachedRigidbody;
-            if (rb != null) rb.AddForce(Vector2.down * pushForce);
+            if (rb != null) 
+                rb.AddForce(Vector2.down * pushForce);
+        }
+    }
+
+    void OnTriggerExit2D(Collider2D other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            var core = other.GetComponentInParent<MarioCore>();
+            if (core != null) 
+                core.State.InWaterfall = false;
         }
     }
 
