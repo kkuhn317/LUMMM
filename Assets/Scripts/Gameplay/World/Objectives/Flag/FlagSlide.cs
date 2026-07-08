@@ -61,6 +61,18 @@ public class FlagSlide : MonoBehaviour
     /// <summary>Fired the moment the first player grabs the pole (before any multiplayer wait).</summary>
     public System.Action OnSlideStarted;
 
+    /// <summary>
+    /// Optional per-player gate. If set, it runs for each spawned puppet AFTER it
+    /// appears at the grab position but BEFORE that puppet is released to slide
+    /// (the flag also stays raised until it completes). Return an IEnumerator that
+    /// finishes when the puppet is ready to slide. Null = no gate (default).
+    ///
+    /// Used by level-specific flags — e.g. the Coin Doors Maze tiny→small poof.
+    /// Keep this component game-agnostic: put the actual behaviour in a separate
+    /// component that assigns this delegate.
+    /// </summary>
+    public System.Func<PlayerSlideState, IEnumerator> PuppetPreSlideGate;
+
     // ─── References ──────────────────────────────────────────────────────────
 
     private GameObject  _flag;
@@ -160,10 +172,53 @@ public class FlagSlide : MonoBehaviour
     /// <summary>Releases all currently waiting players to start sliding.</summary>
     private void ReleaseAllPlayers()
     {
+        // If a pre-slide gate is installed, run it per puppet first, then release.
+        if (PuppetPreSlideGate != null)
+        {
+            StartCoroutine(GatedReleaseRoutine());
+            return;
+        }
+
+        DoReleaseAllPlayers();
+    }
+
+    /// <summary>
+    /// Shows each waiting puppet in an idle (non-climbing) pose, runs the
+    /// pre-slide gate for it, and only then releases everyone to slide. Because
+    /// the flag-lowering in Tick() is gated on _slideReleased, the flag also
+    /// stays raised until the gate(s) complete.
+    /// </summary>
+    private IEnumerator GatedReleaseRoutine()
+    {
+        foreach (var ps in _slidingPlayers)
+        {
+            if (ps.SlideReleased || ps.CutsceneMarioInstance == null) continue;
+
+            ps.CutsceneMarioInstance.SetActive(true);
+
+            // Hold the frozen pole-grip pose (gripping, not moving) while the gate
+            // runs — NOT ground idle. isSideClimbing stays true; only climbSpeed is 0.
+            var idleAnim = ps.CutsceneMarioInstance.GetComponent<Animator>();
+            if (idleAnim != null)
+            {
+                idleAnim.SetBool("isSideClimbing", true);
+                idleAnim.SetFloat("climbSpeed", 0f);
+            }
+
+            yield return StartCoroutine(PuppetPreSlideGate(ps));
+        }
+
+        DoReleaseAllPlayers();
+    }
+
+    private void DoReleaseAllPlayers()
+    {
         _slideReleased = true;
         foreach (var ps in _slidingPlayers)
         {
             ps.SlideReleased = true;
+            if (ps.CutsceneMarioInstance == null) continue;
+
             ps.CutsceneMarioInstance.SetActive(true);
 
             var animator = ps.CutsceneMarioInstance.GetComponent<Animator>();

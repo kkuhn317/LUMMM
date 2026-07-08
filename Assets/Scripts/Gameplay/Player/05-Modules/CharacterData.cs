@@ -138,6 +138,13 @@ public class CharacterData : ScriptableObject
     }
 
     /// <summary>
+    /// Public lookup: returns this character's base prefab for a given powerup
+    /// state (e.g. the small variant), or null if none is defined. Unlike
+    /// GetPowerDownPrefab this does not step a tier — it returns the exact state.
+    /// </summary>
+    public GameObject GetPrefabForState(PowerupState state) => FindPrefabByState(state);
+
+    /// <summary>
     /// Finds the first prefab matching the given state with no type (base variant).
     /// </summary>
     private GameObject FindPrefabByState(PowerupState state)
