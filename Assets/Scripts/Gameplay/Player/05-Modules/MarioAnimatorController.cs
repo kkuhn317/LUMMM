@@ -1,3 +1,4 @@
+using System.Linq;
 using UnityEngine;
 using UnityEngine.U2D.Animation;
 
@@ -19,13 +20,27 @@ using UnityEngine.U2D.Animation;
 [RequireComponent(typeof(MarioCore))]
 public class MarioAnimatorController : MonoBehaviour
 {
-    // ─── Inspector References ────────────────────────────────────────────────
+    // Inspector References
 
     [Header("Animator")]
     [SerializeField] private Animator _animator;
 
     [SerializeField] private float frontClimbAnimMultiplier = 1f;
     [SerializeField] private float sideClimbAnimMultiplier = 1.5f;
+
+    [Header("Look-Up Visual Swap")]
+    [Tooltip("Normal single-sprite rig root (parent of SpriteSimple).")]
+    [SerializeField] private GameObject _baseRig;   // drag SpriteBaseRoot here
+    [Tooltip("Separated-limb rig root used for the smooth look-up.")]
+    [SerializeField] private GameObject _swapRig;   // drag SpriteSwapContainer here
+    [Tooltip("Which lookUpVariant uses the limb rig. Non-tiny = 1 in the current setup.")]
+    [SerializeField] private int _swapRigVariant = 1;
+
+    // Cached so we flip visibility WITHOUT deactivating the GameObjects.
+    // Deactivating re-binds the animated SpriteResolver and restores a stale
+    // sprite for one frame on re-enable — the look-up-exit flicker bug.
+    private SpriteRenderer[] _baseRenderers;
+    private SpriteRenderer[] _swapRenderers;
 
     // We set the animator parameter hashes to avoid string lookups every frame
 
@@ -56,7 +71,7 @@ public class MarioAnimatorController : MonoBehaviour
     private static readonly int H_IsScared      = Animator.StringToHash("isScared");
     private static readonly int H_IsWorried     = Animator.StringToHash("isWorried");
 
-    // ─── Runtime State ───────────────────────────────────────────────────────
+    // Runtime State
 
     private MarioCore  _core;
     private MarioState State       => _core.State;
@@ -66,7 +81,7 @@ public class MarioAnimatorController : MonoBehaviour
     private bool       _isYeahPlaying;
     private bool       _hasTriggeredYeah;
 
-    // ─── Lifecycle ───────────────────────────────────────────────────────────
+    // Lifecycle
 
     private void Awake()
     {
@@ -76,9 +91,20 @@ public class MarioAnimatorController : MonoBehaviour
         var carry = GetComponent<MarioCarry>();
         if (carry != null)
             _animator.SetInteger(H_GrabMethod, (int)carry.CarryMethod);
+
+        // Cache every renderer under each rig EXCEPT ones marked SelfManagedRenderer
+        // (e.g. the cape), which own their own visibility and must not be swept by
+        // the look-up swap.
+        _baseRenderers = CollectSwappableRenderers(_baseRig);
+        _swapRenderers = CollectSwappableRenderers(_swapRig);
+        ShowBaseRig();  // normal visual state
     }
 
-    private void OnEnable()  => SubscribeEvents();
+    private void OnEnable()
+    {
+        SubscribeEvents();
+        ShowBaseRig();  // pooling safety: never return from the pool mid-swap
+    }
     private void OnDisable() => UnsubscribeEvents();
 
     private void SubscribeEvents()
@@ -171,7 +197,7 @@ public class MarioAnimatorController : MonoBehaviour
             _animator.enabled = isEnabled;
     }
 
-    // ─── Update: Continuous Params + Skeletal Lerp ───────────────────────────
+    // Update: Continuous Params + Skeletal Lerp
 
     private void Update()
     {
@@ -232,7 +258,7 @@ public class MarioAnimatorController : MonoBehaviour
         }
     }
 
-    // ─── Event Handlers ──────────────────────────────────────────────────────
+    // Event Handlers
 
     private void OnStateChanged(int playerIndex, string stateId)
     {
@@ -442,6 +468,11 @@ public class MarioAnimatorController : MonoBehaviour
         };
         _animator.SetBool(H_IsLookingUp,   true);
         _animator.SetInteger(H_LookUpVariant, variant);
+
+        // Visibility swap now lives here, not in the clips. Only the limb-rig
+        // variant swaps; the simple variant keeps the base rig.
+        if (variant == _swapRigVariant)
+            ShowSwapRig();
     }
 
     private void OnLookUpEnded(int playerIndex)
@@ -449,9 +480,41 @@ public class MarioAnimatorController : MonoBehaviour
         if (playerIndex != PlayerIndex) return;
         _animator.SetBool(H_IsLookingUp,      false);
         _animator.SetInteger(H_LookUpVariant, 0);
-        // Force isCrouching off immediately — without this, the animator shows
-        // one frame of crouch limb positions before UpdateContinuousParams catches up.
-        _animator.SetBool(H_IsCrouching, false);
+
+        // Always restore the base rig, idempotently. No SetActive, so no
+        // reactivation frame and no stale-sprite pop.
+        ShowBaseRig();
+    }
+
+    // Look-Up Visual Swap Helpers
+    // Toggle renderer visibility only — never SetActive — so the animated
+    // SpriteResolver binding stays live and keeps writing the correct sprite.
+
+    private static SpriteRenderer[] CollectSwappableRenderers(GameObject rig)
+    {
+        if (rig == null) return System.Array.Empty<SpriteRenderer>();
+        return rig.GetComponentsInChildren<SpriteRenderer>(true)
+                  .Where(r => !r.TryGetComponent<SelfManagedRenderer>(out _))
+                  .ToArray();
+    }
+
+    private static void SetRenderers(SpriteRenderer[] rs, bool visible)
+    {
+        if (rs == null) return;
+        for (int i = 0; i < rs.Length; i++)
+            if (rs[i] != null) rs[i].enabled = visible;
+    }
+
+    private void ShowBaseRig()
+    {
+        SetRenderers(_baseRenderers, true);
+        SetRenderers(_swapRenderers, false);
+    }
+
+    private void ShowSwapRig()
+    {
+        SetRenderers(_baseRenderers, false);
+        SetRenderers(_swapRenderers, true);
     }
 
     private void OnCelebration(int playerIndex)
