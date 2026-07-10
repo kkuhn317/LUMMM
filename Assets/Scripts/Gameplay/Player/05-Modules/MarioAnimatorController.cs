@@ -6,7 +6,7 @@ using UnityEngine.U2D.Animation;
 /// Bridges MarioEvents → Animator and drives the skeletal Visual hierarchy.
 ///
 /// Design rules:
-/// - NEVER polls MarioState — only reacts to events.
+/// - NEVER polls MarioState, only reacts to events.
 /// - NEVER calls RequestTransition or touches gameplay state.
 /// - All animator parameters set here, nowhere else.
 /// - Skeletal pivot overrides (head tilt, arm raise) applied here too.
@@ -14,7 +14,7 @@ using UnityEngine.U2D.Animation;
 /// Subscribes to events in OnEnable, unsubscribes in OnDisable.
 /// This makes it safe for pooling and instantiation.
 ///
-/// Pivot references are optional — if the hierarchy doesn't have them yet,
+/// Pivot references are optional if the hierarchy doesn't have them yet,
 /// the skeletal overrides are skipped gracefully.
 /// </summary>
 [RequireComponent(typeof(MarioCore))]
@@ -38,7 +38,7 @@ public class MarioAnimatorController : MonoBehaviour
 
     // Cached so we flip visibility WITHOUT deactivating the GameObjects.
     // Deactivating re-binds the animated SpriteResolver and restores a stale
-    // sprite for one frame on re-enable — the look-up-exit flicker bug.
+    // sprite for one frame on re-enable, the look-up-exit flicker bug.
     private SpriteRenderer[] _baseRenderers;
     private SpriteRenderer[] _swapRenderers;
 

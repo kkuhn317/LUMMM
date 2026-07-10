@@ -671,6 +671,14 @@ public class GiantThwomp : EnemyAI, IGroundPoundable
         
         if (currentState == ThwompStates.FallBack)
         {
+            // Finishing blow. Stop the level/boss music immediately — the rest of
+            // the defeat sequence (death cutscene + end-level cutscene) is delayed
+            // ~2s by the Invoke below, so muting here is what makes the music cut on
+            // the ground pound rather than 2s later. MarkEndingLevel also stops
+            // MusicChangeArea from restarting it while players are torn down.
+            LevelFlowController.MarkEndingLevel();
+            MusicManager.Instance?.MuteAllMusic();
+
             player.Freeze();
             onThwompWipedOut?.Invoke();
             

@@ -1163,11 +1163,9 @@ public class ObjectPhysics : MonoBehaviour
     public virtual void escapeMario()
     {
         // find mario's script (mario is 2 levels up hopefully lol)
-        MarioCore marioScript = transform.parent?.parent?.gameObject.GetComponent<MarioCore>();
+        MarioCore marioScript = GetComponentInParent<MarioCore>();
         if (marioScript != null)
-        {
-            marioScript?.Carry.DropCarry();
-        }
+            marioScript.Carry.DropCarry();
     }
 
     public virtual void Flip()

@@ -150,7 +150,7 @@ public class Bobomb : EnemyAI
 
             switch (hitCollider.gameObject.tag) {
                 case "Player":
-                    hitCollider.gameObject.GetComponent<MarioCore>()?.Combat.DamageMario();
+                    hitCollider.gameObject.GetComponentInParent<MarioCore>()?.Combat.DamageMario();
                     break;
                 case "Enemy":
                     var enemy = hitCollider.gameObject.GetComponent<EnemyAI>();

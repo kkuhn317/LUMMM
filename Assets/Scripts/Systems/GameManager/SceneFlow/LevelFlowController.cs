@@ -46,9 +46,14 @@ public class LevelFlowController : MonoBehaviour
     {
         currentLevelId = levelId;
 
-        // Reset state to ensure reloading a level does not keep stale flags
+        // Reset state to ensure reloading a level does not keep stale flags.
+        // IsEndingLevel is static and is NOT reset by Unity between scene loads in
+        // a build (only on domain reload in the editor), so it must be cleared here
+        // or it stays true for the rest of the session and permanently suppresses
+        // music-area transitions in later levels.
         winSequenceRunning = false;
         deathSequenceRunning = false;
+        IsEndingLevel = false;
     }
 
     public void TriggerWin()
@@ -82,6 +87,14 @@ public class LevelFlowController : MonoBehaviour
         bool destroyPlayersImmediately,
         bool stopMusicImmediately)
     {
+        // Any cutscene-driven ending (e.g. the GiantThwomp defeat) must flag the
+        // level as ending BEFORE players are destroyed. Trigger volumes such as
+        // MusicChangeArea check IsEndingLevel to suppress music resume/restart when
+        // a player's collider leaves during teardown. Without this, destroying the
+        // player re-triggers the boss-music area. The normal flag win sets this in
+        // FlagLevelFlow; the Thwomp path bypassed it.
+        MarkEndingLevel();
+
         pauseController?.SetPauseEnabled(false);
         StartCoroutine(CutsceneEndSequence(cutscene, cutsceneLength, destroyPlayersImmediately, stopMusicImmediately));
     }
@@ -93,6 +106,12 @@ public class LevelFlowController : MonoBehaviour
         bool stopMusicImmediately)
     {
         timerManager?.StopAllTimers();
+
+        // Mute BEFORE destroying players. Destroying a player collider fires
+        // OnTriggerExit2D on any trigger volume it is inside (e.g. MusicChangeArea)
+        // at end of frame; muting first ensures music is already silenced.
+        if (stopMusicImmediately && MusicManager.Instance != null)
+            MusicManager.Instance.MuteAllMusic();
 
         if (destroyPlayersImmediately)
         {
@@ -109,9 +128,6 @@ public class LevelFlowController : MonoBehaviour
                 }
             }
         }
-
-        if (stopMusicImmediately && MusicManager.Instance != null)
-            MusicManager.Instance.MuteAllMusic();
 
         if (cutscene != null)
         {

@@ -69,6 +69,11 @@ public class MusicChangeArea : MonoBehaviour
 
         if (usePosition) return;
 
+        // Once the level is ending, do not (re)start
+        // music. A cutscene puppet tagged "Player" moving through this volume during
+        // the defeat cutscene would otherwise re-push the boss-music override.
+        if (LevelFlowController.IsEndingLevel) return;
+
         // Track that THIS player is inside
         playersInside.Add(other);
 
