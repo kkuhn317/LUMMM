@@ -62,6 +62,7 @@ public class ObjectPhysics : MonoBehaviour
     public bool bounceOffWalls = true;  // if false, will stop moving when it hits a wall
     private bool onMovingPlatform = false;
     private Transform ogParent;    // for stacks of enemies
+    private Vector3 lastWorldPos;
 
     public bool flipObject = true;  // if true, the object will flip when moving right
     [HideInInspector] public Vector2 normalScale;
@@ -166,6 +167,7 @@ public class ObjectPhysics : MonoBehaviour
         lavaMask = LayerMask.GetMask("Lava");
         peakHeight = transform.position.y;
         ogParent = transform.parent;
+        lastWorldPos = transform.position;
         rb = GetComponent<Rigidbody2D>();
 
         if (rb == null && updateType == UpdateType.Rigidbody)
@@ -315,12 +317,29 @@ public class ObjectPhysics : MonoBehaviour
         Vector3 pos = transform.position;
         Vector3 oldPos = pos;
 
+        // Calculate how much a moving platform dragged us
+        float platformDeltaX = pos.x - lastWorldPos.x;
+
         // check walls first
         if (objectState != ObjectState.knockedAway)
         {
+            // Did the platform drag us into a wall since the last frame?
+            if (onMovingPlatform && Mathf.Abs(platformDeltaX) > 0.001f)
+            {
+                Vector3 testPos = pos;
+                testPos.x = lastWorldPos.x; // Rewind X to cast from outside the wall
+                float pDir = Mathf.Sign(platformDeltaX);
+                
+                if (CheckWalls(ref testPos, pDir, Mathf.Abs(platformDeltaX)))
+                {
+                    pos.x = testPos.x; // Snap flush with the wall
+                }
+            }
+
+            // Normal intrinsic movement check
             if (velocity.x != 0)
             {
-                CheckWalls(ref pos, movingLeft ? -1 : 1);
+                CheckWalls(ref pos, movingLeft ? -1 : 1, velocity.x * adjDeltaTime);
             }
         }
 
@@ -402,6 +421,7 @@ public class ObjectPhysics : MonoBehaviour
         }
 
         UpdateThrowVisual();
+        lastWorldPos = transform.position;
     }
 
     Vector3 CheckGround(Vector3 pos)
@@ -606,12 +626,11 @@ public class ObjectPhysics : MonoBehaviour
         return pos;
     }
 
-    RaycastHit2D RaycastWalls(Vector3 pos, float direction)
+    RaycastHit2D RaycastWalls(Vector3 pos, float direction, float customDistance = -1f)
     {
         // use raycast all and don't count itself
         float halfWidth, halfHeight;
-        Vector2 c;
-        GetBounds(pos, out c, out halfWidth, out halfHeight);
+        GetBounds(pos, out Vector2 c, out halfWidth, out halfHeight);
 
         // Declare onSlope first — used by both origin and raycast calculations below.
         bool onSlope = Mathf.Abs(_floorNormal.x) > 0.1f || (objectState == ObjectState.grounded && Mathf.Abs(floorAngle) > 0.1f);
@@ -626,13 +645,17 @@ public class ObjectPhysics : MonoBehaviour
         float bottomRayY = c.y - halfHeight * 0.5f;
         Vector2 originBottom = new Vector2(c.x + direction * halfWidth, bottomRayY);
 
-        RaycastHit2D[] wallTop    = Physics2D.RaycastAll(originTop,    new Vector2(direction, 0), velocity.x * adjDeltaTime, wallMask);
-        RaycastHit2D[] wallMiddle = Physics2D.RaycastAll(originMiddle, new Vector2(direction, 0), velocity.x * adjDeltaTime, wallMask);
+        // Use the passed-in distance, or fall back to intrinsic velocity if none was provided
+        float castDist = customDistance >= 0f ? customDistance : velocity.x * adjDeltaTime;
+
+        RaycastHit2D[] wallTop    = Physics2D.RaycastAll(originTop,    new Vector2(direction, 0), castDist, wallMask);
+        RaycastHit2D[] wallMiddle = Physics2D.RaycastAll(originMiddle, new Vector2(direction, 0), castDist, wallMask);
+        
         // On a slope, skip the bottom ray entirely — it clips the slope corner geometry.
         // The middle ray is sufficient to detect real walls while on a slope.
         RaycastHit2D[] wallBottom = onSlope
             ? new RaycastHit2D[0]
-            : Physics2D.RaycastAll(originBottom, new Vector2(direction, 0), velocity.x * adjDeltaTime, wallMask);
+            : Physics2D.RaycastAll(originBottom, new Vector2(direction, 0), castDist, wallMask);
 
         RaycastHit2D[][] wallCollides = { wallTop, wallMiddle, wallBottom };
 
@@ -750,10 +773,9 @@ public class ObjectPhysics : MonoBehaviour
         }
     }
 
-    public virtual bool CheckWalls(ref Vector3 pos, float direction)
+    public virtual bool CheckWalls(ref Vector3 pos, float direction, float customDistance = -1f)
     {
-        //RaycastHit2D hitRay = RaycastWalls (pos, direction);
-        RaycastHit2D hitRay = RaycastWalls(pos, direction);
+        RaycastHit2D hitRay = RaycastWalls(pos, direction, customDistance);
 
         if (hitRay.collider == null)
         {
