@@ -125,11 +125,11 @@ public class PowerUp : ObjectPhysics
                 mario.State.PowerupState);
         }
 
-        if (starMusicOverride != null)
-        {
-            GameObject starSong = Instantiate(starMusicOverride);
-            starSong.GetComponent<MusicOverride>()?.stopPlayingAfterTime(starTime);
-        }
+        // Star music is owned by MarioCombat.StartStarPower via MusicManager (keyed "Star"),
+        // which starts/stops it in sync with the star timer and respects the level-end fanfare.
+        // The old self-stopping MusicOverride below was a DUPLICATE: it self-stopped on a
+        // real-time Invoke that nothing could pause, so on the flagpole it kept playing past
+        // the flag's mute. Removed. (Assign MarioCombat's own starMusicOverride if it isn't.)
     }
 
     private void HandleStateTransition(MarioCore mario)

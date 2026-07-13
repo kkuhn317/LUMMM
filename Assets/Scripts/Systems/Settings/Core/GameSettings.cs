@@ -376,10 +376,20 @@ public class GameSettings : MonoBehaviour
             GameManager.Instance.UpdateMobileControls();
         }*/
 
-        if (GameManager.Instance != null)
-        {
-            GameManager.Instance.GetSystem<MobileControlsManager>().UpdateControlsVisibility();
-        }
+        // Update on-screen controls visibility immediately. GetSystem is unreliable
+        // in menu contexts (level systems may not be registered), which is why the
+        // rest of the codebase (RebindSaveLoad.CacheSystems, MobileControls) falls
+        // back to FindObjectOfType. Without this fallback the toggle set the flag but
+        // never refreshed visibility, so the controls only appeared the next time an
+        // unrelated save/refresh happened to call UpdateControlsVisibility — i.e. one
+        // menu-open late.
+        var mobileControls = GameManager.Instance != null
+            ? GameManager.Instance.GetSystem<MobileControlsManager>()
+            : null;
+        if (mobileControls == null)
+            mobileControls = FindObjectOfType<MobileControlsManager>(true);
+        if (mobileControls != null)
+            mobileControls.UpdateControlsVisibility();
     }
 
     private void ConfigureSpeedrunMode()

@@ -70,7 +70,24 @@ public class MarioPowerup : MonoBehaviour
             return;
         }
 
-        var newMarioPrefab = Character.FindPrefab(data);
+        // ── Element-only change: same tier → recolor in place, no prefab swap ──
+        // Fire <-> Ice (both PowerupState.power). Same body/mask; only the palette differs.
+        if (data.PowerupState == State.PowerupState)
+        {
+            _core.Palette?.SetTransformation(data.PaletteRow);
+            Identity                 = data;
+            State.CurrentPowerupType = data.PowerupType ?? "";
+            MarioEvents.FirePowerUpStarted(PlayerIndex);
+            return;                                        // no shell, no Destroy
+        }
+
+        // ── Tier change: prefab swap, carrying the new element across the morph ──
+        // Prefer an element-specific prefab if one is registered (a body/behaviour that
+        // genuinely differs); otherwise use the base prefab for this tier and let the
+        // carried identity + palette express the element. Deleting fire/ice prefab entries
+        // makes this fall through here — the "fewer prefabs" path.
+        var newMarioPrefab = Character.FindPrefab(data)
+                          ?? Character.GetPrefabForState(data.PowerupState);
         if (newMarioPrefab == null)
         {
             Debug.LogWarning($"[MarioPowerup] No prefab found in '{Character.CharacterName}' for powerup '{data?.name}'.");
@@ -80,7 +97,7 @@ public class MarioPowerup : MonoBehaviour
         State.IsTransforming     = true;
         State.CurrentPowerupType = data.PowerupType ?? "";
 
-        var shell = SpawnShell(newMarioPrefab);
+        var shell = SpawnShell(newMarioPrefab, data);
         if (shell == null) return;
 
         MarioEvents.FirePowerUpStarted(PlayerIndex);
@@ -123,6 +140,19 @@ public class MarioPowerup : MonoBehaviour
         _core.Audio?.PlayDamageSound();
         MarioEvents.FirePoweredDown(PlayerIndex);
         Destroy(gameObject);
+    }
+
+    /// <summary>
+    /// Overrides this Mario's powerup identity at runtime — used when a base-tier prefab
+    /// is reused for an element expressed via palette (e.g. one "power" body for Fire and
+    /// Ice). Reseeds the same state fields Awake() does.
+    /// </summary>
+    public void ApplyIdentity(PowerUpData data)
+    {
+        if (data == null) return;
+        Identity                 = data;
+        State.PowerupState       = data.PowerupState;
+        State.CurrentPowerupType = data.PowerupType ?? "";
     }
 
     // ─── State Transfer ──────────────────────────────────────────────────────
@@ -201,7 +231,7 @@ public class MarioPowerup : MonoBehaviour
 
     // ─── Internal ────────────────────────────────────────────────────────────
 
-    private GameObject SpawnShell(GameObject newMarioPrefab)
+    private GameObject SpawnShell(GameObject newMarioPrefab, PowerUpData identity = null)
     {
         if (Character.TransformShellPrefab == null)
         {
@@ -215,7 +245,8 @@ public class MarioPowerup : MonoBehaviour
         if (pt != null)
         {
             pt.oldPlayer = gameObject;
-            pt.newPlayer = newMarioPrefab;
+            pt.newPlayer      = newMarioPrefab;
+            pt.targetIdentity = identity;   // carries element type + palette to the new Mario
             pt.StartTransformation();
         }
         else

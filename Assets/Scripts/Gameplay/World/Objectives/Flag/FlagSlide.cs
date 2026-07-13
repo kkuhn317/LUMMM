@@ -31,12 +31,19 @@ public class FlagSlide : MonoBehaviour
 
     public GameObject starParticlePrefab;
 
+    // Mirrors the real player's palette row onto the slide puppet so the star/element
+    // shows during the slide instead of a normal-coloured clone.
+    private static readonly int PaletteRowID = Shader.PropertyToID("_PaletteRow");
+    private MaterialPropertyBlock _puppetMpb;
+
     // ─── Per-Player State ────────────────────────────────────────────────────
 
     public class PlayerSlideState
     {
         public MarioCore  Mario;
         public GameObject CutsceneMarioInstance;
+        public bool       WasStarred;         // was the player starred at grab?
+        public float      StarTimeRemaining;   // counted down here since the player's Update is dead
         public bool       AtBottom;
         public bool       ArrivedAtTarget;
         public bool       SlideReleased;  // true when player is allowed to start sliding
@@ -127,6 +134,11 @@ public class FlagSlide : MonoBehaviour
                                     ? new Vector3(flagOnRight ? 0.4f : -0.4f, 1.5f, 0)
                                     : new Vector3(flagOnRight ? 0.4f : -0.4f, 1.0f, 0)
         };
+
+        // Capture the star state BEFORE deactivating — once the player GameObject is
+        // inactive its Update stops, so MarioCombat's own TickStarPower can't run.
+        ps.WasStarred        = mario.State.StarPower;
+        ps.StarTimeRemaining = mario.State.StarPowerRemainingTime;
 
         _slidingPlayers.Add(ps);
 
@@ -248,6 +260,9 @@ public class FlagSlide : MonoBehaviour
 
         foreach (var ps in _slidingPlayers)
         {
+            TickPuppetStar(ps);        // expire the star on time even though the player is inactive
+            MirrorPuppetPalette(ps);   // keep star/element flashing on the puppet
+
             if (ps.AtBottom) continue;
 
             // Hold at grab position until released
@@ -335,9 +350,57 @@ public class FlagSlide : MonoBehaviour
         instance.GetComponent<PuppetGroundDetection>()?.Initialize();
 
         var sr = instance.GetComponentInChildren<SpriteRenderer>();
-        if (sr != null) sr.flipX = flagOnRight;
+        if (sr != null)
+        {
+            sr.flipX = flagOnRight;
+
+            // Inherit the palette material so the puppet can show star/element colours.
+            // The puppet uses the full-body sprites (NormalSpriteLibrary), same sheets as
+            // SpriteSimple, so each sprite's mask secondary texture travels with it.
+            var simple = FindSimpleRenderer(mario);
+            if (simple != null && simple.sharedMaterial != null)
+                sr.sharedMaterial = simple.sharedMaterial;
+        }
 
         return instance;
+    }
+
+    // ─── Palette mirroring ───────────────────────────────────────────────────
+
+    private static SpriteRenderer FindSimpleRenderer(MarioCore mario)
+    {
+        foreach (var r in mario.GetComponentsInChildren<SpriteRenderer>(true))
+            if (r.gameObject.name == "SpriteSimple") return r;
+        return null;
+    }
+
+    /// <summary>
+    /// Counts the captured star time down during the slide (the player's own Update is dead
+    /// while it's deactivated) and ends the star cleanly when it runs out. StopStarPower works
+    /// on the inactive player — it clears the palette (so MirrorPuppetPalette then reads the
+    /// rest row and the puppet stops flashing) and releases the star music override; its
+    /// IsEndingLevel guard keeps that release from restoring the overworld over the fanfare.
+    /// </summary>
+    private void TickPuppetStar(PlayerSlideState ps)
+    {
+        if (!ps.WasStarred) return;
+
+        ps.StarTimeRemaining -= Time.deltaTime;
+        if (ps.StarTimeRemaining > 0f) return;
+
+        ps.WasStarred = false;
+        ps.Mario?.Combat?.StopStarPower();
+    }
+
+    private void MirrorPuppetPalette(PlayerSlideState ps)
+    {
+        if (ps.Mario == null || ps.Mario.Palette == null || ps.CutsceneMarioInstance == null) return;
+        var sr = ps.CutsceneMarioInstance.GetComponentInChildren<SpriteRenderer>();
+        if (sr == null) return;
+        _puppetMpb ??= new MaterialPropertyBlock();
+        sr.GetPropertyBlock(_puppetMpb);
+        _puppetMpb.SetFloat(PaletteRowID, ps.Mario.Palette.CurrentRow);
+        sr.SetPropertyBlock(_puppetMpb);
     }
 
     // ─── Particles ───────────────────────────────────────────────────────────

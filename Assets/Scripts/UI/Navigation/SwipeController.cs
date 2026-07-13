@@ -440,9 +440,33 @@ public class SwipeController : MonoBehaviour, IDragHandler, IEndDragHandler
 
     private IEnumerator DisableEventsCoroutine()
     {
+        if (EventSystem.current == null) yield break;
+
         EventSystem.current.sendNavigationEvents = false;
-        yield return null;
-        yield return null; // Deactivate for two frames
-        EventSystem.current.sendNavigationEvents = true;
+
+        // This keeps the built-in navigation suppressed until the navigate input is
+        // actually released, NOT just for a fixed number of frames. The old
+        // 2-frame window re-enabled while the key/stick was still held; the
+        // InputSystemUIInputModule then treated the still-held axis as a fresh
+        // move and fired a SECOND, automatic navigation step from the target the
+        // rule had just selected (e.g. Phone -> [rule] Gamepad -> [auto] Keyboard,
+        // Phone -> [rule] ddlControlName -> [auto] Edit). Waiting for release
+        // guarantees the rule move is the only move for that press.
+        yield return null; // cover the same-frame built-in move
+
+        if (navigateAction != null)
+        {
+            // Poll until the stick/dpad/keys return to neutral.
+            while (navigateAction.action.ReadValue<Vector2>().magnitude > 0.5f)
+                yield return null;
+        }
+        else
+        {
+            // Fallback to the original short window if no action is wired.
+            yield return null;
+        }
+
+        if (EventSystem.current != null)
+            EventSystem.current.sendNavigationEvents = true;
     }
 }

@@ -11,6 +11,7 @@ public class LivesCounter : MonoBehaviour
 {
     public bool oldNumber = false;
 
+    public Animator livesParentAnimator;
     public PlayableDirector playableDirector;
     public TimelineAsset oneLifeCutscene;    // Cutscene to play when there is only one life left (optional)
 
@@ -66,6 +67,8 @@ public class LivesCounter : MonoBehaviour
             SceneManager.sceneLoaded -= OnSceneLoaded;
         }
     }
+
+    public void PlayLivesRise() => livesParentAnimator.SetTrigger("Play");
 
     void PlaySound() {
         GetComponent<AudioSource>().Play();

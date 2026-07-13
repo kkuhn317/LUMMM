@@ -36,6 +36,9 @@ public class IntroLevel : MonoBehaviour
     [SerializeField] private float delayBeforeSceneTransition = 5f;
     [SerializeField] private Color lineColor = Color.green;
 
+    [Header("Disclaimer")]
+    [SerializeField] private GameObject disclaimerText;
+
     [Header("Events")]
     public UnityEvent OnMoveStart;
     public UnityEvent OnTargetReached;
@@ -270,6 +273,9 @@ public class IntroLevel : MonoBehaviour
         // Lives display mode (infinite / normal)
         UpdateLivesDisplay();
 
+        // Disclaimer display (beta / normal)
+        UpdateDisclaimerDisplay();
+
         // Ability UI (delegated to MarioMovesDisplay)
         if (movesDisplay != null)
         {
@@ -295,6 +301,12 @@ public class IntroLevel : MonoBehaviour
         {
             livesText.SetText(GlobalVariables.lives.ToString());
         }
+    }
+
+    private void UpdateDisclaimerDisplay()
+    {
+        var levelInfo = GlobalVariables.levelInfo;
+        disclaimerText.SetActive(levelInfo.beta);
     }
 
     private void EnableCorrectMarioObject(MarioType type)

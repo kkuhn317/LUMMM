@@ -11,4 +11,8 @@ public class PowerUpData : ScriptableObject
     [Header("Powerup Identity")]
     public PowerupState PowerupState;
     public string PowerupType = "";
+
+    [Header("Palette")]
+    [Tooltip("Row in the character's TargetPalette for this element. -1 = normal (bypass).")]
+    public int PaletteRow = -1;
 }

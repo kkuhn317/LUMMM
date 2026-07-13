@@ -103,7 +103,7 @@ public class ComboManager : MonoBehaviour
     /// Registers the shell KICK reward (the act of kicking the shell),
     /// without touching stomp combo and without spawning any extra rewards.
     /// 
-    /// IMPORTANT: We assume StartShellChain() already ran (e.g., in ToMovingShell).
+    /// IMPORTANT: We assume StartShellChain() already ran (like in ToMovingShell).
     /// We set shellIndex = 0 so the first shell KILL after the kick becomes step 1.
     /// </summary>
     public ComboResult RegisterShellKick(int kickPoints, PopupID kickPopupId)

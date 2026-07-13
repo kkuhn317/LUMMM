@@ -52,6 +52,7 @@ public class MarioCore : MonoBehaviour
     public MarioPowerup            Powerup            { get; private set; }
     public MarioAbilityManager     AbilityManager     { get; private set; }
     public MarioSwimming           Swimming           { get; private set; }
+    public MarioPalette            Palette            { get; private set; }
 
     // ─── Unity Components ────────────────────────────────────────────────────
     // Exposed in inspector so you can verify the correct child objects are wired.
@@ -105,6 +106,7 @@ public class MarioCore : MonoBehaviour
         AnimatorController = GetComponent<MarioAnimatorController>();
         AbilityManager     = GetComponent<MarioAbilityManager>();
         Swimming           = GetComponent<MarioSwimming>();
+        Palette            = GetComponentInChildren<MarioPalette>(true);
         StateMachine       = GetComponent<MarioStateMachine>();
 
         // Collect abilities and initialize them now — all modules are cached above,

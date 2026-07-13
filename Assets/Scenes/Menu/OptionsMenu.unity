@@ -9086,7 +9086,7 @@ PrefabInstance:
       objectReference: {fileID: 1484244937}
     - target: {fileID: 5440091340396768140, guid: 4d35bff13e4582b4d9d248cf363c5313, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: set_enabled
+      value: SetFollowSelection
       objectReference: {fileID: 0}
     - target: {fileID: 5440091340396768140, guid: 4d35bff13e4582b4d9d248cf363c5313, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName
@@ -9098,7 +9098,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5440091340396768140, guid: 4d35bff13e4582b4d9d248cf363c5313, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
-      value: UnityEngine.Behaviour, UnityEngine
+      value: ButtonSelector, Assembly-CSharp
       objectReference: {fileID: 0}
     - target: {fileID: 5440091340396768140, guid: 4d35bff13e4582b4d9d248cf363c5313, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_TargetAssemblyTypeName
@@ -10407,6 +10407,10 @@ PrefabInstance:
     - target: {fileID: 7085446202041983068, guid: 4d35bff13e4582b4d9d248cf363c5313, type: 3}
       propertyPath: m_Colors.m_HighlightedColor.r
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7520761426207610239, guid: 4d35bff13e4582b4d9d248cf363c5313, type: 3}
+      propertyPath: m_Navigation.m_Mode
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 7520761426207610239, guid: 4d35bff13e4582b4d9d248cf363c5313, type: 3}
       propertyPath: m_Colors.m_DisabledColor.a
@@ -25041,6 +25045,10 @@ PrefabInstance:
       value: <color=#00FFFF>Tap a button</color> to select it, then <color=#FFA500>drag</color>
         to move or use the <color=#32CD32>slider</color> to adjust its size.
       objectReference: {fileID: 0}
+    - target: {fileID: 6362915064617116697, guid: 54197ee6b4a3f8741954f7bb061d9ea4, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6362915064697192523, guid: 54197ee6b4a3f8741954f7bb061d9ea4, type: 3}
       propertyPath: m_Transition
       value: 1
@@ -25241,6 +25249,22 @@ PrefabInstance:
       propertyPath: onDisabled.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 737705961}
+    - target: {fileID: 7493519383540560669, guid: 54197ee6b4a3f8741954f7bb061d9ea4, type: 3}
+      propertyPath: onEnabled.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: SetFollowSelection
+      objectReference: {fileID: 0}
+    - target: {fileID: 7493519383540560669, guid: 54197ee6b4a3f8741954f7bb061d9ea4, type: 3}
+      propertyPath: onDisabled.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: SetFollowSelection
+      objectReference: {fileID: 0}
+    - target: {fileID: 7493519383540560669, guid: 54197ee6b4a3f8741954f7bb061d9ea4, type: 3}
+      propertyPath: onEnabled.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: ButtonSelector, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 7493519383540560669, guid: 54197ee6b4a3f8741954f7bb061d9ea4, type: 3}
+      propertyPath: onDisabled.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: ButtonSelector, Assembly-CSharp
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

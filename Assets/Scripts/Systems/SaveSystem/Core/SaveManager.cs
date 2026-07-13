@@ -120,7 +120,15 @@ public static class SaveManager
     public static string ExportSlot(int slot, string targetDirectory, string fileNameWithoutExtension)
     {
         string slotFileName = GetSlotFileName(slot);
-        string exportPath = Path.Combine(targetDirectory, fileNameWithoutExtension + FileDataService.SaveExtension);
+        
+        // Here will tolerate a name that already carries the extension either
+        // an OS save dialog appended it, or the user typed it so we never produce ".lummm.lummm". 
+        string ext = FileDataService.SaveExtension;
+        string baseName = fileNameWithoutExtension ?? string.Empty;
+        while (baseName.EndsWith(ext, System.StringComparison.OrdinalIgnoreCase))
+            baseName = baseName.Substring(0, baseName.Length - ext.Length);
+
+        string exportPath = Path.Combine(targetDirectory, baseName + ext);
         
         try
         {

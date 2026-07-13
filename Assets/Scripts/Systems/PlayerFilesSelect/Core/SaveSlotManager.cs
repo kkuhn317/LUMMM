@@ -689,7 +689,9 @@ public class SaveSlotManager : MonoBehaviour
 #if UNITY_STANDALONE || UNITY_EDITOR || UNITY_WEBGL
         // Desktop & WebGL: let the user pick a full path with SaveFilePanel
 
-        string defaultFileName = $"save_slot_{slotIndex}{extWithDot}";
+        // No extension here — SaveFilePanel appends it via extWithoutDot. Including it
+        // caused "save_slot_N.lummm.lummm".
+        string defaultFileName = $"save_slot_{slotIndex}";
 
         var extensions = new[]
         {

@@ -8,7 +8,7 @@ using PowerupState = PowerStates.PowerupState;
 /// Responsibilities:
 /// - DamageMario / forced death guard
 /// - Power-down routing to MarioPowerup
-/// - Star power start / stop / rainbow color cycling
+/// - Star power start / stop / palette-swap cycling
 /// - Invincibility timer + flashing coroutine
 /// - TransformIntoObject (enemy curse, pig transform, etc.)
 /// - Checkpoint flag UI
@@ -23,12 +23,26 @@ public class MarioCombat : MonoBehaviour
     public GameObject DeadMarioPrefab;
 
     [Header("Star Power")]
-    private static readonly Color[] StarColors =
-        { Color.green, Color.yellow, Color.blue, Color.red };
-    private int _starColorIndex;
+    // Star-flash rows are a CONTIGUOUS BLOCK at the end of the TargetPalette, after the
+    // transformation/skin rows (normal, fire, ice, nes, bad, ...). MarioPalette owns
+    // _PaletteRow; MarioCombat only tells it which star rows to cycle.
+    //
+    // Unrelated to the shader's _PaletteRows property (the full texture height set on the
+    // material): that counts ALL rows in the PNG; these two count only the star block.
+    [Tooltip("Index of the first star row (rows before it are transformation/skin palettes).")]
+    [SerializeField] private int starRowStart = 5;
+    [Tooltip("How many star rows to rotate through.")]
+    [SerializeField] private int starRowCount = 3;
+    private int _starFrame;
+
+    // Exposed so the transform shell can keep the star flash going during the morph.
+    public int StarRowStart => starRowStart;
+    public int StarRowCount => starRowCount;
+
     private const string StarMusicKey = "Star";
     [SerializeField] private GameObject starMusicOverride;
     [SerializeField] private int starMusicPriority = 100;
+    private GameObject _starMusicInstance;   // live instance of the star-music prefab
 
     [Header("Checkpoint")]
     [SerializeField] private GameObject checkpointFlag;
@@ -248,6 +262,13 @@ public class MarioCombat : MonoBehaviour
 
     // ─── Star Power ──────────────────────────────────────────────────────────
 
+    private void OnDestroy()
+    {
+        // Don't let the star-music instance outlive this player (transform swap, level end...).
+        if (_starMusicInstance != null)
+            Destroy(_starMusicInstance);
+    }
+
     public void StartStarPower(float duration)
     {
         if (_core == null || _core.State == null) return;
@@ -256,17 +277,35 @@ public class MarioCombat : MonoBehaviour
         State.StarPower = true;
         State.StarPowerRemainingTime = duration;
 
-        InvokeRepeating(nameof(CycleStarColor), 0f, 0.1f);
+        _starFrame = 0;
+        InvokeRepeating(nameof(CycleStarColor), 0f, 0.05f);
 
         if (MusicManager.Instance != null && starMusicOverride != null)
         {
+            // MusicManager mutes/unmutes/restarts the object directly, so it needs a LIVE
+            // instance — starMusicOverride is a prefab asset and never plays on its own.
+            // (This is why removing PowerUp's Instantiate silenced the star: nothing was
+            // instantiating the music anymore.) Instantiate once and reuse it.
+            if (_starMusicInstance == null)
+            {
+                _starMusicInstance = Instantiate(starMusicOverride);
+
+                // The star prefab's MusicOverride auto-registers itself with MusicManager on
+                // Start (PushMusicOverride) under a legacy key that ReleaseOverride("Star")
+                // never clears — so after the star ends the overworld never restores. This
+                // path is MusicManager-managed via RequestOverride below, so disable that
+                // component (its own comment: don't auto-register player-owned music).
+                var legacy = _starMusicInstance.GetComponent<MusicOverride>();
+                if (legacy != null) legacy.enabled = false;
+            }
+
             var mode = MusicManager.Instance.HasActiveOverride(StarMusicKey)
                 ? MusicManager.MusicStartMode.Continue
                 : MusicManager.MusicStartMode.Restart;
 
             MusicManager.Instance.RequestOverride(
                 StarMusicKey,
-                starMusicOverride,
+                _starMusicInstance,
                 PlayerIndex,
                 starMusicPriority,
                 mode
@@ -283,14 +322,20 @@ public class MarioCombat : MonoBehaviour
 
         State.StarPower = false;
         State.StarPowerRemainingTime = 0f;
+        _starFrame = 0;
 
-        foreach (var r in GetVisualRenderers())
-        {
-            var c = r.color;
-            r.color = new Color(1f, 1f, 1f, c.a);
-        }
+        // Hand the palette back to MarioPalette — it returns to the current
+        // transformation (fire/ice/skin), NOT to normal.
+        _core.Palette?.ClearStar();
 
-        if (MusicManager.Instance != null)
+        // Release the star music override — but NOT while the level is ending. During the
+        // flagpole / course-clear sequence the fanfare is already playing (FlagLevelFlow muted
+        // the loop and started the ending track). Releasing here runs RefreshActiveMusic, which
+        // would restore the overworld loop over the fanfare — the SMB "overworld interrupts
+        // Course Clear" quirk. We keep the star itself running to expiry (SMB-faithful: the
+        // flash wears off during the fanfare) but skip the music restore. Same IsEndingLevel
+        // guard MusicChangeArea uses.
+        if (MusicManager.Instance != null && !LevelFlowController.IsEndingLevel)
         {
             MusicManager.Instance.ReleaseOverride(
                 StarMusicKey,
@@ -305,11 +350,11 @@ public class MarioCombat : MonoBehaviour
 
     private void CycleStarColor()
     {
-        Color color     = StarColors[_starColorIndex];
-        _starColorIndex = (_starColorIndex + 1) % StarColors.Length;
-
-        foreach (var r in GetVisualRenderers())
-            r.color = color;
+        // Rotate through the star block [starRowStart .. starRowStart + starRowCount).
+        int count = Mathf.Max(1, starRowCount);
+        int row   = starRowStart + (_starFrame % count);
+        _starFrame++;
+        _core.Palette?.SetStarFrame(row);   // MarioPalette is the single owner of _PaletteRow
     }
 
     // ─── Checkpoint ──────────────────────────────────────────────────────────

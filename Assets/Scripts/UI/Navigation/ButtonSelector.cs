@@ -18,6 +18,10 @@ public class ButtonSelector : MonoBehaviour
     // How many frames to keep retrying if no selection is found on enable
     [SerializeField] private int maxRefreshRetries = 10;
 
+    [Header("Selection Following")]
+    [Tooltip("When false, navigation still changes the EventSystem selection, but the selector stops following it: it finishes any in-flight glide onto its current target, then holds there and ignores further selection changes. Toggle at runtime via SetFollowSelection().")]
+    [SerializeField] private bool followSelection = true;
+
     [Header("Debug")]
     [SerializeField] private bool verboseLogging = false;
 
@@ -135,11 +139,18 @@ public class ButtonSelector : MonoBehaviour
         }
 
         // --- 2) Positioning ---
-        // Idle: resting on the current selection, nothing animating, nothing dirty.
-        if (!needsReposition && !animating && positionedOn == sel)
+        // When following, the selector tracks the live selection. When NOT following,
+        // it tracks a HELD target: whatever it was last heading for (animatingTo) or
+        // resting on (positionedOn). So an in-flight glide still finishes onto its
+        // objective, then holds — and subsequent selection changes (which still fire
+        // above and still move the EventSystem selection) no longer move the selector.
+        GameObject trackSel = followSelection ? sel : (animating ? animatingTo : positionedOn);
+
+        // Idle: resting on the tracked target, nothing animating, nothing dirty.
+        if (!needsReposition && !animating && positionedOn == trackSel)
             return;
 
-        if (sel == null)
+        if (trackSel == null)
         {
             currentTargetCleanup();
             positionedOn = null;
@@ -151,11 +162,11 @@ public class ButtonSelector : MonoBehaviour
         if (!selectorImage.gameObject.activeInHierarchy)
             return;
 
-        RectTransform rect = sel.GetComponent<RectTransform>();
+        RectTransform rect = trackSel.GetComponent<RectTransform>();
         if (rect == null)
         {
             currentTargetCleanup();
-            positionedOn = sel;        // nothing we can do for this target; stop retrying it
+            positionedOn = trackSel;   // nothing we can do for this target; stop retrying it
             needsReposition = false;
             return;
         }
@@ -173,20 +184,20 @@ public class ButtonSelector : MonoBehaviour
         {
             selectorImage.sizeDelta = targetSize;
             selectorImage.localPosition = targetPos;
-            positionedOn = sel;
+            positionedOn = trackSel;
             needsReposition = false;
-            Log($"Positioned selector on '{sel.name}' (animate=False).");
+            Log($"Positioned selector on '{trackSel.name}' (animate=False).");
             return;
         }
 
-        // If where we're headed (or resting) isn't the current selection, (re)start
+        // If where we're headed (or resting) isn't the tracked target, (re)start
         // an animation from wherever the selector physically is RIGHT NOW. This also
         // redirects cleanly if the player moves again mid-animation.
         GameObject currentDest = animating ? animatingTo : positionedOn;
-        if (currentDest != sel)
+        if (currentDest != trackSel)
         {
             animating = true;
-            animatingTo = sel;
+            animatingTo = trackSel;
             animStartTime = Time.unscaledTime;
             animStartSize = selectorImage.sizeDelta;
             animStartPos = selectorImage.localPosition;
@@ -195,7 +206,7 @@ public class ButtonSelector : MonoBehaviour
 
         // Drive the manual animation toward the (re-evaluated each frame) target,
         // so layout shifts during the move are tracked. Commit ONLY on arrival.
-        if (animating && animatingTo == sel)
+        if (animating && animatingTo == trackSel)
         {
             float dur = Mathf.Max(0.0001f, animationTime);
             float t = Mathf.Clamp01((Time.unscaledTime - animStartTime) / dur);
@@ -209,11 +220,26 @@ public class ButtonSelector : MonoBehaviour
                 selectorImage.sizeDelta = targetSize;
                 selectorImage.localPosition = targetPos;
                 animating = false;
-                positionedOn = sel;
+                positionedOn = trackSel;
                 needsReposition = false;
-                Log($"Positioned selector on '{sel.name}' (animate=True).");
+                Log($"Positioned selector on '{trackSel.name}' (animate=True).");
             }
         }
+    }
+
+    /// <summary>
+    /// Toggle whether the selector follows the current selection. When set to false,
+    /// navigation continues to change the selection normally, but the selector finishes
+    /// its current glide and then holds — it stops chasing further selection changes.
+    /// Set back to true to resume following (it animates to catch up to the selection).
+    /// Wire this to a Button's OnClick (it accepts a static bool argument).
+    /// </summary>
+    public void SetFollowSelection(bool follow)
+    {
+        if (followSelection == follow) return;
+        followSelection = follow;
+        // Resuming: mark dirty so Update animates toward the live selection again.
+        if (follow) needsReposition = true;
     }
 
     private void currentTargetCleanup()

@@ -24,6 +24,18 @@ public class PlayerTransformation : MonoBehaviour
     public GameObject oldPlayer;
     public GameObject newPlayer;
 
+    // Powerup identity applied to the new Mario after the morph (carries element type +
+    // palette row). Null = keep the spawned prefab's own identity (used for power-downs).
+    public PowerUpData targetIdentity;
+
+    // ─── Shell palette (keeps element / star flash alive during the morph) ─────
+    private float _cachedOldRow;        // old Mario's element row -> oldChild
+    private int   _cachedStarRowStart;  // star block, cached from old Mario's MarioCombat
+    private int   _cachedStarRowCount;
+    private int   _shellStarFrame;
+    private MaterialPropertyBlock _shellMpb;
+    private static readonly int PaletteRowID = Shader.PropertyToID("_PaletteRow");
+
     // ─── Powerup state ────────────────────────────────────────────────────────
     private PowerupState _oldPowerupState;
     private PowerupState _newPowerupState;
@@ -143,6 +155,10 @@ public class PlayerTransformation : MonoBehaviour
         _oldPowerupState = oldPowerup?.PowerupState ?? s.PowerupState;
         _newPowerupState = newPowerup?.PowerupState ?? newCore.State.PowerupState;
 
+        _cachedOldRow       = oldPowerup?.Identity != null ? oldPowerup.Identity.PaletteRow : -1f;
+        _cachedStarRowStart = oldCore.Combat != null ? oldCore.Combat.StarRowStart : 0;
+        _cachedStarRowCount = oldCore.Combat != null ? oldCore.Combat.StarRowCount : 1;
+
         // ── Set sprite libraries on animation children ────────────────────────
         var oldLib = oldPlayer.GetComponentInChildren<SpriteLibrary>();
         var newLib = newPlayer.GetComponentInChildren<SpriteLibrary>();
@@ -172,7 +188,21 @@ public class PlayerTransformation : MonoBehaviour
             }
 
             if (playerSR != null)
+            {
                 shellSR.sprite = playerSR.sprite;
+
+                // Inherit the palette material so the mask (and thus the element + star)
+                // renders during the morph. Same character = same PaletteSwapMasked material
+                // across sizes, so one material serves both children; each child's per-sprite
+                // mask travels with its own secondary texture. Without this the children keep
+                // Sprites-Default and SetChildRow's _PaletteRow write is silently ignored.
+                if (playerSR.sharedMaterial != null)
+                {
+                    shellSR.sharedMaterial = playerSR.sharedMaterial;
+                    var newSR = newChild.GetComponent<SpriteRenderer>();
+                    if (newSR != null) newSR.sharedMaterial = playerSR.sharedMaterial;
+                }
+            }
             else
                 Debug.LogWarning("[PT] Could not find SpriteSimple on old player.");
         }
@@ -208,11 +238,26 @@ public class PlayerTransformation : MonoBehaviour
         else if (wasBig && isBig)                  animator.Play("BigToBig");
         else                                       animator.Play("SmallToBig");
 
+        // Keep the palette alive through the morph. The shell children use the
+        // PaletteSwapMasked material; drive _PaletteRow so the element (or, if starred,
+        // the star flash) doesn't drop out during the 1s transition.
+        if (_cachedStarPower)
+        {
+            _shellStarFrame = 0;
+            InvokeRepeating(nameof(CycleShellStar), 0f, 0.1f);
+        }
+        else
+        {
+            SetChildRow(oldChild, _cachedOldRow);
+            SetChildRow(newChild, targetIdentity != null ? targetIdentity.PaletteRow : -1f);
+        }
+
         Invoke(nameof(SpawnNewMario), 1f);
     }
 
     private void SpawnNewMario()
     {
+        CancelInvoke(nameof(CycleShellStar));
         if (newPlayer == null)
         {
             Debug.LogError("[PT] newPlayer is null in SpawnNewMario!");
@@ -298,6 +343,14 @@ public class PlayerTransformation : MonoBehaviour
         if (_cachedParent != null)
             newMario.transform.SetParent(_cachedParent, worldPositionStays: true);
 
+        // Carry the element onto the new tier prefab: identity (type) + palette (color).
+        // Null targetIdentity (power-downs) keeps the down-tier prefab's own identity and
+        // resets to normal colors. SetTransformation only sets the rest row; if star is
+        // carried below, its flash overrides and ClearStar returns to THIS element.
+        if (targetIdentity != null)
+            newCore.Powerup?.ApplyIdentity(targetIdentity);
+        newCore.Palette?.SetTransformation(targetIdentity != null ? targetIdentity.PaletteRow : -1f);
+
         if (_cachedStarPower)
             newCore.Combat.StartStarPower(_cachedStarPowerTime);
 
@@ -378,6 +431,28 @@ public class PlayerTransformation : MonoBehaviour
         return player != null
             ? player.GetComponentInChildren<Collider2D>(true)
             : null;
+    }
+
+    // ─── Shell palette painting (during the morph) ───────────────────────────
+
+    private void CycleShellStar()
+    {
+        int   count = Mathf.Max(1, _cachedStarRowCount);
+        float row   = _cachedStarRowStart + (_shellStarFrame % count);
+        _shellStarFrame++;
+        SetChildRow(oldChild, row);
+        SetChildRow(newChild, row);
+    }
+
+    private void SetChildRow(GameObject child, float row)
+    {
+        if (child == null) return;
+        var sr = child.GetComponent<SpriteRenderer>();
+        if (sr == null) return;
+        _shellMpb ??= new MaterialPropertyBlock();
+        sr.GetPropertyBlock(_shellMpb);
+        _shellMpb.SetFloat(PaletteRowID, row);
+        sr.SetPropertyBlock(_shellMpb);
     }
 
     private IEnumerator ForceStateNextFrame(MarioCore target)

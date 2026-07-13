@@ -614,7 +614,9 @@ public class MarioGroundDetection : MonoBehaviour
             MarioEvents.FireMidairSpinEnded(_core.PlayerIndex);
         }
 
-        if (wasInAir)
+        // Don't reset the stomp combo on landing while starred — star lets you keep the
+        // chain across jumps (matches the pre-refactor OldMarioMovement behaviour).
+        if (wasInAir && !State.StarPower)
             ComboManager.Instance?.ResetStomp();
 
         if (State.Direction.x == 0f && wasInAir && Mathf.Abs(_core.Rb.velocity.x) > 0.01f)
