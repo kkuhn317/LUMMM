@@ -164,9 +164,39 @@ public class MarioCombat : MonoBehaviour
             deadPrefab = DeadMarioPrefab;
 
         if (deadPrefab != null)
-            Instantiate(deadPrefab, transform.position, Quaternion.identity);
+        {
+            var deadInstance = Instantiate(deadPrefab, transform.position, Quaternion.identity);
+            ApplyPaletteToDeath(deadInstance);
+        }
 
         Destroy(gameObject);
+    }
+
+    /// <summary>
+    /// Copies this Mario's skin onto the spawned death object so the death matches (e.g. NES
+    /// Mario dies NES-colored). Applies the configured palette material + the resting row via a
+    /// MaterialPropertyBlock. No-op at the normal row (-1). The death sprites must be mask-painted
+    /// with the same region IDs, or there's nothing for the palette to recolor.
+    /// </summary>
+    private void ApplyPaletteToDeath(GameObject deadInstance)
+    {
+        if (deadInstance == null || _core.Palette == null) return;
+
+        float row = _core.Palette.RestRow;
+        if (row < 0f) return;   // normal skin — leave the death prefab as authored
+
+        var mat   = _core.Palette.PaletteMaterial;
+        var mpb   = new MaterialPropertyBlock();
+        int rowId = Shader.PropertyToID("_PaletteRow");
+
+        foreach (var sr in deadInstance.GetComponentsInChildren<SpriteRenderer>(true))
+        {
+            if (sr == null) continue;
+            if (mat != null) sr.sharedMaterial = mat;
+            sr.GetPropertyBlock(mpb);
+            mpb.SetFloat(rowId, row);
+            sr.SetPropertyBlock(mpb);
+        }
     }
 
     /// <summary>
@@ -264,9 +294,34 @@ public class MarioCombat : MonoBehaviour
 
     private void OnDestroy()
     {
-        // Don't let the star-music instance outlive this player (transform swap, level end...).
+        // Normally this Mario owns the live star-music instance. During a powerup morph,
+        // PlayerTransformation detaches that instance first and hands the SAME playing object
+        // to the replacement Mario, so destroying the old body cannot interrupt the track.
         if (_starMusicInstance != null)
             Destroy(_starMusicInstance);
+    }
+
+    /// <summary>
+    /// Relinquishes local ownership of the currently playing star-music object during a prefab
+    /// morph. MusicManager keeps using the same registered override, so playback continues while
+    /// the transformation shell is visible. The replacement Mario adopts it after spawning.
+    /// </summary>
+    public GameObject DetachStarMusicForTransformation()
+    {
+        var instance = _starMusicInstance;
+        _starMusicInstance = null;
+        return instance;
+    }
+
+    /// <summary>
+    /// Restores star state after a prefab morph while adopting the already-playing music object.
+    /// StartStarPower sees the existing instance and re-requests the active override in Continue
+    /// mode, preserving its playback position instead of restarting the star theme.
+    /// </summary>
+    public void ResumeStarPowerAfterTransformation(float duration, GameObject existingMusicInstance)
+    {
+        _starMusicInstance = existingMusicInstance;
+        StartStarPower(duration);
     }
 
     public void StartStarPower(float duration)

@@ -29,7 +29,9 @@ public class PlayerTransformation : MonoBehaviour
     public PowerUpData targetIdentity;
 
     // ─── Shell palette (keeps element / star flash alive during the morph) ─────
-    private float _cachedOldRow;        // old Mario's element row -> oldChild
+    private float _cachedOldRow;        // old Mario's REST row (skin or element) -> oldChild
+    private float _cachedSkinRow;       // old Mario's persistent palette skin -> carried to the new body
+    private MarioSkin _cachedSpriteSkin; // old Mario's persistent SPRITE skin -> carried to the new body
     private int   _cachedStarRowStart;  // star block, cached from old Mario's MarioCombat
     private int   _cachedStarRowCount;
     private int   _shellStarFrame;
@@ -53,6 +55,7 @@ public class PlayerTransformation : MonoBehaviour
     private Vector2     _cachedVelocity;
     private bool        _cachedStarPower;
     private float       _cachedStarPowerTime;
+    private GameObject  _cachedStarMusicInstance;
     private bool        _cachedPressRunToGrab;
     private bool        _cachedCrouchToGrab;
     private CarryMethod _cachedCarryMethod;
@@ -111,6 +114,13 @@ public class PlayerTransformation : MonoBehaviour
         _cachedInvincibilityTime        = s.InvincibilityTimeRemaining;
         _cachedStarPower                = s.StarPower;
         _cachedStarPowerTime            = s.StarPowerRemainingTime;
+
+        // Transfer ownership of the LIVE star-music object before old Mario is destroyed.
+        // MusicManager remains registered to this same object throughout the shell animation,
+        // so the star theme never mutes, restarts, or loses its playback position.
+        if (_cachedStarPower && oldCore.Combat != null)
+            _cachedStarMusicInstance = oldCore.Combat.DetachStarMusicForTransformation();
+
         _cachedJumpPressed              = s.JumpPressed;
         _cachedRunPressed               = s.RunPressed;
         _cachedMoveInput                = s.MoveInput;
@@ -153,9 +163,13 @@ public class PlayerTransformation : MonoBehaviour
         var newPowerup = newPlayer.GetComponent<MarioPowerup>();
 
         _oldPowerupState = oldPowerup?.PowerupState ?? s.PowerupState;
-        _newPowerupState = newPowerup?.PowerupState ?? newCore.State.PowerupState;
+        _newPowerupState = targetIdentity != null
+            ? targetIdentity.PowerupState
+            : newPowerup?.PowerupState ?? newCore.State.PowerupState;
 
-        _cachedOldRow       = oldPowerup?.Identity != null ? oldPowerup.Identity.PaletteRow : -1f;
+        _cachedOldRow       = oldCore.Palette != null ? oldCore.Palette.RestRow : -1f;
+        _cachedSkinRow      = oldCore.Palette != null ? oldCore.Palette.SkinRow : -1f;
+        _cachedSpriteSkin   = oldPowerup != null ? oldPowerup.CurrentSkin : null;
         _cachedStarRowStart = oldCore.Combat != null ? oldCore.Combat.StarRowStart : 0;
         _cachedStarRowCount = oldCore.Combat != null ? oldCore.Combat.StarRowCount : 1;
 
@@ -167,10 +181,33 @@ public class PlayerTransformation : MonoBehaviour
         var newChildLib = newChild.GetComponent<SpriteLibrary>();
 
         if (oldLib != null && oldChildLib != null)
+        {
             oldChildLib.spriteLibraryAsset = oldLib.spriteLibraryAsset;
+            oldChild.GetComponent<SpriteResolver>()?.ResolveSpriteToSpriteRenderer();
+        }
 
-        if (newLib != null && newChildLib != null)
-            newChildLib.spriteLibraryAsset = newLib.spriteLibraryAsset;
+        if (newChildLib != null)
+        {
+            // Resolve the TARGET side before the morph begins. The referenced newPlayer is
+            // a prefab asset, so its SpriteLibrary still contains its default look at this point.
+            // Use the same precedence as MarioPowerup.ApplySpriteLibrary:
+            // powerup override > persistent skin library for target size > prefab default.
+            SpriteLibraryAsset targetLibrary = null;
+
+            if (targetIdentity != null && targetIdentity.overrideSpriteLibrary != null)
+                targetLibrary = targetIdentity.overrideSpriteLibrary;
+            else if (_cachedSpriteSkin != null)
+                targetLibrary = _cachedSpriteSkin.LibraryFor(_newPowerupState);
+
+            if (targetLibrary == null && newLib != null)
+                targetLibrary = newLib.spriteLibraryAsset;
+
+            if (targetLibrary != null)
+            {
+                newChildLib.spriteLibraryAsset = targetLibrary;
+                newChild.GetComponent<SpriteResolver>()?.ResolveSpriteToSpriteRenderer();
+            }
+        }
 
         // ── Sync oldChild to the exact sprite the player was showing ─────────
         var shellSR = oldChild.GetComponent<SpriteRenderer>();
@@ -249,7 +286,7 @@ public class PlayerTransformation : MonoBehaviour
         else
         {
             SetChildRow(oldChild, _cachedOldRow);
-            SetChildRow(newChild, targetIdentity != null ? targetIdentity.PaletteRow : -1f);
+            SetChildRow(newChild, ResolveTargetRestRow());
         }
 
         Invoke(nameof(SpawnNewMario), 1f);
@@ -343,16 +380,36 @@ public class PlayerTransformation : MonoBehaviour
         if (_cachedParent != null)
             newMario.transform.SetParent(_cachedParent, worldPositionStays: true);
 
-        // Carry the element onto the new tier prefab: identity (type) + palette (color).
-        // Null targetIdentity (power-downs) keeps the down-tier prefab's own identity and
-        // resets to normal colors. SetTransformation only sets the rest row; if star is
-        // carried below, its flash overrides and ClearStar returns to THIS element.
+        // Carry the SKIN across the transform (NES/SMB persists through size changes and
+        // power-downs) and set the ELEMENT from the powerup: a size-only change or a power-down
+        // passes -1, clearing the element so the skin shows through again; fire/ice pass their
+        // row, which shows over the skin. Star, if carried below, overrides and ClearStar
+        // returns to whichever the current rest is.
+        // Carry the persistent SPRITE skin (SMB/Pixelcraftian) onto the new body BEFORE identity
+        // is applied, so ApplySpriteLibrary picks the skin's library for the NEW size.
+        if (newCore.Powerup != null) newCore.Powerup.CurrentSkin = _cachedSpriteSkin;
+
         if (targetIdentity != null)
-            newCore.Powerup?.ApplyIdentity(targetIdentity);
-        newCore.Palette?.SetTransformation(targetIdentity != null ? targetIdentity.PaletteRow : -1f);
+            newCore.Powerup?.ApplyIdentity(targetIdentity);   // sets state + applies skin/override library
+        else
+            newCore.Powerup?.ResetSpriteLibrary();            // power-down: apply skin library for the body's own state
+
+        // With a sprite skin, ApplyIdentity/ResetSpriteLibrary above already set the skin row for
+        // the NEW size (skin.RowFor). Only carry the raw cached row when there's NO skin asset
+        // (a quick color-only NES/SMB row set via startingPaletteRow) — else we'd stomp RowFor.
+        if (_cachedSpriteSkin == null)
+            newCore.Palette?.SetSkin(_cachedSkinRow);
+        newCore.Powerup?.ApplyElement(targetIdentity);   // element color resolved through the skin (NES-fire vs Modern-fire)
 
         if (_cachedStarPower)
-            newCore.Combat.StartStarPower(_cachedStarPowerTime);
+        {
+            // Adopt the same live music object that belonged to old Mario. StartStarPower then
+            // rebinds the star state using Continue mode instead of creating/restarting a track.
+            newCore.Combat.ResumeStarPowerAfterTransformation(
+                _cachedStarPowerTime,
+                _cachedStarMusicInstance
+            );
+        }
 
         // Re-attach carried object to new Mario.
         if (_cachedCarriedObject != null)
@@ -431,6 +488,25 @@ public class PlayerTransformation : MonoBehaviour
         return player != null
             ? player.GetComponentInChildren<Collider2D>(true)
             : null;
+    }
+
+    /// <summary>
+    /// Resolves the palette row that the target side of the shell should show.
+    /// This mirrors MarioPowerup's layered palette logic before the target Mario exists:
+    /// a skin-specific Fire/Ice row wins, otherwise the target-size skin row is shown.
+    /// </summary>
+    private float ResolveTargetRestRow()
+    {
+        float targetSkinRow = _cachedSpriteSkin != null
+            ? _cachedSpriteSkin.RowFor(_newPowerupState)
+            : _cachedSkinRow;
+
+        if (targetIdentity == null || targetIdentity.PaletteRow < 0)
+            return targetSkinRow;
+
+        return _cachedSpriteSkin != null
+            ? _cachedSpriteSkin.ElementRowFor(targetIdentity.PowerupType, targetIdentity.PaletteRow)
+            : targetIdentity.PaletteRow;
     }
 
     // ─── Shell palette painting (during the morph) ───────────────────────────

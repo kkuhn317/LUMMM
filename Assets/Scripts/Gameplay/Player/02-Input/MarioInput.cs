@@ -230,7 +230,26 @@ public class MarioInput : MonoBehaviour
     }
 
     /// <summary>
-    /// Syncs held-button state after inputs are re-enabled (e.g. after a door animation).
+    /// Resamples only the currently held movement direction after a temporary gameplay lock.
+    /// This is used by pipes: entering a pipe intentionally clears MoveInput, but Unity does not
+    /// emit another performed callback when the same direction remains held through the exit.
+    /// Reading the action directly restores movement without turning a held Jump into a new jump.
+    /// </summary>
+    public void SyncHeldMovement()
+    {
+        var pi = _core.PlayerInput;
+        if (pi == null || pi.actions == null) return;
+
+        var moveAction = pi.actions.FindAction("Move", throwIfNotFound: false);
+        if (moveAction == null) return;
+
+        State.MoveInput = ApplyDeadzone(moveAction.ReadValue<Vector2>());
+        if (!State.InputLocked && !State.IsFrozen && !State.IsPaused)
+            State.Direction = State.MoveInput;
+    }
+
+    /// <summary>
+    /// Syncs all held-button state after inputs are re-enabled (e.g. after a door animation).
     /// Unity's Input System does not re-fire performed for already-held buttons on re-activation,
     /// so we read physical state directly.
     /// </summary>
@@ -241,16 +260,11 @@ public class MarioInput : MonoBehaviour
 
         var runAction  = pi.actions.FindAction("Run",  throwIfNotFound: false);
         var jumpAction = pi.actions.FindAction("Jump", throwIfNotFound: false);
-        var moveAction = pi.actions.FindAction("Move", throwIfNotFound: false);
 
         if (runAction  != null) State.RunPressed  = runAction.IsPressed();
         if (jumpAction != null) State.JumpPressed = jumpAction.IsPressed();
-        if (moveAction != null)
-        {
-            State.MoveInput = ApplyDeadzone(moveAction.ReadValue<Vector2>());
-            if (!State.InputLocked)
-                State.Direction = State.MoveInput;
-        }
+
+        SyncHeldMovement();
     }
 
     // Jump ────────────────────────────────────────────────────────────────────

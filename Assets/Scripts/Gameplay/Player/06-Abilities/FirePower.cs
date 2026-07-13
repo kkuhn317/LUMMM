@@ -22,16 +22,36 @@ public class FirePower : MarioAbility
     public Vector2    shootOffset;
     public AudioClip  shootSound;
 
+    // Granted by the current powerup. Fire/Ice now live as data on ONE Big prefab, so the
+    // component is always present but only shoots when a powerup grants it a projectile.
+    private bool _granted;
+
+    /// <summary>
+    /// Configure the shooter from powerup data. Pass a projectile + sound to grant it
+    /// (Fire = fireball, Ice = iceball), or null to revoke (plain Big). Called by MarioPowerup.
+    /// </summary>
+    public void Configure(GameObject projectile, AudioClip sound)
+    {
+        _granted = projectile != null;
+        if (!_granted) return;
+
+        fireballObj = projectile;
+        shootSound  = sound;
+        fireballs   = 0;   // fresh ammo on (re)grant
+    }
+
     // ─── Hooks ───────────────────────────────────────────────────────────────
 
     public override void onShootPressed()
     {
+        if (!_granted) return;
         if (!State.Carrying && !State.GroundPounding)
             ShootProjectile(isLeft: !State.FacingRight, explicitDirection: false);
     }
 
     public override void onSpinPressed()
     {
+        if (!_granted) return;
         ShootSpinningFireballs();
     }
 

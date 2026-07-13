@@ -277,9 +277,14 @@ public class Pipe : MonoBehaviour
             marioCore.Rb.gravityScale            = 1f;
             marioCore.AnimatorController.enabled = true;
             marioCore.StateMachine.enabled       = true;
-            marioCore.StateMachine.ForceTransition(MarioStateID.Idle);
             marioCore.State.InputLocked          = false;
             marioCore.EnableInputs();
+
+            // MoveInput was cleared when Mario entered the pipe. If the player kept holding a
+            // direction, the Input System has no new press edge to report here, so read the
+            // current Move action value directly before handing control back to the state machine.
+            marioCore.Input?.SyncHeldMovement();
+            marioCore.StateMachine.ForceTransition(MarioStateID.Idle);
         }
 
         OnAnyExitFinished?.Invoke(this, player);

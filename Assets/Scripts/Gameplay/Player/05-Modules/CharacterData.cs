@@ -145,14 +145,37 @@ public class CharacterData : ScriptableObject
     public GameObject GetPrefabForState(PowerupState state) => FindPrefabByState(state);
 
     /// <summary>
-    /// Finds the first prefab matching the given state with no type (base variant).
+    /// Finds the base prefab for a state.
+    ///
+    /// Priority:
+    /// 1. Matching state with an empty PowerupType.
+    /// 2. Matching state whose data has no element palette/projectile. This supports
+    ///    base assets named "big", "small", etc. instead of requiring an empty type.
+    /// 3. First matching state as a safe legacy fallback.
     /// </summary>
     private GameObject FindPrefabByState(PowerupState state)
     {
         if (PowerupPrefabs == null) return null;
 
         foreach (var entry in PowerupPrefabs)
-            if (entry.Data != null && entry.Data.PowerupState == state)
+            if (entry.Data != null &&
+                entry.Prefab != null &&
+                entry.Data.PowerupState == state &&
+                string.IsNullOrWhiteSpace(entry.Data.PowerupType))
+                return entry.Prefab;
+
+        foreach (var entry in PowerupPrefabs)
+            if (entry.Data != null &&
+                entry.Prefab != null &&
+                entry.Data.PowerupState == state &&
+                entry.Data.PaletteRow < 0 &&
+                entry.Data.projectile == null)
+                return entry.Prefab;
+
+        foreach (var entry in PowerupPrefabs)
+            if (entry.Data != null &&
+                entry.Prefab != null &&
+                entry.Data.PowerupState == state)
                 return entry.Prefab;
 
         return null;

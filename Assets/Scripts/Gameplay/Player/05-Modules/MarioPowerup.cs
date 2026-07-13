@@ -27,6 +27,10 @@ public class MarioPowerup : MonoBehaviour
     [Header("Sprite Library")]
     public UnityEngine.U2D.Animation.SpriteLibraryAsset NormalSpriteLibrary;
 
+    [Tooltip("Persistent sprite skin (SMB, Pixelcraftian). Null = the NormalSpriteLibrary look. " +
+             "Usually set per level (LevelPaletteSetup) and carried across transforms.")]
+    public MarioSkin CurrentSkin;
+
 
     private MarioCore  _core;
     private MarioState State       => _core.State;
@@ -52,6 +56,8 @@ public class MarioPowerup : MonoBehaviour
         {
             Debug.LogWarning($"[MarioPowerup] No Identity (PowerUpData) assigned on {gameObject.name}.");
         }
+
+        ApplyPowerupAppearance(Identity);
     }
 
     // ─── Power Up ────────────────────────────────────────────────────────────
@@ -70,22 +76,12 @@ public class MarioPowerup : MonoBehaviour
             return;
         }
 
-        // ── Element-only change: same tier → recolor in place, no prefab swap ──
-        // Fire <-> Ice (both PowerupState.power). Same body/mask; only the palette differs.
-        if (data.PowerupState == State.PowerupState)
-        {
-            _core.Palette?.SetTransformation(data.PaletteRow);
-            Identity                 = data;
-            State.CurrentPowerupType = data.PowerupType ?? "";
-            MarioEvents.FirePowerUpStarted(PlayerIndex);
-            return;                                        // no shell, no Destroy
-        }
-
-        // ── Tier change: prefab swap, carrying the new element across the morph ──
-        // Prefer an element-specific prefab if one is registered (a body/behaviour that
-        // genuinely differs); otherwise use the base prefab for this tier and let the
-        // carried identity + palette express the element. Deleting fire/ice prefab entries
-        // makes this fall through here — the "fewer prefabs" path.
+        // Any real powerup change morphs through the shell — including same-tier element
+        // swaps like Fire -> Ice (blocking exact-same pickups is handled earlier in
+        // PowerUp.canGetPowerup). Prefer an element-specific prefab if one is registered;
+        // otherwise fall back to the base prefab for this tier and let the carried identity
+        // + palette express the element. This is what lets Fire/Ice share the one Big body:
+        // FindPrefab misses (no Fire/Ice prefab) -> GetPrefabForState(power) -> Big Mario.
         var newMarioPrefab = Character.FindPrefab(data)
                           ?? Character.GetPrefabForState(data.PowerupState);
         if (newMarioPrefab == null)
@@ -132,14 +128,45 @@ public class MarioPowerup : MonoBehaviour
             return;
         }
 
+        State.IsTransforming = true;
+
         var shell = SpawnShell(powerDownPrefab);
         Debug.Log($"[PowerDown] shell={shell?.name ?? "NULL"}");
-        
-        if (shell == null) return;
+
+        if (shell == null)
+        {
+            State.IsTransforming = false;
+            return;
+        }
 
         _core.Audio?.PlayDamageSound();
         MarioEvents.FirePoweredDown(PlayerIndex);
         Destroy(gameObject);
+    }
+
+    /// <summary>
+    /// Grants or revokes the projectile ability (FirePower) from the powerup data, so Fire/Ice
+    /// are data on ONE Big prefab instead of separate prefabs. Null data, or data with no
+    /// projectile, disables shooting (plain Big).
+    /// </summary>
+    private void ApplyAbility(PowerUpData data)
+    {
+        var shooter = GetComponentInChildren<FirePower>(true);
+        if (shooter == null) return;
+        shooter.Configure(data != null ? data.projectile      : null,
+                          data != null ? data.projectileSound : null);
+    }
+
+    /// <summary>
+    /// Applies every persistent part of the current powerup look together, preventing the
+    /// sprite library, skin row, and element row from becoming desynchronized.
+    /// </summary>
+    private void ApplyPowerupAppearance(PowerUpData data)
+    {
+        ApplyAbility(data);
+        ApplySpriteLibrary(data);
+        ApplySkinRow();
+        ApplyElement(data);
     }
 
     /// <summary>
@@ -153,6 +180,7 @@ public class MarioPowerup : MonoBehaviour
         Identity                 = data;
         State.PowerupState       = data.PowerupState;
         State.CurrentPowerupType = data.PowerupType ?? "";
+        ApplyPowerupAppearance(data);
     }
 
     // ─── State Transfer ──────────────────────────────────────────────────────
@@ -164,6 +192,12 @@ public class MarioPowerup : MonoBehaviour
     public void TransferToNewMario(MarioCore target)
     {
         var t = target.State;
+
+        // Persistent skin. SetSpriteSkin also re-resolves the current Fire/Ice row through
+        // that skin, regardless of whether targetIdentity was applied before or after transfer.
+        var targetPowerup = target.GetComponent<MarioPowerup>();
+        if (targetPowerup != null)
+            targetPowerup.SetSpriteSkin(CurrentSkin);
 
         // Physics
         target.Rb.velocity = _core.Rb.velocity;
@@ -223,10 +257,72 @@ public class MarioPowerup : MonoBehaviour
 
     public void ResetSpriteLibrary()
     {
-        // SpriteLibrary lives inside the Visual child hierarchy, not on the root
+        // "Reset" means back to what the CURRENT powerup + skin should look like.
+        ApplySpriteLibrary(Identity);
+        ApplySkinRow();
+        ApplyElement(Identity);
+    }
+
+    /// <summary>
+    /// Sets the swap rig's SpriteLibrary from powerup data: the powerup's overrideSpriteLibrary
+    /// if it defines one, otherwise the character's NormalSpriteLibrary. Lets "same body, a few
+    /// different frames" variants (Old Fire) live as data instead of a prefab.
+    /// </summary>
+    private void ApplySpriteLibrary(PowerUpData data)
+    {
         var lib = GetComponentInChildren<UnityEngine.U2D.Animation.SpriteLibrary>();
-        if (lib != null && NormalSpriteLibrary != null)
-            lib.spriteLibraryAsset = NormalSpriteLibrary;
+        if (lib == null) return;
+
+        UnityEngine.U2D.Animation.SpriteLibraryAsset asset = null;
+        if (data != null && data.overrideSpriteLibrary != null)
+            asset = data.overrideSpriteLibrary;                   // powerup-specific frames (OldFire)
+        else if (CurrentSkin != null)
+            asset = CurrentSkin.LibraryFor(State.PowerupState);   // persistent sprite skin (SMB/Pixel)
+        if (asset == null)
+            asset = NormalSpriteLibrary;                          // character default
+
+        if (asset != null) lib.spriteLibraryAsset = asset;
+    }
+
+    /// <summary>
+    /// Sets the persistent sprite skin and re-applies the library for the current size. Carried
+    /// across transforms so SMB/Pixelcraftian survive size changes and power-downs.
+    /// </summary>
+    public void SetSpriteSkin(MarioSkin skin)
+    {
+        CurrentSkin = skin;
+        ApplySpriteLibrary(Identity);
+        ApplySkinRow();
+        ApplyElement(Identity);
+    }
+
+    /// <summary>
+    /// Pushes the current skin's palette row (its recolor for THIS size) onto MarioPalette's skin
+    /// layer. No-op with no skin. Called wherever the library is applied, so color and shapes stay
+    /// in lock-step across transforms. An active fire/ice element still shows over this row.
+    /// </summary>
+    private void ApplySkinRow()
+    {
+        if (_core.Palette == null || CurrentSkin == null) return;
+        _core.Palette.SetSkin(CurrentSkin.RowFor(State.PowerupState));
+    }
+
+    /// <summary>
+    /// Applies the element color (fire/ice) RESOLVED THROUGH THE SKIN, so NES-fire uses the NES
+    /// fire row while Modern-fire uses the powerup's own row. data with PaletteRow &lt; 0 (a size
+    /// powerup or power-down) clears the element so the skin shows through.
+    /// </summary>
+    public void ApplyElement(PowerUpData data)
+    {
+        if (_core.Palette == null) return;
+
+        int row = -1;
+        if (data != null && data.PaletteRow >= 0)
+            row = CurrentSkin != null
+                ? CurrentSkin.ElementRowFor(data.PowerupType, data.PaletteRow)
+                : data.PaletteRow;
+
+        _core.Palette.SetElement(row);
     }
 
     // ─── Internal ────────────────────────────────────────────────────────────
