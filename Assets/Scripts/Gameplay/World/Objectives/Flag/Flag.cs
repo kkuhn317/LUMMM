@@ -56,11 +56,13 @@ public class Flag : MonoBehaviour
         _slide.Initialize(flag, _arrival);
         _slide.OnAllPlayersAtBottom  += OnAllPlayersAtBottom;
         _slide.OnFirstPlayerAtBottom += OnFirstPlayerAtBottom;
-        _slide.OnSlideStarted        += _flow.OnSlideStarted;
-        _arrival.OnPlayerArrived            += OnPlayerArrived;
-        _arrival.OnArrivalMovementStarting  += _flow.OnArrivalMovementStarting;
-        _flow.OnCutsceneAboutToPlay         += _slide.HideAllPuppets;
-        _flow.OnCutsceneAboutToPlay         += () => Debug.Log("[Flag] OnCutsceneAboutToPlay fired — hiding puppets");
+        _slide.OnSlideStarted += _flow.OnSlideStarted;
+        _arrival.OnPlayerArrived += OnPlayerArrived;
+        _arrival.OnArrivalMovementStarting += _flow.OnArrivalMovementStarting;
+        _flow.OnCutsceneAboutToPlay += _slide.HideAllPuppets;
+        _flow.OnCutsceneAboutToPlay += () => Debug.Log("[Flag] OnCutsceneAboutToPlay fired — hiding puppets");
+        _flow.OnCutsceneAboutToPlay += _slide.PrepareTimelineActors;
+        _flow.OnCutsceneAboutToPlay += _slide.HideAllPuppets;
 
         _slide.flagOnRight = playerSide;
     }
@@ -81,7 +83,7 @@ public class Flag : MonoBehaviour
     private void OnEnable()
     {
         // In edit mode, re-apply height after prefab variant overrides are resolved
-        if (!UnityEngine.Application.isPlaying)
+        if (!Application.isPlaying)
         {
             UnityEditor.EditorApplication.delayCall += () =>
             {

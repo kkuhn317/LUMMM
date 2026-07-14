@@ -87,6 +87,16 @@ public class MarioPalette : MonoBehaviour
     public Material PaletteMaterial => paletteMaterial;
 
     /// <summary>
+    /// Re-scans the player hierarchy, assigns the palette material, and reapplies the current row.
+    /// Call this after a cutscene adds, enables, or repurposes a SpriteResolver at runtime.
+    /// </summary>
+    public void RefreshRenderers()
+    {
+        AssignMaterial();
+        Apply(_currentRow);
+    }
+
+    /// <summary>
     /// Pushes paletteMaterial onto every body renderer under visualRoot. A "body" renderer
     /// is one with a SpriteResolver (SpriteSimple and every Limb_* have one); markers like
     /// Checkpoint Icon have no resolver and are left untouched. This is why the limbs weren't

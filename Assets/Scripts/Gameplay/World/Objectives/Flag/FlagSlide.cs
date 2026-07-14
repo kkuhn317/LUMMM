@@ -320,6 +320,172 @@ public class FlagSlide : MonoBehaviour
         _cameraFollow.SetOverrideTargets(targets);
     }
 
+    // ─── Puppet Helpers ───────────────────────────────────────────────────── 
+
+    private static IEnumerable<SpriteRenderer>GetPuppetBodyRenderers(GameObject puppet)
+    {
+        if (puppet == null)
+            yield break;
+
+        foreach (SpriteRenderer renderer in
+                puppet.GetComponentsInChildren<SpriteRenderer>(true))
+        {
+            if (renderer == null)
+                continue;
+
+            // Includes the regular puppet renderer and the special
+            // SpriteResolver used by ending animations.
+            if (renderer.GetComponent<SpriteResolver>() == null)
+                continue;
+
+            yield return renderer;
+        }
+    }
+
+    private void ApplyPuppetPalette(
+        GameObject puppet,
+        float paletteRow)
+    {
+        _puppetMpb ??= new MaterialPropertyBlock();
+
+        foreach (SpriteRenderer renderer in
+                GetPuppetBodyRenderers(puppet))
+        {
+            renderer.GetPropertyBlock(_puppetMpb);
+            _puppetMpb.SetFloat(PaletteRowID, paletteRow);
+            renderer.SetPropertyBlock(_puppetMpb);
+        }
+    }
+
+    private void ApplyTimelineActorPalette(
+        GameObject actor,
+        MarioCore mario)
+    {
+        if (actor == null ||
+            mario == null ||
+            mario.Palette == null)
+        {
+            return;
+        }
+
+        Material paletteMaterial =
+            mario.Palette.PaletteMaterial;
+
+        float paletteRow =
+            mario.Palette.CurrentRow;
+
+        _puppetMpb ??= new MaterialPropertyBlock();
+
+        foreach (SpriteRenderer renderer in
+                actor.GetComponentsInChildren<SpriteRenderer>(true))
+        {
+            if (renderer == null)
+                continue;
+
+            // Only modify actual Mario body renderers.
+            if (renderer.GetComponent<SpriteResolver>() == null)
+                continue;
+
+            if (paletteMaterial != null)
+                renderer.sharedMaterial = paletteMaterial;
+
+            renderer.GetPropertyBlock(_puppetMpb);
+
+            _puppetMpb.SetFloat(
+                PaletteRowID,
+                paletteRow
+            );
+
+            renderer.SetPropertyBlock(_puppetMpb);
+        }
+    }
+
+    /// <summary>
+    /// Copies the sprite library currently used by the real player to the
+    /// Timeline-bound Cutscene Mario, then refreshes all of its SpriteResolvers.
+    /// </summary>
+    private void ApplyTimelineActorLibrary(
+        GameObject actor,
+        MarioCore mario)
+    {
+        if (actor == null || mario == null)
+            return;
+
+        SpriteLibrary sourceLibrary =
+            mario.GetComponentInChildren<SpriteLibrary>(true);
+
+        if (sourceLibrary == null ||
+            sourceLibrary.spriteLibraryAsset == null)
+        {
+            return;
+        }
+
+        SpriteLibraryAsset sourceAsset =
+            sourceLibrary.spriteLibraryAsset;
+
+        // Apply the active library to every SpriteLibrary used by the actor.
+        foreach (SpriteLibrary targetLibrary in
+                actor.GetComponentsInChildren<SpriteLibrary>(true))
+        {
+            if (targetLibrary != null)
+                targetLibrary.spriteLibraryAsset = sourceAsset;
+        }
+
+        // Force every resolver to update after changing the library.
+        foreach (SpriteResolver resolver in
+                actor.GetComponentsInChildren<SpriteResolver>(true))
+        {
+            if (resolver != null)
+                resolver.ResolveSpriteToSpriteRenderer();
+        }
+    }
+
+    /// <summary>
+    /// Copies the first sliding player's current appearance to the inactive
+    /// Cutscene Mario objects bound to Timeline.
+    ///
+    /// This is separate from the instantiated slide puppet. Timeline activates
+    /// the original child objects stored in cutsceneMario/optCutsceneBigMario.
+    /// </summary>
+    public void PrepareTimelineActors()
+    {
+        if (_slidingPlayers.Count == 0)
+            return;
+
+        PlayerSlideState ps = _slidingPlayers[0];
+
+        if (ps == null || ps.Mario == null)
+            return;
+
+        MarioCore mario = ps.Mario;
+
+        bool isBig = PowerStates.IsBig(
+            mario.State.PowerupState
+        );
+
+        GameObject selectedActor =
+            isBig && optCutsceneBigMario != null
+                ? optCutsceneBigMario
+                : cutsceneMario;
+
+        // Apply the palette to both Timeline actors so either one is ready.
+        ApplyTimelineActorPalette(
+            cutsceneMario,
+            mario
+        );
+
+        ApplyTimelineActorPalette(
+            optCutsceneBigMario,
+            mario
+        );
+
+        // Copy the active sprite library only to the actor matching Mario's size.
+        ApplyTimelineActorLibrary(
+            selectedActor,
+            mario
+        );
+    }
+
     // ─── Puppet Spawning ─────────────────────────────────────────────────────
 
     private GameObject SpawnPuppet(Collider2D other, MarioCore mario)
@@ -340,26 +506,69 @@ public class FlagSlide : MonoBehaviour
             transform.position.x + (flagOnRight ? 0.4f : -0.4f),
             other.transform.position.y);
 
-        // Read the sprite library from MarioPowerup.NormalSpriteLibrary — the
-        // authoritative per-character asset — NOT from the SpriteLibrary component.
+        // Copy the sprite library Mario is currently using, including the active
+        // skin or power-up override. Fall back to NormalSpriteLibrary if necessary.
         var marioPowerup = mario.GetComponent<MarioPowerup>();
-        var csLib = instance.GetComponentInChildren<SpriteLibrary>();
-        if (marioPowerup != null && marioPowerup.NormalSpriteLibrary != null && csLib != null)
-            csLib.spriteLibraryAsset = marioPowerup.NormalSpriteLibrary;
+        var sourceLibrary =
+            mario.GetComponentInChildren<SpriteLibrary>(true);
+        var puppetLibrary =
+            instance.GetComponentInChildren<SpriteLibrary>(true);
+
+        if (puppetLibrary != null)
+        {
+            if (sourceLibrary != null &&
+                sourceLibrary.spriteLibraryAsset != null)
+            {
+                // Copies the library Mario is actually using:
+                // skin, power-up override, or normal library.
+                puppetLibrary.spriteLibraryAsset =
+                    sourceLibrary.spriteLibraryAsset;
+            }
+            else if (marioPowerup != null &&
+                    marioPowerup.NormalSpriteLibrary != null)
+            {
+                puppetLibrary.spriteLibraryAsset =
+                    marioPowerup.NormalSpriteLibrary;
+            }
+
+            foreach (SpriteResolver resolver in
+                    instance.GetComponentsInChildren<SpriteResolver>(true))
+            {
+                resolver.ResolveSpriteToSpriteRenderer();
+            }
+        }
 
         instance.GetComponent<PuppetGroundDetection>()?.Initialize();
 
-        var sr = instance.GetComponentInChildren<SpriteRenderer>();
-        if (sr != null)
-        {
-            sr.flipX = flagOnRight;
+        Material paletteMaterial =
+            mario.Palette != null
+                ? mario.Palette.PaletteMaterial
+                : null;
 
-            // Inherit the palette material so the puppet can show star/element colours.
-            // The puppet uses the full-body sprites (NormalSpriteLibrary), same sheets as
-            // SpriteSimple, so each sprite's mask secondary texture travels with it.
+        if (paletteMaterial == null)
+        {
             var simple = FindSimpleRenderer(mario);
-            if (simple != null && simple.sharedMaterial != null)
-                sr.sharedMaterial = simple.sharedMaterial;
+
+            if (simple != null)
+                paletteMaterial = simple.sharedMaterial;
+        }
+
+        foreach (SpriteRenderer renderer in
+                GetPuppetBodyRenderers(instance))
+        {
+            renderer.flipX = flagOnRight;
+
+            if (paletteMaterial != null)
+                renderer.sharedMaterial = paletteMaterial;
+        }
+
+        // Apply the palette immediately, before the first Tick().
+        if (mario.Palette != null)
+        {
+            ApplyPuppetPalette(
+                instance,
+                mario.Palette.CurrentRow
+            );
         }
 
         return instance;
@@ -394,13 +603,17 @@ public class FlagSlide : MonoBehaviour
 
     private void MirrorPuppetPalette(PlayerSlideState ps)
     {
-        if (ps.Mario == null || ps.Mario.Palette == null || ps.CutsceneMarioInstance == null) return;
-        var sr = ps.CutsceneMarioInstance.GetComponentInChildren<SpriteRenderer>();
-        if (sr == null) return;
-        _puppetMpb ??= new MaterialPropertyBlock();
-        sr.GetPropertyBlock(_puppetMpb);
-        _puppetMpb.SetFloat(PaletteRowID, ps.Mario.Palette.CurrentRow);
-        sr.SetPropertyBlock(_puppetMpb);
+        if (ps.Mario == null ||
+            ps.Mario.Palette == null ||
+            ps.CutsceneMarioInstance == null)
+        {
+            return;
+        }
+
+        ApplyPuppetPalette(
+            ps.CutsceneMarioInstance,
+            ps.Mario.Palette.CurrentRow
+        );
     }
 
     // ─── Particles ───────────────────────────────────────────────────────────
