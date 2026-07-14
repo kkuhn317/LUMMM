@@ -68,15 +68,16 @@ public class SettingsManager : MonoBehaviour
 
     private IEnumerator ApplyResolutionAndFullscreen()
     {
-        string savedResolution =
 #if UNITY_WEBGL && !UNITY_EDITOR
-            PlayerPrefs.GetString(SettingsKeys.ResolutionKey, "960x600");
+        // The browser/WebGL template owns the canvas size. Forcing a saved desktop-style
+        // resolution here can leave Unity's render target out of sync after Esc exits
+        // fullscreen. Browsers also require entering fullscreen from a user gesture.
+        yield break;
 #else
-            PlayerPrefs.GetString(
-                SettingsKeys.ResolutionKey,
-                $"{Screen.currentResolution.width}x{Screen.currentResolution.height}"
-            );
-#endif
+        string savedResolution = PlayerPrefs.GetString(
+            SettingsKeys.ResolutionKey,
+            $"{Screen.currentResolution.width}x{Screen.currentResolution.height}"
+        );
         bool savedFullscreen = PlayerPrefs.GetInt(SettingsKeys.FullscreenKey, 1) == 1;
 
         var parts = savedResolution.Split('x');
@@ -85,9 +86,6 @@ public class SettingsManager : MonoBehaviour
 
         Screen.SetResolution(w, h, savedFullscreen);
         yield return null;
-
-#if UNITY_WEBGL && !UNITY_EDITOR
-        yield return new WaitForSeconds(0.1f);
 #endif
     }
 

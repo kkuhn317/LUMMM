@@ -46,16 +46,12 @@ public class GameSettings : MonoBehaviour
         ConfigureOnScreenControls();
         ConfigureSpeedrunMode();
 
-        // For WebGL, start listening for fullscreen changes (ESC key detection)
+        // WebGL canvas sizing is owned by the browser/template. We only monitor the
+        // actual fullscreen state so the settings UI stays synchronized when Esc exits.
         if (isWebGL)
         {
             StartFullscreenMonitoring();
-            
-            // Set a reasonable default window size for WebGL when not in fullscreen
-            if (!Screen.fullScreen)
-            {
-                SetReasonableWebGLWindowSize();
-            }
+            RefreshWebGLResolutionLabel();
         }
     }
 
@@ -77,19 +73,10 @@ public class GameSettings : MonoBehaviour
         fullscreenCheckCoroutine = StartCoroutine(CheckFullscreenChanges());
     }
 
-    private void SetReasonableWebGLWindowSize()
+    private void RefreshWebGLResolutionLabel()
     {
-        // Use your canvas size (960x600) for WebGL
-        int targetWidth = 960;
-        int targetHeight = 600;
-        
-        // Only set if we're not already at the correct dimensions
-        if (Screen.width != targetWidth || Screen.height != targetHeight)
-        {
-            Screen.SetResolution(targetWidth, targetHeight, Screen.fullScreen);
-            resolutionText.text = targetWidth + "x" + targetHeight;
-            PlayerPrefs.SetString(SettingsKeys.ResolutionKey, targetWidth + "x" + targetHeight);
-        }
+        if (resolutionText != null)
+            resolutionText.text = $"{Screen.width}x{Screen.height}";
     }
 
     Resolution[] GetResolutions()
@@ -121,9 +108,10 @@ public class GameSettings : MonoBehaviour
     {
         if (isWebGL)
         {
-            // For WebGL, use your canvas resolution as default
-            string defaultResolution = "960x600";
-            resolutionText.text = defaultResolution;
+            // The browser controls the visible canvas size on WebGL. Do not call
+            // Screen.SetResolution here or the render target can become detached from
+            // the CSS canvas after entering or leaving fullscreen.
+            RefreshWebGLResolutionLabel();
             resolutionDropdown.interactable = false;
             return;
         }
@@ -223,65 +211,26 @@ public class GameSettings : MonoBehaviour
     {
         bool currentlyFullscreen = Screen.fullScreen;
 
-        if (wantFullscreen && !currentlyFullscreen)
-        {
-            // Entering fullscreen
-            Screen.fullScreen = true;
-            PlayerPrefs.SetInt(SettingsKeys.FullscreenKey, 1);
-            UpdateFullscreenUI(true);
-        }
-        else if (!wantFullscreen && currentlyFullscreen)
-        {
-            // Exiting fullscreen - use coroutine for safety
-            StartCoroutine(ExitFullscreenSafely());
-        }
-        else
-        {
-            UpdateFullscreenUI(currentlyFullscreen);
-        }
+        if (wantFullscreen != currentlyFullscreen)
+            Screen.fullScreen = wantFullscreen;
+
+        PlayerPrefs.SetInt(SettingsKeys.FullscreenKey, wantFullscreen ? 1 : 0);
+        UpdateFullscreenUI(wantFullscreen);
+
+        // The browser completes fullscreen transitions asynchronously. Refresh Unity UI
+        // after the DOM has had time to publish the new canvas dimensions.
+        StartCoroutine(RefreshWebGLLayoutAfterFullscreenChange());
     }
 
-    private IEnumerator ExitFullscreenSafely()
+    private IEnumerator RefreshWebGLLayoutAfterFullscreenChange()
     {
-        // Exit fullscreen
-        Screen.fullScreen = false;
-        PlayerPrefs.SetInt(SettingsKeys.FullscreenKey, 0);
-        UpdateFullscreenUI(false);
-        
-        // Wait for fullscreen transition
-        yield return new WaitForSeconds(0.1f);
-        
-        // Set resolution safely
-        int targetWidth = 960;
-        int targetHeight = 600;
-        
-        if (Screen.width != targetWidth || Screen.height != targetHeight)
-        {
-            Screen.SetResolution(targetWidth, targetHeight, false);
-            resolutionText.text = targetWidth + "x" + targetHeight;
-            PlayerPrefs.SetString(SettingsKeys.ResolutionKey, targetWidth + "x" + targetHeight);
-        }
-        
-        // Wait for resolution to apply
+        // Two frames handles browsers that publish the post-fullscreen CSS size one frame late.
+        yield return null;
         yield return new WaitForEndOfFrame();
-    }
+        yield return null;
 
-    private IEnumerator SetReasonableSizeAfterFullscreen()
-    {
-        // Wait for fullscreen transition to complete
-        yield return new WaitForSeconds(0.1f);
-        
-        // Use your exact canvas size for WebGL windowed mode
-        int targetWidth = 960;
-        int targetHeight = 600;
-        
-        // Only resize if we're not already at the correct size
-        if (Screen.width != targetWidth || Screen.height != targetHeight)
-        {
-            Screen.SetResolution(targetWidth, targetHeight, false);
-            resolutionText.text = targetWidth + "x" + targetHeight;
-            PlayerPrefs.SetString(SettingsKeys.ResolutionKey, targetWidth + "x" + targetHeight);
-        }
+        Canvas.ForceUpdateCanvases();
+        RefreshWebGLResolutionLabel();
     }
 
     private void UpdateFullscreenUI(bool isFullscreen)
@@ -296,30 +245,40 @@ public class GameSettings : MonoBehaviour
     private IEnumerator CheckFullscreenChanges()
     {
         bool lastFullscreenState = Screen.fullScreen;
-        Debug.Log("Started monitoring fullscreen changes for ESC key. Initial state: " + lastFullscreenState);
-        
+        int lastWidth = Screen.width;
+        int lastHeight = Screen.height;
+
+        Debug.Log("Started monitoring WebGL fullscreen and canvas-size changes. Initial state: " + lastFullscreenState);
+
         while (true)
         {
-            yield return new WaitForSeconds(0.2f); // Check more frequently (0.2 seconds)
-            
+            // Realtime keeps the monitor active while gameplay is paused in a menu.
+            yield return new WaitForSecondsRealtime(0.1f);
+
             bool currentFullscreenState = Screen.fullScreen;
-            
+            int currentWidth = Screen.width;
+            int currentHeight = Screen.height;
+
             if (currentFullscreenState != lastFullscreenState)
             {
-                Debug.Log($"ESC KEY DETECTED: Fullscreen changed from {lastFullscreenState} to {currentFullscreenState}");
-                
-                // Update the UI to match the new state
+                Debug.Log($"WebGL fullscreen changed from {lastFullscreenState} to {currentFullscreenState}");
+
                 UpdateFullscreenUI(currentFullscreenState);
                 PlayerPrefs.SetInt(SettingsKeys.FullscreenKey, currentFullscreenState ? 1 : 0);
-                
-                // If we exited fullscreen via ESC, set reasonable size
-                if (!currentFullscreenState)
-                {
-                    Debug.Log("ESC detected - setting windowed mode with 960x600 resolution");
-                    StartCoroutine(SetReasonableSizeAfterFullscreen());
-                }
-                
+
+                // Esc is handled by the browser. Never force a WebGL resolution here;
+                // instead, let the responsive WebGL template resize the canvas and refresh
+                // Unity's layouts after the fullscreen transition settles.
+                StartCoroutine(RefreshWebGLLayoutAfterFullscreenChange());
                 lastFullscreenState = currentFullscreenState;
+            }
+
+            if (currentWidth != lastWidth || currentHeight != lastHeight)
+            {
+                Canvas.ForceUpdateCanvases();
+                RefreshWebGLResolutionLabel();
+                lastWidth = currentWidth;
+                lastHeight = currentHeight;
             }
         }
     }

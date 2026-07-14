@@ -37,7 +37,18 @@ public class Pipe : MonoBehaviour
 
     public UnityEvent onPlayerEnter;
 
+    [Header("Pipe masking")]
+    [Tooltip("SpriteMask covering the inside/opening of this pipe. Used while Mario travels horizontally.")]
+    [SerializeField] private SpriteMask pipeMask;
+
     private bool isMarioExited = false;
+
+    private readonly List<SpriteRenderer> maskedRenderers = new();
+    private readonly List<SpriteMaskInteraction> originalMaskInteractions = new();
+
+    private bool maskInteractionsCaptured = false;
+    private SpriteMask activePipeMask;
+    private bool activePipeMaskOriginalEnabled;
 
     private void Start()
     {
@@ -161,6 +172,13 @@ public class Pipe : MonoBehaviour
 
         if (marioCore != null) marioCore.State.GroundPounding = false;
 
+        bool horizontalEnter =
+            enterDirection == Direction.Left ||
+            enterDirection == Direction.Right;
+
+        if (horizontalEnter)
+            BeginPipeMasking(player, this);
+
         // enter movement — same logic as the original, just using player.position directly
         Vector2 enterDirVec     = DirectionToVector(enterDirection) * enterDistance;
         Vector3 enteredPosition = transform.position + (Vector3)enterDirVec;
@@ -227,8 +245,18 @@ public class Pipe : MonoBehaviour
 
             // Teleport to inside the exit pipe, then slide out.
             // Apply the exit pipe's sorting so Mario stays behind it during the exit animation.
-            player.position = connection.position + (Vector3)insideOff;
             var connectionPipe = connection.GetComponent<Pipe>() ?? connection.GetComponentInParent<Pipe>();
+
+            bool horizontalExit =
+                exitDirection == Direction.Left ||
+                exitDirection == Direction.Right;
+
+            if (horizontalExit)
+                BeginPipeMasking(player, connectionPipe);
+            else
+                DisableActivePipeMask();
+
+            player.position = connection.position + (Vector3)insideOff;
             ApplyPipeSorting(playerSprite, connectionPipe?.GetComponentsInChildren<SpriteRenderer>());
 
             Vector3 finalExitPos  = connection.position + (Vector3)exitOff + (Vector3)(outDir * 0.02f);
@@ -247,17 +275,30 @@ public class Pipe : MonoBehaviour
         }
         else
         {
+            var connectionPipe = connection.GetComponent<Pipe>() ?? connection.GetComponentInParent<Pipe>();
+
+            bool horizontalExit =
+                exitDirection == Direction.Left ||
+                exitDirection == Direction.Right;
+
+            if (horizontalExit)
+                BeginPipeMasking(player, connectionPipe);
+            else
+                DisableActivePipeMask();
+
             player.position = connection.position;
 
             // instant exit — apply the connection pipe's sorting for the brief moment Mario is visible there,
             // then restore immediately below since there's no exit slide animation
-            var connectionPipe = connection.GetComponent<Pipe>() ?? connection.GetComponentInParent<Pipe>();
             ApplyPipeSorting(playerSprite, connectionPipe?.GetComponentsInChildren<SpriteRenderer>());
 
             bool inWater = Physics2D.OverlapPoint(player.position, LayerMask.GetMask("Water"));
             if (marioCore != null) marioCore.State.Swimming = inWater;
             if (playerAnim) playerAnim.SetBool("onGround", !inWater);
         }
+
+        // Restore every renderer's original mask mode and the mask's original enabled state.
+        RestoreOriginalMaskInteractions();
 
         // Restore Mario's original sorting order now that he has fully exited the pipe
         if (playerSprite != null)
@@ -421,5 +462,108 @@ public class Pipe : MonoBehaviour
         if (col  != null) col.enabled    = true;
         if (phys != null) phys.enabled   = true;
         if (ai   != null) ai.enabled     = true;
+    }
+
+    /// <summary>
+    /// Captures Mario's original mask settings once, changes every body renderer to
+    /// VisibleOutsideMask, and activates the mask belonging to the current pipe.
+    /// Calling this again for the connected pipe switches masks without overwriting
+    /// the originally captured renderer values.
+    /// </summary>
+    private void BeginPipeMasking(Transform player, Pipe maskOwner)
+    {
+        if (player == null)
+            return;
+
+        if (!maskInteractionsCaptured)
+        {
+            maskedRenderers.Clear();
+            originalMaskInteractions.Clear();
+
+            foreach (SpriteRenderer renderer in
+                     player.GetComponentsInChildren<SpriteRenderer>(true))
+            {
+                if (renderer == null)
+                    continue;
+
+                // Only modify Mario's body renderers.
+                // This skips markers, icons, and unrelated visual objects.
+                if (renderer.GetComponent<
+                        UnityEngine.U2D.Animation.SpriteResolver>() == null)
+                {
+                    continue;
+                }
+
+                maskedRenderers.Add(renderer);
+                originalMaskInteractions.Add(renderer.maskInteraction);
+
+                renderer.maskInteraction =
+                    SpriteMaskInteraction.VisibleOutsideMask;
+            }
+
+            maskInteractionsCaptured = true;
+        }
+
+        SetActivePipeMask(
+            maskOwner != null
+                ? maskOwner.pipeMask
+                : null
+        );
+    }
+
+    /// <summary>
+    /// Activates only the relevant pipe mask. If Mario changes from the entry pipe
+    /// to the connected exit pipe, the previous mask is restored first.
+    /// </summary>
+    private void SetActivePipeMask(SpriteMask newMask)
+    {
+        if (activePipeMask == newMask)
+            return;
+
+        DisableActivePipeMask();
+
+        activePipeMask = newMask;
+
+        if (activePipeMask != null)
+        {
+            activePipeMaskOriginalEnabled = activePipeMask.enabled;
+            activePipeMask.enabled = true;
+        }
+    }
+
+    /// <summary>
+    /// Restores the active pipe mask to the enabled state it had before the sequence.
+    /// </summary>
+    private void DisableActivePipeMask()
+    {
+        if (activePipeMask == null)
+            return;
+
+        activePipeMask.enabled = activePipeMaskOriginalEnabled;
+        activePipeMask = null;
+    }
+
+    /// <summary>
+    /// Restores every Mario renderer to the exact mask mode it had before entering.
+    /// This preserves None, VisibleInsideMask, and VisibleOutsideMask correctly.
+    /// </summary>
+    private void RestoreOriginalMaskInteractions()
+    {
+        DisableActivePipeMask();
+
+        for (int i = 0; i < maskedRenderers.Count; i++)
+        {
+            SpriteRenderer renderer = maskedRenderers[i];
+
+            if (renderer != null && i < originalMaskInteractions.Count)
+            {
+                renderer.maskInteraction =
+                    originalMaskInteractions[i];
+            }
+        }
+
+        maskedRenderers.Clear();
+        originalMaskInteractions.Clear();
+        maskInteractionsCaptured = false;
     }
 }
