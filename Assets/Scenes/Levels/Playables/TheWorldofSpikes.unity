@@ -35716,21 +35716,6 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!114 &800566780824378201
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2849282672862762907}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dccfb97364732934fb969bf3b8f46395, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Identity: {fileID: 11400000, guid: 374413f535623614d87078276a70c01b, type: 2}
-  Character: {fileID: 11400000, guid: 4450f72fcd70c52418bd5632c625b50d, type: 2}
-  NormalSpriteLibrary: {fileID: 7108339969198208228, guid: 660c2ba0dd2c8fa4fb6c38e0fe47e624, type: 3}
 --- !u!212 &902163602427635798
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -35905,224 +35890,6 @@ Transform:
   - {fileID: 6225602807787054637}
   m_Father: {fileID: 7444483639973869437}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1257495764152193179
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2849282672862762907}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 62899f850307741f2a39c98a8b639597, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Actions: {fileID: -944628639613478452, guid: 19d541da515a17d4ab7b236a77c60708, type: 3}
-  m_NotificationBehavior: 2
-  m_UIInputModule: {fileID: 0}
-  m_DeviceLostEvent:
-    m_PersistentCalls:
-      m_Calls: []
-  m_DeviceRegainedEvent:
-    m_PersistentCalls:
-      m_Calls: []
-  m_ControlsChangedEvent:
-    m_PersistentCalls:
-      m_Calls: []
-  m_ActionEvents:
-  - m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 4965740697574770230}
-        m_TargetAssemblyTypeName: MarioInput, Assembly-CSharp
-        m_MethodName: Move
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-    m_ActionId: 817b9582-edbe-4828-9070-a397a711b489
-    m_ActionName: Mariomove/Move[/Keyboard/a,/Keyboard/leftArrow,/Keyboard/d,/Keyboard/rightArrow]
-  - m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 4965740697574770230}
-        m_TargetAssemblyTypeName: MarioInput, Assembly-CSharp
-        m_MethodName: Shoot
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: Shoot
-          m_BoolArgument: 0
-        m_CallState: 2
-    m_ActionId: 7c0a4e4d-1385-4497-89e5-2b677a484d9d
-    m_ActionName: Mariomove/Fire[/Keyboard/z,/Keyboard/k,/Touchscreen/primaryTouch/tap]
-  - m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 4965740697574770230}
-        m_TargetAssemblyTypeName: MarioInput, Assembly-CSharp
-        m_MethodName: Jump
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-    m_ActionId: 783131bd-f0fe-49af-8761-bc12318cbd29
-    m_ActionName: Mariomove/Jump[/Keyboard/upArrow,/Keyboard/w,/Keyboard/space]
-  - m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 4965740697574770230}
-        m_TargetAssemblyTypeName: MarioInput, Assembly-CSharp
-        m_MethodName: Crouch
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-    m_ActionId: 4f3c2a27-d9a4-4f1c-9687-b1db67e30d76
-    m_ActionName: Mariomove/Crouch[/Keyboard/s,/Keyboard/downArrow]
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: d66e6351-fc7a-4bf3-a888-32db0816f133
-    m_ActionName: UI/Navigate[/Keyboard/w,/Keyboard/upArrow,/Keyboard/s,/Keyboard/downArrow,/Keyboard/a,/Keyboard/leftArrow,/Keyboard/d,/Keyboard/rightArrow]
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: b3414439-8833-4c35-bbe1-992e0826ca24
-    m_ActionName: UI/Submit[/Keyboard/enter]
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 8d5a312d-44f6-4a0a-a424-f74f58e764fe
-    m_ActionName: UI/Cancel[/Keyboard/escape]
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 7b7fb962-dd3d-472a-a094-ab0316567576
-    m_ActionName: UI/Point[/Mouse/position,/Pen/position,/Touchscreen/touch0/position,/Touchscreen/touch1/position,/Touchscreen/touch2/position,/Touchscreen/touch3/position,/Touchscreen/touch4/position,/Touchscreen/touch5/position,/Touchscreen/touch6/position,/Touchscreen/touch7/position,/Touchscreen/touch8/position,/Touchscreen/touch9/position]
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 957e422b-483b-4aa3-9590-0f5878075d93
-    m_ActionName: UI/Click[/Mouse/leftButton,/Pen/tip,/Touchscreen/touch0/press,/Touchscreen/touch1/press,/Touchscreen/touch2/press,/Touchscreen/touch3/press,/Touchscreen/touch4/press,/Touchscreen/touch5/press,/Touchscreen/touch6/press,/Touchscreen/touch7/press,/Touchscreen/touch8/press,/Touchscreen/touch9/press]
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 8c23fc5b-149a-4085-b823-57d108212189
-    m_ActionName: UI/ScrollWheel[/Mouse/scroll]
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: b21d05c4-3633-48b7-8fc6-d4f08b78e468
-    m_ActionName: UI/MiddleClick[/Mouse/middleButton]
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 7406c9a2-7ea2-4988-98fd-be75b526beef
-    m_ActionName: UI/RightClick[/Mouse/rightButton]
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 592d72fa-13fc-48b9-8698-8931127d21d2
-    m_ActionName: UI/TrackedDevicePosition
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 38b2656d-7c5e-4f4b-9f87-001415c9fa93
-    m_ActionName: UI/TrackedDeviceOrientation
-  - m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 4965740697574770230}
-        m_TargetAssemblyTypeName: MarioInput, Assembly-CSharp
-        m_MethodName: Run
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-    m_ActionId: 0a049029-55c7-40b8-8aa1-5f0302846462
-    m_ActionName: Mariomove/Run[/Keyboard/x]
-  - m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 4965740697574770230}
-        m_TargetAssemblyTypeName: MarioInput, Assembly-CSharp
-        m_MethodName: Spin
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-    m_ActionId: 9fdee28a-7b0d-433e-a32c-e997016cf750
-    m_ActionName: Mariomove/Spin[/Keyboard/leftShift]
-  - m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 4965740697574770230}
-        m_TargetAssemblyTypeName: MarioInput, Assembly-CSharp
-        m_MethodName: Use
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-    m_ActionId: 6af6bceb-cea8-41cb-90a3-0138921f18f4
-    m_ActionName: Mariomove/Use[/Keyboard/z,/XInputControllerWindows/rightShoulder,/XInputControllerWindows/leftShoulder]
-  - m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 4965740697574770230}
-        m_TargetAssemblyTypeName: MarioInput, Assembly-CSharp
-        m_MethodName: ExtraAction
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-    m_ActionId: 6b06232f-07cd-4234-b9ca-514bea360799
-    m_ActionName: Mariomove/New action
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: e6935c41-6770-415e-971e-b994233060d7
-    m_ActionName: UI/StepModifier10[/Keyboard/leftShift]
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: ea0fb50b-6fa4-4488-9cd0-ddea2e783e9d
-    m_ActionName: UI/StepModifier25[/Keyboard/leftCtrl]
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 056ecb73-c96d-423c-a33b-4cdf6c7ea9ec
-    m_ActionName: UI/StepModifier50[/Keyboard/leftAlt]
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: aa27c529-0777-4a47-a776-fa4fdbd2e376
-    m_ActionName: Mariomove/Pause[/Keyboard/escape,/Keyboard/p]
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: 7ad29d66-3992-4be8-a212-cf9d3fe8e1b7
-    m_ActionName: UI/Pause[/Keyboard/escape,/Keyboard/p]
-  m_NeverAutoSwitchControlSchemes: 0
-  m_DefaultControlScheme: 
-  m_DefaultActionMap: Mariomove
-  m_SplitScreenIndex: -1
-  m_Camera: {fileID: 0}
 --- !u!114 &1353028220835647202
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -36261,33 +36028,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!50 &1740215678858322129
-Rigidbody2D:
-  serializedVersion: 4
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2849282672862762907}
-  m_BodyType: 0
-  m_Simulated: 1
-  m_UseFullKinematicContacts: 0
-  m_UseAutoMass: 0
-  m_Mass: 1
-  m_LinearDrag: 0
-  m_AngularDrag: 0
-  m_GravityScale: 0
-  m_Material: {fileID: 6200000, guid: 3605a6811aae3564bb7cf23d3bfa975e, type: 2}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_Interpolate: 1
-  m_SleepingMode: 1
-  m_CollisionDetection: 1
-  m_Constraints: 4
 --- !u!4 &1742191808714625155
 Transform:
   m_ObjectHideFlags: 0
@@ -36455,21 +36195,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &2320060405976547009
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2849282672862762907}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 319992e07da0f2246961ea88fc765571, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  isBlockingJump: 0
-  SpinJumpBouncePrefab: {fileID: 6456935476818214770, guid: b9e9367b2b506104c9c19c2fe561695b, type: 3}
-  SpinJumpPoofPrefab: {fileID: 6098009751153003477, guid: 8c5860b76baa21744bb502dc76ff9896, type: 3}
 --- !u!1 &2380698508867594045
 GameObject:
   m_ObjectHideFlags: 0
@@ -36641,27 +36366,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2872213814556695282}
-  - component: {fileID: 4026991623177906716}
-  - component: {fileID: 4294476917698787265}
-  - component: {fileID: 4179063835118288556}
-  - component: {fileID: 4965740697574770230}
-  - component: {fileID: 6688922048309867366}
-  - component: {fileID: 7191282192084044653}
-  - component: {fileID: 4290371480000748455}
-  - component: {fileID: 8722641214030252196}
-  - component: {fileID: 800566780824378201}
-  - component: {fileID: 3655183131091575758}
-  - component: {fileID: 2870890500879545382}
-  - component: {fileID: 4958805203569001430}
-  - component: {fileID: 4335168643217848545}
-  - component: {fileID: 9144194341680753320}
-  - component: {fileID: 4275252220108924255}
-  - component: {fileID: 3068613326890797619}
-  - component: {fileID: 2320060405976547009}
-  - component: {fileID: 7761998573143685172}
-  - component: {fileID: 3096263783430983000}
-  - component: {fileID: 1740215678858322129}
-  - component: {fileID: 1257495764152193179}
   - component: {fileID: 476612117953248156}
   - component: {fileID: 774043052748189356}
   m_Layer: 9
@@ -36671,24 +36375,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 0
---- !u!114 &2870890500879545382
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2849282672862762907}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5350fbd3145f9034fa193732af01d805, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  PressRunToGrab: 1
-  CrouchToGrab: 0
-  CarryMethod: 1
-  HeldObjectPosition: {fileID: 6087424119354838226}
-  grabOrigin: {fileID: 2833790172373803598}
-  _grabRaycastDistance: 0.6
 --- !u!4 &2872213814556695282
 Transform:
   m_ObjectHideFlags: 0
@@ -36737,20 +36423,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Library: []
   m_SpriteLibraryAsset: {fileID: 0}
---- !u!114 &3068613326890797619
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2849282672862762907}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: adef7a97a58f7aa4ea5cc9afde66b3e4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  isBlockingJump: 0
-  AllowWhenCarrying: 0
 --- !u!114 &3078894872449878726
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -36767,20 +36439,6 @@ MonoBehaviour:
   m_labelHash: 0
   m_SpriteKey: 0
   m_SpriteHash: 0
---- !u!114 &3096263783430983000
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2849282672862762907}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c39035f2a1a53b947b140463a994a5d1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  isBlockingJump: 0
-  GroundPoundParticlesPrefab: {fileID: 955582828737589178, guid: a427b5149941cff45925833e99b08bfb, type: 3}
 --- !u!1 &3129396421965618148
 GameObject:
   m_ObjectHideFlags: 0
@@ -36866,20 +36524,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 2005185806133588154}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &3655183131091575758
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2849282672862762907}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 569d557cd24e46a44a3abe8c5cd9efed, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  BubblePrefab: {fileID: 2475560701492738197, guid: 6f50ef65252a90140a0e1d345d215823, type: 3}
-  SplashWaterPrefab: {fileID: 9025682128279497783, guid: d51c44c0d299ad14b8aa8f4388aabd41, type: 3}
 --- !u!4 &3740250571632826168
 Transform:
   m_ObjectHideFlags: 0
@@ -37092,41 +36736,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 2872213814556695282}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4026991623177906716
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2849282672862762907}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f1704e1afc441e842b892022cde6adff, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  PlayerIndex: 0
-  <Rb>k__BackingField: {fileID: 1740215678858322129}
-  <Collider>k__BackingField: {fileID: 152569468727792328}
-  <CrushCollider>k__BackingField: {fileID: 0}
-  <PlayerInput>k__BackingField: {fileID: 1257495764152193179}
---- !u!114 &4179063835118288556
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2849282672862762907}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 562c991953bc25e449eb2d780c33e1e5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _animator: {fileID: 476612117953248156}
-  frontClimbAnimMultiplier: 1
-  sideClimbAnimMultiplier: 1.5
-  _baseRig: {fileID: 0}
-  _swapRig: {fileID: 0}
-  _swapRigVariant: 1
 --- !u!114 &4225859101844368011
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -37141,22 +36750,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Library: []
   m_SpriteLibraryAsset: {fileID: 0}
---- !u!114 &4275252220108924255
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2849282672862762907}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: edfc373b29eb3cd4e8d717f660c0d8a9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  isBlockingJump: 0
-  canCape: 1
-  capeCooldown: 0.75
-  capeAttackDelay: 0.3
 --- !u!212 &4280608557250323692
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -37209,66 +36802,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &4290371480000748455
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2849282672862762907}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d0ea8e6199c739c45b1f1b1ae4ea5923, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &4294476917698787265
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2849282672862762907}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dce5be677fdc77c4abd2391db9ddf17b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &4335168643217848545
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2849282672862762907}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 365ed02eb9b2d104aa2c07dbd8e96df8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  SkidSound: {fileID: 0}
-  JumpSound: {fileID: 8300000, guid: 9892f57a1221643408aa97fdee19da27, type: 3}
-  SpinJumpSound: {fileID: 8300000, guid: 0b62da5c4bc0c4d4d8045a4396d9f6d6, type: 3}
-  SpinJumpBounceSound: {fileID: 8300000, guid: 675f20d4f3c17b54b9d7a8701c238a08, type: 3}
-  SpinJumpPoofSound: {fileID: 8300000, guid: 8ae20015ffccaf9448a05731093ade40, type: 3}
-  WallJumpSound: {fileID: 8300000, guid: 9892f57a1221643408aa97fdee19da27, type: 3}
-  MidAirSpinSound: {fileID: 8300000, guid: c5475d8541a7c38469c1d501e26f02c0, type: 3}
-  GroundPoundSound: {fileID: 8300000, guid: c5475d8541a7c38469c1d501e26f02c0, type: 3}
-  GroundPoundLandSound: {fileID: 8300000, guid: 72d5926657fc36643afc68851e923cf3, type: 3}
-  BonkSound: {fileID: 8300000, guid: 6db2c81fb3c026d40a90d8d52dc8384b, type: 3}
-  SwimSound: {fileID: 8300000, guid: 15c36dd5dcf93714e8bf4e9a3a700b16, type: 3}
-  WaterEntrySound: {fileID: 0}
-  WaterExitSound: {fileID: 0}
-  DamageSound: {fileID: 8300000, guid: 938d4a3d1a37b284c81c8c25379c86b4, type: 3}
-  PickupSound: {fileID: 8300000, guid: 22ebcc2300d5fe9439867fabd6330357, type: 3}
-  DropSound: {fileID: 8300000, guid: 22ebcc2300d5fe9439867fabd6330357, type: 3}
-  ThrowSound: {fileID: 8300000, guid: 62467461e51dddb40931164fd2db1170, type: 3}
-  CapePrepareAttackSound: {fileID: 8300000, guid: b0ae38060912f0a459fe10b8348c1b55, type: 3}
-  CapeSound: {fileID: 8300000, guid: 31657360aa7af6642bdf934076b3d65e, type: 3}
-  _footstepData: {fileID: 0}
-  _footstepRaycastDistance: 0.6
-  _footstepGroundMask:
-    serializedVersion: 2
-    m_Bits: 0
 --- !u!1 &4574273622368042748
 GameObject:
   m_ObjectHideFlags: 0
@@ -37480,39 +37013,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   customCrushDeath: {fileID: 8282462989337860828, guid: b610b2c3340485b4faec8dea7b9bdad0, type: 3}
---- !u!114 &4958805203569001430
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2849282672862762907}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: be81cd9164c39ff4fab0bcdb12218983, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  debugOverrideMoves: 0
-  debugCanCrawl: 1
-  debugCanWallJump: 1
-  debugCanSpinJump: 1
-  debugCanGroundPound: 1
-  debugCanMidairSpin: 1
-  debugCanCape: 1
---- !u!114 &4965740697574770230
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2849282672862762907}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 30c537d67a2416e4eaa1e2c3a91fcf75, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  LowerDeadzone: 0.3
-  UpperDeadzone: 0.9
 --- !u!1 &5028037359798599998
 GameObject:
   m_ObjectHideFlags: 0
@@ -38073,25 +37573,6 @@ MonoBehaviour:
   m_labelHash: 0
   m_SpriteKey: 0
   m_SpriteHash: 0
---- !u!114 &6688922048309867366
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2849282672862762907}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 10bac868f50de1742ae54b5d13bc690e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Config: {fileID: 11400000, guid: 137e3bd2130c2164aa25269bb3783ce8, type: 2}
-  GroundLayer:
-    serializedVersion: 2
-    m_Bits: 285212680
-  CeilingLayer:
-    serializedVersion: 2
-    m_Bits: 0
 --- !u!114 &6721539222194398186
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -38211,18 +37692,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &7191282192084044653
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2849282672862762907}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c3a60bbcc52dd8940bc5a15aa4228b09, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &7230979728404114947
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -38404,20 +37873,6 @@ Transform:
   - {fileID: 1742191808714625155}
   m_Father: {fileID: 7444483639973869437}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &7761998573143685172
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2849282672862762907}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a2552da4193c7ce479183d34f5cde1f0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  isBlockingJump: 0
-  AllowMultipleSpins: 0
 --- !u!212 &7793417809327260566
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -38694,24 +38149,6 @@ MonoBehaviour:
   m_labelHash: 0
   m_SpriteKey: 0
   m_SpriteHash: 0
---- !u!114 &8722641214030252196
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2849282672862762907}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 57c9bbe6448186f42ac5cfe4653f7be7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  DeadMarioPrefab: {fileID: 2690894693950398662, guid: ff75489bc4690ac44b21755151c91047, type: 3}
-  starMusicOverride: {fileID: 0}
-  starMusicPriority: 100
-  checkpointFlag: {fileID: 2734516964651615601}
-  checkpointFlagDuration: 2
-  visualRoot: {fileID: 2411756757307917171}
 --- !u!4 &8795368879207349626
 Transform:
   m_ObjectHideFlags: 0
@@ -38874,21 +38311,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &9144194341680753320
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2849282672862762907}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 95abe7236d4e990419b7860069dec505, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  pauseController: {fileID: 0}
-  pauseActionName: Pause
-  standalonePauseMenuId: RebindMenu
 --- !u!1 &9211038544843820767
 GameObject:
   m_ObjectHideFlags: 0
