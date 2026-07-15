@@ -213,8 +213,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -73.43, y: 1.6000001}
-  m_SizeDelta: {x: 45.17, y: 45.17}
+  m_AnchoredPosition: {x: -73.43, y: 0}
+  m_SizeDelta: {x: 45.17, y: 40}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &116885586
 MonoBehaviour:
@@ -404,6 +404,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   oldNumber: 1
+  livesParentAnimator: {fileID: 1654552528}
   playableDirector: {fileID: 299130871}
   oneLifeCutscene: {fileID: 11400000, guid: cf29fc3d7b1e03844b7a63e0ce818415, type: 2}
   delay: 1
@@ -660,6 +661,10 @@ PlayableDirector:
     value: {fileID: 299130872}
   - key: {fileID: 6535937134595896896, guid: cf29fc3d7b1e03844b7a63e0ce818415, type: 2}
     value: {fileID: 2063781890}
+  - key: {fileID: -2441743429108417412, guid: 7e71dd8566572cf4095d6c40fc2a912e, type: 2}
+    value: {fileID: 1654552530}
+  - key: {fileID: 7691088856988045531, guid: cf29fc3d7b1e03844b7a63e0ce818415, type: 2}
+    value: {fileID: 1654552530}
   m_ExposedReferences:
     m_References: []
 --- !u!95 &299130872
@@ -1022,7 +1027,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -79.159996, y: 11.67}
+  m_AnchoredPosition: {x: -79.159996, y: 15.6}
   m_SizeDelta: {x: 13.41, y: 13.41}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1418874927
@@ -1149,6 +1154,7 @@ GameObject:
   - component: {fileID: 1654552527}
   - component: {fileID: 1654552529}
   - component: {fileID: 1654552528}
+  - component: {fileID: 1654552530}
   m_Layer: 0
   m_Name: LivesParent
   m_TagString: Untagged
@@ -1212,6 +1218,36 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
+--- !u!114 &1654552530
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1654552526}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e52de21a22b6dd44c9cc19f810c65059, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Events:
+    m_Signals:
+    - {fileID: 11400000, guid: 80bce03d8c07b1942a7f363ecb38c114, type: 2}
+    m_Events:
+    - m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 2143373528}
+          m_TargetAssemblyTypeName: LivesCounter, Assembly-CSharp
+          m_MethodName: PlayLivesRise
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
 --- !u!1 &1847140180
 GameObject:
   m_ObjectHideFlags: 0
@@ -1240,8 +1276,8 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children:
-  - {fileID: 148683574}
   - {fileID: 2143373525}
+  - {fileID: 148683574}
   m_Father: {fileID: 1654552527}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -1512,8 +1548,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   oldNumber: 0
-  playableDirector: {fileID: 0}
-  oneLifeCutscene: {fileID: 0}
+  livesParentAnimator: {fileID: 1654552528}
+  playableDirector: {fileID: 299130871}
+  oneLifeCutscene: {fileID: 11400000, guid: cf29fc3d7b1e03844b7a63e0ce818415, type: 2}
   delay: 1
 --- !u!95 &2143373529
 Animator:

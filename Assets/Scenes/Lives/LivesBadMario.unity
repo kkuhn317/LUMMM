@@ -347,6 +347,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   oldNumber: 1
+  livesParentAnimator: {fileID: 173932818}
   playableDirector: {fileID: 299130871}
   oneLifeCutscene: {fileID: 0}
   delay: 1
@@ -478,6 +479,7 @@ GameObject:
   - component: {fileID: 173932817}
   - component: {fileID: 173932819}
   - component: {fileID: 173932818}
+  - component: {fileID: 173932820}
   m_Layer: 0
   m_Name: Lives Parent
   m_TagString: Untagged
@@ -540,6 +542,36 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
+--- !u!114 &173932820
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 173932816}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e52de21a22b6dd44c9cc19f810c65059, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Events:
+    m_Signals:
+    - {fileID: 11400000, guid: 80bce03d8c07b1942a7f363ecb38c114, type: 2}
+    m_Events:
+    - m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 2143373528}
+          m_TargetAssemblyTypeName: LivesCounter, Assembly-CSharp
+          m_MethodName: PlayLivesRise
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
 --- !u!1 &299130866
 GameObject:
   m_ObjectHideFlags: 0
@@ -662,6 +694,8 @@ PlayableDirector:
     value: {fileID: 148683580}
   - key: {fileID: -8396291002590617269, guid: 7e71dd8566572cf4095d6c40fc2a912e, type: 2}
     value: {fileID: 2143373529}
+  - key: {fileID: -2441743429108417412, guid: 7e71dd8566572cf4095d6c40fc2a912e, type: 2}
+    value: {fileID: 173932820}
   m_ExposedReferences:
     m_References: []
 --- !u!1 &962568787
@@ -1261,7 +1295,7 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
+    rgba: 16777215
   m_fontColor: {r: 1, g: 1, b: 1, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
@@ -1342,7 +1376,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   oldNumber: 0
-  playableDirector: {fileID: 0}
+  livesParentAnimator: {fileID: 173932818}
+  playableDirector: {fileID: 299130871}
   oneLifeCutscene: {fileID: 0}
   delay: 1
 --- !u!95 &2143373529
