@@ -5,6 +5,7 @@ using System.Linq;
 using System;
 using UnityEngine.Localization.Settings;
 using System.Collections;
+using System.Runtime.InteropServices;
 
 public class GameSettings : MonoBehaviour
 {
@@ -34,6 +35,11 @@ public class GameSettings : MonoBehaviour
     private Resolution[] availableResolutions;
     private bool isWebGL => Application.platform == RuntimePlatform.WebGLPlayer;
     private Coroutine fullscreenCheckCoroutine;
+
+#if UNITY_WEBGL && !UNITY_EDITOR
+    [DllImport("__Internal")]
+    private static extern void WebGLSetFullscreen(int enabled);
+#endif
 
     private void Start()
     {
@@ -209,10 +215,13 @@ public class GameSettings : MonoBehaviour
 
     private void HandleWebGLFullscreen(bool wantFullscreen)
     {
-        bool currentlyFullscreen = Screen.fullScreen;
-
-        if (wantFullscreen != currentlyFullscreen)
-            Screen.fullScreen = wantFullscreen;
+#if UNITY_WEBGL && !UNITY_EDITOR
+        // Use the same JavaScript function as the fullscreen button in index.html.
+        // Both paths therefore call unityInstance.SetFullscreen with identical behavior.
+        WebGLSetFullscreen(wantFullscreen ? 1 : 0);
+#else
+        Screen.fullScreen = wantFullscreen;
+#endif
 
         PlayerPrefs.SetInt(SettingsKeys.FullscreenKey, wantFullscreen ? 1 : 0);
         UpdateFullscreenUI(wantFullscreen);
