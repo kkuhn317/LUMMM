@@ -200,10 +200,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: '<color=#00FFFF>Tap a button</color> to select it, then <color=#FFA500>drag</color>
-    to move or use the <color=#32CD32>slider</color> to adjust its size.
-
-'
+  m_text: "<color=#00FFFF>Dotknij przycisku</color>, \u017Ceby go zaznaczy\u0107,
+    a nast\u0119pnie <color=#FFA500>przeci\u0105gnij</color>, aby go przesun\u0105\u0107
+    lub skorzystaj z <color=#32CD32>suwaka</color>, by zmieni\u0107 jego rozmiar."
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: a07cc3d436452744d904d6e9ee76551a, type: 2}
   m_sharedMaterial: {fileID: 6849579088129356865, guid: a07cc3d436452744d904d6e9ee76551a, type: 2}
@@ -285,19 +284,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_TrackedObjects:
-  - rid: 5475354161918509058
+  - rid: 8019257717099069557
   references:
     version: 2
     RefIds:
-    - rid: 5475354161918509058
+    - rid: 8019257717099069557
       type: {class: TrackedUGuiGraphic, ns: UnityEngine.Localization.PropertyVariants.TrackedObjects, asm: Unity.Localization}
       data:
-        m_Target: {fileID: 1279986836}
+        m_Target: {fileID: 0}
         m_TrackedProperties:
           items:
-          - rid: 5475354161918509059
+          - rid: 8019257717099069558
         m_UpdateType: 0
-    - rid: 5475354161918509059
+    - rid: 8019257717099069558
       type: {class: LocalizedStringProperty, ns: UnityEngine.Localization.PropertyVariants.TrackedProperties, asm: Unity.Localization}
       data:
         m_Localized:
@@ -772,7 +771,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Reset
+  m_text: Resetuj
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 274e0fd8aa091244d8a27594bf25626c, type: 2}
   m_sharedMaterial: {fileID: -7592117540844663800, guid: 274e0fd8aa091244d8a27594bf25626c, type: 2}
@@ -799,10 +798,10 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 18
-  m_fontSizeBase: 18
+  m_fontSize: 10
+  m_fontSizeBase: 10
   m_fontWeight: 400
-  m_enableAutoSizing: 1
+  m_enableAutoSizing: 0
   m_fontSizeMin: 10
   m_fontSizeMax: 32
   m_fontStyle: 0
@@ -854,19 +853,41 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_TrackedObjects:
-  - rid: 19607168948895748
+  - rid: 8019257717099069555
+  - rid: 8019257717099069582
   references:
     version: 2
     RefIds:
-    - rid: 19607168948895748
+    - rid: 8019257717099069555
+      type: {class: TrackedUGuiGraphic, ns: UnityEngine.Localization.PropertyVariants.TrackedObjects, asm: Unity.Localization}
+      data:
+        m_Target: {fileID: 0}
+        m_TrackedProperties:
+          items:
+          - rid: 8019257717099069556
+        m_UpdateType: 0
+    - rid: 8019257717099069556
+      type: {class: LocalizedStringProperty, ns: UnityEngine.Localization.PropertyVariants.TrackedProperties, asm: Unity.Localization}
+      data:
+        m_Localized:
+          m_TableReference:
+            m_TableCollectionName: GUID:8524f2a42dd87d745b688cd60dd14154
+          m_TableEntryReference:
+            m_KeyId: 82225424418078720
+            m_Key: 
+          m_FallbackState: 0
+          m_WaitForCompletion: 0
+          m_LocalVariables: []
+        m_PropertyPath: m_text
+    - rid: 8019257717099069582
       type: {class: TrackedUGuiGraphic, ns: UnityEngine.Localization.PropertyVariants.TrackedObjects, asm: Unity.Localization}
       data:
         m_Target: {fileID: 6362915064802474680}
         m_TrackedProperties:
           items:
-          - rid: 19607168948895749
+          - rid: 8019257717099069583
         m_UpdateType: 0
-    - rid: 19607168948895749
+    - rid: 8019257717099069583
       type: {class: LocalizedStringProperty, ns: UnityEngine.Localization.PropertyVariants.TrackedProperties, asm: Unity.Localization}
       data:
         m_Localized:
@@ -1872,6 +1893,7 @@ GameObject:
   - component: {fileID: 6362915066433511020}
   - component: {fileID: 6362915066433511022}
   - component: {fileID: 7493519383540560669}
+  - component: {fileID: 5942064794040066502}
   m_Layer: 5
   m_Name: Mobile Controls Rebinding
   m_TagString: Untagged
@@ -2048,7 +2070,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: UnityEngine.Behaviour, UnityEngine
-        m_MethodName: set_enabled
+        m_MethodName: 
         m_Mode: 6
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -2063,7 +2085,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: UnityEngine.Behaviour, UnityEngine
-        m_MethodName: set_enabled
+        m_MethodName: 
         m_Mode: 6
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -2073,6 +2095,61 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 1
         m_CallState: 2
+--- !u!114 &5942064794040066502
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6362915066433511030}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 69beb381e244f92449b8c4cf954630e9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_TrackedObjects:
+  - rid: 8019257717099069547
+  references:
+    version: 2
+    RefIds:
+    - rid: 8019257717099069547
+      type: {class: TrackedMonoBehaviourObject, ns: UnityEngine.Localization.PropertyVariants.TrackedObjects, asm: Unity.Localization}
+      data:
+        m_Target: {fileID: 7493519383540560669}
+        m_TrackedProperties:
+          items:
+          - rid: 8019257717099069548
+          - rid: 8019257717099069549
+        m_UpdateType: 1
+        m_Changed:
+          m_PersistentCalls:
+            m_Calls: []
+    - rid: 8019257717099069548
+      type: {class: LocalizedStringProperty, ns: UnityEngine.Localization.PropertyVariants.TrackedProperties, asm: Unity.Localization}
+      data:
+        m_Localized:
+          m_TableReference:
+            m_TableCollectionName: GUID:8524f2a42dd87d745b688cd60dd14154
+          m_TableEntryReference:
+            m_KeyId: 276411393359347712
+            m_Key: 
+          m_FallbackState: 0
+          m_WaitForCompletion: 0
+          m_LocalVariables: []
+        m_PropertyPath: onEnabled.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+    - rid: 8019257717099069549
+      type: {class: LocalizedStringProperty, ns: UnityEngine.Localization.PropertyVariants.TrackedProperties, asm: Unity.Localization}
+      data:
+        m_Localized:
+          m_TableReference:
+            m_TableCollectionName: GUID:8524f2a42dd87d745b688cd60dd14154
+          m_TableEntryReference:
+            m_KeyId: 276411393837498368
+            m_Key: 
+          m_FallbackState: 0
+          m_WaitForCompletion: 0
+          m_LocalVariables: []
+        m_PropertyPath: onDisabled.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
 --- !u!1 &6362915066474806441
 GameObject:
   m_ObjectHideFlags: 0
