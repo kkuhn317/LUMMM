@@ -6,6 +6,7 @@ using UnityEngine.UI;
 using UnityEngine.Localization;
 using UnityEngine.Localization.Settings;
 using System.Collections.Generic;
+using UnityEngine.ResourceManagement.AsyncOperations;
 
 public class LanguageMenu : MonoBehaviour
 {
@@ -38,9 +39,21 @@ public class LanguageMenu : MonoBehaviour
 
     private IEnumerator ReselectWhenLocalizationReady()
     {
-        var init = LocalizationSettings.InitializationOperation;
-        if (!init.IsDone)
-            yield return init;
+        var initialization = LocalizationSettings.InitializationOperation;
+
+        if (!initialization.IsDone)
+            yield return initialization;
+
+        if (initialization.Status != AsyncOperationStatus.Succeeded)
+        {
+            Debug.LogError(
+                "Localization initialization failed. " +
+                "Check preloaded String Tables and Addressables.",
+                this
+            );
+
+            yield break;
+        }
 
         SetSelectedButtonFromLocale(LocalizationSettings.SelectedLocale);
     }

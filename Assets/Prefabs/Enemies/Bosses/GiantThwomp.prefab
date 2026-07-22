@@ -68,8 +68,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Jump
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 274e0fd8aa091244d8a27594bf25626c, type: 2}
-  m_sharedMaterial: {fileID: -7592117540844663800, guid: 274e0fd8aa091244d8a27594bf25626c, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: fb0714aed0aadc5419c368b5d6b14350, type: 2}
+  m_sharedMaterial: {fileID: -5034386989928804238, guid: fb0714aed0aadc5419c368b5d6b14350, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1269,6 +1269,7 @@ MonoBehaviour:
   knockAwaySound: {fileID: 0}
   objectState: 0
   movement: 1
+  bounceOnceThenGround: 0
   stopAfterLand: 0
   bounceHeight: 0
   minHeightToBounce: 0
@@ -1276,7 +1277,7 @@ MonoBehaviour:
   stompHeight: -0.7
   heldItem: {fileID: 0}
   itemSpawnOffset: {x: 0, y: 0, z: 0}
-  customDeath: {fileID: 0}
+  customDeathCause: {fileID: 0}
   popupOffset: {x: 0, y: 0.5}
   onPlayerDamaged:
     m_PersistentCalls:
@@ -2003,10 +2004,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 289fedcb75f3b9a489baa0c51fa22bc2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  newSpriteLibrary: {fileID: 7108339969198208228, guid: a00e5d5b1b71ebb409731854df1febdd, type: 3}
-  newAudioClip: {fileID: 0}
+  emote: 1
   allowChangeOnEnter: 1
   allowResetOnExit: 1
+  disableColliderOnApply: 0
+  playCharacterAudio: 1
+  suppressAudio: 0
+  playAudioOnce: 0
 --- !u!50 &8430035765332094374
 Rigidbody2D:
   serializedVersion: 4
@@ -2102,8 +2106,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Jump
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 274e0fd8aa091244d8a27594bf25626c, type: 2}
-  m_sharedMaterial: {fileID: -7592117540844663800, guid: 274e0fd8aa091244d8a27594bf25626c, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: fb0714aed0aadc5419c368b5d6b14350, type: 2}
+  m_sharedMaterial: {fileID: -5034386989928804238, guid: fb0714aed0aadc5419c368b5d6b14350, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
