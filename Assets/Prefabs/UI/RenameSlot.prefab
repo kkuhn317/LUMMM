@@ -262,8 +262,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Enter a Name
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: f1ab4353d1ec6f944b7eafb44edec532, type: 2}
-  m_sharedMaterial: {fileID: 853048015131166436, guid: f1ab4353d1ec6f944b7eafb44edec532, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: a35d2a651a6b2c54ba62b2d14e975fb8, type: 2}
+  m_sharedMaterial: {fileID: 2100000, guid: 8d57d5fd1d010714a98c9dfdc9207c2f, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -383,6 +383,7 @@ GameObject:
   - component: {fileID: 3584199849429211090}
   - component: {fileID: 1815541837248602772}
   - component: {fileID: 5793619620605500800}
+  - component: {fileID: 3772535452254239306}
   m_Layer: 5
   m_Name: Confirm Button
   m_TagString: Untagged
@@ -408,8 +409,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 5, y: -14.065}
-  m_SizeDelta: {x: 153.76001, y: 28.129997}
+  m_AnchoredPosition: {x: 59.701347, y: -14.065}
+  m_SizeDelta: {x: 195.01, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &951979593709974483
 CanvasRenderer:
@@ -583,6 +584,41 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!114 &3772535452254239306
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2203659139865739609}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 69beb381e244f92449b8c4cf954630e9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_TrackedObjects:
+  - rid: 2323529192701165578
+  references:
+    version: 2
+    RefIds:
+    - rid: 2323529192701165578
+      type: {class: TrackedRectTransform, ns: UnityEngine.Localization.PropertyVariants.TrackedObjects, asm: Unity.Localization}
+      data:
+        m_Target: {fileID: 8260405273644620833}
+        m_TrackedProperties:
+          items:
+          - rid: 2323529192701165579
+    - rid: 2323529192701165579
+      type: {class: FloatTrackedProperty, ns: UnityEngine.Localization.PropertyVariants.TrackedProperties, asm: Unity.Localization}
+      data:
+        m_PropertyPath: m_AnchoredPosition.x
+        m_VariantData:
+        - localeIdentifier:
+            m_Code: en
+          value: 5
+        - localeIdentifier:
+            m_Code: ru
+          value: 5
 --- !u!1 &2374076536519191409
 GameObject:
   m_ObjectHideFlags: 0
@@ -617,10 +653,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 2168045728942918127}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 90}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 8.5, y: -15.190198}
-  m_SizeDelta: {x: 17, y: 28.129997}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.46}
 --- !u!222 &2074004012030536738
 CanvasRenderer:
@@ -711,6 +747,7 @@ GameObject:
   - component: {fileID: 8593629851486346631}
   - component: {fileID: 7017219719129015140}
   - component: {fileID: 4578999980773173035}
+  - component: {fileID: 1081770509504345774}
   m_Layer: 5
   m_Name: Back Button
   m_TagString: Untagged
@@ -736,8 +773,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 237.8, y: -14.065}
-  m_SizeDelta: {x: 135.01001, y: 28.129997}
+  m_AnchoredPosition: {x: 198.8, y: -14.065}
+  m_SizeDelta: {x: 171.01, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &387092393864219729
 CanvasRenderer:
@@ -911,6 +948,44 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!114 &1081770509504345774
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3000752888520184706}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 69beb381e244f92449b8c4cf954630e9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_TrackedObjects:
+  - rid: 2323529192701165572
+  references:
+    version: 2
+    RefIds:
+    - rid: 2323529192701165572
+      type: {class: TrackedRectTransform, ns: UnityEngine.Localization.PropertyVariants.TrackedObjects, asm: Unity.Localization}
+      data:
+        m_Target: {fileID: 2168045728942918127}
+        m_TrackedProperties:
+          items:
+          - rid: 2323529192701165573
+    - rid: 2323529192701165573
+      type: {class: FloatTrackedProperty, ns: UnityEngine.Localization.PropertyVariants.TrackedProperties, asm: Unity.Localization}
+      data:
+        m_PropertyPath: m_AnchoredPosition.x
+        m_VariantData:
+        - localeIdentifier:
+            m_Code: en
+          value: 237.8
+        - localeIdentifier:
+            m_Code: ru
+          value: 270.4
+        - localeIdentifier:
+            m_Code: pt
+          value: 247.3
 --- !u!1 &3028387785953306051
 GameObject:
   m_ObjectHideFlags: 0
@@ -921,6 +996,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2296120082110976244}
   - component: {fileID: 158653467329922308}
+  - component: {fileID: 1609125450920247777}
   m_Layer: 5
   m_Name: Buttons
   m_TagString: Untagged
@@ -975,6 +1051,45 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!114 &1609125450920247777
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3028387785953306051}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 69beb381e244f92449b8c4cf954630e9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_TrackedObjects:
+  - rid: 2323529192701165580
+  references:
+    version: 2
+    RefIds:
+    - rid: 2323529192701165580
+      type: {class: TrackedLayoutGroup, ns: UnityEngine.Localization.PropertyVariants.TrackedObjects, asm: Unity.Localization}
+      data:
+        m_Target: {fileID: 158653467329922308}
+        m_TrackedProperties:
+          items:
+          - rid: 2323529192701165581
+        m_UpdateType: 0
+    - rid: 2323529192701165581
+      type: {class: FloatTrackedProperty, ns: UnityEngine.Localization.PropertyVariants.TrackedProperties, asm: Unity.Localization}
+      data:
+        m_PropertyPath: m_Spacing
+        m_VariantData:
+        - localeIdentifier:
+            m_Code: en
+          value: 222.8
+        - localeIdentifier:
+            m_Code: ru
+          value: 255.4
+        - localeIdentifier:
+            m_Code: pt
+          value: 232.3
 --- !u!1 &3090660055092285874
 GameObject:
   m_ObjectHideFlags: 0
@@ -1009,10 +1124,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 2168045728942918127}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 81.005005, y: -14.064999}
-  m_SizeDelta: {x: 108.01, y: 28.129997}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5660023339069859615
 CanvasRenderer:
@@ -1044,8 +1159,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Cancel
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: f1ab4353d1ec6f944b7eafb44edec532, type: 2}
-  m_sharedMaterial: {fileID: 853048015131166436, guid: f1ab4353d1ec6f944b7eafb44edec532, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: a35d2a651a6b2c54ba62b2d14e975fb8, type: 2}
+  m_sharedMaterial: {fileID: 2100000, guid: 8d57d5fd1d010714a98c9dfdc9207c2f, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1561,7 +1676,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &2898594914737381018
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1619,10 +1734,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 8260405273644620833}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 90}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 8.5, y: -15.190198}
-  m_SizeDelta: {x: 17, y: 28.129997}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.46}
 --- !u!222 &624447145383788112
 CanvasRenderer:
@@ -1876,10 +1991,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 8260405273644620833}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 90.380005, y: -14.064999}
-  m_SizeDelta: {x: 126.76, y: 28.129997}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5209280233471295284
 CanvasRenderer:
@@ -1911,8 +2026,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Confirm
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: f1ab4353d1ec6f944b7eafb44edec532, type: 2}
-  m_sharedMaterial: {fileID: 853048015131166436, guid: f1ab4353d1ec6f944b7eafb44edec532, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: a35d2a651a6b2c54ba62b2d14e975fb8, type: 2}
+  m_sharedMaterial: {fileID: 2100000, guid: 8d57d5fd1d010714a98c9dfdc9207c2f, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
