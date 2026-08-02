@@ -104,16 +104,22 @@ public abstract class GroundedStateBase : MarioStateBase
 
     private void HandleLookUp()
     {
-        bool lookingUp = !HasHorizontalInput && IsPressingUp && !State.IsUsingObject
-                      && !State.ClimbExitedWhilePressingUp;
+        float speed = State.FloorAngle != 0f
+            ? Rb.velocity.magnitude
+            : Mathf.Abs(Rb.velocity.x);
 
-        if (lookingUp && !_wasLookingUp)
-            MarioEvents.FireLookUpStarted(PlayerIndex);
-        else if (!lookingUp && _wasLookingUp)
-            MarioEvents.FireLookUpEnded(PlayerIndex);
+        bool lookingUp = !HasHorizontalInput && IsPressingUp
+                    && speed < 0.08f
+                    && !State.IsUsingObject
+                    && !State.ClimbExitedWhilePressingUp;
 
+        if (lookingUp == _wasLookingUp) return;
+
+        _wasLookingUp     = lookingUp;
         State.IsLookingUp = lookingUp;
-        _wasLookingUp = lookingUp;
+
+        if (lookingUp) MarioEvents.FireLookUpStarted(PlayerIndex);
+        else           MarioEvents.FireLookUpEnded(PlayerIndex);
     }
 
     public override void FixedUpdate()
