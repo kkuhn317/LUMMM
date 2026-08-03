@@ -3,6 +3,7 @@ using System.Security;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
+using TMPro;
 
 public class UICancelRouter : MonoBehaviour
 {
@@ -30,6 +31,7 @@ public class UICancelRouter : MonoBehaviour
     public void UnlockCancel() { if (cancelLockCount > 0) cancelLockCount--; }
 
     private readonly List<ICancelHandler> handlerBuffer = new();
+    private readonly List<ICancelHandler> sortedBuffer = new();
 
     public void SetInputSource(PlayerInput source)
     {
@@ -86,13 +88,23 @@ public class UICancelRouter : MonoBehaviour
 
     private void OnCancel(InputAction.CallbackContext ctx)
     {
-        Debug.Log("Pressed cancel");
+        if (verboseLogs) Debug.Log("[UICancelRouter] Pressed cancel");
 
         if (!CanProcessCancel(ctx.control?.device)) return;
 
         if (verboseLogs) Debug.Log("[UICancelRouter] Processing cancel...");
 
         bool consumed = false;
+
+        // Modal popups.
+        // TMP_Dropdown implements UnityEngine.EventSystems.ICancelHandler, which is a DIFFERENT
+        // type from this project's global ICancelHandler despite the identical name. An open
+        // dropdown list is therefore invisible to stages 1 and 2, and cancel used to fall
+        // through to Back() -> rootBackButton -> scene transition while the list was still up.
+        // Also note GUIManager.Back() calls rootBackButton.Select(), which moves selection away
+        // from the option Toggle before InputSystemUIInputModule can deliver its own cancel —
+        // so the dropdown never closed itself either.
+        if (!consumed) consumed = TryCloseOpenDropdown();
 
         // 1. Focused widget handler (input field, slider, custom cancel handler on selected object)
         if (!consumed) consumed = TryCancelFocusedWidget();
@@ -123,6 +135,42 @@ public class UICancelRouter : MonoBehaviour
     }
 
     /// <summary>
+    /// closes an open TMP_Dropdown list, if any. Prefers the dropdown in the current
+    /// selection's parent chain (correct when several are on screen); falls back to a scan for
+    /// mouse-driven use where selection may be null.
+    /// </summary>
+    private bool TryCloseOpenDropdown()
+    {
+        TMP_Dropdown open = null;
+
+        var selected = EventSystem.current != null ? EventSystem.current.currentSelectedGameObject : null;
+        if (selected != null)
+        {
+            // Valid because TMP parents the runtime "Dropdown List" under the dropdown itself.
+            var candidate = selected.GetComponentInParent<TMP_Dropdown>();
+            if (candidate != null && candidate.IsExpanded) open = candidate;
+        }
+
+        if (open == null)
+        {
+            var all = FindObjectsOfType<TMP_Dropdown>();
+            foreach (var d in all)
+            {
+                if (d != null && d.IsExpanded) { open = d; break; }
+            }
+        }
+
+        if (open == null) return false;
+
+        // Hide() also re-selects the dropdown, so focus lands back on the control the player
+        // was using rather than on a Toggle that is about to be destroyed.
+        open.Hide();
+
+        if (verboseLogs) Debug.Log($"[UICancelRouter] TryCloseOpenDropdown: closed '{open.name}'.");
+        return true;
+    }
+
+    /// <summary>
     /// Checks the currently selected UI object and its parents for an ICancelHandler.
     /// Handles things like sliders that should deselect on cancel, or input fields.
     /// </summary>
@@ -132,12 +180,11 @@ public class UICancelRouter : MonoBehaviour
         var selected = EventSystem.current.currentSelectedGameObject;
         if (selected == null) return false;
 
-        var handler = FindBestHandlerInParents(selected);
-        if (handler == null) return false;
-
-        bool consumed = handler.OnCancel();
-        if (verboseLogs) Debug.Log($"[UICancelRouter] TryCancelFocusedWidget: handler={handler.GetType().Name}, consumed={consumed}");
-        return consumed;
+        // collect every handler in the parent chain and try them in priority
+        // order, instead of committing to the single highest-priority one. A handler that
+        // declines (returns false) must not block the ones beneath it.
+        CollectHandlersInParents(selected, handlerBuffer);
+        return TryConsumeInPriorityOrder(handlerBuffer, "TryCancelFocusedWidget");
     }
 
     /// <summary>
@@ -170,12 +217,8 @@ public class UICancelRouter : MonoBehaviour
             }
         }
 
-        var handler = PickHighestPriority(handlerBuffer);
-        if (handler == null) return false;
-
-        bool consumed = handler.OnCancel();
-        if (verboseLogs) Debug.Log($"[UICancelRouter] TryCancelActiveMenu: handler={handler.GetType().Name}, consumed={consumed}");
-        return consumed;
+        // same priority-ordered fallthrough as above.
+        return TryConsumeInPriorityOrder(handlerBuffer, "TryCancelActiveMenu");
     }
 
     private bool TryBackNavigation()
@@ -261,18 +304,43 @@ public class UICancelRouter : MonoBehaviour
         return true;
     }
 
-    private ICancelHandler FindBestHandlerInParents(GameObject start)
+    // returns all candidates rather than one.
+    private static void CollectHandlersInParents(GameObject start, List<ICancelHandler> results)
     {
-        handlerBuffer.Clear();
+        results.Clear();
         var behaviours = start.GetComponentsInParent<MonoBehaviour>(includeInactive: true);
-        foreach (var mb in behaviours) if (mb is ICancelHandler h) handlerBuffer.Add(h);
-        return PickHighestPriority(handlerBuffer);
+        foreach (var mb in behaviours) if (mb is ICancelHandler h) results.Add(h);
     }
 
-    private static ICancelHandler PickHighestPriority(List<ICancelHandler> list)
+    /// <summary>
+    /// replaces PickHighestPriority(). Tries handlers from highest to lowest
+    /// priority and stops at the first one that reports the press as consumed.
+    ///
+    /// The old behaviour picked exactly one handler and gave up if it declined, so a
+    /// high-priority handler that returns false in some states (RebindMenuCancelInterceptor
+    /// does this when it isn't the top menu; DropdownCancelHandler does it when its list is
+    /// closed) could silently swallow the press for everyone else.
+    /// </summary>
+    private bool TryConsumeInPriorityOrder(List<ICancelHandler> candidates, string context)
     {
-        ICancelHandler best = null;
-        foreach (var h in list) if (best == null || h.CancelPriority > best.CancelPriority) best = h;
-        return best;
+        if (candidates.Count == 0) return false;
+
+        sortedBuffer.Clear();
+        sortedBuffer.AddRange(candidates);
+        sortedBuffer.Sort((a, b) => b.CancelPriority.CompareTo(a.CancelPriority));
+
+        foreach (var handler in sortedBuffer)
+        {
+            if (handler == null) continue;
+            if (!handler.OnCancel()) continue;
+
+            if (verboseLogs)
+                Debug.Log($"[UICancelRouter] {context}: consumed by {handler.GetType().Name} (priority {handler.CancelPriority})");
+            return true;
+        }
+
+        if (verboseLogs)
+            Debug.Log($"[UICancelRouter] {context}: {sortedBuffer.Count} handler(s) declined.");
+        return false;
     }
 }
