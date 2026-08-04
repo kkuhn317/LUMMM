@@ -3,7 +3,6 @@ using UnityEngine;
 public class CoinSystem : MonoBehaviour
 {
     [Header("Settings")]
-    [SerializeField] private bool saveCoinsAfterDeath = true;
     [SerializeField] private bool enableTotalCoinTracking = false;
 
     private LifeSystem lifeSystem;
@@ -26,22 +25,9 @@ public class CoinSystem : MonoBehaviour
         if (scoreSystem == null) Debug.LogError($"{nameof(CoinSystem)} requires {nameof(ScoreSystem)}.");
     }
 
-    private void Start()
+    public void SetTotalCoinsCollected(int coins)
     {
-        if (!saveCoinsAfterDeath)
-        {
-            SetCoins(0);
-        }
-        else
-        {
-            LoadCoinsFromCheckpoint();
-        }
-
-        // real counter starts from UI counter
-        totalCoinsCollectedThisLevel = GlobalVariables.coinCount;
-
-        if (enableTotalCoinTracking)
-            CalculateTotalCoinsInLevel();
+        totalCoinsCollectedThisLevel = coins;
     }
 
     public void AddCoin(int value = 1)

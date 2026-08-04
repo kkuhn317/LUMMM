@@ -6,6 +6,7 @@ using System;
 
 public class CheckpointManager : MonoBehaviour
 {
+    [SerializeField] private bool saveCoins = true; // Set to false on levels that rely on spending coins
     private readonly List<Checkpoint> checkpoints = new List<Checkpoint>();
 
     private string levelId;
@@ -219,7 +220,12 @@ public class CheckpointManager : MonoBehaviour
         }
 
         GlobalVariables.checkpoint = checkpoint.checkpointId;
-        GlobalVariables.coinCount = checkpoint.coins;
+        if (saveCoins) {
+            GlobalVariables.coinCount = checkpoint.coins;
+        } else
+        {
+            GlobalVariables.coinCount = 0;
+        }
         GlobalVariables.lives = checkpoint.lives;
         GlobalVariables.score = checkpoint.score;
         GlobalVariables.timerOffset = TimeSpan.FromMilliseconds(checkpoint.speedrunMs);
@@ -237,6 +243,9 @@ public class CheckpointManager : MonoBehaviour
 
         GameEvents.TriggerCheckpointLoaded();
         GameEvents.TriggerCheckpointChanged(GlobalVariables.checkpoint);
+        GameEvents.TriggerCoinsChanged(GlobalVariables.coinCount);
+
+        GetComponent<CoinSystem>().SetTotalCoinsCollected(GlobalVariables.coinCount);
     }
 
     private void InvokeRespawnActivationForActiveCheckpoint()
@@ -261,7 +270,12 @@ public class CheckpointManager : MonoBehaviour
 
         hasCheckpointSnapshot = true;
         snapshotCheckpointId = GlobalVariables.checkpoint;
-        snapshotCoins = GlobalVariables.coinCount;
+        if (saveCoins) {
+            snapshotCoins = GlobalVariables.coinCount;
+        } else
+        {
+            snapshotCoins = 0;
+        }
         snapshotLives = GlobalVariables.lives;
         snapshotScore = GlobalVariables.score;
         snapshotSpeedrunMs = GlobalVariables.elapsedTime.TotalMilliseconds;
