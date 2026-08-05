@@ -3019,6 +3019,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 103bf8b617a92dd4e9bd4d92bdbeb320, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  saveCoins: 1
 --- !u!114 &6324595266518367430
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3056,7 +3057,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5550a46b2ca0fc047b4c814dba449888, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  saveCoinsAfterDeath: 1
   enableTotalCoinTracking: 0
 --- !u!114 &2603646671669206292
 MonoBehaviour:
@@ -16694,9 +16694,9 @@ MonoBehaviour:
   onPress:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
-        m_MethodName: TogglePauseGame
+      - m_Target: {fileID: 3669927169230732448}
+        m_TargetAssemblyTypeName: PauseMenuController, Assembly-CSharp
+        m_MethodName: RequestTogglePause
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

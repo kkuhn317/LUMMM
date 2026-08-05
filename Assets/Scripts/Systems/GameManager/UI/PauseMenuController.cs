@@ -193,6 +193,11 @@ public class PauseMenuController : MonoBehaviour
         pauseToggleGate     = optionsPauseHandlerBehaviour as IPauseToggleGate;
     }
 
+    public void RequestTogglePause()
+    {
+        RequestTogglePause(null);
+    }
+
     public void RequestTogglePause(PlayerInput requester)
     {
         if (!CanTogglePauseNow() || !canPause || toggleGuardFrame == Time.frameCount) return;
