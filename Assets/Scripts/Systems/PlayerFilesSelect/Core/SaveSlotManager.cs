@@ -305,6 +305,12 @@ public class SaveSlotManager : MonoBehaviour
         {
             Debug.Log("SaveSlotManager: current mode cancelled, back to NORMAL.");
             // Optional: hide any helper / warning UI here.
+
+#if UNITY_WEBGL && !UNITY_EDITOR
+            // Disarm any file input left waiting on a mouseup that will never
+            // come, so the next import attempt is not blocked.
+            WebGLFilePicker.Instance.CancelPending();
+#endif
         }
     }
 
@@ -510,6 +516,18 @@ public class SaveSlotManager : MonoBehaviour
 
     private void HandleImportDestination(int index)
     {
+#if UNITY_WEBGL && !UNITY_EDITOR
+        // On WebGL the dialog is armed during OnPointerDown by
+        // WebGLImportPointerTrigger -> BeginWebGLImport, because a browser only
+        // opens a file dialog from inside a real user gesture. Reaching this
+        // method means the press came from a gamepad or keyboard, which cannot
+        // open one under any implementation.
+        Debug.LogWarning(
+            "SaveSlotManager: WebGL import requires a mouse or touch press."
+        );
+
+        SetMode(InteractionMode.Normal);
+#else
         Debug.Log($"HandleImportDestination: UIInputLock lockCount before: {uiInputLock?.GetLockCount()}");
 
         int slotIndex = Mathf.Clamp(index, 0, slotCards.Length - 1);
@@ -545,7 +563,70 @@ public class SaveSlotManager : MonoBehaviour
             // Start a coroutine to handle the result (allows us to use yield)
             StartCoroutine(ProcessImportFileSelection(slotIndex, path, selectionBeforeFileDialog));
         }, saveExtension);
+#endif
     }
+
+#if UNITY_WEBGL && !UNITY_EDITOR
+    /// <summary>
+    /// Called by WebGLImportPointerTrigger from OnPointerDown, before the
+    /// browser dispatches mouseup. Arms the file dialog and leaves import mode.
+    ///
+    /// The card's normal OnClick fires a moment later and is swallowed by
+    /// PlayFocusedSlot's isFileDialogOpen guard, so the slot is not played.
+    /// </summary>
+    public void BeginWebGLImport(int index)
+    {
+        if (isFileDialogOpen || isFileOperationInProgress)
+        {
+            Debug.LogWarning("SaveSlotManager: import already in progress.");
+            return;
+        }
+
+        int slotIndex = Mathf.Clamp(index, 0, slotCards.Length - 1);
+
+        // NOTE: mode is deliberately NOT set to Normal here.
+        // PipeEnterSequence checks CurrentMode and skips the pipe while the
+        // manager is in a special mode. Leaving import mode at pointer-down
+        // told it "Normal", so any click that slipped through played the pipe.
+        // Staying in ImportSelectDestination until the picker resolves keeps
+        // that check working as a second line of defence behind the blocker.
+
+        string saveExtension = FileDataService.SaveExtension;
+
+        if (string.IsNullOrWhiteSpace(saveExtension))
+            saveExtension = "lummm";
+
+        if (saveExtension.StartsWith("."))
+            saveExtension = saveExtension.Substring(1);
+
+        isFileDialogOpen = true;
+        isFileOperationInProgress = true;
+
+        var selectionBeforeFileDialog = EventSystem.current?.currentSelectedGameObject;
+
+        // NOTE: deliberately NOT calling uiInputLock.Unlock() here, unlike the
+        // desktop HandleImportDestination. SFB's SaveFilePanel blocks Unity's
+        // main thread, so nothing can happen behind it. The browser dialog does
+        // not block anything — unlocking here lets the player play a slot or
+        // open the name prompt while the dialog is still up.
+        // WebGLFilePicker additionally disables the EventSystem for the
+        // duration and restores it before the callback runs.
+
+        WebGLFilePicker.Instance.Arm(
+            path =>
+            {
+                // Now it is safe to leave import mode: the dialog is closed and
+                // no click can still be in flight.
+                SetMode(InteractionMode.Normal);
+
+                StartCoroutine(
+                    ProcessImportFileSelection(slotIndex, path, selectionBeforeFileDialog)
+                );
+            },
+            saveExtension
+        );
+    }
+#endif
 
     private IEnumerator ProcessImportFileSelection(int slotIndex, string path, GameObject selectionBeforeFileDialog)
     {
@@ -686,8 +767,49 @@ public class SaveSlotManager : MonoBehaviour
         isFileDialogOpen = true;
         isFileOperationInProgress = true;
 
-#if UNITY_STANDALONE || UNITY_EDITOR || UNITY_WEBGL
-        // Desktop & WebGL: let the user pick a full path with SaveFilePanel
+#if UNITY_WEBGL && !UNITY_EDITOR
+        // A browser has no Save As dialog and no asset can add one. Export to a
+        // temp file, read the bytes back, hand them to the browser as a
+        // download. The player has no say in where it lands.
+        string webglTempDir = Path.Combine(Application.persistentDataPath, "TempExport");
+
+        if (!Directory.Exists(webglTempDir))
+            Directory.CreateDirectory(webglTempDir);
+
+        string webglFileNameNoExt = $"save_slot_{slotIndex}";
+        string webglExportedPath = SaveManager.ExportSlot(
+            slotIndex,
+            webglTempDir,
+            webglFileNameNoExt
+        );
+
+        if (string.IsNullOrEmpty(webglExportedPath) || !File.Exists(webglExportedPath))
+        {
+            Debug.LogWarning("SaveSlotManager: WebGL export failed. See previous logs for details.");
+            StartCoroutine(ResetFileDialogFlagsNextFrame());
+            return;
+        }
+
+        try
+        {
+            byte[] webglBytes = File.ReadAllBytes(webglExportedPath);
+            WebGLFilePicker.Instance.Download(webglBytes, webglFileNameNoExt + extWithDot);
+
+            Debug.Log($"SaveSlotManager: handed slot {slotIndex} to the browser as a download.");
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"SaveSlotManager: WebGL export failed: {e.Message}");
+        }
+        finally
+        {
+            try { File.Delete(webglExportedPath); } catch { }
+
+            StartCoroutine(ResetFileDialogFlagsNextFrame());
+        }
+
+#elif UNITY_STANDALONE || UNITY_EDITOR
+        // Desktop & Editor: let the user pick a full path with SaveFilePanel
 
         // No extension here — SaveFilePanel appends it via extWithoutDot. Including it
         // caused "save_slot_N.lummm.lummm".
