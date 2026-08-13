@@ -150,8 +150,6 @@ public class Axe : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Player") && !isRotating)
         {
-            GameEvents.TriggerLevelEnding();
-            
             if (pauseables == null) CacheSystems();
 
             // Pause the pauseable objects when starting the bridge destruction.

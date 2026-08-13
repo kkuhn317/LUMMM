@@ -113,21 +113,13 @@ public class CheatController : MonoBehaviour
 
     /// <summary>
     /// Toggles player invincibility.
+    /// This is different from the star effect in that Mario cannot kill enemies by touching them,
+    /// and the rainbow effect will not show.
     /// </summary>
     private void HandleInvincibility(bool enabled)
     {
         GlobalVariables.cheatInvincibility = enabled;
         GameEvents.TriggerCheatToggled("Invincibility", enabled);
-        
-        // DIRECT SIDE EFFECT: Apply to all active players
-        var players = GetActivePlayers();
-        foreach (var player in players)
-        {
-            if (player != null && player.Combat != null)
-            {
-                if (enabled) player.Combat.StartStarPower(99999f); else player.Combat.StopStarPower();
-            }
-        }
 
         if (logCheatChanges)
             Debug.Log($"[Cheat] Invincibility: {enabled}");

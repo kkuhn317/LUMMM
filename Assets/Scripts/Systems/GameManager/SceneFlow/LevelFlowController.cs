@@ -95,6 +95,8 @@ public class LevelFlowController : MonoBehaviour
         // FlagLevelFlow; the Thwomp path bypassed it.
         MarkEndingLevel();
 
+        GameEvents.TriggerLevelEnding();
+
         pauseController?.SetPauseEnabled(false);
         StartCoroutine(CutsceneEndSequence(cutscene, cutsceneLength, destroyPlayersImmediately, stopMusicImmediately));
     }
