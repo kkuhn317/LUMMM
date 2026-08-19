@@ -53,12 +53,46 @@ public class CheatsMenu : MonoBehaviour, IMenuTransition
         new CheatBinding("minimushroom", () => CheatFlags.StartPowerup == StartPowerupMode.Tiny, 
             v => CheatFlags.StartPowerup = v ? StartPowerupMode.Tiny : StartPowerupMode.None),
         new CheatBinding("iceflower", () => CheatFlags.StartPowerup == StartPowerupMode.Ice,
-            v => CheatFlags.StartPowerup = v ? StartPowerupMode.Ice : StartPowerupMode.None),
-        new CheatBinding("flamethrower", () => CheatFlags.StartPowerup == StartPowerupMode.Fire,
-            v => CheatFlags.StartPowerup = v ? StartPowerupMode.Fire : StartPowerupMode.None),
+            SetIceFlower),
+        new CheatBinding("flamethrower", () => CheatFlags.Flamethrower,
+            SetFlamethrower),
         new CheatBinding("midnight", () => CheatFlags.Darkness, v => CheatFlags.Darkness = v),
         new CheatBinding("corruption", () => CheatFlags.Randomizer, v => CheatFlags.Randomizer = v)
     };
+
+    private static void SetIceFlower(bool enabled)
+    {
+        if (enabled)
+        {
+            // Ice determines the projectile and appearance. Flamethrower, if
+            // active, remains an independent rapid-fire modifier.
+            CheatFlags.StartPowerup = StartPowerupMode.Ice;
+        }
+        else if (CheatFlags.StartPowerup == StartPowerupMode.Ice)
+        {
+            // Flamethrower by itself retains its original Fire Mario behavior.
+            CheatFlags.StartPowerup = CheatFlags.Flamethrower
+                ? StartPowerupMode.Fire
+                : StartPowerupMode.None;
+        }
+    }
+
+    private static void SetFlamethrower(bool enabled)
+    {
+        CheatFlags.Flamethrower = enabled;
+
+        if (enabled)
+        {
+            // Preserve Ice when both cheats are active; otherwise flamethrower
+            // continues to grant Fire Mario as it did previously.
+            if (CheatFlags.StartPowerup != StartPowerupMode.Ice)
+                CheatFlags.StartPowerup = StartPowerupMode.Fire;
+        }
+        else if (CheatFlags.StartPowerup == StartPowerupMode.Fire)
+        {
+            CheatFlags.StartPowerup = StartPowerupMode.None;
+        }
+    }
 
     private class CheatObject
     {

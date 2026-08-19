@@ -21,6 +21,8 @@ public class CircleTransition : MonoBehaviour
 
     private float currentDuration;
     private float currentMaxSize;
+    private bool darknessMode;
+    private Coroutine transitionCoroutine;
 
     private static readonly int RADIUS = Shader.PropertyToID("_Radius");
     private static readonly int CENTER_X = Shader.PropertyToID("_CenterX");
@@ -40,12 +42,12 @@ public class CircleTransition : MonoBehaviour
 
         Debug.Log($"[CircleTransition] Start called. PlayerRegistry: {(playerRegistry != null ? playerRegistry.name : "null")}");
 
-        // Set parameters based on darkness cheat
-        currentDuration = GlobalVariables.cheatDarkness ? darknessDuration : normalDuration;
-        currentMaxSize = GlobalVariables.cheatDarkness ? darknessMaxSize : normalMaxSize;
+        // CheatFlags is the authoritative state and is already populated before
+        // scene objects run Start, regardless of CheatController execution order.
+        ApplyModeSettings(CheatFlags.Darkness);
 
         // Skip if scene was loaded via FadeInOutScene — it handles the transition
-        if (FadeInOutScene.LoadedWithFade)
+        if (FadeInOutScene.LoadedWithFade && !darknessMode)
         {
             _blackScreen.gameObject.SetActive(false);
             return;
@@ -63,9 +65,13 @@ public class CircleTransition : MonoBehaviour
             playerRegistry = FindObjectOfType<PlayerRegistry>(true);
     }
 
-    private void Update()
+    private void LateUpdate()
     {
-        DrawBlackScreen();
+        // Midnight is a persistent spotlight and must follow Mario. Normal
+        // transitions snapshot their center in Open/CloseBlackScreen instead,
+        // so Mario moving during the animation cannot drag the circle around.
+        if (darknessMode)
+            DrawBlackScreen();
     }
 
     /// <summary>
@@ -73,71 +79,93 @@ public class CircleTransition : MonoBehaviour
     /// </summary>
     public void SetDarknessMode(bool enabled)
     {
+        ApplyModeSettings(enabled);
+
+        if (_blackScreen == null) return;
+
+        // A completed normal reveal disables the image. Reactivate it when
+        // midnight is enabled so the darkness mask can be drawn again.
+        _blackScreen.gameObject.SetActive(true);
+        DrawBlackScreen();
+
+        float beginRadius = _blackScreen.material.GetFloat(RADIUS);
+        StartTransition(beginRadius, currentMaxSize);
+    }
+
+    private void ApplyModeSettings(bool enabled)
+    {
+        darknessMode = enabled;
         currentDuration = enabled ? darknessDuration : normalDuration;
         currentMaxSize = enabled ? darknessMaxSize : normalMaxSize;
-        
-        // If the black screen is currently active, update its target size
-        if (_blackScreen != null && _blackScreen.gameObject.activeInHierarchy)
-        {
-            StopAllCoroutines();
-            StartCoroutine(Transition(0, currentMaxSize));
-        }
     }
 
     public void OpenBlackScreen()
     {
         _blackScreen.gameObject.SetActive(true);
+        // In normal mode this is the one-time starting-position snapshot.
         DrawBlackScreen();
-        StartCoroutine(Transition(0, currentMaxSize));
+        StartTransition(0, currentMaxSize);
     }
 
     public void CloseBlackScreen()
     {
+        // Closing transitions snapshot Mario's position when closing begins.
         DrawBlackScreen();
-        StartCoroutine(Transition(currentMaxSize, 0));
+        StartTransition(_blackScreen.material.GetFloat(RADIUS), 0);
+    }
+
+    private void StartTransition(float beginRadius, float endRadius)
+    {
+        if (transitionCoroutine != null)
+            StopCoroutine(transitionCoroutine);
+
+        transitionCoroutine = StartCoroutine(Transition(beginRadius, endRadius));
     }
 
     private void DrawBlackScreen()
     {
-        var screenWidth = Screen.width;
-        var screenHeight = Screen.height;
-        
         MarioCore playerscript = playerRegistry != null ? playerRegistry.GetPlayer(0) : null;
         if (playerscript == null)
             return;
-            
-        Transform player = playerscript.transform;
-        var playerScreenPos = Camera.main.WorldToScreenPoint(player.position);
+
+        Camera worldCamera = Camera.main;
+        if (worldCamera == null)
+            return;
 
         var canvasRect = _canvas.GetComponent<RectTransform>().rect;
-        var canvasWidth = canvasRect.width + 100;
-        var canvasHeight = canvasRect.height + 100;
+        float squareValue = Mathf.Max(canvasRect.width, canvasRect.height) + 100f;
 
-        _playerCanvasPos = new Vector2
-        {
-            x = (playerScreenPos.x / screenWidth) * canvasWidth,
-            y = (playerScreenPos.y / screenHeight) * canvasHeight,
-        };
+        RectTransform blackScreenRect = _blackScreen.rectTransform;
+        blackScreenRect.sizeDelta = new Vector2(squareValue, squareValue);
 
-        var squareValue = 0f;
-        if (canvasWidth > canvasHeight)
+        // Use Mario's physical body center so differently sized powerup forms
+        // remain visually centered. Fall back to the prefab root if necessary.
+        Vector3 playerWorldPos = playerscript.Collider != null
+            ? playerscript.Collider.bounds.center
+            : playerscript.transform.position;
+        Vector2 playerScreenPos = worldCamera.WorldToScreenPoint(playerWorldPos);
+
+        Camera canvasCamera = _canvas.renderMode == RenderMode.ScreenSpaceOverlay
+            ? null
+            : _canvas.worldCamera;
+
+        if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                blackScreenRect, playerScreenPos, canvasCamera, out Vector2 localPoint))
         {
-            squareValue = canvasWidth;
-            _playerCanvasPos.y += (canvasWidth - canvasHeight) * 0.5f;
+            return;
         }
-        else
-        {
-            squareValue = canvasHeight;
-            _playerCanvasPos.x += (canvasHeight - canvasWidth) * 0.5f;
-        }
 
-        _playerCanvasPos /= squareValue;
+        // The shader consumes the Image's 0..1 UV coordinates. Converting from
+        // its actual RectTransform automatically accounts for CanvasScaler,
+        // aspect ratio, pivot, and the square's centered overscan margins.
+        Rect imageRect = blackScreenRect.rect;
+        _playerCanvasPos = new Vector2(
+            Mathf.InverseLerp(imageRect.xMin, imageRect.xMax, localPoint.x),
+            Mathf.InverseLerp(imageRect.yMin, imageRect.yMax, localPoint.y));
 
         var mat = _blackScreen.material;
         mat.SetFloat(CENTER_X, _playerCanvasPos.x);
         mat.SetFloat(CENTER_Y, _playerCanvasPos.y);
-
-        _blackScreen.rectTransform.sizeDelta = new Vector2(squareValue, squareValue);
     }
 
     private IEnumerator Transition(float beginRadius, float endRadius)
@@ -155,8 +183,11 @@ public class CircleTransition : MonoBehaviour
         }
 
         mat.SetFloat(RADIUS, endRadius);
+        transitionCoroutine = null;
 
-        if (endRadius >= currentMaxSize)
+        // Normal mode removes the transition canvas after revealing the level.
+        // Midnight mode deliberately leaves it active as the gameplay mask.
+        if (!darknessMode && endRadius >= currentMaxSize)
         {
             _blackScreen.gameObject.SetActive(false);
         }

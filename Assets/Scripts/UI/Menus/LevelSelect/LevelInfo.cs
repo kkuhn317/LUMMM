@@ -9,7 +9,8 @@ public enum MarioMoves
     WallJump = 1 << 2,  // 4
     GroundPound = 1 << 3,       // 8
     Crawl = 1 << 4,       // 16
-    Twirl = 1 << 5       // 32
+    Twirl = 1 << 5,      // 32
+    All = Cape | Spin | WallJump | GroundPound | Crawl | Twirl
 }
 
 public enum MarioType

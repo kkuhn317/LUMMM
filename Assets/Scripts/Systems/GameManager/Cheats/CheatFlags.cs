@@ -10,6 +10,7 @@ public static class CheatFlags
     // Events - only for notifying when state changes
     public static event Action<bool> OnPlushiesChanged;
     public static event Action<StartPowerupMode> OnStartPowerupModeChanged;
+    public static event Action<bool> OnFlamethrowerChanged;
     public static event Action<bool> OnInvincibilityChanged;
     public static event Action<bool> OnAllAbilitiesChanged;
     public static event Action<bool> OnDarknessChanged;
@@ -19,6 +20,7 @@ public static class CheatFlags
     // Private state fields
     private static bool plushies;
     private static StartPowerupMode startPowerupMode = StartPowerupMode.None;
+    private static bool flamethrower;
     private static bool invincibility;
     private static bool allAbilities;
     private static bool darkness;
@@ -45,6 +47,21 @@ public static class CheatFlags
             if (startPowerupMode == value) return;
             startPowerupMode = value;
             OnStartPowerupModeChanged?.Invoke(value);
+        }
+    }
+
+    /// <summary>
+    /// Removes the normal projectile limit and allows shooting every frame while
+    /// the button is held. Kept separate from StartPowerup so it can augment Ice.
+    /// </summary>
+    public static bool Flamethrower
+    {
+        get => flamethrower;
+        set
+        {
+            if (flamethrower == value) return;
+            flamethrower = value;
+            OnFlamethrowerChanged?.Invoke(value);
         }
     }
 

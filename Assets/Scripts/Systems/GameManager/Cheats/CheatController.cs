@@ -32,20 +32,19 @@ public class CheatController : MonoBehaviour
         // Subscribe to all cheat events
         CheatFlags.OnPlushiesChanged += HandlePlushies;
         CheatFlags.OnStartPowerupModeChanged += HandleStartPowerup;
+        CheatFlags.OnFlamethrowerChanged += HandleFlamethrower;
         CheatFlags.OnInvincibilityChanged += HandleInvincibility;
         CheatFlags.OnAllAbilitiesChanged += HandleAllAbilities;
         CheatFlags.OnDarknessChanged += HandleDarkness;
         CheatFlags.OnRandomizerChanged += HandleRandomizer;
         CheatFlags.OnBetaModeChanged += HandleBetaMode;
-
-        // Apply current states immediately
-        RefreshAllCheats();
     }
 
     private void OnDisable()
     {
         CheatFlags.OnPlushiesChanged -= HandlePlushies;
         CheatFlags.OnStartPowerupModeChanged -= HandleStartPowerup;
+        CheatFlags.OnFlamethrowerChanged -= HandleFlamethrower;
         CheatFlags.OnInvincibilityChanged -= HandleInvincibility;
         CheatFlags.OnAllAbilitiesChanged -= HandleAllAbilities;
         CheatFlags.OnDarknessChanged -= HandleDarkness;
@@ -57,6 +56,9 @@ public class CheatController : MonoBehaviour
     {
         if (playerRegistry == null)
             playerRegistry = FindObjectOfType<PlayerRegistry>();
+
+        // Apply current states immediately (after player fully initializes)
+        RefreshAllCheats();
     }
 
     #region Cheat Handlers
@@ -94,7 +96,6 @@ public class CheatController : MonoBehaviour
         // Update legacy global variables
         GlobalVariables.cheatStartTiny = mode == StartPowerupMode.Tiny;
         GlobalVariables.cheatStartIce = mode == StartPowerupMode.Ice;
-        GlobalVariables.cheatFlamethrower = mode == StartPowerupMode.Fire;
         
         // Notify other systems
         GameEvents.TriggerStartPowerupChanged(mode);
@@ -109,6 +110,19 @@ public class CheatController : MonoBehaviour
 
         if (logCheatChanges)
             Debug.Log($"[Cheat] Start Powerup: {mode}");
+    }
+
+    /// <summary>
+    /// Controls rapid projectile firing independently of the selected powerup.
+    /// This allows Ice Mario to use the same rapid-fire behavior with ice balls.
+    /// </summary>
+    private void HandleFlamethrower(bool enabled)
+    {
+        GlobalVariables.cheatFlamethrower = enabled;
+        GameEvents.TriggerCheatToggled("Flamethrower", enabled);
+
+        if (logCheatChanges)
+            Debug.Log($"[Cheat] Flamethrower: {enabled}");
     }
 
     /// <summary>
@@ -137,10 +151,7 @@ public class CheatController : MonoBehaviour
         var players = GetActivePlayers();
         foreach (var player in players)
         {
-            if (player != null)
-            {
-                player.AbilityManager.EnableAllAbilities(enabled);
-            }
+            player?.AbilityManager?.ApplyEffectiveAbilities();
         }
 
         if (logCheatChanges)
@@ -325,6 +336,7 @@ public class CheatController : MonoBehaviour
     {
         HandlePlushies(CheatFlags.Plushies);
         HandleStartPowerup(CheatFlags.StartPowerup);
+        HandleFlamethrower(CheatFlags.Flamethrower);
         HandleInvincibility(CheatFlags.Invincibility);
         HandleAllAbilities(CheatFlags.AllAbilities);
         HandleDarkness(CheatFlags.Darkness);

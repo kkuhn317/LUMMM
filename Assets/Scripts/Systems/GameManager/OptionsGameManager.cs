@@ -6,6 +6,12 @@ using UnityEngine.InputSystem.UI;
 // Extra functionality for the Game Manager in the test level in the rebind menu
 public class OptionsGameManager : MonoBehaviour, IOptionsPauseHandler, IPauseToggleGate
 {
+    /// <summary>
+    /// The options-menu gameplay area is an ability test, so every Mario form
+    /// should expose every move while this manager is active.
+    /// </summary>
+    public static bool GrantsAllAbilities { get; private set; }
+
     public CanvasGroup rebindCanvasGroup;
     public GameObject[] mobileButtons;
     public RebindSettings rebindSettings;
@@ -17,6 +23,10 @@ public class OptionsGameManager : MonoBehaviour, IOptionsPauseHandler, IPauseTog
 
     [SerializeField] UnityEvent onGameResumed;
     [SerializeField] UnityEvent onGamePaused;
+
+    private void OnEnable() => GrantsAllAbilities = true;
+
+    private void OnDisable() => GrantsAllAbilities = false;
 
     public void OnPause()
     {

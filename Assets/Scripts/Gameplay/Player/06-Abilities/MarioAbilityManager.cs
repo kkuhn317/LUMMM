@@ -2,15 +2,14 @@ using UnityEngine;
 using System.Collections.Generic;
 
 /// <summary>
-/// Owns the ability collection and cheat-unlock snapshot/restore logic.
+/// Owns the ability collection and resolves which moves are currently available.
 ///
 /// This replaces:
 /// - The List<MarioAbility> on MarioMovement
-/// - CaptureAbilitySnapshot / RestoreAbilitySnapshot
 /// - EnableAllAbilities(bool)
 /// - The ability flag fields (canCrawl, canWallJump, etc.) — those live on MarioState
 ///
-/// Separate from MarioCore so the cheat and snapshot logic doesn't clutter Core.
+/// Separate from MarioCore so the ability policy doesn't clutter Core.
 /// MarioCore.NotifyAbilities() delegates to this module.
 /// </summary>
 [RequireComponent(typeof(MarioCore))]
@@ -24,7 +23,7 @@ public class MarioAbilityManager : MonoBehaviour
 
 #if UNITY_EDITOR
     [Header("Debug — Move Overrides")]
-    [Tooltip("If true, ignores LevelInfo and uses the values below instead.")]
+    [Tooltip("If true, these values take priority over LevelInfo and runtime ability overrides.")]
     [SerializeField] private bool debugOverrideMoves = false;
     [SerializeField] private bool debugCanCrawl = true;
     [SerializeField] private bool debugCanWallJump = true;
@@ -41,37 +40,40 @@ public class MarioAbilityManager : MonoBehaviour
         // Only apply in play mode so edit-mode changes don't cause issues
         if (!UnityEngine.Application.isPlaying) return;
         if (_core == null) return;
-        ApplyDebugOverrides();
+        ApplyEffectiveAbilities();
     }
 
     private void Update()
     {
-        if (!debugOverrideMoves) return;
-
-        // Detect any change and re-apply
+        // Also detect the override being switched off so the active runtime
+        // policy (cheat, options test, or LevelInfo) is restored immediately.
         if (debugOverrideMoves  != _lastDebugOverride  ||
-            debugCanCrawl       != _lastCrawl          ||
-            debugCanWallJump    != _lastWallJump        ||
-            debugCanSpinJump    != _lastSpinJump        ||
-            debugCanGroundPound != _lastGroundPound     ||
-            debugCanMidairSpin  != _lastMidairSpin      ||
-            debugCanCape        != _lastCape)
+            (debugOverrideMoves &&
+             (debugCanCrawl       != _lastCrawl          ||
+              debugCanWallJump    != _lastWallJump       ||
+              debugCanSpinJump    != _lastSpinJump       ||
+              debugCanGroundPound != _lastGroundPound    ||
+              debugCanMidairSpin  != _lastMidairSpin     ||
+              debugCanCape        != _lastCape)))
         {
-            ApplyDebugOverrides();
+            ApplyEffectiveAbilities();
         }
     }
 
-    private void ApplyDebugOverrides()
+    private MarioMoves GetDebugMoveMask()
     {
-        if (!debugOverrideMoves)
-        {
-            // Switching off — restore from LevelInfo
-            if (_lastDebugOverride)
-                ApplyFromLevelInfo();
-            _lastDebugOverride = false;
-            return;
-        }
+        MarioMoves moves = MarioMoves.None;
+        if (debugCanCrawl)       moves |= MarioMoves.Crawl;
+        if (debugCanWallJump)    moves |= MarioMoves.WallJump;
+        if (debugCanSpinJump)    moves |= MarioMoves.Spin;
+        if (debugCanGroundPound) moves |= MarioMoves.GroundPound;
+        if (debugCanMidairSpin)  moves |= MarioMoves.Twirl;
+        if (debugCanCape)        moves |= MarioMoves.Cape;
+        return moves;
+    }
 
+    private void RememberDebugSettings()
+    {
         _lastDebugOverride  = debugOverrideMoves;
         _lastCrawl          = debugCanCrawl;
         _lastWallJump       = debugCanWallJump;
@@ -79,45 +81,8 @@ public class MarioAbilityManager : MonoBehaviour
         _lastGroundPound    = debugCanGroundPound;
         _lastMidairSpin     = debugCanMidairSpin;
         _lastCape           = debugCanCape;
-
-        State.CanCrawl       = debugCanCrawl;
-        State.CanWallJump    = debugCanWallJump;
-        State.CanSpinJump    = debugCanSpinJump;
-        State.CanGroundPound = debugCanGroundPound;
-        State.CanMidairSpin  = debugCanMidairSpin;
-
-        var cape = GetComponent<CapeAttack>();
-        if (debugCanCape)
-        {
-            if (cape == null) cape = gameObject.AddComponent<CapeAttack>();
-            cape.enabled = true;
-            Add(cape);
-        }
-        else if (cape != null)
-        {
-            cape.enabled = false;
-        }
     }
 #endif
-
-    // ─── Snapshot (for cheat toggle) ────────────────────────────────────────
-
-    private bool            _hasSnapshot;
-    private AbilitySnapshot _snapshot;
-
-    [System.Serializable]
-    private struct AbilitySnapshot
-    {
-        public bool CanCrawl;
-        public bool CanWallJump;
-        public bool CanSpinJump;
-        public bool CanGroundPound;
-        public bool CanMidairSpin;
-        public bool HadCape;
-        public bool CapeEnabled;
-        public bool HadFirePower;
-        public bool FirePowerEnabled;
-    }
 
     // ─── Lifecycle ───────────────────────────────────────────────────────────
 
@@ -139,25 +104,55 @@ public class MarioAbilityManager : MonoBehaviour
     private void Start()
     {
         // Deferred to Start so GlobalVariables.levelInfo is guaranteed to be set
-        ApplyFromLevelInfo();
+        ApplyEffectiveAbilities();
     }
 
     /// <summary>
-    /// Reads marioMoves from GlobalVariables.levelInfo and applies them
-    /// to MarioState and ability components. This ensures the pause menu
-    /// icons and actual Mario abilities are always in sync.
+    /// Resolves abilities from the current level plus any scene-wide override.
+    /// Because every newly transformed Mario runs this in Start, overrides
+    /// survive powerup prefab replacements without copying temporary state.
     /// </summary>
-    public void ApplyFromLevelInfo()
+    public void ApplyEffectiveAbilities()
     {
+#if UNITY_EDITOR
+        // An explicit per-instance debug configuration has the highest priority.
+        // It still uses the normal mask application path, so debug behavior
+        // cannot drift away from runtime behavior.
+        if (debugOverrideMoves)
+        {
+            MarioMoves debugMoves = GetDebugMoveMask();
+            RememberDebugSettings();
+            ApplyMoveMask(debugMoves);
+            Debug.Log($"[MarioAbilityManager] Abilities synced from editor debug override: {debugMoves}");
+            return;
+        }
+
+        RememberDebugSettings();
+#endif
+
+        bool grantAll = CheatFlags.AllAbilities || OptionsGameManager.GrantsAllAbilities;
         var info = GlobalVariables.levelInfo;
-        if (info == null)
+
+        if (!grantAll && info == null)
         {
             Debug.LogWarning("[MarioAbilityManager] No LevelInfo found — abilities not synced.");
             return;
         }
 
-        var moves = info.marioMoves;
+        MarioMoves moves = grantAll ? MarioMoves.All : info.marioMoves;
+        ApplyMoveMask(moves);
 
+        string source = CheatFlags.AllAbilities
+            ? "abilityfreak"
+            : OptionsGameManager.GrantsAllAbilities ? "options ability test" : "LevelInfo";
+        Debug.Log($"[MarioAbilityManager] Abilities synced from {source}: {moves}");
+    }
+
+    /// <summary>Compatibility entry point for editor tooling and older callers.</summary>
+    public void ApplyFromLevelInfo() => ApplyEffectiveAbilities();
+
+    private void ApplyMoveMask(MarioMoves moves)
+    {
         State.CanCrawl       = moves.HasFlag(MarioMoves.Crawl);
         State.CanWallJump    = moves.HasFlag(MarioMoves.WallJump);
         State.CanSpinJump    = moves.HasFlag(MarioMoves.Spin);
@@ -176,8 +171,6 @@ public class MarioAbilityManager : MonoBehaviour
         {
             cape.enabled = false;
         }
-
-        Debug.Log($"[MarioAbilityManager] Abilities synced from LevelInfo: {moves}");
     }
 
     // ─── Notification ────────────────────────────────────────────────────────
@@ -214,78 +207,13 @@ public class MarioAbilityManager : MonoBehaviour
     {
         if (enable)
         {
-            CaptureSnapshot();
-
-            State.CanCrawl       = true;
-            State.CanWallJump    = true;
-            State.CanSpinJump    = true;
-            State.CanGroundPound = true;
-            State.CanMidairSpin  = true;
-
-            var cape = GetComponent<CapeAttack>() ?? gameObject.AddComponent<CapeAttack>();
-            cape.enabled = true;
-            Add(cape);
-
-            var fire = GetComponent<FirePower>() ?? gameObject.AddComponent<FirePower>();
-            fire.enabled = true;
-            Add(fire);
-
+            ApplyMoveMask(MarioMoves.All);
             Debug.Log("[MarioAbilityManager] All abilities cheat ON");
         }
         else
         {
-            RestoreSnapshot();
-            Debug.Log("[MarioAbilityManager] All abilities cheat OFF (snapshot restored)");
-        }
-    }
-
-    // ─── Snapshot ────────────────────────────────────────────────────────────
-
-    private void CaptureSnapshot()
-    {
-        var cape = GetComponent<CapeAttack>();
-        var fire = GetComponent<FirePower>();
-        _snapshot = new AbilitySnapshot
-        {
-            CanCrawl         = State.CanCrawl,
-            CanWallJump      = State.CanWallJump,
-            CanSpinJump      = State.CanSpinJump,
-            CanGroundPound   = State.CanGroundPound,
-            CanMidairSpin    = State.CanMidairSpin,
-            HadCape          = cape != null,
-            CapeEnabled      = cape != null && cape.enabled,
-            HadFirePower     = fire != null,
-            FirePowerEnabled = fire != null && fire.enabled,
-        };
-        _hasSnapshot = true;
-    }
-
-    private void RestoreSnapshot()
-    {
-        if (!_hasSnapshot) return;
-
-        State.CanCrawl       = _snapshot.CanCrawl;
-        State.CanWallJump    = _snapshot.CanWallJump;
-        State.CanSpinJump    = _snapshot.CanSpinJump;
-        State.CanGroundPound = _snapshot.CanGroundPound;
-        State.CanMidairSpin  = _snapshot.CanMidairSpin;
-
-        RestoreAbilityComponent<CapeAttack>(_snapshot.HadCape, _snapshot.CapeEnabled);
-        RestoreAbilityComponent<FirePower> (_snapshot.HadFirePower, _snapshot.FirePowerEnabled);
-    }
-
-    private void RestoreAbilityComponent<T>(bool had, bool wasEnabled) where T : MarioAbility
-    {
-        var component = GetComponent<T>();
-        if (component != null)
-        {
-            component.enabled = wasEnabled;
-        }
-        else if (had && wasEnabled)
-        {
-            var added = gameObject.AddComponent<T>();
-            added.enabled = true;
-            Add(added);
+            ApplyEffectiveAbilities();
+            Debug.Log("[MarioAbilityManager] All abilities cheat OFF (effective abilities restored)");
         }
     }
 }
