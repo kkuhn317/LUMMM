@@ -49,8 +49,10 @@ public class MarioInput : MonoBehaviour
     // lifecycle. Polling stops per-action the moment that action leaves Waiting
     // (a real press edge was detected), at which point normal callbacks resume.
     private bool        _pollingRun;
+    private bool        _pollingJump;
     private bool        _pollingMove;
     private InputAction _runActionCache;
+    private InputAction _jumpActionCache;
     private InputAction _moveActionCache;
 
     // ─── Lifecycle ───────────────────────────────────────────────────────────
@@ -78,7 +80,7 @@ public class MarioInput : MonoBehaviour
         // Raw-control polling 
         // For each polled action: if the phase left Waiting, a real edge was detected
         // and normal callbacks resume — stop polling. Otherwise read raw hardware.
-        if (_pollingRun || _pollingMove)
+        if (_pollingRun || _pollingJump || _pollingMove)
         {
             var pi = _core.PlayerInput;
 
@@ -94,13 +96,23 @@ public class MarioInput : MonoBehaviour
                 }
                 else
                 {
-                    // InputControl.IsPressed() reads raw hardware and bypasses action phase
-                    bool rawHeld = false;
-                    foreach (var control in _runActionCache.controls)
-                    {
-                        if (control.IsPressed()) { rawHeld = true; break; }
-                    }
-                    State.RunPressed = rawHeld;
+                    State.RunPressed = IsRunHeld(_runActionCache);
+                }
+            }
+
+            if (_pollingJump)
+            {
+                if (_jumpActionCache == null)
+                    _jumpActionCache = pi?.actions?.FindAction("Jump", throwIfNotFound: false);
+
+                if (_jumpActionCache == null || _jumpActionCache.phase != InputActionPhase.Waiting)
+                {
+                    _pollingJump     = false;
+                    _jumpActionCache = null;
+                }
+                else
+                {
+                    State.JumpPressed = IsJumpHeld(_jumpActionCache);
                 }
             }
 
@@ -116,10 +128,7 @@ public class MarioInput : MonoBehaviour
                 }
                 else
                 {
-                    // Value actions: ReadValue always returns current composite hardware
-                    // value regardless of phase
-                    Vector2 raw = _moveActionCache.ReadValue<Vector2>();
-                    State.MoveInput = ApplyDeadzone(raw);
+                    State.MoveInput = ReadHeldMovement(_moveActionCache);
                     State.Direction = State.MoveInput;
                 }
             }
@@ -151,8 +160,7 @@ public class MarioInput : MonoBehaviour
         _pollingMove     = false; // Real edge received — polling no longer needed
         _moveActionCache = null;
 
-        Vector2 raw = context.ReadValue<Vector2>();
-        State.MoveInput = ApplyDeadzone(raw);
+        State.MoveInput = CombineWithMobileMovement(ApplyDeadzone(context.ReadValue<Vector2>()));
         // Only write Direction immediately if not locked — otherwise Update's
         // guard would block it but the direct write here bypassed it, letting
         // HandleFacing flip Mario during freezes/cutscenes.
@@ -165,7 +173,8 @@ public class MarioInput : MonoBehaviour
     public void Run(InputAction.CallbackContext context)
     {
         if (context.performed) OnRunPressed();
-        if (context.canceled && !State.InputLocked) OnRunReleased();
+        if (context.canceled && !State.InputLocked && !MobileHeldInputState.Run)
+            OnRunReleased();
     }
 
     public void OnRunPressed()
@@ -200,10 +209,79 @@ public class MarioInput : MonoBehaviour
     /// </summary>
     public void BeginPostTransformationPolling()
     {
+        RestoreHeldMobileInputs();
         _pollingRun      = true;
+        _pollingJump     = true;
         _pollingMove     = true;
         _runActionCache  = null;
+        _jumpActionCache = null;
         _moveActionCache = null;
+    }
+
+    /// <summary>
+    /// Reads both sources that can hold Run. The on-screen B button is a
+    /// persistent logical toggle, so it has no pressed InputControl for the
+    /// Unity Input System poll to discover after Mario's prefab is replaced.
+    /// </summary>
+    private static bool IsRunHeld(InputAction runAction)
+    {
+        if (GlobalVariables.OnScreenControls && MobileHeldInputState.Run)
+            return true;
+
+        if (runAction == null) return false;
+
+        foreach (var control in runAction.controls)
+        {
+            if (control.IsPressed()) return true;
+        }
+
+        return false;
+    }
+
+    private static bool IsJumpHeld(InputAction jumpAction)
+    {
+        if (GlobalVariables.OnScreenControls && MobileHeldInputState.Jump)
+            return true;
+
+        if (jumpAction == null) return false;
+
+        // A freshly-instantiated PlayerInput can leave an already-held action in
+        // Waiting, where InputAction.IsPressed() still reports false. Read the
+        // bound controls themselves so Space/W/Up survive a prefab swap mid-hold.
+        foreach (var control in jumpAction.controls)
+        {
+            if (control.IsPressed()) return true;
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// Seeds held UI inputs onto a newly created Mario without replaying press
+    /// edges. Extra/interact actions remain edge-only and are not repeated.
+    /// </summary>
+    private void RestoreHeldMobileInputs()
+    {
+        if (!GlobalVariables.OnScreenControls) return;
+
+        State.RunPressed  |= MobileHeldInputState.Run;
+        State.JumpPressed |= MobileHeldInputState.Jump;
+        State.ShootPressed |= IsMobileShootHeld();
+        State.SpinHeld     |= IsMobileSpinHeld();
+    }
+
+    private static bool IsMobileShootHeld()
+    {
+        return GlobalVariables.OnScreenControls
+            && MobileHeldInputState.Use
+            && !CheatFlags.AllAbilities;
+    }
+
+    private static bool IsMobileSpinHeld()
+    {
+        return GlobalVariables.OnScreenControls
+            && (MobileHeldInputState.Spin
+                || (MobileHeldInputState.Use && CheatFlags.AllAbilities));
     }
 
     private void UpdateDownPressedEdge()
@@ -238,12 +316,9 @@ public class MarioInput : MonoBehaviour
     public void SyncHeldMovement()
     {
         var pi = _core.PlayerInput;
-        if (pi == null || pi.actions == null) return;
+        var moveAction = pi?.actions?.FindAction("Move", throwIfNotFound: false);
 
-        var moveAction = pi.actions.FindAction("Move", throwIfNotFound: false);
-        if (moveAction == null) return;
-
-        State.MoveInput = ApplyDeadzone(moveAction.ReadValue<Vector2>());
+        State.MoveInput = ReadHeldMovement(moveAction);
         if (!State.InputLocked && !State.IsFrozen && !State.IsPaused)
             State.Direction = State.MoveInput;
     }
@@ -261,8 +336,8 @@ public class MarioInput : MonoBehaviour
         var runAction  = pi.actions.FindAction("Run",  throwIfNotFound: false);
         var jumpAction = pi.actions.FindAction("Jump", throwIfNotFound: false);
 
-        if (runAction  != null) State.RunPressed  = runAction.IsPressed();
-        if (jumpAction != null) State.JumpPressed = jumpAction.IsPressed();
+        State.RunPressed = IsRunHeld(runAction);
+        State.JumpPressed = IsJumpHeld(jumpAction);
 
         SyncHeldMovement();
     }
@@ -272,11 +347,14 @@ public class MarioInput : MonoBehaviour
     public void Jump(InputAction.CallbackContext context)
     {
         if (context.performed && !State.InputLocked) OnJumpPressed();
-        if (context.canceled && !State.InputLocked) OnJumpReleased();
+        if (context.canceled && !State.InputLocked && !MobileHeldInputState.Jump)
+            OnJumpReleased();
     }
 
     public void OnJumpPressed()
     {
+        _pollingJump     = false;
+        _jumpActionCache = null;
         _jumpPressedFrame = Time.frameCount;
         State.JumpTimer = Time.time + _core.Physics.Config.JumpDelay;
         State.JumpPressed = true;
@@ -288,7 +366,12 @@ public class MarioInput : MonoBehaviour
         Debug.Log($"[Jump] JumpPressed fired. OnGround={State.OnGround} RunPressed={State.RunPressed} JumpTimer={State.JumpTimer} Time={Time.time}");
     }
 
-    public void OnJumpReleased() => State.JumpPressed = false;
+    public void OnJumpReleased()
+    {
+        State.JumpPressed = false;
+        _pollingJump      = false;
+        _jumpActionCache  = null;
+    }
 
     // Spin ────────────────────────────────────────────────────────────────────
 
@@ -297,7 +380,7 @@ public class MarioInput : MonoBehaviour
         if (State.InputLocked || State.IsCapeActive) return;
 
         if (context.performed) OnSpinPressed();
-        if (context.canceled)  OnSpinReleased();
+        if (context.canceled && !IsMobileSpinHeld()) OnSpinReleased();
     }
 
     public void OnSpinPressed()
@@ -337,7 +420,7 @@ public class MarioInput : MonoBehaviour
         if (State.InputLocked) return;
 
         if (context.performed) OnShootPressed();
-        if (context.canceled)  OnShootReleased();
+        if (context.canceled && !IsMobileShootHeld()) OnShootReleased();
     }
 
     public void OnShootPressed()
@@ -393,24 +476,47 @@ public class MarioInput : MonoBehaviour
 
     private void SetMobileMoveInput(Vector2 value)
     {
+        MobileHeldInputState.Move = value;
+
         if (value != Vector2.zero)
         {
             _pollingMove     = false;
             _moveActionCache = null;
         }
-        State.MoveInput = value;
+
+        var moveAction = _core.PlayerInput?.actions?.FindAction("Move", throwIfNotFound: false);
+        State.MoveInput = ReadHeldMovement(moveAction);
         if (!State.InputLocked && !State.IsFrozen && !State.IsPaused)
-            State.Direction = value;
+            State.Direction = State.MoveInput;
     }
 
-    public void OnMobileLeftPressed()  => SetMobileMoveInput(new Vector2(-1f, State.MoveInput.y));
-    public void OnMobileLeftReleased() => SetMobileMoveInput(new Vector2( 0f, State.MoveInput.y));
-    public void OnMobileRightPressed() => SetMobileMoveInput(new Vector2( 1f, State.MoveInput.y));
-    public void OnMobileRightReleased()=> SetMobileMoveInput(new Vector2( 0f, State.MoveInput.y));
-    public void OnMobileUpPressed()    => SetMobileMoveInput(new Vector2(State.MoveInput.x,  1f));
-    public void OnMobileUpReleased()   => SetMobileMoveInput(new Vector2(State.MoveInput.x,  0f));
-    public void OnMobileDownPressed()  => SetMobileMoveInput(new Vector2(State.MoveInput.x, -1f));
-    public void OnMobileDownReleased() => SetMobileMoveInput(new Vector2(State.MoveInput.x,  0f));
+    public void OnMobileLeftPressed()  => SetMobileMoveInput(new Vector2(-1f, MobileHeldInputState.Move.y));
+    public void OnMobileLeftReleased() => SetMobileMoveInput(new Vector2( 0f, MobileHeldInputState.Move.y));
+    public void OnMobileRightPressed() => SetMobileMoveInput(new Vector2( 1f, MobileHeldInputState.Move.y));
+    public void OnMobileRightReleased()=> SetMobileMoveInput(new Vector2( 0f, MobileHeldInputState.Move.y));
+    public void OnMobileUpPressed()    => SetMobileMoveInput(new Vector2(MobileHeldInputState.Move.x,  1f));
+    public void OnMobileUpReleased()   => SetMobileMoveInput(new Vector2(MobileHeldInputState.Move.x,  0f));
+    public void OnMobileDownPressed()  => SetMobileMoveInput(new Vector2(MobileHeldInputState.Move.x, -1f));
+    public void OnMobileDownReleased() => SetMobileMoveInput(new Vector2(MobileHeldInputState.Move.x,  0f));
+
+    private Vector2 ReadHeldMovement(InputAction moveAction)
+    {
+        Vector2 hardware = moveAction != null
+            ? ApplyDeadzone(moveAction.ReadValue<Vector2>())
+            : Vector2.zero;
+        return CombineWithMobileMovement(hardware);
+    }
+
+    private static Vector2 CombineWithMobileMovement(Vector2 hardware)
+    {
+        if (!GlobalVariables.OnScreenControls)
+            return hardware;
+
+        Vector2 mobile = MobileHeldInputState.Move;
+        return new Vector2(
+            mobile.x != 0f ? mobile.x : hardware.x,
+            mobile.y != 0f ? mobile.y : hardware.y);
+    }
 
     // ─── Deadzone Processing ─────────────────────────────────────────────────
 

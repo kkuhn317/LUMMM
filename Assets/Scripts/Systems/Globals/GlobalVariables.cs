@@ -38,7 +38,18 @@ public static class GlobalVariables
     }
 
     // Mobile
-    public static bool mobileRunButtonPressed = false;
+    // Compatibility accessors for older callers. New held-input code uses the
+    // centralized MobileHeldInputState below.
+    public static bool mobileRunButtonPressed
+    {
+        get => MobileHeldInputState.Run;
+        set => MobileHeldInputState.Run = value;
+    }
+    public static Vector2 mobileMoveInput
+    {
+        get => MobileHeldInputState.Move;
+        set => MobileHeldInputState.Move = value;
+    }
 
     // Secret codes
     public static bool cheatPlushies = false;
@@ -63,7 +74,37 @@ public static class GlobalVariables
         coinCount = 0;
         score = 0;
         checkpoint = -1;
+        MobileHeldInputState.ResetTransient();
         speedrunTimer.Reset();  // Reset to 0 and stop
         timerOffset = TimeSpan.Zero;
+    }
+}
+
+/// <summary>
+/// Logical held state for UI controls. Unlike InputAction controls, these
+/// values survive replacement of the Mario prefab during a transformation.
+/// One-shot actions such as Extra and object interaction are intentionally not
+/// stored here; Use represents the held X/shoot control.
+/// </summary>
+public static class MobileHeldInputState
+{
+    public static Vector2 Move;
+    public static bool Run;
+    public static bool Jump;
+    public static bool Use;
+    public static bool Spin;
+
+    public static void Reset()
+    {
+        ResetTransient();
+        Run = false;
+    }
+
+    public static void ResetTransient()
+    {
+        Move = Vector2.zero;
+        Jump = false;
+        Use = false;
+        Spin = false;
     }
 }

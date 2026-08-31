@@ -62,6 +62,8 @@ public class PlayerTransformation : MonoBehaviour
     private bool        _cachedJumpPressed;
     private bool        _cachedRunPressed;
     private Vector2     _cachedMoveInput;
+    private float       _cachedAirTimeRemaining;
+    private bool        _cachedWasRising;
     private bool        _cachedCanWallJump;
     private bool        _cachedCanWallJumpHolding;
     private bool        _cachedCanSpinJump;
@@ -124,6 +126,10 @@ public class PlayerTransformation : MonoBehaviour
         _cachedJumpPressed              = s.JumpPressed;
         _cachedRunPressed               = s.RunPressed;
         _cachedMoveInput                = s.MoveInput;
+        _cachedAirTimeRemaining          = Mathf.Max(0f, s.AirTimer - Time.time);
+        _cachedWasRising                 = !_cachedOnGround
+                                        && _cachedVelocity.y > 0f
+                                        && _cachedAirTimeRemaining > 0f;
         _cachedCanWallJump              = s.CanWallJump;
         _cachedCanWallJumpHolding       = s.CanWallJumpWhenHoldingObject;
         _cachedCanSpinJump              = s.CanSpinJump;
@@ -537,6 +543,20 @@ public class PlayerTransformation : MonoBehaviour
 
         if (target == null)
             yield break;
+
+        // MarioStateMachine.Start initializes every newly-instantiated body in Idle.
+        // Restore the physical phase captured before the morph after that initialization;
+        // otherwise an in-progress held jump resumes with an expired AirTimer and is cut short.
+        target.Rb.velocity = _cachedVelocity;
+        target.State.OnGround = _cachedOnGround;
+
+        if (!_cachedOnGround)
+        {
+            target.State.AirTimer = Time.time + _cachedAirTimeRemaining;
+            target.StateMachine.ForceTransition(_cachedWasRising
+                ? MarioStateID.Rise
+                : MarioStateID.Fall);
+        }
 
         // Clear the transformation lock so the combat system can land hits again.
         target.State.IsTransforming = false;

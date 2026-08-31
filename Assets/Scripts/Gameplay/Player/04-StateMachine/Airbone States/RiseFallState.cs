@@ -27,6 +27,12 @@ public class RiseState : AirborneStateBase
         bool wasOnGround = State.OnGround;
         base.Enter(previousState);
 
+        // A powerup transformation swaps Mario's entire prefab. PlayerTransformation
+        // restores the captured rising velocity and remaining AirTimer, so entering Rise
+        // here must not apply a second jump impulse or restart the jump from the beginning.
+        if (State.IsTransforming)
+            return;
+
         // Execute the jump impulse
         bool useWalkSpeed = Mathf.Abs(Rb.velocity.x) > Cfg.WalkJumpSpeedRequired || State.IsBounced;
         float speed       = useWalkSpeed ? Cfg.WalkJumpSpeed : Cfg.JumpSpeed;

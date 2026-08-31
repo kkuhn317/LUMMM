@@ -15,22 +15,75 @@ public class MobileControls : MonoBehaviour
 
     private MarioCore player1;
     private PlayerRegistry playerRegistry;
+    private readonly Dictionary<MobileControlButton, bool> defaultButtonVisibility = new();
+    private bool levelEnding;
+
+    private void Awake()
+    {
+        GetMyButtons();
+        foreach (MobileControlButton button in myButtons)
+            defaultButtonVisibility[button] = button.gameObject.activeSelf;
+    }
+
+    private void OnEnable()
+    {
+        CheatFlags.OnAllAbilitiesChanged += OnAllAbilitiesChanged;
+        GameEvents.OnLevelEnding += OnLevelEnding;
+        RefreshAbilityButtons();
+    }
+
+    private void OnDisable()
+    {
+        CheatFlags.OnAllAbilitiesChanged -= OnAllAbilitiesChanged;
+        GameEvents.OnLevelEnding -= OnLevelEnding;
+        MobileHeldInputState.ResetTransient();
+    }
 
     void Start()
     {
         CacheRegistry();
         gameObject.SetActive(GlobalVariables.OnScreenControls);
-        GameEvents.OnLevelEnding += OnLevelEnding;
-    }
-
-    private void OnDestroy()
-    {
-        GameEvents.OnLevelEnding -= OnLevelEnding;
     }
 
     private void OnLevelEnding()
     {
+        levelEnding = true;
+        MobileHeldInputState.ResetTransient();
         SetTouchControlsEnabled(false);
+    }
+
+    private void OnAllAbilitiesChanged(bool enabled)
+    {
+        // X changes meaning between the normal layout and Ability Freak.
+        // Release the action belonging to the old mode so toggling the cheat
+        // while X is held cannot leave ShootPressed or SpinHeld latched.
+        MarioCore player = getPlayer1();
+        if (enabled)
+            player?.Input?.OnShootReleased();
+        else
+            player?.Input?.OnSpinReleased();
+
+        RefreshAbilityButtons();
+    }
+
+    /// <summary>
+    /// Ability Freak exposes every authored touch button. When it is disabled,
+    /// restore the visibility configured by the current level/prefab instance.
+    /// </summary>
+    private void RefreshAbilityButtons()
+    {
+        if (levelEnding) return;
+
+        GetMyButtons();
+        foreach (MobileControlButton button in myButtons)
+        {
+            bool visible = CheatFlags.AllAbilities
+                || (defaultButtonVisibility.TryGetValue(button, out bool wasVisible) && wasVisible);
+            button.gameObject.SetActive(visible);
+        }
+
+        if (CheatFlags.AllAbilities)
+            UpdateButtonPosScaleOpacity();
     }
 
     public void SetTouchControlsEnabled(bool enabled)
@@ -140,11 +193,13 @@ public class MobileControls : MonoBehaviour
 
     public void onJumpPress()
     {
+        MobileHeldInputState.Jump = true;
         getPlayer1().Input.OnJumpPressed();
     }
 
     public void onJumpRelease()
     {
+        MobileHeldInputState.Jump = false;
         getPlayer1().Input.OnJumpReleased();
     }
 
@@ -160,22 +215,40 @@ public class MobileControls : MonoBehaviour
 
     public void onUsePressed()
     {
-        //getPlayer1().Input.OnUsePressed();
-        getPlayer1().Input.OnShootPressed();
+        MobileHeldInputState.Use = true;
+        MarioCore player = getPlayer1();
+        if (player == null) return;
+
+        // Preserve the established Use/X contract for normal levels. Ability
+        // Freak temporarily routes it to Spin so spin jump and twirl are
+        // accessible; FirePower reacts through the spin ability path.
+        if (CheatFlags.AllAbilities)
+            player.Input.OnSpinPressed();
+        else
+            player.Input.OnShootPressed();
     }
 
     public void onUseReleased()
     {
-        getPlayer1().Input.OnShootReleased();
+        MobileHeldInputState.Use = false;
+        MarioCore player = getPlayer1();
+        if (player == null) return;
+
+        if (CheatFlags.AllAbilities)
+            player.Input.OnSpinReleased();
+        else
+            player.Input.OnShootReleased();
     }
 
     public void onSpinPressed()
     {
+        MobileHeldInputState.Spin = true;
         getPlayer1().Input.OnSpinPressed();
     }
 
     public void onSpinReleased()
     {
+        MobileHeldInputState.Spin = false;
         getPlayer1().Input.OnSpinReleased();
     }
 
