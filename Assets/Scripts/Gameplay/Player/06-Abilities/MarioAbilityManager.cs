@@ -82,6 +82,30 @@ public class MarioAbilityManager : MonoBehaviour
         _lastMidairSpin     = debugCanMidairSpin;
         _lastCape           = debugCanCape;
     }
+
+    /// <summary>
+    /// Captures the live per-instance editor override so a powerup prefab swap can
+    /// preserve it instead of reverting to the destination prefab's serialized values.
+    /// </summary>
+    public bool TryGetDebugMoveOverride(out MarioMoves moves)
+    {
+        moves = GetDebugMoveMask();
+        return debugOverrideMoves;
+    }
+
+    /// <summary>Restores a debug override captured from the previous Mario body.</summary>
+    public void SetDebugMoveOverride(bool enabled, MarioMoves moves)
+    {
+        debugOverrideMoves  = enabled;
+        debugCanCrawl       = moves.HasFlag(MarioMoves.Crawl);
+        debugCanWallJump    = moves.HasFlag(MarioMoves.WallJump);
+        debugCanSpinJump    = moves.HasFlag(MarioMoves.Spin);
+        debugCanGroundPound = moves.HasFlag(MarioMoves.GroundPound);
+        debugCanMidairSpin  = moves.HasFlag(MarioMoves.Twirl);
+        debugCanCape        = moves.HasFlag(MarioMoves.Cape);
+
+        ApplyEffectiveAbilities();
+    }
 #endif
 
     // ─── Lifecycle ───────────────────────────────────────────────────────────

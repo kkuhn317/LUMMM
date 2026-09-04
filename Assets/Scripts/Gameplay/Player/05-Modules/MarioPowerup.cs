@@ -164,6 +164,7 @@ public class MarioPowerup : MonoBehaviour
     private void ApplyPowerupAppearance(PowerUpData data)
     {
         ApplyAbility(data);
+        ApplyPaletteMaterial();
         ApplySpriteLibrary(data);
         ApplySkinRow();
         ApplyElement(data);
@@ -258,6 +259,7 @@ public class MarioPowerup : MonoBehaviour
     public void ResetSpriteLibrary()
     {
         // "Reset" means back to what the CURRENT powerup + skin should look like.
+        ApplyPaletteMaterial();
         ApplySpriteLibrary(Identity);
         ApplySkinRow();
         ApplyElement(Identity);
@@ -281,7 +283,63 @@ public class MarioPowerup : MonoBehaviour
         if (asset == null)
             asset = NormalSpriteLibrary;                          // character default
 
-        if (asset != null) lib.spriteLibraryAsset = asset;
+        SetSpriteLibrary(asset);
+    }
+
+    private void SetSpriteLibrary(UnityEngine.U2D.Animation.SpriteLibraryAsset asset)
+    {
+        if (asset == null) return;
+
+        var lib = GetComponentInChildren<UnityEngine.U2D.Animation.SpriteLibrary>();
+        if (lib == null) return;
+
+        lib.spriteLibraryAsset = asset;
+        foreach (var resolver in lib.GetComponentsInChildren<UnityEngine.U2D.Animation.SpriteResolver>(true))
+            resolver.ResolveSpriteToSpriteRenderer();
+    }
+
+    private void ApplyPaletteMaterial()
+    {
+        _core.Palette?.UseMaterial(CurrentSkin != null ? CurrentSkin.paletteMaterial : null);
+    }
+
+    /// <summary>
+    /// Applies a dedicated NES star library/profile when configured. Until then, switches to
+    /// the existing mask-driven star material so current levels retain their star flash.
+    /// </summary>
+    public bool ApplyStarAppearance(out int rowStart, out int rowCount)
+    {
+        rowStart = 0;
+        rowCount = 0;
+
+        // Tiny and its sprite skins currently use authored colors only. Star still grants its
+        // gameplay effects, but must not swap their library/material or drive palette rows.
+        if (_core.Palette == null || _core.Palette.PaletteBypassed)
+            return false;
+
+        var starLibrary = Character != null ? Character.GetStarLibrary(State.PowerupState) : null;
+        var starMaterial = Character != null ? Character.StarPaletteMaterial : null;
+
+        if (starLibrary != null && starMaterial != null)
+        {
+            SetSpriteLibrary(starLibrary);
+            _core.Palette?.UseMaterial(starMaterial);
+            rowStart = Character.StarPaletteRowStart;
+            rowCount = Mathf.Max(1, Character.StarPaletteRowCount);
+            return true;
+        }
+
+        _core.Palette?.UseMaterial(_core.Palette.LegacyStarMaterial);
+        return false;
+    }
+
+    /// <summary>Restores the exact powerup/skin library and palette profile after star power.</summary>
+    public void RestorePersistentAppearance()
+    {
+        ApplyPaletteMaterial();
+        ApplySpriteLibrary(Identity);
+        ApplySkinRow();
+        ApplyElement(Identity);
     }
 
     /// <summary>
@@ -291,6 +349,7 @@ public class MarioPowerup : MonoBehaviour
     public void SetSpriteSkin(MarioSkin skin)
     {
         CurrentSkin = skin;
+        ApplyPaletteMaterial();
         ApplySpriteLibrary(Identity);
         ApplySkinRow();
         ApplyElement(Identity);

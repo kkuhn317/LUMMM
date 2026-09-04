@@ -34,10 +34,12 @@ public class MarioCombat : MonoBehaviour
     [Tooltip("How many star rows to rotate through.")]
     [SerializeField] private int starRowCount = 3;
     private int _starFrame;
+    private int _activeStarRowStart;
+    private int _activeStarRowCount;
 
     // Exposed so the transform shell can keep the star flash going during the morph.
-    public int StarRowStart => starRowStart;
-    public int StarRowCount => starRowCount;
+    public int StarRowStart => _activeStarRowStart;
+    public int StarRowCount => _activeStarRowCount;
 
     private const string StarMusicKey = "Star";
     [SerializeField] private GameObject starMusicOverride;
@@ -61,6 +63,8 @@ public class MarioCombat : MonoBehaviour
     {
         _core = GetComponent<MarioCore>();
         if (visualRoot == null) visualRoot = transform;
+        _activeStarRowStart = starRowStart;
+        _activeStarRowCount = starRowCount;
     }
 
     private void Start()
@@ -332,6 +336,15 @@ public class MarioCombat : MonoBehaviour
         State.StarPower = true;
         State.StarPowerRemainingTime = duration;
 
+        _activeStarRowStart = starRowStart;
+        _activeStarRowCount = starRowCount;
+        if (_core.Powerup != null
+            && _core.Powerup.ApplyStarAppearance(out int profileStart, out int profileCount))
+        {
+            _activeStarRowStart = profileStart;
+            _activeStarRowCount = profileCount;
+        }
+
         _starFrame = 0;
         InvokeRepeating(nameof(CycleStarColor), 0f, 0.05f);
 
@@ -379,6 +392,9 @@ public class MarioCombat : MonoBehaviour
         State.StarPowerRemainingTime = 0f;
         _starFrame = 0;
 
+        // Restore both axes of the persistent look: sprite library and palette profile.
+        _core.Powerup?.RestorePersistentAppearance();
+
         // Hand the palette back to MarioPalette — it returns to the current
         // transformation (fire/ice/skin), NOT to normal.
         _core.Palette?.ClearStar();
@@ -406,8 +422,8 @@ public class MarioCombat : MonoBehaviour
     private void CycleStarColor()
     {
         // Rotate through the star block [starRowStart .. starRowStart + starRowCount).
-        int count = Mathf.Max(1, starRowCount);
-        int row   = starRowStart + (_starFrame % count);
+        int count = Mathf.Max(1, _activeStarRowCount);
+        int row   = _activeStarRowStart + (_starFrame % count);
         _starFrame++;
         _core.Palette?.SetStarFrame(row);   // MarioPalette is the single owner of _PaletteRow
     }

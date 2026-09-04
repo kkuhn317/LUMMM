@@ -22,6 +22,13 @@ public class MarioPalette : MonoBehaviour
              "existing materials as-is.")]
     [SerializeField] private Material paletteMaterial;
 
+    [Tooltip("Legacy masked material used for star flashing until this character has dedicated " +
+             "NES star sprite libraries. Remove once every size has a star appearance configured.")]
+    [SerializeField] private Material legacyStarMaterial;
+
+    [Tooltip("Ordinary sprite material used by forms that bypass palette rendering (currently Tiny).")]
+    [SerializeField] private Material authoredSpriteMaterial;
+
     private static readonly int PaletteRowID = Shader.PropertyToID("_PaletteRow");
     private MaterialPropertyBlock _mpb;
 
@@ -29,10 +36,29 @@ public class MarioPalette : MonoBehaviour
     private float _elementRow; // current element (fire/ice); -1 = none, so the skin shows through
     private float _currentRow; // row actually applied right now (star frame OR rest)
     private bool  _starring;   // is a star override active?
+    private Material _activeMaterial;
+    private bool _paletteBypassed;
 
     private void Awake()
     {
         if (visualRoot == null) visualRoot = transform;
+
+        var powerup = GetComponent<MarioPowerup>();
+        _paletteBypassed = powerup != null
+            && powerup.Identity != null
+            && powerup.Identity.PowerupState == PowerStates.PowerupState.tiny;
+
+        if (_paletteBypassed)
+        {
+            _activeMaterial = authoredSpriteMaterial;
+            AssignMaterial();
+            _skinRow = -1f;
+            _elementRow = -1f;
+            _currentRow = -1f;
+            return;
+        }
+
+        _activeMaterial = paletteMaterial;
         AssignMaterial();
         _skinRow    = normalRow;
         _elementRow = -1f;
@@ -84,7 +110,44 @@ public class MarioPalette : MonoBehaviour
     public float SkinRow => _skinRow;
 
     /// <summary>The configured PaletteSwapMasked material, for objects that must match this Mario.</summary>
-    public Material PaletteMaterial => paletteMaterial;
+    public Material PaletteMaterial => _activeMaterial != null ? _activeMaterial : paletteMaterial;
+
+    /// <summary>The normal material/profile configured on this Mario prefab.</summary>
+    public Material DefaultMaterial => paletteMaterial;
+
+    /// <summary>The old mask-driven star profile used when no dedicated star library exists.</summary>
+    public Material LegacyStarMaterial => legacyStarMaterial;
+
+    /// <summary>True for forms whose authored sprite colors must never pass through a palette.</summary>
+    public bool PaletteBypassed => _paletteBypassed;
+
+    /// <summary>
+    /// Changes palette profiles without instantiating materials. Used by skins and the temporary
+    /// NES star appearance; the active row is immediately reapplied through the existing MPB.
+    /// Null restores the prefab's default modern profile.
+    /// </summary>
+    public void UseMaterial(Material material)
+    {
+        if (_paletteBypassed)
+        {
+            _activeMaterial = authoredSpriteMaterial;
+            AssignMaterial();
+            return;
+        }
+
+        Material selected = material != null ? material : paletteMaterial;
+        if (selected == null) return;
+
+        _activeMaterial = selected;
+
+        foreach (var r in visualRoot.GetComponentsInChildren<SpriteRenderer>(true))
+        {
+            if (r == null || r.GetComponent<SpriteResolver>() == null) continue;
+            r.sharedMaterial = selected;
+        }
+
+        Apply(_currentRow);
+    }
 
     /// <summary>
     /// Re-scans the player hierarchy, assigns the palette material, and reapplies the current row.
@@ -104,17 +167,20 @@ public class MarioPalette : MonoBehaviour
     /// </summary>
     private void AssignMaterial()
     {
-        if (paletteMaterial == null) return;
+        Material selected = _activeMaterial != null ? _activeMaterial : paletteMaterial;
+        if (selected == null) return;
         foreach (var r in visualRoot.GetComponentsInChildren<SpriteRenderer>(true))
         {
             if (r == null) continue;
             if (r.GetComponent<SpriteResolver>() == null) continue; // skip non-body renderers
-            r.sharedMaterial = paletteMaterial;
+            r.sharedMaterial = selected;
         }
     }
 
     private void Apply(float row)
     {
+        if (_paletteBypassed) return;
+
         _currentRow = row;
         _mpb ??= new MaterialPropertyBlock();
         foreach (var r in visualRoot.GetComponentsInChildren<SpriteRenderer>(true))

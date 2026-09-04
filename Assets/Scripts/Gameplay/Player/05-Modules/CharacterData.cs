@@ -49,6 +49,30 @@ public class CharacterData : ScriptableObject
         return null;
     }
 
+    [Header("Star Appearance")]
+    [Tooltip("Direct-color palette material used with the dedicated NES star libraries.")]
+    public Material StarPaletteMaterial;
+    [Tooltip("First animated star row in StarPaletteMaterial's target palette.")]
+    public int StarPaletteRowStart = 2;
+    [Tooltip("Number of animated star rows in StarPaletteMaterial's target palette.")]
+    public int StarPaletteRowCount = 3;
+    [Tooltip("Optional NES star library for each Mario size/state. Missing entries use the legacy masked-star fallback.")]
+    public List<StarLibraryEntry> StarLibraries = new();
+
+    [System.Serializable]
+    public class StarLibraryEntry
+    {
+        public PowerupState state;
+        public SpriteLibraryAsset library;
+    }
+
+    public SpriteLibraryAsset GetStarLibrary(PowerupState state)
+    {
+        foreach (var entry in StarLibraries)
+            if (entry.state == state && entry.library != null) return entry.library;
+        return null;
+    }
+
     [Header("Transform Shell")]
     [Tooltip("Shell prefab that holds the PlayerTransformation animation component.")]
     public GameObject TransformShellPrefab;

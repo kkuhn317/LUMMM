@@ -75,6 +75,11 @@ public class PlayerTransformation : MonoBehaviour
     private PlayerInput _cachedPlayerInput;
     private GameObject  _cachedCarriedObject;
 
+#if UNITY_EDITOR
+    private bool         _cachedDebugOverrideMoves;
+    private MarioMoves   _cachedDebugMoves;
+#endif
+
     // ─── Registry ─────────────────────────────────────────────────────────────
     private PlayerRegistry _registry;
     private int            _cachedPlayerIndex = -1;
@@ -145,6 +150,11 @@ public class PlayerTransformation : MonoBehaviour
         _cachedPlayerInput              = oldPlayer.GetComponent<PlayerInput>();
         _cachedPlayerIndex              = oldCore.PlayerIndex;
 
+#if UNITY_EDITOR
+        if (oldCore.AbilityManager != null)
+            _cachedDebugOverrideMoves = oldCore.AbilityManager.TryGetDebugMoveOverride(out _cachedDebugMoves);
+#endif
+
         // Cache carried object — detach it from old Mario so it survives destruction.
         if (s.Carrying && oldCore.Carry.HeldObjectPosition.transform.childCount > 0)
         {
@@ -200,7 +210,14 @@ public class PlayerTransformation : MonoBehaviour
             // powerup override > persistent skin library for target size > prefab default.
             SpriteLibraryAsset targetLibrary = null;
 
-            if (targetIdentity != null && targetIdentity.overrideSpriteLibrary != null)
+            var targetCharacter = newPowerup != null ? newPowerup.Character : null;
+            var starTargetLibrary = _cachedStarPower && targetCharacter != null
+                ? targetCharacter.GetStarLibrary(_newPowerupState)
+                : null;
+
+            if (starTargetLibrary != null)
+                targetLibrary = starTargetLibrary;
+            else if (targetIdentity != null && targetIdentity.overrideSpriteLibrary != null)
                 targetLibrary = targetIdentity.overrideSpriteLibrary;
             else if (_cachedSpriteSkin != null)
                 targetLibrary = _cachedSpriteSkin.LibraryFor(_newPowerupState);
@@ -376,6 +393,12 @@ public class PlayerTransformation : MonoBehaviour
         t.CanCrawl = newPowerup != null
             ? PowerStates.IsSmall(newPowerup.PowerupState)
             : PowerStates.IsSmall(t.PowerupState);
+
+#if UNITY_EDITOR
+        // Debug move settings are per Mario instance. Apply them after all normal
+        // defaults so changing powerup cannot clear any selected override, including Crawl.
+        newCore.AbilityManager?.SetDebugMoveOverride(_cachedDebugOverrideMoves, _cachedDebugMoves);
+#endif
 
         t.CurrentClimbable           = _cachedCurrentClimbable;
         newCore.Carry.PressRunToGrab = _cachedPressRunToGrab;

@@ -22,6 +22,10 @@ public class MarioSkin : ScriptableObject
 {
     public string skinName;
 
+    [Tooltip("Optional palette material/profile used by this skin. Null = use Mario's modern " +
+             "direct-color palette. Existing mask-authored skins can keep the masked material.")]
+    public Material paletteMaterial;
+
     [Tooltip("Palette row applied at EVERY size (the recolor). -1 = no recolor. Per-size entries " +
              "below can override it. Unmasked sheets ignore the row, so a baked-color size is safe.")]
     public int defaultRow = -1;

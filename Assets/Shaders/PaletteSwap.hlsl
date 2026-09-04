@@ -3,9 +3,11 @@
 
 // Custom Function for Shader Graph (Built-in target, 2022.3).
 // Matches InColor against SourcePalette (N x 1) and, on a hit, outputs the color
-// at the same index in TargetPalette (N x M rows) at row v = PaletteRow.
+// at the same index in TargetPalette (N x M rows) at the integer PaletteRow.
 // Colors not in the source palette pass through unchanged.
 // The color count is NOT hardcoded: it is PaletteSize (= source strip width, up to 64).
+// PaletteRow < 0 bypasses the swap. Row 0 is the TOP image row, matching the
+// masked palette shader and the row indices used by MarioPalette/PowerUpData.
 //
 // Use the _float variant (set the Custom Function node precision to Single).
 
@@ -20,6 +22,10 @@ void PaletteSwap_float(
     out float3        OutColor)
 {
     OutColor = InColor;              // default: leave unlisted colors untouched
+
+    if (PaletteRow < 0.0)
+        return;
+
     int n = (int)PaletteSize;
 
     [loop]
@@ -34,7 +40,9 @@ void PaletteSwap_float(
 
         if (all(abs(InColor - srcCol) <= Epsilon))
         {
-            OutColor = SAMPLE_TEXTURE2D_LOD(TargetPalette.tex, SS.samplerstate, float2(u, PaletteRow), 0).rgb;
+            float rows = max(TargetPalette.texelSize.w, 1.0);
+            float v = 1.0 - (floor(PaletteRow) + 0.5) / rows;
+            OutColor = SAMPLE_TEXTURE2D_LOD(TargetPalette.tex, SS.samplerstate, float2(u, v), 0).rgb;
             break;
         }
     }
