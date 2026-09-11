@@ -121,7 +121,7 @@ public class MarioAudio : MonoBehaviour
     private void OnSpinJumped(int i)         { if (i != PlayerIndex) return; Play(SpinJumpSound); }
     private void OnSpinJumpBounced(int i)    { if (i != PlayerIndex) return; Play(SpinJumpBounceSound); }
     private void OnSpinJumpPoofed(int i, UnityEngine.Vector3 _) { if (i != PlayerIndex) return; Play(SpinJumpPoofSound); }
-    private void OnWallJumped(int i)         { if (i != PlayerIndex) return; Play(WallJumpSound ?? JumpSound); }
+    private void OnWallJumped(int i)         { if (i != PlayerIndex) return; Play(WallJumpSound != null ? WallJumpSound : JumpSound); }
     private void OnMidairSpinStarted(int i)  { if (i != PlayerIndex) return; Play(MidAirSpinSound); }
     private void OnGroundPoundStarted(int i) { if (i != PlayerIndex) return; Play(GroundPoundSound); }
     private void OnBonked(int i)             { if (i != PlayerIndex) return; Play(BonkSound, 0.5f); }
