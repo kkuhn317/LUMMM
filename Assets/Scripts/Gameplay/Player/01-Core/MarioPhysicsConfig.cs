@@ -21,6 +21,9 @@ public class MarioPhysicsConfig : ScriptableObject
     public float SlowDownForce = 5f;
     public float MaxSpeed = 7f;
     public float MaxRunSpeed = 10f;
+    public float GroundedHighSpeedDrag = 4.0f;
+    public float GroundedBrakingForce = 10f;
+    public float GroundStopThreshold = 0.5f;
 
     [Header("Turning")]
     [Tooltip("Speed multiplier when skidding at max run speed")]

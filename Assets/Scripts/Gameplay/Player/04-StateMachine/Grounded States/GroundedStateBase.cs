@@ -146,12 +146,18 @@ public abstract class GroundedStateBase : MarioStateBase
             return;
         }
 
-        Rb.drag = spd switch
+        if (spd < Cfg.GroundStopThreshold)
         {
-            < 0.5f => 100_000_000f,
-            < 5f => 8f / Mathf.Max(spd, 0.01f),
-            _ => 1.5f
-        };
+            Rb.drag = 100_000_000f;
+        }
+        else if (spd < 5f)
+        {
+            Rb.drag = Cfg.GroundedBrakingForce / Mathf.Max(spd, 0.01f);
+        }
+        else
+        {
+            Rb.drag = Cfg.GroundedHighSpeedDrag;
+        }
 
         if (State.IsCrouching || (!State.FacingRight && GroundSpeed > 0f) || (State.FacingRight && GroundSpeed < 0f))
             Rb.drag *= 1.5f;
