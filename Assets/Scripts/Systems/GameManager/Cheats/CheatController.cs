@@ -281,8 +281,9 @@ public class CheatController : MonoBehaviour
         if (playerRegistry != null)
         {
             var players = playerRegistry.GetAllPlayers();
-            foreach (var player in players)
+            for (int i = 0; i < players.Count; i++)
             {
+                var player = players[i];
                 if (player != null)
                     activePlayers.Add(player);
             }

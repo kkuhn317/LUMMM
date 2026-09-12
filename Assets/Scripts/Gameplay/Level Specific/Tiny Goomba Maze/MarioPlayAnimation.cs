@@ -12,8 +12,18 @@ public class MarioPlayAnimation : MonoBehaviour
     {
         // Find the player in the scene
         PlayerRegistry playerRegistry = GameManager.Instance.GetSystem<PlayerRegistry>();
-        GameObject[] players = playerRegistry != null ? playerRegistry.GetAllPlayerObjects() : null;
-        GameObject player = players != null && players.Length > 0 ? players[0] : null; // Todo: account for multiplayer
+        MarioCore marioMovement = null;
+        if (playerRegistry != null)
+        {
+            var players = playerRegistry.GetAllPlayers();
+            for (int i = 0; i < players.Count; i++)
+            {
+                if (players[i] == null) continue;
+                marioMovement = players[i]; // Todo: account for multiplayer
+                break;
+            }
+        }
+        GameObject player = marioMovement != null ? marioMovement.gameObject : null;
 
         // Ensure player exists before proceeding
         if (player == null)
@@ -24,21 +34,12 @@ public class MarioPlayAnimation : MonoBehaviour
 
         // Get Animator and MarioMovement from the player
         Animator animator = player.GetComponent<Animator>();
-        MarioCore marioMovement = player.GetComponent<MarioCore>();
-        
-
         // Check if components exist before using them
         if (animator == null)
         {
             Debug.LogError("Animator component missing from Player!");
             return;
         }
-        if (marioMovement == null)
-        {
-            Debug.LogError("MarioCore component missing from Player!");
-            return;
-        }
-
         // If animation has already played, don't play it again
         if (hasPlayed) return;
 

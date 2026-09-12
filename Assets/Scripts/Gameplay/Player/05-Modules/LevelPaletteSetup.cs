@@ -40,8 +40,9 @@ public class LevelPaletteSetup : MonoBehaviour
             : FindObjectOfType<PlayerRegistry>(true);
         if (registry == null) return;
 
-        foreach (var player in registry.GetAllPlayers())
-            Apply(player);
+        var players = registry.GetAllPlayers();
+        for (int i = 0; i < players.Count; i++)
+            Apply(players[i]);
     }
 
     private void OnPlayerRegistered(MarioCore player, int playerIndex) => Apply(player);

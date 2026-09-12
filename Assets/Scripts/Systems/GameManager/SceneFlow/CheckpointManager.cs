@@ -65,8 +65,9 @@ public class CheckpointManager : MonoBehaviour
     private void HandleCheckpointLoaded()
     {
         if (playerRegistry == null) return;
-        foreach (var p in playerRegistry.GetAllPlayers())
-            TryPlacePlayerAtActiveCheckpoint(p);
+        var players = playerRegistry.GetAllPlayers();
+        for (int i = 0; i < players.Count; i++)
+            TryPlacePlayerAtActiveCheckpoint(players[i]);
     }
 
     private void TryPlacePlayerAtActiveCheckpoint(MarioCore player)
@@ -118,8 +119,9 @@ public class CheckpointManager : MonoBehaviour
 
         if (playerRegistry != null)
         {
-            foreach (var p in playerRegistry.GetAllPlayers())
-                TryPlacePlayerAtActiveCheckpoint(p);
+            var players = playerRegistry.GetAllPlayers();
+            for (int i = 0; i < players.Count; i++)
+                TryPlacePlayerAtActiveCheckpoint(players[i]);
         }
 
         InvokeRespawnActivationForActiveCheckpoint();

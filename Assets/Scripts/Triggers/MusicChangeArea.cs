@@ -162,10 +162,9 @@ public class MusicChangeArea : MonoBehaviour
         if (playerRegistry == null) return false;
 
         // if ANY PLAYER is inside, the area is considered entered
-        var players = playerRegistry.GetAllPlayerObjects();
-        if (players == null || players.Length == 0) return false;
+        var players = playerRegistry.GetAllPlayers();
 
-        for (int i = 0; i < players.Length; i++)
+        for (int i = 0; i < players.Count; i++)
         {
             var p = players[i];
             if (p == null) continue;

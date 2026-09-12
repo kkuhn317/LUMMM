@@ -26,8 +26,10 @@ public class CheckpointRespawnPowerup : MonoBehaviour
     {
         yield return null;
 
-        foreach (var player in playerRegistry.GetAllPlayers())
+        var players = playerRegistry.GetAllPlayers();
+        for (int i = 0; i < players.Count; i++)
         {
+            var player = players[i];
             if (player != null)
                 cheatController.ForceApplyPowerupToPlayer(player, respawnPowerup);
         }

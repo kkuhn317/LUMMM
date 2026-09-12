@@ -25,7 +25,7 @@ public class SkidState : GroundedStateBase
     {
         base.Enter(previousState);
 
-        _isMaxSpeedSkid = GroundAbsSpeed >= Cfg.MaxRunSpeed * 0.9f;
+        _isMaxSpeedSkid = GroundAbsSpeed >= Cfg.MaxRunSpeed * 0.8f;
 
         MarioEvents.FireSkidStarted(PlayerIndex);
     }

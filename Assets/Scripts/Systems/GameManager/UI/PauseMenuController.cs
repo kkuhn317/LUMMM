@@ -406,8 +406,10 @@ public class PauseMenuController : MonoBehaviour
         var registry = FindObjectOfType<PlayerRegistry>(true);
         if (registry != null)
         {
-            foreach (var player in registry.GetAllPlayers())
+            var players = registry.GetAllPlayers();
+            for (int i = 0; i < players.Count; i++)
             {
+                var player = players[i];
                 if (player == null) continue;
                 var pi = player.GetComponent<PlayerInput>();
                 if (pi != null && pi.playerIndex == targetIndex) return pi;
@@ -432,8 +434,10 @@ public class PauseMenuController : MonoBehaviour
     {
         var registry = FindObjectOfType<PlayerRegistry>(true);
         if (registry == null) return;
-        foreach (var player in registry.GetAllPlayers())
+        var players = registry.GetAllPlayers();
+        for (int i = 0; i < players.Count; i++)
         {
+            var player = players[i];
             if (player == null) continue;
             foreach (var mb in player.GetComponentsInChildren<MonoBehaviour>(true))
             {

@@ -58,20 +58,11 @@ public class PlayerRegistry : MonoBehaviour
         return players[playerIndex];
     }
 
-    public MarioCore[] GetAllPlayers()
-    {
-        return players.ToArray();
-    }
-
-    public GameObject[] GetAllPlayerObjects()
-    {
-        List<GameObject> activePlayers = new List<GameObject>();
-        foreach (var player in players)
-        {
-            if (player != null) activePlayers.Add(player.gameObject);
-        }
-        return activePlayers.ToArray();
-    }
+    /// <summary>
+    /// Returns a live, read-only view of the registered player slots.
+    /// Empty slots are represented by null entries.
+    /// </summary>
+    public IReadOnlyList<MarioCore> GetAllPlayers() => players;
 
     public int PlayerCount => players.Count;
 }

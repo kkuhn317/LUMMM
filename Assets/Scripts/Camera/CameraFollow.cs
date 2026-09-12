@@ -1,11 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using System.Linq;
 
 public class CameraFollow : MonoBehaviour
 {
-    private GameObject[] players;
     private PlayerRegistry playerRegistry;
 
     [Header("Follow Smoothing")]
@@ -74,14 +72,10 @@ public class CameraFollow : MonoBehaviour
             playerRegistry = FindObjectOfType<PlayerRegistry>(true);
     }
 
-    void Update()
+    private void LateUpdate()
     {
-        // players = GameManager.Instance.GetPlayerObjects();
-        
         if (playerRegistry == null) CacheRegistry();
-        players = playerRegistry != null ? playerRegistry.GetAllPlayerObjects() : null;
-
-        if (players == null || players.Length == 0) return;
+        if (playerRegistry == null) return;
 
         // 1) Compute target (override targets or players centroid)
         Vector2 target = Vector2.zero;
@@ -98,8 +92,10 @@ public class CameraFollow : MonoBehaviour
         }
         else
         {
-            foreach (var p in players)
+            var players = playerRegistry.GetAllPlayers();
+            for (int i = 0; i < players.Count; i++)
             {
+                var p = players[i];
                 if (!p) continue;
                 target += (Vector2)p.transform.position;
                 validCount++;

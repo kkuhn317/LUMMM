@@ -124,9 +124,11 @@ public class LevelFlowController : MonoBehaviour
             }
             else
             {
-                foreach (var p in registry.GetAllPlayerObjects())
+                var players = registry.GetAllPlayers();
+                for (int i = 0; i < players.Count; i++)
                 {
-                    if (p != null) Destroy(p);
+                    var player = players[i];
+                    if (player != null) Destroy(player.gameObject);
                 }
             }
         }

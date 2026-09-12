@@ -44,8 +44,10 @@ public class TimeBonusController : MonoBehaviour
     {
         if (playerRegistry == null) return false;
         
-        foreach (var player in playerRegistry.GetAllPlayers())
+        var players = playerRegistry.GetAllPlayers();
+        for (int i = 0; i < players.Count; i++)
         {
+            var player = players[i];
             if (player == null) continue;
 
             var pi = player.GetComponent<PlayerInput>();
