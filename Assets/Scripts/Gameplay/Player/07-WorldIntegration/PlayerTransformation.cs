@@ -186,6 +186,19 @@ public class PlayerTransformation : MonoBehaviour
         _cachedOldRow       = oldCore.Palette != null ? oldCore.Palette.RestRow : -1f;
         _cachedSkinRow      = oldCore.Palette != null ? oldCore.Palette.SkinRow : -1f;
         _cachedSpriteSkin   = oldPowerup != null ? oldPowerup.CurrentSkin : null;
+
+        // A negative row with no MarioSkin means "use the body's authored default", not
+        // "force every future body to bypass its palette". Different sizes can have different
+        // requirements: Small currently looks fine unswapped, while Big needs normalRow 0 for
+        // the separated colors in its jump sprite. Resolve that default against the target body.
+        if (_cachedSpriteSkin == null && _cachedSkinRow < 0f)
+        {
+            // newPlayer is still a prefab asset here, so MarioCore.Awake has not populated its
+            // Palette property. Read the component directly instead of using newCore.Palette.
+            var targetPalette = newPlayer.GetComponentInChildren<MarioPalette>(true);
+            if (targetPalette != null)
+                _cachedSkinRow = targetPalette.DefaultSkinRow;
+        }
         _cachedStarRowStart = oldCore.Combat != null ? oldCore.Combat.StarRowStart : 0;
         _cachedStarRowCount = oldCore.Combat != null ? oldCore.Combat.StarRowCount : 1;
 
@@ -427,7 +440,12 @@ public class PlayerTransformation : MonoBehaviour
         // the NEW size (skin.RowFor). Only carry the raw cached row when there's NO skin asset
         // (a quick color-only NES/SMB row set via startingPaletteRow) — else we'd stomp RowFor.
         if (_cachedSpriteSkin == null)
-            newCore.Palette?.SetSkin(_cachedSkinRow);
+        {
+            if (_cachedSkinRow >= 0f)
+                newCore.Palette?.SetSkin(_cachedSkinRow);
+            else
+                newCore.Palette?.UseDefaultSkin();
+        }
         newCore.Powerup?.ApplyElement(targetIdentity);   // element color resolved through the skin (NES-fire vs Modern-fire)
 
         if (_cachedStarPower)

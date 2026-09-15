@@ -57,7 +57,16 @@ public class LevelPaletteSetup : MonoBehaviour
         if (skin != null)
             player.Powerup?.SetSpriteSkin(skin);
         else
-            player.Palette?.SetSkin(ResolveStartingRow(player));
+        {
+            // -1 means this level does not override the character's normal appearance. Explicitly
+            // restore the prefab's normalRow in case another initialization path previously wrote
+            // a bypass row. Modern Small/Big Mario both use row 0 by default.
+            int row = ResolveStartingRow(player);
+            if (row >= 0)
+                player.Palette?.SetSkin(row);
+            else
+                player.Palette?.UseDefaultSkin();
+        }
     }
 
     /// <summary>

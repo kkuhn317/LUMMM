@@ -357,6 +357,58 @@ public class FlagSlide : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Copies Mario's complete current appearance to a flagpole puppet.
+    /// This is used both when the puppet is created and when a temporary
+    /// appearance such as star power ends during the slide.
+    /// </summary>
+    private void CopyMarioAppearanceToPuppet(GameObject puppet, MarioCore mario)
+    {
+        if (puppet == null || mario == null) return;
+
+        var marioPowerup = mario.Powerup;
+        var sourceLibrary = mario.GetComponentInChildren<SpriteLibrary>(true);
+        var sourceAsset = sourceLibrary != null
+            ? sourceLibrary.spriteLibraryAsset
+            : marioPowerup?.NormalSpriteLibrary;
+
+        if (sourceAsset != null)
+        {
+            foreach (SpriteLibrary puppetLibrary in
+                    puppet.GetComponentsInChildren<SpriteLibrary>(true))
+            {
+                if (puppetLibrary != null)
+                    puppetLibrary.spriteLibraryAsset = sourceAsset;
+            }
+
+            foreach (SpriteResolver resolver in
+                    puppet.GetComponentsInChildren<SpriteResolver>(true))
+            {
+                if (resolver != null)
+                    resolver.ResolveSpriteToSpriteRenderer();
+            }
+        }
+
+        Material paletteMaterial = mario.Palette?.PaletteMaterial;
+        if (paletteMaterial == null)
+        {
+            var simple = FindSimpleRenderer(mario);
+            if (simple != null)
+                paletteMaterial = simple.sharedMaterial;
+        }
+
+        foreach (SpriteRenderer renderer in GetPuppetBodyRenderers(puppet))
+        {
+            renderer.flipX = flagOnRight;
+
+            if (paletteMaterial != null)
+                renderer.sharedMaterial = paletteMaterial;
+        }
+
+        if (mario.Palette != null)
+            ApplyPuppetPalette(puppet, mario.Palette.CurrentRow);
+    }
+
     private void ApplyTimelineActorPalette(
         GameObject actor,
         MarioCore mario)
@@ -506,70 +558,9 @@ public class FlagSlide : MonoBehaviour
             transform.position.x + (flagOnRight ? 0.4f : -0.4f),
             other.transform.position.y);
 
-        // Copy the sprite library Mario is currently using, including the active
-        // skin or power-up override. Fall back to NormalSpriteLibrary if necessary.
-        var marioPowerup = mario.GetComponent<MarioPowerup>();
-        var sourceLibrary =
-            mario.GetComponentInChildren<SpriteLibrary>(true);
-        var puppetLibrary =
-            instance.GetComponentInChildren<SpriteLibrary>(true);
-
-        if (puppetLibrary != null)
-        {
-            if (sourceLibrary != null &&
-                sourceLibrary.spriteLibraryAsset != null)
-            {
-                // Copies the library Mario is actually using:
-                // skin, power-up override, or normal library.
-                puppetLibrary.spriteLibraryAsset =
-                    sourceLibrary.spriteLibraryAsset;
-            }
-            else if (marioPowerup != null &&
-                    marioPowerup.NormalSpriteLibrary != null)
-            {
-                puppetLibrary.spriteLibraryAsset =
-                    marioPowerup.NormalSpriteLibrary;
-            }
-
-            foreach (SpriteResolver resolver in
-                    instance.GetComponentsInChildren<SpriteResolver>(true))
-            {
-                resolver.ResolveSpriteToSpriteRenderer();
-            }
-        }
+        CopyMarioAppearanceToPuppet(instance, mario);
 
         instance.GetComponent<PuppetGroundDetection>()?.Initialize();
-
-        Material paletteMaterial =
-            mario.Palette != null
-                ? mario.Palette.PaletteMaterial
-                : null;
-
-        if (paletteMaterial == null)
-        {
-            var simple = FindSimpleRenderer(mario);
-
-            if (simple != null)
-                paletteMaterial = simple.sharedMaterial;
-        }
-
-        foreach (SpriteRenderer renderer in
-                GetPuppetBodyRenderers(instance))
-        {
-            renderer.flipX = flagOnRight;
-
-            if (paletteMaterial != null)
-                renderer.sharedMaterial = paletteMaterial;
-        }
-
-        // Apply the palette immediately, before the first Tick().
-        if (mario.Palette != null)
-        {
-            ApplyPuppetPalette(
-                instance,
-                mario.Palette.CurrentRow
-            );
-        }
 
         return instance;
     }
@@ -599,6 +590,11 @@ public class FlagSlide : MonoBehaviour
 
         ps.WasStarred = false;
         ps.Mario?.Combat?.StopStarPower();
+
+        // StopStarPower restores the inactive real Mario's persistent library,
+        // material, and palette row. Copy all three to the visible puppet once;
+        // mirroring only the row would leave the puppet on the NES star library.
+        CopyMarioAppearanceToPuppet(ps.CutsceneMarioInstance, ps.Mario);
     }
 
     private void MirrorPuppetPalette(PlayerSlideState ps)

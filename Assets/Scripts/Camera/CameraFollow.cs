@@ -72,7 +72,7 @@ public class CameraFollow : MonoBehaviour
             playerRegistry = FindObjectOfType<PlayerRegistry>(true);
     }
 
-    private void LateUpdate()
+    private void Update()
     {
         if (playerRegistry == null) CacheRegistry();
         if (playerRegistry == null) return;

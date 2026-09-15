@@ -76,6 +76,9 @@ public class MarioPalette : MonoBehaviour
         if (!_starring) Apply(RestRow);
     }
 
+    /// <summary>Restores the normal palette row authored on this body/prefab.</summary>
+    public void UseDefaultSkin() => SetSkin(normalRow);
+
     /// <summary>
     /// Current element row (fire/ice). Pass -1 to clear it and fall back to the skin. Set by the
     /// powerup path; a size-only change passes -1 so the skin shows through unchanged.
@@ -108,6 +111,9 @@ public class MarioPalette : MonoBehaviour
 
     /// <summary>The persistent skin row on its own — for carrying it across transformations.</summary>
     public float SkinRow => _skinRow;
+
+    /// <summary>The normal palette row authored for this particular body/prefab.</summary>
+    public float DefaultSkinRow => normalRow;
 
     /// <summary>The configured PaletteSwapMasked material, for objects that must match this Mario.</summary>
     public Material PaletteMaterial => _activeMaterial != null ? _activeMaterial : paletteMaterial;
