@@ -289,6 +289,21 @@ public class MusicManager : MonoBehaviour
 
     private void RefreshActiveMusic(MusicStartMode mode)
     {
+        // Temporary gameplay overrides can expire after an ending sequence has already muted
+        // the level music (P-switch, star, etc.). They still need to remove their ownership and
+        // stop their own track, but must not make the normal level music audible again over the
+        // ending cutscene. The next level's SetInitialMainMusic call establishes fresh playback.
+        if (LevelFlowController.IsEndingLevel)
+        {
+            if (currentlyPlayingMusic != null)
+                SetMuted(currentlyPlayingMusic, true);
+
+            if (mainMusic != null)
+                SetMuted(mainMusic, true);
+
+            return;
+        }
+
         GameObject next = mainMusic;
         int bestPriority = int.MinValue;
         long bestOrder = long.MinValue;
