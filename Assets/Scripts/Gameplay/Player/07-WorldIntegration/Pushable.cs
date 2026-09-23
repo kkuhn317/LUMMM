@@ -75,10 +75,6 @@ public class Pushable : MonoBehaviour
         var col = GetComponent<Collider2D>();
         if (col == null) return false;
 
-        // Use half the coin's width as the stop distance so it halts
-        // exactly at the wall surface regardless of level geometry.
-        float autoDistance = col.bounds.extents.x + (stopWallDistance > 0f ? stopWallDistance : 0.05f);
-
         float minY    = col.bounds.min.y;
         float maxY    = col.bounds.max.y;
         float originX = checkRight ? col.bounds.max.x : col.bounds.min.x;
@@ -88,7 +84,7 @@ public class Pushable : MonoBehaviour
         foreach (float t in heights)
         {
             float y   = Mathf.Lerp(minY, maxY, t);
-            var   hit = Physics2D.Raycast(new Vector2(originX, y), dir, autoDistance, wallLayer);
+            var   hit = Physics2D.Raycast(new Vector2(originX, y), dir, stopWallDistance, wallLayer);
             if (hit.collider != null && Mathf.Abs(hit.normal.y) < 0.3f)
                 return true;
         }
@@ -111,8 +107,6 @@ public class Pushable : MonoBehaviour
         var col = GetComponent<Collider2D>();
         if (col == null) return;
 
-        float autoDistance = col.bounds.extents.x + (stopWallDistance > 0f ? stopWallDistance : 0.05f);
-
         float minY = col.bounds.min.y;
         float maxY = col.bounds.max.y;
         float leftX  = col.bounds.min.x;
@@ -124,13 +118,14 @@ public class Pushable : MonoBehaviour
         foreach (float t in heights)
         {
             float y = Mathf.Lerp(minY, maxY, t);
-            Gizmos.DrawLine(new Vector3(leftX,  y), new Vector3(leftX  - autoDistance, y));
-            Gizmos.DrawLine(new Vector3(rightX, y), new Vector3(rightX + autoDistance, y));
+            Gizmos.DrawLine(new Vector3(leftX,  y), new Vector3(leftX  - stopWallDistance, y));
+            Gizmos.DrawLine(new Vector3(rightX, y), new Vector3(rightX + stopWallDistance, y));
         }
     }
 
     private void OnTriggerEnter2D(Collider2D col)
     {
+        if (!enabled) return;
         var core = col.GetComponent<MarioCore>() ?? col.GetComponentInParent<MarioCore>();
         if (core != null)
             _player = core;
@@ -138,11 +133,17 @@ public class Pushable : MonoBehaviour
 
     private void OnTriggerExit2D(Collider2D col)
     {
+        if (!enabled) return;
         var core = col.GetComponent<MarioCore>() ?? col.GetComponentInParent<MarioCore>();
         
         if (core != null && core == _player)
         {
             StopPushing(); 
         }
+    }
+
+    void OnDisable()
+    {
+        StopPushing();
     }
 }
