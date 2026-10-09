@@ -20,6 +20,10 @@ public class GroundPoundSpinState : AirborneStateBase
     {
         base.Enter(previousState);
 
+        // Stop midair crouching
+        EndCrouching();
+        State.JumpedWhileCrouching = false;
+
         // End any midair spin cleanly
         State.IsMidairSpinning = false;
         State.Spinning         = false;

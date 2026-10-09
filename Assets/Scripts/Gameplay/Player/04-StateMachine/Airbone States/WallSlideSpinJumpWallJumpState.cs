@@ -26,14 +26,7 @@ public class WallSlideState : AirborneStateBase
         State.WallSliding = true;
         State.Spinning    = false;
         // Can't be crouched while wall sliding — restore collider
-        if (State.IsCrouching)
-        {
-            State.IsCrouching = false;
-            var col = Core.Collider;
-            col.size   = new Vector2(col.size.x, Core.ColliderOriginalHeight);
-            col.offset = new Vector2(col.offset.x, Core.ColliderOriginalOffsetY);
-            MarioEvents.FireCrouchEnded(PlayerIndex);
-        }
+        EndCrouching();
 
         // Face the wall
         Core.Physics.FlipTo(State.Direction.x > 0f);
@@ -138,14 +131,7 @@ public class SpinJumpState : AirborneStateBase
         State.JumpTimer  = 0f;
         State.Spinning   = true;
         // Spin jump exits crouch — restore collider
-        if (State.IsCrouching)
-        {
-            State.IsCrouching = false;
-            var col = Core.Collider;
-            col.size   = new Vector2(col.size.x, Core.ColliderOriginalHeight);
-            col.offset = new Vector2(col.offset.x, Core.ColliderOriginalOffsetY);
-            MarioEvents.FireCrouchEnded(PlayerIndex);
-        }
+        EndCrouching();
         State.OnGround   = false;
         State.MidairSpinUsedThisJump = false;
         State.LastMidairSpinTime     = -999f;

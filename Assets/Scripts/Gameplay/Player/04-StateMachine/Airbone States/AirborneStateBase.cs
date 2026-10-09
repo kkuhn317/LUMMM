@@ -118,11 +118,7 @@ public abstract class AirborneStateBase : MarioStateBase
             else
             {
                 // Released down mid-air — restore collider and go idle
-                State.IsCrouching = false;
-                var col = Core.Collider;
-                col.size   = new Vector2(col.size.x, Core.ColliderOriginalHeight);
-                col.offset = new Vector2(col.offset.x, Core.ColliderOriginalOffsetY);
-                MarioEvents.FireCrouchEnded(PlayerIndex);
+                EndCrouching();
                 RequestTransition(MarioStateID.Idle);
             }
             return;

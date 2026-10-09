@@ -23,7 +23,7 @@ public class CrouchState : GroundedStateBase
         base.Enter(previousState);
 
         State.IsCrouching = true;
-        ShrinkCollider();
+        ApplyCrouchCollider();
 
         MarioEvents.FireCrouchStarted(PlayerIndex);
     }
@@ -31,6 +31,9 @@ public class CrouchState : GroundedStateBase
     public override void Exit(string nextState)
     {
         base.Exit(nextState);
+
+        State.IsCrawling = false;
+        MarioEvents.FireCrawlEnded(PlayerIndex);
 
         bool goingAirborne = nextState == MarioStateID.Rise
                           || nextState == MarioStateID.SpinJump
@@ -48,13 +51,8 @@ public class CrouchState : GroundedStateBase
             return;
         }
 
-        State.IsCrouching = false;
-
         if (nextState != MarioStateID.Crawl)
-        {
-            RestoreCollider();
-            MarioEvents.FireCrouchEnded(PlayerIndex);
-        }
+            EndCrouching();
     }
 
     public override void FixedUpdate()
@@ -103,23 +101,6 @@ public class CrouchState : GroundedStateBase
             && !State.Swimming;
     }
 
-    private void ShrinkCollider()
-    {
-        var col = Core.Collider;
-        col.size = new Vector2(col.size.x, Cfg.CrouchColliderHeight);
-        col.offset = new Vector2(col.offset.x, Cfg.CrouchColliderOffsetY);
-        var crushcol = Core.CrushCollider;
-        crushcol.offset = new Vector2(crushcol.offset.x, Cfg.CrouchCrushDetectOffsetY);
-    }
-
-    private void RestoreCollider()
-    {
-        var col = Core.Collider;
-        col.size = new Vector2(col.size.x, Core.ColliderOriginalHeight);
-        col.offset = new Vector2(col.offset.x, Core.ColliderOriginalOffsetY);
-        var crushcol = Core.CrushCollider;
-        crushcol.offset = new Vector2(crushcol.offset.x, Core.CrushColliderOriginalOffsetY);
-    }
 }
 
 /// <summary>
@@ -147,7 +128,7 @@ public class CrawlState : GroundedStateBase
         State.IsCrawling = true;
 
         if (previousState != MarioStateID.Crouch)
-            ShrinkCollider();
+            ApplyCrouchCollider();
 
         MarioEvents.FireCrawlStarted(PlayerIndex);
     }
@@ -155,9 +136,6 @@ public class CrawlState : GroundedStateBase
     public override void Exit(string nextState)
     {
         base.Exit(nextState);
-
-        State.IsCrawling = false;
-        MarioEvents.FireCrawlEnded(PlayerIndex);
 
         bool goingAirborne = nextState == MarioStateID.Rise
                           || nextState == MarioStateID.SpinJump
@@ -173,11 +151,7 @@ public class CrawlState : GroundedStateBase
         }
 
         if (nextState != MarioStateID.Crouch)
-        {
-            State.IsCrouching = false;
-            RestoreCollider();
-            MarioEvents.FireCrouchEnded(PlayerIndex);
-        }
+            EndCrouching();
     }
 
     public override void FixedUpdate()
@@ -221,17 +195,4 @@ public class CrawlState : GroundedStateBase
             Rb.AddForce(horizontal * Cfg.MoveSpeed * Cfg.CrawlForceMult * GetGroundMoveDir());
     }
 
-    private void ShrinkCollider()
-    {
-        var col = Core.Collider;
-        col.size = new Vector2(col.size.x, Cfg.CrouchColliderHeight);
-        col.offset = new Vector2(col.offset.x, Cfg.CrouchColliderOffsetY);
-    }
-
-    private void RestoreCollider()
-    {
-        var col = Core.Collider;
-        col.size = new Vector2(col.size.x, Core.ColliderOriginalHeight);
-        col.offset = new Vector2(col.offset.x, Core.ColliderOriginalOffsetY);
-    }
 }

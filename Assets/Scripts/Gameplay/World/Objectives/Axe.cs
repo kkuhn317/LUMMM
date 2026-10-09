@@ -152,6 +152,11 @@ public class Axe : MonoBehaviour
         {
             if (pauseables == null) CacheSystems();
 
+            // If endingScene, we know the level is gonna end, so mark it as ending
+            // This fixes an issue where p-switch music stopping can restart the main level music after touching the axe
+            if (endingScene != null)
+                LevelFlowController.MarkEndingLevel();
+
             // Pause the pauseable objects when starting the bridge destruction.
             // GameManager.Instance.PausePauseableObjects();
             pauseables?.PauseAll();
@@ -307,18 +312,6 @@ public class Axe : MonoBehaviour
             StartCoroutine(TriggerEndingCutsceneRefactored());
         }
 
-        // If there's an ending cutscene, trigger it.
-        /*if (endingScene != null)
-        {
-            StartCoroutine(GameManager.Instance.TriggerEndLevelCutscene(
-                endingScene,           // PlayableDirector for the cutscene
-                endingSceneDelay,      // Delay before the cutscene starts
-                timeUntilWinScreen,    // Duration of the cutscene
-                false,                 // Do not destroy players immediately
-                false,                 // Do not stop music immediately
-                true                   // Hide UI during the cutscene
-            ));
-        }*/
     }
 
     private IEnumerator TriggerEndingCutsceneRefactored()

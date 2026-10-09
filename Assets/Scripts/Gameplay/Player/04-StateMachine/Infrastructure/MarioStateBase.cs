@@ -65,4 +65,44 @@ public abstract class MarioStateBase
     protected bool IsChangingDirection =>
         (State.Direction.x > 0 && Core.Rb.velocity.x < 0) ||
         (State.Direction.x < 0 && Core.Rb.velocity.x > 0);
+
+    /// <summary>Uses Mario's crouched collision shape.</summary>
+    protected void ApplyCrouchCollider()
+    {
+        var config = Core.Physics.Config;
+        var col = Core.Collider;
+        col.size   = new Vector2(col.size.x, config.CrouchColliderHeight);
+        col.offset = new Vector2(col.offset.x, config.CrouchColliderOffsetY);
+
+        var crushCol = Core.CrushCollider;
+        crushCol.offset = new Vector2(crushCol.offset.x, config.CrouchCrushDetectOffsetY);
+    }
+
+    /// <summary>Restores the collision shape cached when Mario was initialized.</summary>
+    protected void RestoreStandingCollider()
+    {
+        var col = Core.Collider;
+        col.size   = new Vector2(col.size.x, Core.ColliderOriginalHeight);
+        col.offset = new Vector2(col.offset.x, Core.ColliderOriginalOffsetY);
+
+        var crushCol = Core.CrushCollider;
+        crushCol.offset = new Vector2(crushCol.offset.x, Core.CrushColliderOriginalOffsetY);
+    }
+
+    /// <summary>
+    /// Fully exits crouch, restores collision, and notifies listeners.
+    /// Do not call this for a normal crouch-jump, which intentionally carries
+    /// its crouched pose and collider into the air until another state replaces it.
+    /// </summary>
+    protected void EndCrouching()
+    {
+        bool wasCrouching = State.IsCrouching;
+        State.IsCrouching = false;
+
+        if (!wasCrouching)
+            return;
+
+        RestoreStandingCollider();
+        MarioEvents.FireCrouchEnded(PlayerIndex);
+    }
 }
