@@ -15,6 +15,8 @@ using System.Collections;
 [RequireComponent(typeof(MarioCore))]
 public class MarioSwimming : MonoBehaviour
 {
+    private const float WaterExitGraceTime = 0.25f;
+
     [Header("References")]
     public GameObject BubblePrefab;
     public GameObject SplashWaterPrefab;
@@ -22,6 +24,7 @@ public class MarioSwimming : MonoBehaviour
     private MarioCore _core;
     private MarioState State => _core.State;
     private int PlayerIndex  => _core.PlayerIndex;
+    private bool _waterExitHandled;
 
     private static readonly int _waterLayer = -1; // Cached lazily
 
@@ -39,11 +42,7 @@ public class MarioSwimming : MonoBehaviour
         // while Mario is already in the air.
         bool inWater = IsInWater();
         if (!inWater && State.Swimming)
-        {
-            // Physically outside water but state says swimming — correct it
-            State.Swimming = false;
-            MarioEvents.FireExitedWater(_core.PlayerIndex);
-        }
+            HandleWaterExit();
     }
 
     private bool IsInWater()
@@ -68,6 +67,14 @@ public class MarioSwimming : MonoBehaviour
         if (!IsWater(other)) return;
 
         bool wasSwimming = State.Swimming;
+
+        if (!wasSwimming)
+        {
+            _waterExitHandled = false;
+            State.LastSwimStrokeTime = -999f;
+            State.WaterExitJumpRequested = false;
+            State.WaterExitCoyoteTimer = 0f;
+        }
 
         State.Swimming                  = true;
         State.Spinning                  = false;
@@ -108,14 +115,31 @@ public class MarioSwimming : MonoBehaviour
             if (IsWater(col)) return; // Still in water, don't exit
         }
 
+        HandleWaterExit();
+    }
+
+    private void HandleWaterExit()
+    {
+        if (_waterExitHandled) return;
+        _waterExitHandled = true;
+
+        bool recentlyStroked = Time.time - State.LastSwimStrokeTime <= WaterExitGraceTime;
+        bool shouldJump = recentlyStroked && State.JumpPressed && !State.GroundPounding;
+
         State.Swimming                  = false;
         State.GroundPoundInWater        = false;
         State.WaterGroundPoundStartTime = 0f;
+        State.LastSwimStrokeTime        = -999f;
+        State.WaterExitJumpRequested    = shouldJump;
+        State.WaterExitCoyoteTimer      = !shouldJump && !State.GroundPounding
+            ? Time.time + _core.Physics.Config.CoyoteTime
+            : 0f;
+        // AirTimer also powers ground coyote jumps. Do not carry a swim's
+        // leftover timer into Fall and accidentally grant a normal jump.
+        State.AirTimer = 0f;
 
-        // Jump out of water if moving upward
-        if (_core.Rb.velocity.y > 0f && !State.GroundPounding)
+        if (shouldJump)
         {
-            JumpOutOfWater();
             _core.StateMachine.RequestTransition(MarioStateID.Rise);
         }
         else if (State.GroundPounding)
@@ -135,11 +159,16 @@ public class MarioSwimming : MonoBehaviour
     // ─── Jump Out of Water ───────────────────────────────────────────────────
 
     /// <summary>
-    /// Applies the upward impulse when exiting water with upward velocity.
-    /// Called by OnTriggerExit2D and SwimmingStateBase.
+    /// Applies the upward impulse for an immediate or coyote-time water exit jump.
     /// </summary>
     public void JumpOutOfWater()
     {
+        // Keep ground constraints from consuming the launch near a water edge.
+        _core.GroundDetection.SkipConstraintsThisFrame = true;
+        State.WaterExitCoyoteTimer = 0f;
+        _core.Rb.drag = 0f;
+        _core.Rb.gravityScale = _core.Physics.Config.RiseGravity;
+
         _core.Rb.velocity = new Vector2(_core.Rb.velocity.x, 0f);
         _core.Rb.AddForce(0.75f * _core.Physics.Config.JumpSpeed * Vector2.up, ForceMode2D.Impulse);
 

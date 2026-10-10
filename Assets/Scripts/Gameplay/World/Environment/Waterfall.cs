@@ -168,6 +168,10 @@ public class Waterfall : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
+            var core = other.GetComponentInParent<MarioCore>();
+            if (core == null || !core.State.Swimming)
+                return;
+
             var rb = other.attachedRigidbody;
             if (rb != null) 
                 rb.AddForce(Vector2.down * pushForce);

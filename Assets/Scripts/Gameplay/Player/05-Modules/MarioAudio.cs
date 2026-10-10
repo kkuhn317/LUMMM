@@ -84,6 +84,7 @@ public class MarioAudio : MonoBehaviour
         MarioEvents.OnSwam               += OnSwam;
         MarioEvents.OnEnteredWater       += OnEnteredWater;
         MarioEvents.OnExitedWater        += OnExitedWater;
+        MarioEvents.OnJumpedOutOfWater    += OnJumpedOutOfWater;
         MarioEvents.OnDamaged            += OnDamaged;
         MarioEvents.OnPickedUp           += OnPickedUp;
         MarioEvents.OnDropped            += OnDropped;
@@ -107,6 +108,7 @@ public class MarioAudio : MonoBehaviour
         MarioEvents.OnSwam               -= OnSwam;
         MarioEvents.OnEnteredWater       -= OnEnteredWater;
         MarioEvents.OnExitedWater        -= OnExitedWater;
+        MarioEvents.OnJumpedOutOfWater    -= OnJumpedOutOfWater;
         MarioEvents.OnDamaged            -= OnDamaged;
         MarioEvents.OnPickedUp           -= OnPickedUp;
         MarioEvents.OnDropped            -= OnDropped;
@@ -129,6 +131,7 @@ public class MarioAudio : MonoBehaviour
     private void OnSwam(int i)               { if (i != PlayerIndex) return; Play(SwimSound); }
     private void OnEnteredWater(int i)       { if (i != PlayerIndex) return; Play(WaterEntrySound); }
     private void OnExitedWater(int i)        { if (i != PlayerIndex) return; Play(WaterExitSound); }
+    private void OnJumpedOutOfWater(int i)   { if (i != PlayerIndex) return; Play(JumpSound); }
     private void OnDamaged(int i)            { if (i != PlayerIndex) return; Play(DamageSound); }
     private void OnPickedUp(int i, ObjectPhysics o)  { if (i != PlayerIndex) return; Play(PickupSound); }
     private void OnDropped(int i, ObjectPhysics o)   { if (i != PlayerIndex) return; Play(DropSound); }

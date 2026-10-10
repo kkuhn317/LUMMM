@@ -24,8 +24,17 @@ public class RiseState : AirborneStateBase
 
     public override void Enter(string previousState)
     {
+        bool isWaterExitJump = State.WaterExitJumpRequested;
         bool wasOnGround = State.OnGround;
         base.Enter(previousState);
+
+        // Launch once Rise is active, for both immediate and late water jumps.
+        if (isWaterExitJump)
+        {
+            State.WaterExitJumpRequested = false;
+            Core.Swimming.JumpOutOfWater();
+            return;
+        }
 
         // A powerup transformation swaps Mario's entire prefab. PlayerTransformation
         // restores the captured rising velocity and remaining AirTimer, so entering Rise
@@ -186,8 +195,25 @@ public class FallState : AirborneStateBase
         ClampFallSpeed();
     }
 
+    public override void Exit(string nextState)
+    {
+        State.WaterExitCoyoteTimer = 0f;
+        base.Exit(nextState);
+    }
+
 public override void CheckTransitions()
     {
+        // Use the same buffered input and duration as ground coyote time,
+        // but route the launch through the water-specific impulse and sound.
+        if (!State.OnGround && !State.Swimming && State.JumpPressed
+            && Time.time < State.JumpTimer && Time.time < State.WaterExitCoyoteTimer
+            && !Machine.IsJumpBlocked())
+        {
+            State.WaterExitJumpRequested = true;
+            RequestTransition(MarioStateID.Rise);
+            return;
+        }
+
         // Buffered jump (coyote time still active)
         if (Time.time < State.JumpTimer && State.AirTimer > Time.time && !Machine.IsJumpBlocked())
         {

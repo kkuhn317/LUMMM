@@ -50,10 +50,15 @@ public abstract class SwimmingStateBase : MarioStateBase
         bool stayingInWater = nextState == MarioStateID.SwimIdle || nextState == MarioStateID.Swim;
         if (!stayingInWater)
         {
+            bool wasSwimming = State.Swimming;
             State.Swimming                  = false;
             State.GroundPoundInWater        = false;
             State.WaterGroundPoundStartTime = 0f;
-            MarioEvents.FireExitedWater(PlayerIndex);
+            // MarioSwimming normally fires this while resolving the trigger exit.
+            // Keep this fallback for externally forced state transitions without
+            // sending the event twice during a normal exit.
+            if (wasSwimming)
+                MarioEvents.FireExitedWater(PlayerIndex);
         }
     }
 
@@ -97,11 +102,12 @@ public abstract class SwimmingStateBase : MarioStateBase
 
     public override void CheckTransitions()
     {
-        // Exited water — determine Rise vs Fall based on vertical velocity at exit
-        // MarioSwimming.OnTriggerExit2D already handles the impulse and Rise transition.
+        // MarioSwimming records whether this exit followed a recent swim stroke.
+        // Use that intent instead of checking the current vertical velocity, which
+        // can already have been reversed by gravity, drag, or a waterfall.
         if (!State.Swimming)
         {
-            if (Rb.velocity.y > 0f)
+            if (State.WaterExitJumpRequested)
                 RequestTransition(MarioStateID.Rise);
             else
                 RequestTransition(MarioStateID.Fall);
@@ -181,6 +187,15 @@ public class SwimIdleState : SwimmingStateBase
 
     public override void CheckTransitions()
     {
+        // Water exit wins over a jump buffered on the boundary. The exit
+        // resolver has already decided whether that input qualifies as a
+        // water-exit jump.
+        if (!State.Swimming)
+        {
+            base.CheckTransitions();
+            return;
+        }
+
         // Stroke: jump pressed
         if (Time.time < State.JumpTimer && !State.GroundPounding)
         {
@@ -214,6 +229,7 @@ public class SwimState : SwimmingStateBase
 
         // Apply swim impulse
         Rb.AddForce(Vector2.up * Cfg.SwimForce, ForceMode2D.Impulse);
+        State.LastSwimStrokeTime = Time.time;
 
         State.JumpTimer = 0f;
         State.OnGround  = false;
@@ -223,6 +239,16 @@ public class SwimState : SwimmingStateBase
 
     public override void CheckTransitions()
     {
+        // A trigger exit can happen during the physics step immediately after
+        // this one-frame stroke began. Honor that exit before the normal return
+        // to SwimIdle, otherwise SwimIdle would set Swimming true again outside
+        // the water and overwrite the pending Rise/Fall transition.
+        if (!State.Swimming)
+        {
+            base.CheckTransitions();
+            return;
+        }
+
         // Stroke is a single-frame impulse — immediately return to idle
         RequestTransition(MarioStateID.SwimIdle);
     }

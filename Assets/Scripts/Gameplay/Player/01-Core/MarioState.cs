@@ -93,6 +93,9 @@ public class MarioState
 
     public bool Swimming;
     public bool InWaterfall = false;
+    public float LastSwimStrokeTime = -999f;
+    public bool WaterExitJumpRequested;
+    public float WaterExitCoyoteTimer;
 
     // ─── Climbing ────────────────────────────────────────────────────────────
 
