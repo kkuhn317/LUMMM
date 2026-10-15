@@ -24,7 +24,6 @@ public abstract class SwimmingStateBase : MarioStateBase
 
         State.Swimming  = true;
         State.Spinning  = false;
-        State.OnGround  = false;
 
         // Cancel any active ground pound cleanly
         if (State.GroundPounding)
@@ -64,14 +63,17 @@ public abstract class SwimmingStateBase : MarioStateBase
 
     public override void FixedUpdate()
     {
-        Rb.gravityScale = Cfg.SwimGravity;
+        Rb.gravityScale = State.OnGround ? 0f : Cfg.SwimGravity;
         Rb.drag         = Cfg.SwimDrag;
 
         // Apply horizontal movement while swimming and flip to face direction
         float moveDir = State.MoveInput.x;
         if (Mathf.Abs(moveDir) > 0.01f)
         {
-            Rb.AddForce(Vector2.right * moveDir * Cfg.MoveSpeed);
+            Vector2 moveDirection = State.OnGround
+                ? new Vector2(State.FloorNormal.y, -State.FloorNormal.x)
+                : Vector2.right;
+            Rb.AddForce(moveDirection * moveDir * Cfg.MoveSpeed);
             Core.Physics.FlipTo(moveDir > 0f);
         }
 
@@ -93,8 +95,12 @@ public abstract class SwimmingStateBase : MarioStateBase
         // slow horizontal movement when walking on the lake floor underwater
         if (State.OnGround)
         {
-            float slowedX = Rb.velocity.x * Cfg.SwimDrag * Time.fixedDeltaTime;
-            Rb.velocity = new Vector2(Rb.velocity.x - slowedX, Rb.velocity.y);
+            Vector2 tangent = new Vector2(State.FloorNormal.y, -State.FloorNormal.x);
+            float speed = Vector2.Dot(Rb.velocity, tangent);
+            speed *= Mathf.Max(0f, 1f - Cfg.SwimDrag * Time.fixedDeltaTime);
+            if (Mathf.Abs(moveDir) <= 0.01f && Mathf.Abs(speed) < Cfg.GroundStopThreshold)
+                speed = 0f;
+            Rb.velocity = tangent * speed;
         }
 
         HandleWaterGroundPoundTimeout();
@@ -162,7 +168,7 @@ public abstract class SwimmingStateBase : MarioStateBase
 /// Transitions out to:
 /// - Swim     : jump pressed (stroke)
 /// - Rise/Fall: exited water (base)
-/// - Idle     : grounded on lake floor (base)
+/// Floor contact stays in SwimIdle, allowing underwater standing and walking.
 /// </summary>
 public class SwimIdleState : SwimmingStateBase
 {
@@ -233,6 +239,7 @@ public class SwimState : SwimmingStateBase
 
         State.JumpTimer = 0f;
         State.OnGround  = false;
+        Core.GroundDetection.SkipConstraintsThisFrame = true;
 
         MarioEvents.FireSwam(PlayerIndex);
     }

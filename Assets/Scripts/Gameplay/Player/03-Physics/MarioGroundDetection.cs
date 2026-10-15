@@ -108,8 +108,8 @@ public class MarioGroundDetection : MonoBehaviour
 
         bool wasOnMovingPlatform = State.OnMovingPlatform != null;
 
-        // Do not use land grounding while swimming.
-        // Water floor contact should not trigger snap-to-ground / slope pinning / land constraints.
+        // Settle onto the underwater floor, but let a swim stroke break contact
+        // before any snapping or grounded movement can consume its impulse.
         if (State.Swimming)
         {
             if (wasOnMovingPlatform)
@@ -117,11 +117,31 @@ public class MarioGroundDetection : MonoBehaviour
                 _core.Physics.TransferMovingPlatformMomentum();
             }
 
-            State.OnGround = false;
             State.OnMovingPlatform = null;
             State.OnConveyor = null;
             State.FloorAngle = 0f;
             State.FloorNormal = Vector2.up;
+            var waterFloor = SkipConstraintsThisFrame ? null : CheckGround();
+            if (waterFloor.HasValue)
+            {
+                var waterFloorHit = waterFloor.Value;
+                float angle = Vector2.Angle(waterFloorHit.normal, Vector2.up);
+                State.OnGround = angle <= Cfg.MaxWalkableAngle;
+                if (State.OnGround)
+                {
+                    State.FloorNormal = waterFloorHit.normal.normalized;
+                    State.GroundPosition = waterFloorHit.point;
+                    SnapToGround(waterFloorHit);
+                }
+            }
+            else
+            {
+                State.OnGround = false;
+            }
+
+            UpdateStandableObject(State.OnGround ? waterFloor.Value.transform.gameObject : null);
+            SkipConstraintsThisFrame = false;
+            _lastFrameVelocity = _core.Rb.velocity;
             return;
         }
 
@@ -286,7 +306,9 @@ public class MarioGroundDetection : MonoBehaviour
             break;
         }
 
-        float supportDistance = State.OnGround
+        // Underwater, keep the same reach before and after landing. Shrinking
+        // it on contact can lose the floor as soon as swim gravity turns off.
+        float supportDistance = State.OnGround && !State.Swimming
             ? GroundSupportProbeDistanceGrounded
             : GroundSupportProbeDistanceAir;
 
@@ -395,7 +417,7 @@ public class MarioGroundDetection : MonoBehaviour
         // Instead of checking global Y velocity, check if Mario's momentum 
         // is actively carrying him AWAY from the surface he just hit.
         float awaySpeed = Vector2.Dot(_core.Rb.velocity, bestHit.normal);
-        bool jumpingAway = isAirborneState && awaySpeed > 0.5f;
+        bool jumpingAway = (isAirborneState || State.Swimming) && awaySpeed > 0.5f;
 
         State.OnGround = !jumpingAway;
 

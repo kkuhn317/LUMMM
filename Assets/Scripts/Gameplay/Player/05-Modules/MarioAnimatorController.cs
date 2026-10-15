@@ -41,6 +41,7 @@ public class MarioAnimatorController : MonoBehaviour
     // sprite for one frame on re-enable, the look-up-exit flicker bug.
     private SpriteRenderer[] _baseRenderers;
     private SpriteRenderer[] _swapRenderers;
+    private bool _showingSwimAnimation;
 
     // We set the animator parameter hashes to avoid string lookups every frame
 
@@ -60,6 +61,7 @@ public class MarioAnimatorController : MonoBehaviour
     private static readonly int H_Swim = Animator.StringToHash("swim");
     private static readonly int H_EnterWater = Animator.StringToHash("enterWater");
     private static readonly int H_ExitWater = Animator.StringToHash("exitWater");
+    private static readonly int H_StartSwimming = Animator.StringToHash("startSwimming");
     private static readonly int H_Grab = Animator.StringToHash("grab");
     private static readonly int H_GrabMethod = Animator.StringToHash("grabMethod");
     private static readonly int H_IsClimbing = Animator.StringToHash("isClimbing");
@@ -218,6 +220,7 @@ public class MarioAnimatorController : MonoBehaviour
         _animator.SetFloat(H_Horizontal,  absVelX * _core.Physics.Config.WalkAnimatorSpeed);
         _animator.SetBool (H_IsRunning,   absVelX > 0.2f);
         _animator.SetBool (H_OnGround,    State.OnGround);
+        UpdateWaterAnimation();
         _animator.SetBool (H_IsPushing,   State.Pushing);
         // While looking up, force isCrouching off every frame — prevents a
         // one-frame crouch flicker when look-up ends regardless of event order.
@@ -428,13 +431,29 @@ public class MarioAnimatorController : MonoBehaviour
         if (playerIndex != PlayerIndex) return;
         _animator.ResetTrigger(H_ExitWater);
         _animator.SetTrigger(H_EnterWater);
+        UpdateWaterAnimation();
         _animator.SetBool(H_IsSpinning, false);
     }
 
     private void OnExitedWater(int playerIndex)
     {
         if (playerIndex != PlayerIndex) return;
+        _animator.ResetTrigger(H_EnterWater);
         _animator.SetTrigger(H_ExitWater);
+        UpdateWaterAnimation();
+    }
+
+    private void UpdateWaterAnimation()
+    {
+        // Floor movement uses the regular idle/walk animations while gameplay
+        // remains in water. Walking off the bottom resumes the swim visuals.
+        bool showSwimming = State.Swimming && !State.OnGround;
+        if (showSwimming == _showingSwimAnimation) return;
+        _showingSwimAnimation = showSwimming;
+        if (showSwimming)
+            _animator.SetTrigger(H_StartSwimming);
+        else
+            _animator.ResetTrigger(H_StartSwimming);
     }
 
     private void OnClimbStarted(int playerIndex)
